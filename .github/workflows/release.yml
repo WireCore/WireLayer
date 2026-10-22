@@ -1,0 +1,43 @@
+# Releases with Changesets: pending changesets on main open or update the "Version Packages" PR; merging it publishes
+# every package whose version is not on npm yet (with provenance, git tags and GitHub releases).
+# npm authentication: Trusted Publishing (OIDC). The secret NPM_TOKEN is only needed for the very first release, because
+# Trusted Publishing can only be set up for packages that already exist on npm (see CONTRIBUTING.md › Release).
+name: Release
+
+on:
+    push:
+        branches: [main]
+
+permissions:
+    contents: write # version commit, git tags, GitHub releases
+    pull-requests: write # "Version Packages" PR
+    id-token: write # npm Trusted Publishing and provenance
+
+concurrency:
+    group: release
+    cancel-in-progress: false
+
+env:
+    TURBO_TELEMETRY_DISABLED: '1'
+    STORYBOOK_DISABLE_TELEMETRY: '1'
+    NEXT_TELEMETRY_DISABLED: '1'
+    NUXT_TELEMETRY_DISABLED: '1'
+
+jobs:
+    release:
+        if: github.repository == 'WireCore/WireLayer'
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v5
+            - uses: ./.github/actions/setup
+            - name: npm token (first release only, until Trusted Publishing is set up)
+              run: if [ -n "$NPM_TOKEN" ]; then echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc; fi
+              env:
+                  NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+            - uses: changesets/action@v2
+              with:
+                  publish-script: pnpm release
+                  commit-message: 'chore: version packages'
+                  pr-title: 'chore: version packages'
+              env:
+                  PNPM_CONFIG_PROVENANCE: 'true'

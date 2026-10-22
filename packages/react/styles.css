@@ -1,0 +1,8 @@
+/*
+ * WireLayer styles – import after Tailwind:
+ *   @import 'tailwindcss';
+ *   @import '@wirecore/wirelayer-react/styles.css';
+ */
+@import '@wirecore/wirelayer-tokens/theme.css';
+@import '@wirecore/wirelayer-tokens/fonts.css';
+@import '@wirecore/wirelayer-recipes/tailwind.css';

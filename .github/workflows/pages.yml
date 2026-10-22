@@ -1,0 +1,60 @@
+# Storybook on GitHub Pages: the host at /, the composed Storybooks under /vue, /react, /native and /html, plus
+# llms.txt and llms-full.txt for AI assistants
+name: Pages
+
+on:
+    push:
+        branches: [main]
+    workflow_dispatch:
+
+permissions:
+    contents: read
+    pages: write
+    id-token: write
+
+concurrency:
+    group: pages
+    cancel-in-progress: false
+
+env:
+    TURBO_TELEMETRY_DISABLED: '1'
+    STORYBOOK_DISABLE_TELEMETRY: '1'
+
+jobs:
+    build:
+        if: github.repository == 'WireCore/WireLayer'
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v5
+            - uses: ./.github/actions/setup
+            - id: pages
+              uses: actions/configure-pages@v5
+            - run: pnpm build
+            # llms.txt and llms-full.txt land in apps/storybook/public and are served with the host
+            - run: pnpm --filter @wirecore/wirelayer-mcp collect
+            # The host Storybook is built with the published URLs of its refs
+            - run: pnpm build-storybook
+              env:
+                  WIRECORE_STORYBOOK_VUE_URL: ${{ steps.pages.outputs.base_url }}/vue
+                  WIRECORE_STORYBOOK_REACT_URL: ${{ steps.pages.outputs.base_url }}/react
+                  WIRECORE_STORYBOOK_NATIVE_URL: ${{ steps.pages.outputs.base_url }}/native
+                  WIRECORE_STORYBOOK_HTML_URL: ${{ steps.pages.outputs.base_url }}/html
+            - run: |
+                  cp -r apps/storybook/storybook-static public
+                  cp -r packages/vue/storybook-static public/vue
+                  cp -r packages/react/storybook-static public/react
+                  cp -r packages/native/storybook-static public/native
+                  cp -r packages/css/storybook-static public/html
+            - uses: actions/upload-pages-artifact@v3
+              with:
+                  path: public
+
+    deploy:
+        needs: build
+        runs-on: ubuntu-latest
+        environment:
+            name: github-pages
+            url: ${{ steps.deployment.outputs.page_url }}
+        steps:
+            - id: deployment
+              uses: actions/deploy-pages@v4

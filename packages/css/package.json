@@ -1,0 +1,51 @@
+{
+    "name": "@wirecore/wirelayer-css",
+    "version": "0.0.0",
+    "description": "WireLayer components as plain CSS classes (.wc-*) for HTML and server templates",
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/wirecore/wirelayer.git",
+        "directory": "packages/css"
+    },
+    "homepage": "https://github.com/wirecore/wirelayer#readme",
+    "bugs": {
+        "url": "https://github.com/wirecore/wirelayer/issues"
+    },
+    "type": "module",
+    "sideEffects": [
+        "*.css"
+    ],
+    "exports": {
+        "./wirecore.css": "./dist/wirecore.css",
+        "./components.css": "./dist/components.css",
+        "./fonts/*": "./dist/fonts/*"
+    },
+    "files": [
+        "dist",
+        "THIRD_PARTY_NOTICES.md"
+    ],
+    "scripts": {
+        "build": "node scripts/build.ts",
+        "typecheck": "tsc --noEmit",
+        "test": "vitest run",
+        "storybook": "storybook dev -p 6010 --host 0.0.0.0 --no-open",
+        "build-storybook": "storybook build"
+    },
+    "devDependencies": {
+        "@storybook/addon-a11y": "^10.6.2",
+        "@storybook/addon-docs": "^10.6.2",
+        "@storybook/html-vite": "^10.6.2",
+        "@tailwindcss/node": "^4.3.3",
+        "@types/node": "^26.6.5",
+        "@wirecore/wirelayer-recipes": "workspace:^",
+        "@wirecore/wirelayer-tokens": "workspace:^",
+        "lucide-static": "^1.59.0",
+        "storybook": "^10.6.2",
+        "tailwind-merge": "^3.7.0",
+        "tailwindcss": "^4.3.3",
+        "typescript": "~6.0.3",
+        "vite": "^8.3.4",
+        "vitest": "^5.0.5"
+    }
+}

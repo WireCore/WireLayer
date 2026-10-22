@@ -1,0 +1,90 @@
+import { tv } from './tv.js';
+
+export type AvatarVariant = 'solid' | 'outline' | 'soft';
+export type AvatarShape = 'circle' | 'square';
+export type AvatarSize = 'sm' | 'md' | 'lg' | 'xl' | '2xl';
+/** Tinted background with text in the colour – every pair meets 4.5:1 (token contrast test) */
+export type AvatarColor = 'primary' | 'success' | 'info' | 'warn' | 'danger';
+
+const avatarColors: AvatarColor[] = ['primary', 'info', 'success', 'warn', 'danger'];
+
+/** The same name always gets the same colour: "Julia Klein" → "info" */
+export function avatarColor(name: string): AvatarColor {
+    let hash = 0;
+    for (const char of name.trim().toLowerCase()) hash = (hash * 31 + char.codePointAt(0)!) | 0;
+    return avatarColors[Math.abs(hash) % avatarColors.length]!;
+}
+
+export const avatar = tv({
+    slots: {
+        base: 'relative inline-flex shrink-0 items-center justify-center overflow-hidden font-semibold select-none',
+        image: 'size-full object-cover',
+        fallback: 'flex size-full items-center justify-center',
+        icon: 'shrink-0',
+    },
+    variants: {
+        variant: {
+            solid: { base: 'bg-fg text-bg' },
+            outline: { base: 'border border-line-2 text-fg' },
+            soft: { base: 'bg-line text-fg' },
+        },
+        size: {
+            sm: { base: 'size-8 text-xs', icon: 'size-4' },
+            md: { base: 'size-10 text-sm', icon: 'size-[18px]' },
+            lg: { base: 'size-12 text-base', icon: 'size-5' },
+            xl: { base: 'size-16 text-xl', icon: 'size-7' },
+            '2xl': { base: 'size-24 text-3xl', icon: 'size-10' },
+        },
+        /**
+         * Tinted background (opaque, so grouped avatars do not show through) with the text in the colour; wins over
+         * the variant's colours
+         */
+        color: {
+            primary: { base: 'bg-[color-mix(in_srgb,var(--color-primary)_14%,var(--color-card))] text-primary' },
+            success: { base: 'bg-[color-mix(in_srgb,var(--color-success)_14%,var(--color-card))] text-success' },
+            info: { base: 'bg-[color-mix(in_srgb,var(--color-info)_14%,var(--color-card))] text-info' },
+            warn: { base: 'bg-[color-mix(in_srgb,var(--color-warn)_14%,var(--color-card))] text-warn' },
+            danger: { base: 'bg-[color-mix(in_srgb,var(--color-danger)_14%,var(--color-card))] text-danger' },
+        },
+        shape: {
+            circle: { base: 'rounded-full' },
+            square: {},
+        },
+        /** Set by AvatarGroup: inner separating border (like the design), opaque background for the overlap */
+        grouped: {
+            true: { base: 'border-2 border-card' },
+        },
+    },
+    compoundVariants: [
+        { shape: 'square', size: 'sm', class: { base: 'rounded-lg' } },
+        { shape: 'square', size: 'md', class: { base: 'rounded-[10px]' } },
+        { shape: 'square', size: 'lg', class: { base: 'rounded-xl' } },
+        { shape: 'square', size: 'xl', class: { base: 'rounded-2xl' } },
+        { shape: 'square', size: '2xl', class: { base: 'rounded-3xl' } },
+        { grouped: true, variant: 'soft', class: { base: 'bg-bg-2 shadow-[inset_0_0_0_1px_var(--color-line-2)]' } },
+    ],
+    defaultVariants: {
+        variant: 'soft',
+        size: 'md',
+        shape: 'circle',
+    },
+});
+
+export const avatarGroup = tv({
+    slots: {
+        base: 'flex items-center -space-x-2',
+        more: 'relative inline-flex shrink-0 items-center justify-center rounded-full border-2 border-card bg-fg font-mono text-bg',
+    },
+    variants: {
+        size: {
+            sm: { more: 'size-8 text-[10.5px]' },
+            md: { more: 'size-10 text-xs' },
+            lg: { more: 'size-12 text-[13px]' },
+            xl: { more: 'size-16 text-sm' },
+            '2xl': { more: 'size-24 text-base' },
+        },
+    },
+    defaultVariants: {
+        size: 'sm',
+    },
+});

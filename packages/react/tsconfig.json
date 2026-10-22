@@ -1,0 +1,10 @@
+{
+    "extends": "../../tsconfig.base.json",
+    "compilerOptions": {
+        "jsx": "react-jsx",
+        "customConditions": ["wirecore:source"],
+        "types": ["node"],
+        "noEmit": true
+    },
+    "include": ["src", ".storybook", "vite.config.ts"]
+}

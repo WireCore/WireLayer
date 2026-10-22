@@ -1,0 +1,28 @@
+{
+    "name": "@wirecore/wirelayer-nuxt-demo",
+    "version": "0.0.0",
+    "private": true,
+    "description": "Nuxt demo app: @wirecore/wirelayer-vue with server-side rendering, set up as in the docs",
+    "type": "module",
+    "scripts": {
+        "dev": "nuxt dev --host 0.0.0.0 --port 3000",
+        "build": "nuxt build",
+        "start": "node .output/server/index.mjs",
+        "typecheck": "nuxt typecheck"
+    },
+    "dependencies": {
+        "@lucide/vue": "^1.59.0",
+        "@tanstack/vue-table": "^9.3.1",
+        "@wirecore/wirelayer-blocks-vue": "workspace:^",
+        "@wirecore/wirelayer-recipes": "workspace:^",
+        "@wirecore/wirelayer-vue": "workspace:^",
+        "nuxt": "^4.6.2",
+        "vue": "^3.5.44"
+    },
+    "devDependencies": {
+        "@tailwindcss/vite": "^4.3.3",
+        "tailwindcss": "^4.3.3",
+        "typescript": "~6.0.3",
+        "vue-tsc": "^3.3.13"
+    }
+}

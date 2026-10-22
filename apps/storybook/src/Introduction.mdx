@@ -1,0 +1,492 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="Getting started/Welcome" />
+
+# WireLayer Component Library
+
+Building blocks for web and app interfaces – one look, one API for **Vue**, **React**, **React Native** and **HTML**,
+built on **Tailwind CSS v4**, **Ark UI** (web), **Uniwind** (React Native) and **Lucide**.
+
+In the sidebar on the left you will find the components of each framework (sections _Vue_, _React_, _React Native_ and _HTML / CSS_).
+Vue and React render the same DOM – this is checked automatically on every build. The React Native components
+are shown here with react-native-web.
+
+## Installation
+
+The packages are published on npm:
+
+```sh
+pnpm add @wirecore/wirelayer-vue    # or
+pnpm add @wirecore/wirelayer-react  # or
+pnpm add @wirecore/wirelayer-native
+```
+
+## Adding the styles
+
+Tailwind CSS v4 is required. The library ships the theme, the fonts and the classes of the components:
+
+```css
+@import 'tailwindcss';
+@import '@wirecore/wirelayer-vue/styles.css'; /* or @wirecore/wirelayer-react/styles.css */
+```
+
+## Usage
+
+```vue
+<script setup lang="ts">
+import { Button, Field, Input } from '@wirecore/wirelayer-vue';
+import { ArrowRight } from '@lucide/vue';
+</script>
+
+<template>
+    <Field label="Email" required>
+        <Input v-model="email" type="email" />
+    </Field>
+    <Button :trailing-icon="ArrowRight">Start project</Button>
+</template>
+```
+
+```tsx
+import { Button, Field, Input } from '@wirecore/wirelayer-react';
+import { ArrowRight } from 'lucide-react';
+
+<Field label="Email" required>
+    <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+</Field>
+<Button trailingIcon={ArrowRight}>Start project</Button>
+```
+
+## Nuxt
+
+```ts
+// nuxt.config.ts
+import tailwindcss from '@tailwindcss/vite';
+
+export default defineNuxtConfig({
+    css: ['~/assets/main.css'], // @import 'tailwindcss'; @import '@wirecore/wirelayer-vue/styles.css';
+    vite: { plugins: [tailwindcss()] },
+});
+```
+
+```vue
+<!-- app.vue: set light/dark before the first render (no flash while loading) -->
+<script setup lang="ts">
+import { modeScript } from '@wirecore/wirelayer-recipes';
+
+useHead({ script: [{ innerHTML: modeScript() }] });
+</script>
+```
+
+## Next.js (App Router)
+
+```tsx
+// app/layout.tsx – globals.css: @import 'tailwindcss'; @import '@wirecore/wirelayer-react/styles.css';
+import { modeScript } from '@wirecore/wirelayer-recipes';
+import './globals.css';
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+    return (
+        <html lang="en" suppressHydrationWarning>
+            <head>
+                <script dangerouslySetInnerHTML={{ __html: modeScript() }} />
+            </head>
+            <body>{children}</body>
+        </html>
+    );
+}
+```
+
+The components are client components (`'use client'` is built in) and can be used directly in server components.
+Exception: **icons as props** (`leadingIcon={ArrowRight}`) are functions and must not be passed from a server to a
+client component – move such places into a `'use client'` component of their own.
+
+`@wirecore/wirelayer-recipes` comes along with the framework packages; with pnpm, add it directly for `modeScript`.
+
+## Light, dark and themes
+
+Light/dark is switched by the `data-mode` attribute, the color theme by the `data-theme` attribute – e.g. on the
+`<html>` element:
+
+```html
+<html data-mode="dark" data-theme="ocean"></html>
+```
+
+Without attributes, the light theme “WireLayer” (`data-theme="wirecore"`) applies. With Tailwind you can style
+specifically with `dark:`. More under _Foundations › Themes_.
+
+## Customizing: defaults and classes per part
+
+Every component consists of named parts of its recipe (`base`, `icon`, `row`, `trigger` …, see
+`@wirecore/wirelayer-recipes`). `RecipesProvider` sets default variants and additional classes for everything below it
+(inner providers extend outer ones), the `classes` prop adds classes for a single component. Explicitly set props and
+`class`/`className` always win; classes are merged with tailwind-merge.
+
+```vue
+<RecipesProvider
+    :recipes="{
+        button: { defaultVariants: { size: 'sm' }, classes: { base: 'tracking-wide' } },
+        dataTable: { defaultVariants: { size: 'sm' }, classes: { th: 'bg-bg-2' } },
+    }"
+>
+    <App />
+</RecipesProvider>
+
+<Button :classes="{ icon: 'text-primary' }" :leading-icon="Plus">New</Button>
+```
+
+```tsx
+<RecipesProvider recipes={{ card: { classes: { base: 'rounded-none' } } }}>
+    <App />
+</RecipesProvider>;
+
+<DataTable classes={{ row: 'h-14' }} … />;
+```
+
+The names are the exports of the recipes (`button`, `iconButton`, `dataTable` …) and are checked by TypeScript, as are
+the variants and parts. Your own components use the same through `useRecipe('button', button)`.
+
+## Hooks and composables
+
+Around 40 hooks (React) and composables (Vue) with the same names and the same logic – for your own components and
+pages: state (`useDisclosure`, `useSelection`, `useStateHistory`), time (`useDebouncedValue`, `useInterval`, `useIdle`),
+browser (`useClipboard`, `useLocalStorage`, `useMediaQuery`, `useReducedMotion`, `useFullscreen`), observers
+(`useElementSize`, `useIntersection`, `useScrollSpy`), focus (`useFocusTrap`, `useFocusReturn`) and keyboard shortcuts
+(`useHotkeys`, shown in the `HotkeysDialog`). Examples: _Utilities › Hooks_ in the
+Vue and React Storybooks; React Native has a subset with the same names.
+
+```ts
+import { useDisclosure, useLocalStorage } from '@wirecore/wirelayer-vue'; // or @wirecore/wirelayer-react
+
+const { opened, open, close } = useDisclosure();
+const note = useLocalStorage('note', ''); // React: const [note, setNote] = useLocalStorage('note', '')
+```
+
+## Blocks and ConditionBuilder
+
+`@wirecore/wirelayer-blocks-vue` and `@wirecore/wirelayer-blocks-react` build on `@wirecore/wirelayer-vue` and `@wirecore/wirelayer-react`
+(peer dependency) and bring larger building blocks: SiteHeader, CtaSection, ModeToggle, AuthForm, AuthLayout and the
+ConditionBuilder (nested AND/OR rules). Examples: _Blocks_ in the Vue and React Storybooks.
+
+```sh
+pnpm add @wirecore/wirelayer-blocks-vue    # or @wirecore/wirelayer-blocks-react
+```
+
+The ConditionBuilder is also the editor for the advanced filter of the DataTable. The table filters by itself (or passes
+the tree to the server as `condition`); it gets the editor from outside – without it, it shows no button and points this
+out on the console during development:
+
+```tsx
+import { ConditionBuilder } from '@wirecore/wirelayer-blocks-react';
+import { DataTable } from '@wirecore/wirelayer-react/data-table';
+
+<DataTable
+    data={rows}
+    columns={columns}
+    advancedFilter
+    renderAdvancedFilter={(props) => <ConditionBuilder {...props} />}
+/>;
+```
+
+```vue
+<DataTable :data="rows" :columns="columns" advanced-filter>
+    <template #advancedFilter="{ fields, value, setValue, label }">
+        <ConditionBuilder :fields="fields" :model-value="value" :label="label" @update:model-value="setValue" />
+    </template>
+</DataTable>
+```
+
+## AI assistants (MCP, llms.txt)
+
+So that Claude, Cursor and others use the components correctly, the API is available as text and as an MCP server:
+
+- **`/llms.txt`** and **`/llms-full.txt`** in this Storybook: an overview and all props (React and Vue names),
+  hooks and these guides in one file.
+- **MCP server** `@wirecore/wirelayer-mcp` with the tools `list_components`, `get_component`, `search_components` and
+  `get_guide`:
+
+```sh
+claude mcp add wirelayer -- npx -y -p @wirecore/wirelayer-mcp wirelayer-mcp
+```
+
+The package is called `@wirecore/wirelayer-mcp`, the command `wirelayer-mcp` (the former name `wirecore-mcp` still works).
+
+Both are generated from the source code (`pnpm --filter @wirecore/wirelayer-mcp collect`); a test checks that they are
+up to date.
+
+## Language and writing direction
+
+By default the components speak English (`en-US`). `LocaleProvider` switches texts, number and date formats and the
+writing direction for everything below it – English and German are built in; other languages fall back to English,
+are registered (see below) or get their texts through `translations`:
+
+```vue
+<LocaleProvider locale="de-DE">
+    <App />
+</LocaleProvider>
+```
+
+```tsx
+import { messages } from '@wirecore/wirelayer-recipes';
+
+<LocaleProvider locale="fr-FR" translations={{ ...messages.en, common: { ...messages.en.common, close: 'Fermer' } }}>
+    <App />
+</LocaleProvider>;
+```
+
+The app sets `lang` and `dir` on the `<html>` element itself. For languages like Arabic or Hebrew (`dir="rtl"`),
+spacing, borders, directional icons and the arrow keys are mirrored. Your own components read the texts with
+`useTranslations()` and the locale and direction with `useLocale()`. In Storybook the **Language** toolbar item
+switches between all built-in and registered languages (Arabic also shows the right-to-left layout).
+
+### Registering languages
+
+French, Spanish, Italian, Portuguese (Portugal and Brazil), Dutch, Polish, Czech, Hungarian, Latvian, Arabic and
+Turkish ship as separate modules – they cost nothing as long as an app does not import them. Registered once at
+startup, they apply to every region of the language (`fr` also for `fr-CA`):
+
+```ts
+import { registerLocale } from '@wirecore/wirelayer-vue'; // likewise @wirecore/wirelayer-react and @wirecore/wirelayer-native
+import { ar } from '@wirecore/wirelayer-vue/locales/ar';
+import { fr } from '@wirecore/wirelayer-vue/locales/fr';
+import { ptBR } from '@wirecore/wirelayer-vue/locales/pt-BR';
+
+registerLocale('fr', fr);
+registerLocale('ar', ar); // ar-EG, ar-MA … – right to left
+registerLocale('pt-BR', ptBR); // a region takes precedence over its language (pt)
+```
+
+Instead of registering, a module can also be passed directly: `<LocaleProvider locale="fr-FR" :translations="fr">`.
+Plurals follow the rules of the language (`Intl.PluralRules`, e.g. the six forms of Arabic), numbers in the texts
+follow the locale (`ar-EG` writes Arabic-Indic digits, `de-DE` only groups from 10.000 on). The texts should be proofread by
+native speakers before use.
+
+## Server data and loading more
+
+Components with lists, pages or parts that load later support two ways – both with the same names:
+
+- **Manual:** the app loads by itself and passes the result in (`items`, `data`, `events` …). The component reports
+  what it needs – `filterChange` (search text), `loadMore` (end reached), `pageChange`, `loadChildren`,
+  `rangeChange` – and shows the state with `loading`, `hasMore` and `totalCount`/`rowCount`. When the server searches,
+  `manualFilter` prevents a second filtering in the browser.
+- **Data source:** with `dataSource` and `getItems`, the component asks by itself – the first page when it opens, a
+  search after a typing pause, further pages while scrolling. Outdated requests are canceled, loading and results are
+  announced, errors are shown with “Try again”. `getChildren` loads children in trees, `getItemsByKeys` the labels of
+  selected values that are not loaded (yet). Nothing is requested on the server.
+
+```ts
+import type { DataSource } from '@wirecore/wirelayer-recipes';
+
+export const customers: DataSource<Customer> = {
+    async getItems({ page = 1, pageSize = 50, search = '', signal }) {
+        const query = new URLSearchParams({ page: String(page), size: String(pageSize), q: search });
+        const response = await fetch(`/api/customers?${query}`, { signal });
+        const { rows, total } = await response.json();
+        return { items: rows, totalCount: total };
+    },
+};
+```
+
+```vue
+<Select v-model="customer" :data-source="customers" filter :min-search-length="2" item-value="id" item-label="name" />
+```
+
+| Component                                              | Manual                                                        | `dataSource`                                 | Loading more                         |
+| ------------------------------------------------------ | ------------------------------------------------------------- | -------------------------------------------- | ------------------------------------ |
+| Select, MultiSelect, Combobox, Autocomplete, Listbox   | `filterChange`, `loadMore`, `loading`, `hasMore`              | ✓                                            | at the end of the list               |
+| VirtualSelect, TagsInput (suggestions)                 | like Select                                                   | ✓                                            | at the end of the list               |
+| Mentions                                               | `search`, `loading`                                           | ✓ (per trigger)                              | –                                    |
+| CommandPalette                                         | `filterChange`, `loading`, `filter: false`                    | ✓ (after its own matches)                    | –                                    |
+| VirtualList                                            | `loadMore`, `loading`, `hasMore`                              | ✓                                            | while scrolling                      |
+| DataView                                               | `manual`, `totalCount`, `pageChange`, `loadMore`, `loading`   | ✓ (pages or infinite)                        | pages, “Load more”, scrolling        |
+| DataTable                                              | `manual`, `rowCount`, sorting/filter/page, `loadMore`         | ✓ (also the advanced filter as `condition`)  | pages, scrolling (virtual)           |
+| Tree, VirtualTree, TreeSelect, CascadeSelect, OrgChart | `loadChildren` (event)                                        | ✓ (`getChildren`) or `loadChildren` function | children when expanded               |
+| PickList                                               | source list: `filterChange`, `loadMore`, `loading`, `hasMore` | –                                            | source list at the end               |
+| NotificationCenter                                     | `loadMore`, `loading`, `hasMore`, `unreadCount`               | ✓                                            | “Load more”                          |
+| LogViewer                                              | `loadMore`, `loading`, `hasMore`                              | ✓ (older lines)                              | “Load older entries”                 |
+| Timeline, ChatMessages                                 | `loadMore`, `loading`, `hasMore`                              | –                                            | “Load more” or older ones at the top |
+| Kanban                                                 | `loadMore` (per column), `hasMore`/`loading` of the column    | – (cards are app state)                      | “Load more” per column               |
+| Gallery                                                | `loadMore`, `loading`, `hasMore`                              | –                                            | at the last two images               |
+| Scheduler                                              | `rangeChange`, `loading`                                      | ✓ (`range` of the view)                      | date range when paging               |
+| Gantt                                                  | `loading`                                                     | – (tasks are app state)                      | –                                    |
+| Pagination, Carousel                                   | `count`, `pageChange`                                         | –                                            | –                                    |
+
+Older names remain as aliases: `endReached`/`loadingMore` (VirtualList), `scrollEnd` (DataTable) and `search`
+(CommandPalette) correspond to `loadMore`, `loading` and `filterChange`. In React the events are called `onLoadMore`,
+`onFilterChange` …
+
+## PDF viewer
+
+`PdfViewer` (`@wirecore/wirelayer-vue/pdf`, `@wirecore/wirelayer-react/pdf`) shows PDFs with [pdf.js](https://mozilla.github.io/pdf.js/):
+pages with a text layer (selection, search, screen readers), links, the structure of tagged PDFs, toolbar, thumbnails,
+table of contents, password prompt, printing and download. `pdfjs-dist` is an optional peer dependency
+(**Apache-2.0** – compatible with MIT projects; keep the license text when shipping pdf.js). The legacy build of pdf.js
+is used (older Safari and Firefox versions).
+
+```sh
+pnpm add pdfjs-dist
+```
+
+Set up once: the pdf.js stylesheet (`pdfjs-dist/legacy/web/pdf_viewer.css`, text and link layer) and the
+worker URL (`pdfjs-dist/legacy/build/pdf.worker.min.mjs`). With Vite (Nuxt as well):
+
+```ts
+import 'pdfjs-dist/legacy/web/pdf_viewer.css';
+import workerSrc from 'pdfjs-dist/legacy/build/pdf.worker.min.mjs?url';
+```
+
+```vue
+<PdfViewer src="/contract.pdf" :worker-src="workerSrc" v-model:page="page" height="80vh" />
+```
+
+Next.js (webpack/Turbopack) – in a `'use client'` file:
+
+```tsx
+import 'pdfjs-dist/legacy/web/pdf_viewer.css';
+import { PdfViewer } from '@wirecore/wirelayer-react/pdf';
+
+const workerSrc = new URL('pdfjs-dist/legacy/build/pdf.worker.min.mjs', import.meta.url).toString();
+
+<PdfViewer src="/contract.pdf" workerSrc={workerSrc} page={page} onPageChange={setPage} />;
+```
+
+Alternatively, copy the file to `public/` (`workerSrc="/pdf.worker.min.mjs"`). For fonts that are not embedded in the
+PDF, copy the folders `pdfjs-dist/standard_fonts/` and `pdfjs-dist/cmaps/` to `public/` and pass them as
+`standardFontDataUrl="/pdfjs/standard_fonts/"` and `cMapUrl="/pdfjs/cmaps/"` (with a trailing slash).
+
+pdf.js runs only in the browser: the component loads it after mounting and renders the loading state on the
+server – it is SSR-safe. If you do not want pdf.js code in the server bundle at all, wrap the viewer in
+`<ClientOnly>` in Nuxt, and use `dynamic(() => import('./Viewer'), { ssr: false })` in Next.
+
+## React Native (Expo)
+
+`@wirecore/wirelayer-native` brings a subset of the components with the same prop API (events are named as in React
+Native, e.g. `onPress`). Styling through [Uniwind](https://uniwind.dev) – the same Tailwind v4 classes as on the web.
+
+```sh
+pnpm add @wirecore/wirelayer-native uniwind tailwindcss lucide-react-native react-native-svg expo-font
+```
+
+```css
+/* global.css */
+@import 'tailwindcss';
+@import 'uniwind';
+@import '@wirecore/wirelayer-native/styles.css';
+```
+
+```js
+// metro.config.js – for Uniwind, the color themes are themes of their own
+const { getDefaultConfig } = require('expo/metro-config');
+const { withUniwindConfig } = require('uniwind/metro');
+const { nativeExtraThemes } = require('@wirecore/wirelayer-tokens');
+
+module.exports = withUniwindConfig(getDefaultConfig(__dirname), {
+    cssEntryFile: './global.css',
+    extraThemes: nativeExtraThemes(),
+});
+```
+
+```tsx
+import { Button, fonts, setAppearance } from '@wirecore/wirelayer-native';
+import { useFonts } from 'expo-font';
+import { useEffect } from 'react';
+import './global.css';
+
+export function App() {
+    const [loaded] = useFonts(fonts); // the fonts ship with the package, no CDN
+    useEffect(() => setAppearance({ theme: 'ocean', mode: 'system' }), []);
+    if (!loaded) return null;
+    return <Button onPress={start}>Start project</Button>;
+}
+```
+
+A complete example is the Expo app in `apps/expo` (`docker compose up` → http://localhost:8081).
+
+Select lists, calendars and times open a sheet from the bottom on phones (Select, MultiSelect, Combobox,
+DatePicker, DateRangePicker, TimePicker, MonthPicker, PhoneInput, ColorPicker, Menu, Drawer) – with search, groups and
+loading more at the end of the list as on the web (`dataSource`, `hasMore`/`onLoadMore`). Texts and formats come from
+`LocaleProvider` as on the web (`locale="de-DE"`); the app sets the writing direction through `I18nManager`.
+
+Forms with TanStack Form run through `@wirecore/wirelayer-native/form` (optional peer dependency `@tanstack/react-form`) –
+the same names as on the web, only with the events of React Native:
+
+```tsx
+import { Input, FormErrorSummary } from '@wirecore/wirelayer-native';
+import { bindInput, FormField, useFormErrors, useValidators } from '@wirecore/wirelayer-native/form';
+
+<form.Field name="email" validators={{ onDynamic: v.combine(v.isRequired(), v.isEmail()) }}>
+    {(field) => (
+        <FormField id="email" field={field} label="Email" required>
+            <Input {...bindInput(field)} keyboardType="email-address" autoComplete="email" />
+        </FormField>
+    )}
+</form.Field>;
+```
+
+`bindInput` provides `value`/`onChangeText`/`onBlur`, `bindValue` provides `value`/`onValueChange` (a selection in the
+sheet marks the field as touched). After submitting, `FormErrorSummary` with `useFormErrors` takes the screen reader
+focus and leads to the field with a tap (FormField `id`). `FileUpload` picks files through pickers of the app:
+`documentPicker()` from `@wirecore/wirelayer-native/expo-document-picker`, `imageLibraryPicker()`/`cameraPicker()` from
+`@wirecore/wirelayer-native/expo-image-picker` (optional peer dependencies) or your own `{ pick }` functions.
+
+Display, feedback and overlays also have the names of the web. The services need their hosts once at the
+root of the app:
+
+```tsx
+import { ConfirmDialog, DialogHost, LiveAnnouncer, Toaster, confirm, toast } from '@wirecore/wirelayer-native';
+
+<LiveAnnouncer>
+    <App />
+    <Toaster placement="top" showProgress />
+    <ConfirmDialog />
+    <DialogHost />
+</LiveAnnouncer>;
+
+const ok = await confirm({ title: 'Delete server?', status: 'danger', typeToConfirm: 'web-01' });
+toast.promise(save(), { loading: 'Saving …', success: 'Saved' });
+```
+
+Menus (with checkbox/radio items and submenus) and ContextMenu (long press) open as a sheet, Drawer comes from any
+edge, Popover and Toggletip sit at the trigger. BottomNavigation, AppShell and NavigationMenu need no router
+(`onNavigate`); the app passes the distance to the home indicator through `bottomInset` (e.g. from
+`react-native-safe-area-context`). The hooks have the same names as on the web (`useDisclosure`, `useDebouncedValue`,
+`useSelection`, `useReducedMotion`, `useAppState`/`useDocumentVisibility` …), `useClipboard` lives in
+`@wirecore/wirelayer-native/expo-clipboard` (optional peer dependency `expo-clipboard`).
+
+Data and complex building blocks (part 3) also have the names of the web: VirtualList, DataView, Tree, TreeSelect,
+CascadeSelect, OrgChart, OrderList, PickList, Sortable, Kanban, Scheduler (list, day, week, month), Gantt (as a list),
+ChatMessages/ChatMessage/ChatPrompt, CommandPalette, EmojiPicker, JsonViewer, LogViewer, BarsList, Funnel, BulletChart,
+RadialBar, Heatmap, Treemap and Sankey. Dragging (Sortable, Kanban, Scheduler) always has an alternative: buttons,
+action sheets and accessibility actions for VoiceOver and TalkBack. Some parts live in their own subpaths:
+
+```tsx
+import { DataTable } from '@wirecore/wirelayer-native/data-table'; // without TanStack; table or one card per row (layout)
+import { BarChart, LineChart, PieChart, Sparkline } from '@wirecore/wirelayer-native/chart'; // react-native-svg, no Chart.js
+import { CodeHighlight } from '@wirecore/wirelayer-native/code'; // peer: shiki (JavaScript RegExp engine, no WebAssembly)
+import { PdfViewer } from '@wirecore/wirelayer-native/pdf'; // peers: react-native-pdf, react-native-blob-util
+import { shareFile, shareUri } from '@wirecore/wirelayer-native/expo-sharing'; // peers: expo-sharing, expo-file-system
+
+<DataTable caption="Servers" columns={columns} data={rows} exportFormats={['csv', 'xlsx']} onExport={shareFile} />;
+<PdfViewer src="https://…/manual.pdf" onShare={({ uri }) => shareUri(uri)} />;
+```
+
+`PdfViewer` needs a development build (config plugins of `react-native-pdf` and `react-native-blob-util`) – in
+Expo Go and on the web (react-native-web) there is no native PDF view; there the component shows a notice and a
+link to the file. `trustAllCerts` is off by default. There is no rich text editor in React Native (Tiptap needs
+the DOM or a WebView); for formatted input, use `Textarea` with `Markdown` as a preview.
+
+## HTML and server templates
+
+`@wirecore/wirelayer-css` provides all components as `.wc-*` classes – one stylesheet, no build pipeline needed:
+
+```html
+<link rel="stylesheet" href="/assets/wirecore/wirecore.css" />
+<button type="button" class="wc-button wc-button-danger wc-button-sm">Delete</button>
+```
+
+Class scheme, examples and what works without JavaScript: _HTML / CSS › HTML › Getting started_.
+
+## License
+
+WireLayer is licensed under the MIT license. The fonts shipped with `@wirecore/wirelayer-css` (Schibsted Grotesk,
+JetBrains Mono) are licensed under the SIL Open Font License 1.1 (`dist/fonts/OFL.txt`). Optional peer dependencies such
+as `pdfjs-dist` (Apache-2.0), Chart.js, Tiptap and Shiki are installed by the app itself – with their own licenses.

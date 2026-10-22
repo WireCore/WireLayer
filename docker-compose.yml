@@ -1,0 +1,162 @@
+# WireLayer Component Library – development environment
+#
+#   docker compose up                              → install deps, start all Storybooks
+#   docker compose run --rm workspace pnpm <cmd>   → any package action (add, build, test, publish …)
+#
+#   http://localhost:6006  Storybook (Einstieg, Foundations + composed Vue & React)
+#   http://localhost:6007  Storybook Vue
+#   http://localhost:6008  Storybook React
+#   http://localhost:6009  Storybook React Native (react-native-web)
+#   http://localhost:6010  Storybook HTML / CSS (@wirecore/wirelayer-css)
+#   http://localhost:8081  Expo demo app (web; iOS/Android via Expo Go: see README)
+#   http://localhost:3000  Nuxt demo app, http://localhost:3001 Next.js demo app (docker compose --profile apps up)
+
+name: wirecore
+
+x-node: &node
+    build:
+        context: ./docker
+        dockerfile: node.Dockerfile
+    image: wirecore-node:dev
+    working_dir: /app
+    volumes:
+        - .:/app
+
+x-healthcheck: &storybook-healthcheck
+    interval: 5s
+    timeout: 3s
+    retries: 60
+    start_period: 10s
+
+services:
+    install:
+        <<: *node
+        # theme.css is generated from the tokens and needed by every Storybook
+        command: sh -c "pnpm install && pnpm build:tokens"
+
+    # Shared network namespace for the Storybooks: the host Storybook checks its
+    # composition refs (Vue, React) server-side via localhost before the browser loads them.
+    storybook-net:
+        <<: *node
+        init: true
+        command: sleep infinity
+        ports: ['6006:6006', '6007:6007', '6008:6008', '6009:6009', '6010:6010']
+
+    storybook-vue:
+        <<: *node
+        network_mode: service:storybook-net
+        command: pnpm --filter @wirecore/wirelayer-vue storybook
+        healthcheck:
+            <<: *storybook-healthcheck
+            test: node -e "fetch('http://localhost:6007/index.json').then(r => process.exit(Number(!r.ok)), () => process.exit(1))"
+        depends_on:
+            install: { condition: service_completed_successfully }
+            storybook-net: { condition: service_started }
+
+    storybook-react:
+        <<: *node
+        network_mode: service:storybook-net
+        command: pnpm --filter @wirecore/wirelayer-react storybook
+        healthcheck:
+            <<: *storybook-healthcheck
+            test: node -e "fetch('http://localhost:6008/index.json').then(r => process.exit(Number(!r.ok)), () => process.exit(1))"
+        depends_on:
+            install: { condition: service_completed_successfully }
+            storybook-net: { condition: service_started }
+
+    storybook-native:
+        <<: *node
+        network_mode: service:storybook-net
+        command: pnpm --filter @wirecore/wirelayer-native storybook
+        healthcheck:
+            <<: *storybook-healthcheck
+            test: node -e "fetch('http://localhost:6009/index.json').then(r => process.exit(Number(!r.ok)), () => process.exit(1))"
+        depends_on:
+            install: { condition: service_completed_successfully }
+            storybook-net: { condition: service_started }
+
+    # Plain HTML with the generated .wc-* classes – the stylesheet is built first
+    storybook-html:
+        <<: *node
+        network_mode: service:storybook-net
+        command: sh -c "pnpm turbo run build --filter=@wirecore/wirelayer-css && pnpm --filter @wirecore/wirelayer-css storybook"
+        healthcheck:
+            <<: *storybook-healthcheck
+            test: node -e "fetch('http://localhost:6010/index.json').then(r => process.exit(Number(!r.ok)), () => process.exit(1))"
+        depends_on:
+            install: { condition: service_completed_successfully }
+            storybook-net: { condition: service_started }
+
+    storybook:
+        <<: *node
+        network_mode: service:storybook-net
+        command: pnpm --filter @wirecore/wirelayer-storybook storybook
+        depends_on:
+            storybook-vue: { condition: service_healthy }
+            storybook-react: { condition: service_healthy }
+            storybook-native: { condition: service_healthy }
+            storybook-html: { condition: service_healthy }
+
+    # Expo demo app with @wirecore/wirelayer-native – Metro serves the web build on 8081.
+    # Metro reads the built packages (dist), so they are built first.
+    expo:
+        <<: *node
+        init: true
+        command: sh -c "pnpm turbo run build --filter=@wirecore/wirelayer-expo-demo^... && pnpm --filter @wirecore/wirelayer-expo-demo web"
+        # Host port configurable (EXPO_PORT) in case another Metro already uses 8081
+        ports: ['${EXPO_PORT:-8081}:8081']
+        environment:
+            EXPO_NO_TELEMETRY: '1'
+        depends_on:
+            install: { condition: service_completed_successfully }
+
+    # Demo apps (Nuxt, Next.js App Router) built like a consumer would: the packages as built (dist).
+    # Not started by default: docker compose --profile apps up nuxt next
+    nuxt:
+        <<: *node
+        init: true
+        profiles: [apps]
+        command: sh -c "pnpm turbo run build --filter=@wirecore/wirelayer-nuxt-demo^... && pnpm --filter @wirecore/wirelayer-nuxt-demo dev"
+        ports: ['3000:3000']
+        environment:
+            NUXT_TELEMETRY_DISABLED: '1'
+        depends_on:
+            install: { condition: service_completed_successfully }
+
+    next:
+        <<: *node
+        init: true
+        profiles: [apps]
+        command: sh -c "pnpm turbo run build --filter=@wirecore/wirelayer-next-demo^... && pnpm --filter @wirecore/wirelayer-next-demo dev"
+        ports: ['3001:3001']
+        environment:
+            NEXT_TELEMETRY_DISABLED: '1'
+        depends_on:
+            install: { condition: service_completed_successfully }
+
+    # Accessibility check in a real browser: axe against every story, all modes and themes (needs the Storybooks running)
+    a11y:
+        image: mcr.microsoft.com/playwright:v1.64.1-noble
+        profiles: [tools]
+        network_mode: service:storybook-net
+        working_dir: /app/packages/parity
+        volumes:
+            - .:/app
+        command: node scripts/storybook-a11y.ts http://localhost:6007 http://localhost:6008 http://localhost:6009 http://localhost:6010
+
+    # Keyboard/interaction tests in a real browser against the Vue and React Storybooks (needs them running)
+    e2e:
+        image: mcr.microsoft.com/playwright:v1.64.1-noble
+        profiles: [tools]
+        network_mode: service:storybook-net
+        working_dir: /app/packages/parity
+        volumes:
+            - .:/app
+        command: npx playwright test
+
+    workspace:
+        <<: *node
+        profiles: [tools]
+        stdin_open: true
+        tty: true
+        command: bash

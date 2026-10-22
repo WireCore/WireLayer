@@ -1,0 +1,27 @@
+{
+    "name": "@wirecore/wirelayer-storybook",
+    "version": "0.0.0",
+    "private": true,
+    "description": "Storybook host: foundations docs + composition of the Vue and React Storybooks",
+    "type": "module",
+    "scripts": {
+        "storybook": "storybook dev -p 6006 --host 0.0.0.0 --no-open",
+        "build-storybook": "storybook build",
+        "typecheck": "tsc --noEmit"
+    },
+    "devDependencies": {
+        "@storybook/addon-docs": "^10.6.2",
+        "@storybook/react-vite": "^10.6.2",
+        "@tailwindcss/vite": "^4.3.3",
+        "@types/react": "^19.3.0",
+        "@types/react-dom": "^19.3.0",
+        "@vitejs/plugin-react": "^6.1.2",
+        "@wirecore/wirelayer-tokens": "workspace:*",
+        "react": "^19.3.1",
+        "react-dom": "^19.3.1",
+        "storybook": "^10.6.2",
+        "tailwindcss": "^4.3.3",
+        "typescript": "~6.0.3",
+        "vite": "^8.3.4"
+    }
+}

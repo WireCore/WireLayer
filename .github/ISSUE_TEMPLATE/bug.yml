@@ -1,0 +1,51 @@
+name: Report a bug
+description: Something does not work as documented
+labels: [bug]
+body:
+    - type: dropdown
+      id: package
+      attributes:
+          label: Package
+          multiple: true
+          options:
+              - '@wirecore/wirelayer-vue'
+              - '@wirecore/wirelayer-react'
+              - '@wirecore/wirelayer-native'
+              - '@wirecore/wirelayer-css'
+              - '@wirecore/wirelayer-blocks-vue'
+              - '@wirecore/wirelayer-blocks-react'
+              - '@wirecore/wirelayer-recipes'
+              - '@wirecore/wirelayer-tokens'
+              - '@wirecore/wirelayer-mcp'
+      validations:
+          required: true
+    - type: input
+      id: version
+      attributes:
+          label: Version
+          placeholder: e.g. 0.2.0
+      validations:
+          required: true
+    - type: input
+      id: component
+      attributes:
+          label: Component
+          placeholder: e.g. DataTable
+    - type: textarea
+      id: steps
+      attributes:
+          label: Steps to reproduce
+          description: Ideally a minimal example (code or Storybook link)
+      validations:
+          required: true
+    - type: textarea
+      id: expected
+      attributes:
+          label: Expected and actual behavior
+      validations:
+          required: true
+    - type: input
+      id: environment
+      attributes:
+          label: Environment
+          placeholder: Browser/device, framework version (Nuxt, Next.js, Expo …), screen reader if relevant

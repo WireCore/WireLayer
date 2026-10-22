@@ -1,0 +1,12 @@
+packages:
+    - packages/*
+    - apps/*
+
+allowBuilds:
+    esbuild: true
+    # Its postinstall only switches between Vue 2 and 3 – the published files already target Vue 3
+    vue-demi: false
+
+# pdfjs-dist only renders in the browser here – its Node canvas (native binaries) is never needed
+ignoredOptionalDependencies:
+    - '@napi-rs/canvas'

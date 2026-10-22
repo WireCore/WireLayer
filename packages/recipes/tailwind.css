@@ -1,0 +1,4 @@
+/* All WireLayer component classes live in the recipes – let Tailwind scan them. */
+@source './src';
+/* React Native recipes use Uniwind-only variants (web:, active: on Pressable) */
+@source not './src/native';

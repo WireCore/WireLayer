@@ -1,0 +1,55 @@
+import { MapPin, Tag } from '@lucide/vue';
+import type { Meta, StoryObj } from '@storybook/vue3-vite';
+import { ref } from 'vue';
+import Chip from './Chip.vue';
+
+// Portrait as inline SVG, so Storybook and the tests need no network
+const portrait = `data:image/svg+xml,${encodeURIComponent(
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" fill="#7c3aed"/><circle cx="32" cy="26" r="12" fill="#ede9fe"/><rect x="12" y="44" width="40" height="24" rx="12" fill="#ede9fe"/></svg>'
+)}`;
+
+const meta = {
+    title: 'Data/Chip',
+    component: Chip,
+    args: { label: 'Frankfurt', removable: true, size: 'md', disabled: false },
+    argTypes: { size: { control: 'inline-radio', options: ['sm', 'md', 'lg'] }, icon: { control: false } },
+    render: (args) => ({
+        components: { Chip },
+        setup: () => ({ args, MapPin }),
+        template: '<Chip v-bind="args" :icon="MapPin" />',
+    }),
+} satisfies Meta<typeof Chip>;
+
+export default meta;
+type Story = StoryObj<typeof meta>;
+
+export const Playground: Story = {};
+
+/** Outside a ChipGroup a chip is a label: with an icon or an image, optionally removable */
+export const Overview: Story = {
+    render: () => ({
+        components: { Chip },
+        setup: () => ({ MapPin, Tag, portrait }),
+        template: `
+            <div class="flex flex-wrap items-center gap-2">
+                <Chip label="Frankfurt" :icon="MapPin" />
+                <Chip label="Julia Klein" :avatar="portrait" removable />
+                <Chip label="Hosting" :icon="Tag" removable size="sm" />
+                <Chip label="Locked" removable disabled />
+                <Chip label="Large" size="lg" removable />
+            </div>`,
+    }),
+};
+
+/** Removing: the button is named "Remove <Label>"; move the focus on yourself after removing */
+export const Removable: Story = {
+    render: () => ({
+        components: { Chip },
+        setup: () => ({ cities: ref(['Berlin', 'Frankfurt', 'Munich']) }),
+        template: `
+            <div class="flex flex-wrap items-center gap-2">
+                <Chip v-for="city in cities" :key="city" :label="city" removable @remove="cities = cities.filter((c) => c !== city)" />
+                <button v-if="!cities.length" type="button" class="text-sm underline" @click="cities = ['Berlin', 'Frankfurt', 'Munich']">Reset</button>
+            </div>`,
+    }),
+};

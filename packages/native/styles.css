@@ -1,0 +1,7 @@
+/* WireLayer for React Native: import after 'tailwindcss' and 'uniwind' in the app's global.css.
+   Uniwind compiles the package imports of this file on their own to find the theme variants – the first two
+   imports make Tailwind's theme and Uniwind's variants known there (Tailwind emits only the variables in use). */
+@import 'tailwindcss/theme' layer(theme);
+@import 'uniwind';
+@import '@wirecore/wirelayer-tokens/native.css';
+@import '@wirecore/wirelayer-recipes/native.css';

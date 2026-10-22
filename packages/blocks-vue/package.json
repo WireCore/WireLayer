@@ -1,0 +1,60 @@
+{
+    "name": "@wirecore/wirelayer-blocks-vue",
+    "version": "0.0.0",
+    "description": "Page blocks for Vue (site header, CTA section, mode toggle, sign-in form and layout) and the condition builder, built on @wirecore/wirelayer-vue",
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/wirecore/wirelayer.git",
+        "directory": "packages/blocks-vue"
+    },
+    "homepage": "https://github.com/wirecore/wirelayer#readme",
+    "bugs": {
+        "url": "https://github.com/wirecore/wirelayer/issues"
+    },
+    "type": "module",
+    "sideEffects": false,
+    "exports": {
+        ".": {
+            "wirecore:source": "./src/index.ts",
+            "types": "./dist/index.d.ts",
+            "default": "./dist/index.js"
+        }
+    },
+    "files": [
+        "dist"
+    ],
+    "scripts": {
+        "build": "vite build && vue-tsc -p tsconfig.build.json",
+        "typecheck": "vue-tsc --noEmit"
+    },
+    "peerDependencies": {
+        "@wirecore/wirelayer-vue": "workspace:^",
+        "tailwindcss": "^4.0.0",
+        "vue": "^3.5.0"
+    },
+    "dependencies": {
+        "@ark-ui/vue": "^5.39.3",
+        "@lucide/vue": "^1.59.0",
+        "@wirecore/wirelayer-recipes": "workspace:^"
+    },
+    "devDependencies": {
+        "@storybook/vue3-vite": "^10.6.2",
+        "@tailwindcss/vite": "^4.3.3",
+        "@vitejs/plugin-vue": "^6.0.10",
+        "@wirecore/wirelayer-vue": "workspace:*",
+        "tailwindcss": "^4.3.3",
+        "typescript": "~6.0.3",
+        "vite": "^8.3.4",
+        "vue": "^3.5.44",
+        "vue-tsc": "^3.3.13"
+    },
+    "publishConfig": {
+        "exports": {
+            ".": {
+                "types": "./dist/index.d.ts",
+                "default": "./dist/index.js"
+            }
+        }
+    }
+}

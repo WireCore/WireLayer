@@ -1,0 +1,191 @@
+import type { Meta, StoryObj } from '@storybook/react-vite';
+import { Trash2 } from 'lucide-react';
+import { useState } from 'react';
+import { Button } from '../Button/Button.js';
+import { Dialog, DialogClose, DialogContent, DialogTrigger } from './Dialog.js';
+
+const meta = {
+    title: 'Overlays/Dialog',
+    component: Dialog,
+    args: { role: 'alertdialog', children: null },
+    argTypes: { role: { control: 'inline-radio', options: ['dialog', 'alertdialog'] }, children: { control: false } },
+    render: (args) => (
+        <Dialog role={args.role}>
+            <DialogTrigger>
+                <Button variant="danger" leadingIcon={Trash2}>
+                    Delete server
+                </Button>
+            </DialogTrigger>
+            <DialogContent
+                title="Delete server?"
+                description="web-01 and all snapshots will be permanently removed. This cannot be undone."
+                icon={Trash2}
+                status="danger"
+                footer={
+                    <>
+                        <DialogClose>
+                            <Button variant="outline" size="sm">
+                                Cancel
+                            </Button>
+                        </DialogClose>
+                        <DialogClose>
+                            <Button variant="danger" size="sm">
+                                Delete
+                            </Button>
+                        </DialogClose>
+                    </>
+                }
+            />
+        </Dialog>
+    ),
+} satisfies Meta<typeof Dialog>;
+
+export default meta;
+type Story = StoryObj<typeof meta>;
+
+export const Playground: Story = {};
+
+/** Widths sm (320px), md (400px, default), lg, xl and full; on small screens every dialog takes the full width */
+export const Sizes: Story = {
+    render: () => (
+        <div className="flex flex-wrap justify-center gap-2">
+            {(['sm', 'md', 'lg', 'xl', 'full'] as const).map((size) => (
+                <Dialog key={size}>
+                    <DialogTrigger>
+                        <Button variant="outline">{size}</Button>
+                    </DialogTrigger>
+                    <DialogContent
+                        title={`Size ${size}`}
+                        description="The width adapts to the content."
+                        size={size}
+                        footer={
+                            <DialogClose>
+                                <Button size="sm">OK</Button>
+                            </DialogClose>
+                        }
+                    />
+                </Dialog>
+            ))}
+        </div>
+    ),
+};
+
+/** Top, bottom, start or end of the screen instead of the center */
+export const Positions: Story = {
+    render: () => (
+        <div className="flex flex-wrap justify-center gap-2">
+            {(['top', 'bottom', 'start', 'end'] as const).map((position) => (
+                <Dialog key={position}>
+                    <DialogTrigger>
+                        <Button variant="outline">{position}</Button>
+                    </DialogTrigger>
+                    <DialogContent title={`Position ${position}`} position={position} />
+                </Dialog>
+            ))}
+        </div>
+    ),
+};
+
+function NonModalDemo() {
+    const [count, setCount] = useState(0);
+    return (
+        <div className="flex flex-col items-center gap-3">
+            <Dialog modal={false}>
+                <DialogTrigger>
+                    <Button>Open notes</Button>
+                </DialogTrigger>
+                <DialogContent
+                    title="Notes"
+                    description="Stays open while you keep working on the page."
+                    position="end"
+                    draggable
+                    maximizable
+                >
+                    <p className="text-sm">Customer asks for a callback on Thursday.</p>
+                </DialogContent>
+            </Dialog>
+            <Button variant="outline" onClick={() => setCount(count + 1)}>
+                Click on the page ({count})
+            </Button>
+        </div>
+    );
+}
+
+/**
+ * Non-modal: no backdrop, no focus trap – the page stays usable. Draggable at the header (keyboard: Alt + arrow
+ * keys, with Shift in larger steps) and maximizable.
+ */
+export const NonModal: Story = { render: () => <NonModalDemo /> };
+
+/** A dialog opens another one on top (own backdrop); closing it returns the focus to the first one */
+export const Stacked: Story = {
+    render: () => (
+        <Dialog>
+            <DialogTrigger>
+                <Button>Settings</Button>
+            </DialogTrigger>
+            <DialogContent title="Settings" description="Changes apply to all servers.">
+                <Dialog role="alertdialog">
+                    <DialogTrigger>
+                        <Button variant="danger" size="sm">
+                            Reset …
+                        </Button>
+                    </DialogTrigger>
+                    <DialogContent
+                        title="Really reset?"
+                        status="danger"
+                        size="sm"
+                        footer={
+                            <>
+                                <DialogClose>
+                                    <Button variant="outline" size="sm">
+                                        Cancel
+                                    </Button>
+                                </DialogClose>
+                                <DialogClose>
+                                    <Button variant="danger" size="sm">
+                                        Reset
+                                    </Button>
+                                </DialogClose>
+                            </>
+                        }
+                    />
+                </Dialog>
+            </DialogContent>
+        </Dialog>
+    ),
+};
+
+/** Long content: only the body scrolls, header and footer stay in place */
+export const ScrollInside: Story = {
+    render: () => (
+        <Dialog>
+            <DialogTrigger>
+                <Button>Read terms</Button>
+            </DialogTrigger>
+            <DialogContent
+                title="Terms of use"
+                size="lg"
+                scrollBehavior="inside"
+                footer={
+                    <>
+                        <DialogClose>
+                            <Button variant="outline" size="sm">
+                                Decline
+                            </Button>
+                        </DialogClose>
+                        <DialogClose>
+                            <Button size="sm">Agree</Button>
+                        </DialogClose>
+                    </>
+                }
+            >
+                {Array.from({ length: 20 }, (_, index) => (
+                    <p key={index} className="text-sm">
+                        § {index + 1} – Services are provided according to the current state of the art.
+                    </p>
+                ))}
+            </DialogContent>
+        </Dialog>
+    ),
+};

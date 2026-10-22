@@ -1,0 +1,73 @@
+{
+    "name": "@wirecore/wirelayer-recipes",
+    "version": "0.0.0",
+    "description": "Framework-agnostic WireLayer component recipes (tailwind-variants)",
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/wirecore/wirelayer.git",
+        "directory": "packages/recipes"
+    },
+    "homepage": "https://github.com/wirecore/wirelayer#readme",
+    "bugs": {
+        "url": "https://github.com/wirecore/wirelayer/issues"
+    },
+    "type": "module",
+    "sideEffects": [
+        "*.css"
+    ],
+    "exports": {
+        ".": {
+            "wirecore:source": "./src/index.ts",
+            "types": "./dist/index.d.ts",
+            "default": "./dist/index.js"
+        },
+        "./native": {
+            "wirecore:source": "./src/native/index.ts",
+            "types": "./dist/native/index.d.ts",
+            "default": "./dist/native/index.js"
+        },
+        "./locales/*": {
+            "wirecore:source": "./src/locales/*.ts",
+            "types": "./dist/locales/*.d.ts",
+            "default": "./dist/locales/*.js"
+        },
+        "./tailwind.css": "./tailwind.css",
+        "./native.css": "./native.css"
+    },
+    "files": [
+        "dist",
+        "src",
+        "tailwind.css",
+        "native.css"
+    ],
+    "scripts": {
+        "build": "tsc -p tsconfig.build.json",
+        "typecheck": "tsc --noEmit"
+    },
+    "dependencies": {
+        "tailwind-merge": "^3.7.0",
+        "tailwind-variants": "^3.3.1"
+    },
+    "devDependencies": {
+        "typescript": "~6.0.3"
+    },
+    "publishConfig": {
+        "exports": {
+            ".": {
+                "types": "./dist/index.d.ts",
+                "default": "./dist/index.js"
+            },
+            "./native": {
+                "types": "./dist/native/index.d.ts",
+                "default": "./dist/native/index.js"
+            },
+            "./locales/*": {
+                "types": "./dist/locales/*.d.ts",
+                "default": "./dist/locales/*.js"
+            },
+            "./tailwind.css": "./tailwind.css",
+            "./native.css": "./native.css"
+        }
+    }
+}

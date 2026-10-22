@@ -1,0 +1,40 @@
+<script setup lang="ts">
+import { useStore, type AnyFieldApi } from '@tanstack/vue-form';
+import { computed } from 'vue';
+import Field from '../components/Field/Field.vue';
+import { firstError } from './errors.js';
+
+export interface FormFieldProps {
+    /** The TanStack Form field (from `<form.Field v-slot="{ field }">`) */
+    field: AnyFieldApi;
+    label?: string;
+    helperText?: string;
+    /** Confirmation below the control (Field `success`) */
+    success?: string;
+    required?: boolean;
+    /** "(optional)" after the label */
+    optional?: boolean;
+    disabled?: boolean;
+}
+
+const props = defineProps<FormFieldProps>();
+const meta = useStore(props.field.store, (state) => state.meta);
+
+// Errors appear once the field was left (or the form submitted, which touches every field)
+const error = computed(() => (meta.value.isTouched ? firstError(meta.value.errors) : undefined));
+</script>
+
+<template>
+    <!-- Label, helper text, error, aria-invalid and aria-describedby come from Field; id and other attributes as well -->
+    <Field
+        :label="label"
+        :helper-text="helperText"
+        :success="success"
+        :error="error"
+        :required="required"
+        :optional="optional"
+        :disabled="disabled"
+    >
+        <slot :field="field" />
+    </Field>
+</template>

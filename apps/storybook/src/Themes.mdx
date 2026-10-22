@@ -1,0 +1,45 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+import { ThemeTable } from './foundations.tsx';
+
+<Meta title="Foundations/Themes" />
+
+# Themes
+
+A theme adjusts the colors – above all `primary`, the color of primary buttons and of all selected
+states (checkbox, switch, chips, segments, tabs, current page, progress, focused fields).
+Light/dark is independent of it and combines with every theme.
+
+```html
+<html data-theme="ocean" data-mode="dark"></html>
+```
+
+Both attributes also work on parts of the page. Without attributes, the theme
+“WireLayer” (`data-theme="wirecore"`) applies in light mode.
+
+<ThemeTable />
+
+## Custom theme
+
+A theme overrides any colors per mode. `themeToCss` generates the CSS for it,
+`checkTheme` checks all contrasts against WCAG 2.2 AA – ideally as a test in your project:
+
+```ts
+import { checkTheme, defineTheme, themeToCss } from '@wirecore/wirelayer-tokens';
+
+export const brand = defineTheme({
+    name: 'brand',
+    label: 'Brand',
+    colors: {
+        light: { primary: 'oklch(0.5 0.18 30)', 'on-primary': '#FFFFFF' },
+        dark: { primary: 'oklch(0.75 0.14 30)', 'on-primary': '#050505' },
+    },
+});
+
+// brand.test.ts
+expect(checkTheme(brand)).toEqual([]);
+
+// build script → brand.css, import it after @wirecore/wirelayer-vue/styles.css
+writeFileSync('brand.css', themeToCss(brand));
+```
+
+All bundled themes pass this check in both modes.

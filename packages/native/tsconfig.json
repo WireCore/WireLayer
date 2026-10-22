@@ -1,0 +1,13 @@
+{
+    "extends": "../../tsconfig.base.json",
+    "compilerOptions": {
+        "jsx": "react-jsx",
+        "customConditions": ["wirecore:source"],
+        "types": ["node", "uniwind/types"],
+        "noEmit": true,
+        // Stories are not emitted – their inferred meta types need not be portable
+        "declaration": false,
+        "declarationMap": false
+    },
+    "include": ["src", ".storybook"]
+}

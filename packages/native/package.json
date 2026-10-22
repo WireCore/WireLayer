@@ -1,0 +1,218 @@
+{
+    "name": "@wirecore/wirelayer-native",
+    "version": "0.0.0",
+    "description": "WireLayer components for React Native (Expo) with Uniwind",
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/wirecore/wirelayer.git",
+        "directory": "packages/native"
+    },
+    "homepage": "https://github.com/wirecore/wirelayer#readme",
+    "bugs": {
+        "url": "https://github.com/wirecore/wirelayer/issues"
+    },
+    "type": "module",
+    "sideEffects": [
+        "*.css"
+    ],
+    "exports": {
+        ".": {
+            "wirecore:source": "./src/index.ts",
+            "types": "./dist/index.d.ts",
+            "default": "./dist/index.js"
+        },
+        "./form": {
+            "wirecore:source": "./src/form/index.ts",
+            "types": "./dist/form/index.d.ts",
+            "default": "./dist/form/index.js"
+        },
+        "./expo-document-picker": {
+            "wirecore:source": "./src/file-pickers/expo-document-picker.ts",
+            "types": "./dist/file-pickers/expo-document-picker.d.ts",
+            "default": "./dist/file-pickers/expo-document-picker.js"
+        },
+        "./expo-image-picker": {
+            "wirecore:source": "./src/file-pickers/expo-image-picker.ts",
+            "types": "./dist/file-pickers/expo-image-picker.d.ts",
+            "default": "./dist/file-pickers/expo-image-picker.js"
+        },
+        "./expo-clipboard": {
+            "wirecore:source": "./src/clipboard/expo-clipboard.ts",
+            "types": "./dist/clipboard/expo-clipboard.d.ts",
+            "default": "./dist/clipboard/expo-clipboard.js"
+        },
+        "./data-table": {
+            "wirecore:source": "./src/data-table/index.ts",
+            "types": "./dist/data-table/index.d.ts",
+            "default": "./dist/data-table/index.js"
+        },
+        "./chart": {
+            "wirecore:source": "./src/chart/index.ts",
+            "types": "./dist/chart/index.d.ts",
+            "default": "./dist/chart/index.js"
+        },
+        "./pdf": {
+            "wirecore:source": "./src/pdf/index.ts",
+            "types": "./dist/pdf/index.d.ts",
+            "default": "./dist/pdf/index.js"
+        },
+        "./code": {
+            "wirecore:source": "./src/code/index.ts",
+            "types": "./dist/code/index.d.ts",
+            "default": "./dist/code/index.js"
+        },
+        "./expo-sharing": {
+            "wirecore:source": "./src/sharing/expo-sharing.ts",
+            "types": "./dist/sharing/expo-sharing.d.ts",
+            "default": "./dist/sharing/expo-sharing.js"
+        },
+        "./locales/*": {
+            "wirecore:source": "./src/locales/*.ts",
+            "types": "./dist/locales/*.d.ts",
+            "default": "./dist/locales/*.js"
+        },
+        "./styles.css": "./styles.css"
+    },
+    "files": [
+        "dist",
+        "styles.css"
+    ],
+    "scripts": {
+        "build": "tsc -p tsconfig.build.json",
+        "typecheck": "tsc --noEmit",
+        "storybook": "storybook dev -p 6009 --host 0.0.0.0 --no-open",
+        "build-storybook": "storybook build"
+    },
+    "peerDependencies": {
+        "@tanstack/react-form": "^1.33.5",
+        "expo-clipboard": ">=58.0.0",
+        "expo-document-picker": ">=58.0.0",
+        "expo-file-system": ">=58.0.0",
+        "expo-image-picker": ">=58.0.0",
+        "expo-sharing": ">=58.0.0",
+        "lucide-react-native": "^1.59.0",
+        "react": "^19.0.0",
+        "react-native": ">=0.81.0",
+        "react-native-blob-util": ">=0.24.0",
+        "react-native-pdf": "^7.0.0",
+        "react-native-svg": "^15.0.0",
+        "shiki": "^4.0.0",
+        "tailwindcss": "^4.3.3",
+        "uniwind": "^1.12.0"
+    },
+    "peerDependenciesMeta": {
+        "@tanstack/react-form": {
+            "optional": true
+        },
+        "expo-clipboard": {
+            "optional": true
+        },
+        "expo-document-picker": {
+            "optional": true
+        },
+        "expo-file-system": {
+            "optional": true
+        },
+        "expo-image-picker": {
+            "optional": true
+        },
+        "expo-sharing": {
+            "optional": true
+        },
+        "react-native-blob-util": {
+            "optional": true
+        },
+        "react-native-pdf": {
+            "optional": true
+        },
+        "shiki": {
+            "optional": true
+        }
+    },
+    "dependencies": {
+        "@expo-google-fonts/jetbrains-mono": "^0.4.1",
+        "@expo-google-fonts/schibsted-grotesk": "^0.4.2",
+        "@wirecore/wirelayer-recipes": "workspace:^",
+        "@wirecore/wirelayer-tokens": "workspace:^",
+        "uqr": "^0.1.3"
+    },
+    "devDependencies": {
+        "@storybook/addon-a11y": "^10.6.2",
+        "@storybook/addon-docs": "^10.6.2",
+        "@storybook/react-native-web-vite": "^10.6.2",
+        "@tailwindcss/vite": "^4.3.3",
+        "@tanstack/react-form": "^1.33.5",
+        "@types/react": "^19.3.0",
+        "expo-clipboard": "~58.0.3",
+        "expo-document-picker": "~58.0.4",
+        "expo-file-system": "~58.0.9",
+        "expo-image-picker": "~58.0.10",
+        "expo-sharing": "~58.0.19",
+        "lucide-react": "^1.59.0",
+        "lucide-react-native": "^1.59.0",
+        "react": "19.3.0",
+        "react-dom": "19.3.0",
+        "react-native": "0.88.0",
+        "react-native-blob-util": "^0.25.1",
+        "react-native-pdf": "^7.0.5",
+        "react-native-svg": "15.16.0",
+        "react-native-web": "^0.21.4",
+        "shiki": "^4.5.0",
+        "storybook": "^10.6.2",
+        "tailwindcss": "^4.3.3",
+        "typescript": "~6.0.3",
+        "uniwind": "^1.12.2",
+        "vite": "^8.3.4",
+        "zod": "^4.6.7"
+    },
+    "publishConfig": {
+        "exports": {
+            ".": {
+                "types": "./dist/index.d.ts",
+                "default": "./dist/index.js"
+            },
+            "./form": {
+                "types": "./dist/form/index.d.ts",
+                "default": "./dist/form/index.js"
+            },
+            "./expo-document-picker": {
+                "types": "./dist/file-pickers/expo-document-picker.d.ts",
+                "default": "./dist/file-pickers/expo-document-picker.js"
+            },
+            "./expo-image-picker": {
+                "types": "./dist/file-pickers/expo-image-picker.d.ts",
+                "default": "./dist/file-pickers/expo-image-picker.js"
+            },
+            "./expo-clipboard": {
+                "types": "./dist/clipboard/expo-clipboard.d.ts",
+                "default": "./dist/clipboard/expo-clipboard.js"
+            },
+            "./data-table": {
+                "types": "./dist/data-table/index.d.ts",
+                "default": "./dist/data-table/index.js"
+            },
+            "./chart": {
+                "types": "./dist/chart/index.d.ts",
+                "default": "./dist/chart/index.js"
+            },
+            "./pdf": {
+                "types": "./dist/pdf/index.d.ts",
+                "default": "./dist/pdf/index.js"
+            },
+            "./code": {
+                "types": "./dist/code/index.d.ts",
+                "default": "./dist/code/index.js"
+            },
+            "./expo-sharing": {
+                "types": "./dist/sharing/expo-sharing.d.ts",
+                "default": "./dist/sharing/expo-sharing.js"
+            },
+            "./locales/*": {
+                "types": "./dist/locales/*.d.ts",
+                "default": "./dist/locales/*.js"
+            },
+            "./styles.css": "./styles.css"
+        }
+    }
+}

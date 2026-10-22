@@ -1,0 +1,66 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="HTML/Getting started" />
+
+# WireLayer for HTML and server templates
+
+`@wirecore/wirelayer-css` contains all components as CSS classes (`.wc-*`) – **generated from the same recipes** as the
+Vue, React and React Native components. A test compares the computed styles of the HTML examples with the
+React components (light, dark, Ocean).
+
+```html
+<html lang="en" data-mode="dark" data-theme="ocean">
+    <head>
+        <!-- ship dist/wirecore.css and dist/fonts/ side by side – the fonts are included, no CDN -->
+        <link rel="stylesheet" href="/assets/wirecore/wirecore.css" />
+    </head>
+    <body>
+        <button type="button" class="wc-button wc-button-outline wc-button-sm">Details</button>
+    </body>
+</html>
+```
+
+`wirecore.css` is self-contained (Tailwind preflight, theme, fonts, all classes). The fonts are licensed under the
+SIL Open Font License 1.1 – `dist/fonts/OFL.txt` belongs to them and is shipped along. If you build with
+Tailwind v4 yourself, import the sources instead:
+
+```css
+@import 'tailwindcss';
+@import '@wirecore/wirelayer-tokens/theme.css';
+@import '@wirecore/wirelayer-tokens/fonts.css';
+@import '@wirecore/wirelayer-css/components.css';
+```
+
+## Classes
+
+| What                     | Class                    | Example                                   |
+| ------------------------ | ------------------------ | ----------------------------------------- |
+| Component (root element) | `wc-<component>`         | `wc-button`, `wc-alert`                   |
+| Part of a component      | `wc-<component>-<part>`  | `wc-button-icon`, `wc-alert-icon-box`     |
+| Variant                  | `wc-<component>-<value>` | `wc-button-danger`, `wc-button-sm`        |
+| Flag (true/false)        | `wc-<component>-<name>`  | `wc-card-interactive`, `wc-input-invalid` |
+
+- A variant class applies to the element **and all parts inside it**: `wc-button-sm` on the button also makes the icon smaller.
+- Defaults (e.g. `primary`, `md`) need no class.
+- States that the framework components set through attributes have the same names in HTML:
+  `disabled`, `aria-invalid`, `aria-current`, `aria-busy`, `data-invalid`, `data-disabled`, `data-state="checked"` …
+
+## Without JavaScript
+
+| Component                                                          | Without JS                                                             |
+| ------------------------------------------------------------------ | ---------------------------------------------------------------------- |
+| Button, IconButton, Badge, Card, Alert, Avatar, Spinner, StatusDot | ✓                                                                      |
+| Divider, Skeleton                                                  | ✓                                                                      |
+| Fieldset, InputGroup, NativeSelect, Panel, ScrollPanel, Kbd        | ✓                                                                      |
+| Timeline, OrgChart, MeterGroup, ProgressCircle, OverlayBadge       | ✓ – values and status as text in the markup                            |
+| Highlight, Prose (`wc-prose` for stored editor HTML)               | ✓                                                                      |
+| TableOfContents                                                    | ✓ as links (only the framework packages highlight the visible section) |
+| Field, Input, Textarea                                             | ✓ – errors through `aria-invalid` + `aria-describedby`                 |
+| Breadcrumb, Steps, Progress, Table                                 | ✓ – values in the markup (sorting/paging needs JS)                     |
+| Dialog                                                             | ✓ with `<dialog class="wc-dialog">` and `command`/`commandfor`         |
+| Checkbox, RadioGroup, Switch, ChipGroup, SegmentedControl          | display only – the state lives in `data-state`, which JS sets          |
+| Select, Menu, Tooltip, Tabs, Toast, Pagination                     | needs JS (keyboard, focus, positioning) – use the framework packages   |
+| Accordion, Popover, Drawer, all form controls with a popup         | needs JS – use the framework packages                                  |
+
+`@wirecore/wirelayer-vue` and `@wirecore/wirelayer-react` are meant for interactive pages: they bring keyboard
+interaction, focus management and ARIA states that plain CSS cannot provide.

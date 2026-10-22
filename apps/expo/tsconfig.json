@@ -1,0 +1,8 @@
+{
+    "extends": "expo/tsconfig.base.json",
+    "compilerOptions": {
+        "strict": true,
+        "types": ["uniwind/types"]
+    },
+    "include": ["index.ts", "src", "uniwind-types.d.ts"]
+}

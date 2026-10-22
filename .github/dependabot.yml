@@ -1,0 +1,8 @@
+# Only the GitHub Actions of .github/workflows – npm dependencies are updated by hand (pnpm's minimumReleaseAge
+# applies, see CONTRIBUTING.md).
+version: 2
+updates:
+    - package-ecosystem: github-actions
+      directories: ['/', '/.github/actions/setup']
+      schedule:
+          interval: monthly

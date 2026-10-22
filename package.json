@@ -1,0 +1,37 @@
+{
+    "name": "wirelayer",
+    "private": true,
+    "license": "MIT",
+    "type": "module",
+    "packageManager": "pnpm@12.14.0",
+    "engines": {
+        "node": ">=26"
+    },
+    "scripts": {
+        "build": "turbo run build",
+        "build:tokens": "turbo run build --filter=@wirecore/wirelayer-tokens",
+        "build-storybook": "turbo run build-storybook",
+        "typecheck": "turbo run typecheck",
+        "test": "turbo run test",
+        "lint": "eslint .",
+        "format": "prettier --write .",
+        "format:check": "prettier --check .",
+        "licenses:check": "node scripts/check-licenses.ts",
+        "changeset": "changeset",
+        "release": "pnpm build && changeset publish"
+    },
+    "devDependencies": {
+        "@changesets/cli": "^3.0.3",
+        "@eslint/js": "^10.0.0",
+        "@types/node": "^26.6.5",
+        "eslint": "^10.13.0",
+        "eslint-config-prettier": "^10.1.0",
+        "eslint-plugin-react-hooks": "^7.1.1",
+        "eslint-plugin-vue": "^10.11.1",
+        "globals": "^17.0.0",
+        "prettier": "^3.9.10",
+        "turbo": "^2.11.9",
+        "typescript": "~6.0.3",
+        "typescript-eslint": "^8.71.0"
+    }
+}

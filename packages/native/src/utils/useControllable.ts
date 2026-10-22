@@ -1,0 +1,12 @@
+import { useState } from 'react';
+
+/** Controlled (`value` + `onChange`) or uncontrolled (`defaultValue`) state, like the web components. */
+export function useControllable<T>(value: T | undefined, defaultValue: T, onChange?: (value: T) => void) {
+    const [internal, setInternal] = useState(defaultValue);
+    const current = value === undefined ? internal : value;
+    const set = (next: T) => {
+        setInternal(next);
+        onChange?.(next);
+    };
+    return [current, set] as const;
+}

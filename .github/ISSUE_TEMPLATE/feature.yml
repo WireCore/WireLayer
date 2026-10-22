@@ -1,0 +1,24 @@
+name: Suggest a feature
+description: New component, prop or improvement
+labels: [enhancement]
+body:
+    - type: textarea
+      id: problem
+      attributes:
+          label: What is it about?
+          description: Which problem should be solved, in which application?
+      validations:
+          required: true
+    - type: textarea
+      id: proposal
+      attributes:
+          label: Proposal
+          description: API idea (props, events), behavior, keyboard interaction
+    - type: checkboxes
+      id: scope
+      attributes:
+          label: Affects
+          options:
+              - label: Vue and React
+              - label: React Native
+              - label: HTML/CSS

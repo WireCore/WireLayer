@@ -1,0 +1,49 @@
+{
+    "$schema": "https://turborepo.com/schema.json",
+    "tasks": {
+        "build": {
+            "dependsOn": ["^build"],
+            "outputs": ["dist/**"]
+        },
+        "build-storybook": {
+            "dependsOn": ["^build"],
+            "outputs": ["storybook-static/**"]
+        },
+        "typecheck": {
+            "dependsOn": ["@wirecore/wirelayer-tokens#build"]
+        },
+        "@wirecore/wirelayer-expo-demo#typecheck": {
+            "dependsOn": ["^build"]
+        },
+        "test": {
+            "dependsOn": ["@wirecore/wirelayer-tokens#build"]
+        },
+        "@wirecore/wirelayer-css#test": {
+            "dependsOn": ["build"]
+        },
+        "@wirecore/wirelayer-storybook#build-storybook": {
+            "dependsOn": ["^build"],
+            "env": ["WIRECORE_STORYBOOK_*"],
+            "outputs": ["storybook-static/**"]
+        },
+        "@wirecore/wirelayer-css#build-storybook": {
+            "dependsOn": ["build"],
+            "outputs": ["storybook-static/**"]
+        },
+        "@wirecore/wirelayer-nuxt-demo#typecheck": {
+            "dependsOn": ["^build"]
+        },
+        "@wirecore/wirelayer-next-demo#typecheck": {
+            "dependsOn": ["^build"]
+        },
+        "@wirecore/wirelayer-nuxt-demo#build": {
+            "dependsOn": ["^build"],
+            "outputs": [".output/**"]
+        },
+        "@wirecore/wirelayer-next-demo#build": {
+            "dependsOn": ["^build"],
+            "env": ["NEXT_TELEMETRY_DISABLED"],
+            "outputs": [".next/**", "!.next/cache/**"]
+        }
+    }
+}

@@ -1,0 +1,51 @@
+import {
+    columnFilteringFeature,
+    columnGroupingFeature,
+    columnOrderingFeature,
+    columnPinningFeature,
+    columnResizingFeature,
+    columnSizingFeature,
+    columnVisibilityFeature,
+    createExpandedRowModel,
+    createFilteredRowModel,
+    createGroupedRowModel,
+    createPaginatedRowModel,
+    createSortedRowModel,
+    filterFn_equalsString,
+    filterFn_includesString,
+    globalFilteringFeature,
+    rowExpandingFeature,
+    rowPaginationFeature,
+    rowPinningFeature,
+    rowSelectionFeature,
+    rowSortingFeature,
+    sortFn_alphanumeric,
+    tableFeatures,
+} from '@tanstack/react-table';
+
+/** Registered TanStack Table v9 features – stable at module scope */
+export const features = tableFeatures({
+    rowSortingFeature,
+    sortedRowModel: createSortedRowModel(),
+    sortFns: { alphanumeric: sortFn_alphanumeric },
+    rowPaginationFeature,
+    paginatedRowModel: createPaginatedRowModel(),
+    rowSelectionFeature,
+    // Frozen rows at the top
+    rowPinningFeature,
+    // TreeTable (getSubRows) and groups (groupBy): rows with sub rows
+    rowExpandingFeature,
+    expandedRowModel: createExpandedRowModel(),
+    columnGroupingFeature,
+    groupedRowModel: createGroupedRowModel(),
+    // Search over all columns and filters per column, both without case
+    columnFilteringFeature,
+    globalFilteringFeature,
+    filteredRowModel: createFilteredRowModel(),
+    filterFns: { includesString: filterFn_includesString, equalsString: filterFn_equalsString },
+    columnVisibilityFeature,
+    columnOrderingFeature,
+    columnPinningFeature,
+    columnSizingFeature,
+    columnResizingFeature,
+});

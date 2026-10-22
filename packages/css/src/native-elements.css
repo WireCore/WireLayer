@@ -1,0 +1,86 @@
+/*
+ * Native HTML elements that work without JavaScript – not generated, they have no recipe.
+ *   <dialog class="wc-dialog"> wraps .wc-dialog-content; open/close with invoker commands (command/commandfor);
+ *   size, position and full screen as modifiers on the <dialog>: wc-dialog-lg, wc-dialog-top, wc-dialog-fullscreen
+ */
+@layer components {
+    dialog.wc-dialog {
+        margin: auto;
+        padding: 1rem;
+        border: 0;
+        background: transparent;
+        color: inherit;
+        max-width: 100%;
+        overflow: visible;
+    }
+    dialog.wc-dialog:not([open]) {
+        display: none;
+    }
+    dialog.wc-dialog > .wc-dialog-content {
+        max-width: min(400px, calc(100vw - 2rem));
+    }
+    /* Sizes (.wc-dialog-sm … -full), full screen and positions on the <dialog> */
+    dialog.wc-dialog.wc-dialog-sm > .wc-dialog-content {
+        max-width: min(320px, calc(100vw - 2rem));
+    }
+    dialog.wc-dialog.wc-dialog-lg > .wc-dialog-content {
+        max-width: min(560px, calc(100vw - 2rem));
+    }
+    dialog.wc-dialog.wc-dialog-xl > .wc-dialog-content {
+        max-width: min(800px, calc(100vw - 2rem));
+    }
+    dialog.wc-dialog.wc-dialog-full {
+        width: 100%;
+    }
+    dialog.wc-dialog.wc-dialog-full > .wc-dialog-content,
+    dialog.wc-dialog.wc-dialog-fullscreen > .wc-dialog-content {
+        max-width: none;
+    }
+    dialog.wc-dialog.wc-dialog-fullscreen {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+        max-height: none;
+    }
+    dialog.wc-dialog.wc-dialog-top {
+        margin-top: 0;
+    }
+    dialog.wc-dialog.wc-dialog-bottom {
+        margin-bottom: 0;
+    }
+    dialog.wc-dialog.wc-dialog-start {
+        margin-inline-start: 0;
+    }
+    dialog.wc-dialog.wc-dialog-end {
+        margin-inline-end: 0;
+    }
+    dialog.wc-dialog::backdrop {
+        background: rgb(0 0 0 / 0.6);
+    }
+    @media (prefers-reduced-motion: no-preference) {
+        dialog.wc-dialog[open] > .wc-dialog-content {
+            animation: var(--animate-dialog-in);
+        }
+        dialog.wc-dialog[open]::backdrop {
+            animation: var(--animate-fade-in);
+        }
+    }
+
+    /*
+     * Mega menu without JavaScript: a panel is a <details> inside .wc-mega-menu-item, its <summary> the trigger
+     * (details with the same name stay one open at a time)
+     */
+    .wc-mega-menu summary.wc-mega-menu-trigger {
+        list-style: none;
+    }
+    .wc-mega-menu summary.wc-mega-menu-trigger::-webkit-details-marker {
+        display: none;
+    }
+    .wc-mega-menu details[open] > summary.wc-mega-menu-trigger {
+        background-color: var(--color-line);
+    }
+    .wc-mega-menu details[open] > summary .wc-mega-menu-trigger-icon {
+        rotate: 180deg;
+    }
+}

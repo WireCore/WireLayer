@@ -1,0 +1,255 @@
+{
+    "name": "@wirecore/wirelayer-vue",
+    "version": "0.0.0",
+    "description": "WireLayer components for Vue 3",
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/wirecore/wirelayer.git",
+        "directory": "packages/vue"
+    },
+    "homepage": "https://github.com/wirecore/wirelayer#readme",
+    "bugs": {
+        "url": "https://github.com/wirecore/wirelayer/issues"
+    },
+    "type": "module",
+    "sideEffects": [
+        "*.css"
+    ],
+    "exports": {
+        ".": {
+            "wirecore:source": "./src/index.ts",
+            "types": "./dist/index.d.ts",
+            "default": "./dist/index.js"
+        },
+        "./form": {
+            "wirecore:source": "./src/form/index.ts",
+            "types": "./dist/form/index.d.ts",
+            "default": "./dist/form.js"
+        },
+        "./data-table": {
+            "wirecore:source": "./src/data-table/index.ts",
+            "types": "./dist/data-table/index.d.ts",
+            "default": "./dist/data-table.js"
+        },
+        "./virtual": {
+            "wirecore:source": "./src/virtual/index.ts",
+            "types": "./dist/virtual/index.d.ts",
+            "default": "./dist/virtual.js"
+        },
+        "./chart": {
+            "wirecore:source": "./src/chart/index.ts",
+            "types": "./dist/chart/index.d.ts",
+            "default": "./dist/chart.js"
+        },
+        "./editor": {
+            "wirecore:source": "./src/editor/index.ts",
+            "types": "./dist/editor/index.d.ts",
+            "default": "./dist/editor.js"
+        },
+        "./code": {
+            "wirecore:source": "./src/code/index.ts",
+            "types": "./dist/code/index.d.ts",
+            "default": "./dist/code.js"
+        },
+        "./pdf": {
+            "wirecore:source": "./src/pdf/index.ts",
+            "types": "./dist/pdf/index.d.ts",
+            "default": "./dist/pdf.js"
+        },
+        "./locales/*": {
+            "wirecore:source": "./src/locales/*.ts",
+            "types": "./dist/locales/*.d.ts",
+            "default": "./dist/locales/*.js"
+        },
+        "./styles.css": "./styles.css"
+    },
+    "files": [
+        "dist",
+        "styles.css"
+    ],
+    "scripts": {
+        "build": "vite build && vue-tsc -p tsconfig.build.json",
+        "typecheck": "vue-tsc --noEmit",
+        "storybook": "storybook dev -p 6007 --host 0.0.0.0 --no-open",
+        "build-storybook": "storybook build"
+    },
+    "peerDependencies": {
+        "@tanstack/vue-form": "^1.33.5",
+        "@tanstack/vue-table": "^9.3.1",
+        "@tanstack/vue-virtual": "^3.13.47",
+        "@tiptap/core": "^3.32.0",
+        "@tiptap/extension-details": "^3.32.0",
+        "@tiptap/extension-image": "^3.32.0",
+        "@tiptap/extension-invisible-characters": "^3.32.0",
+        "@tiptap/extension-list": "^3.32.0",
+        "@tiptap/extension-mention": "^3.32.0",
+        "@tiptap/extension-subscript": "^3.32.0",
+        "@tiptap/extension-superscript": "^3.32.0",
+        "@tiptap/extension-table": "^3.32.0",
+        "@tiptap/extension-text-align": "^3.32.0",
+        "@tiptap/extension-text-style": "^3.32.0",
+        "@tiptap/extensions": "^3.32.0",
+        "@tiptap/pm": "^3.32.0",
+        "@tiptap/starter-kit": "^3.32.0",
+        "@tiptap/suggestion": "^3.32.0",
+        "@tiptap/vue-3": "^3.32.0",
+        "chart.js": "^4.5.1",
+        "pdfjs-dist": "^6.4.299",
+        "shiki": "^4.5.0",
+        "tailwindcss": "^4.0.0",
+        "vue": "^3.5.0"
+    },
+    "peerDependenciesMeta": {
+        "@tanstack/vue-form": {
+            "optional": true
+        },
+        "@tanstack/vue-table": {
+            "optional": true
+        },
+        "@tanstack/vue-virtual": {
+            "optional": true
+        },
+        "@tiptap/core": {
+            "optional": true
+        },
+        "@tiptap/extension-details": {
+            "optional": true
+        },
+        "@tiptap/extension-image": {
+            "optional": true
+        },
+        "@tiptap/extension-invisible-characters": {
+            "optional": true
+        },
+        "@tiptap/extension-list": {
+            "optional": true
+        },
+        "@tiptap/extension-mention": {
+            "optional": true
+        },
+        "@tiptap/extension-subscript": {
+            "optional": true
+        },
+        "@tiptap/extension-superscript": {
+            "optional": true
+        },
+        "@tiptap/extension-table": {
+            "optional": true
+        },
+        "@tiptap/extension-text-align": {
+            "optional": true
+        },
+        "@tiptap/extension-text-style": {
+            "optional": true
+        },
+        "@tiptap/extensions": {
+            "optional": true
+        },
+        "@tiptap/pm": {
+            "optional": true
+        },
+        "@tiptap/starter-kit": {
+            "optional": true
+        },
+        "@tiptap/suggestion": {
+            "optional": true
+        },
+        "@tiptap/vue-3": {
+            "optional": true
+        },
+        "chart.js": {
+            "optional": true
+        },
+        "pdfjs-dist": {
+            "optional": true
+        },
+        "shiki": {
+            "optional": true
+        }
+    },
+    "dependencies": {
+        "@ark-ui/vue": "^5.39.3",
+        "@internationalized/date": "^3.12.4",
+        "@lucide/vue": "^1.59.0",
+        "@wirecore/wirelayer-recipes": "workspace:^",
+        "@wirecore/wirelayer-tokens": "workspace:^"
+    },
+    "devDependencies": {
+        "@storybook/addon-a11y": "^10.6.2",
+        "@storybook/addon-docs": "^10.6.2",
+        "@storybook/vue3-vite": "^10.6.2",
+        "@tailwindcss/vite": "^4.3.3",
+        "@tanstack/vue-form": "^1.33.5",
+        "@tanstack/vue-table": "^9.3.1",
+        "@tanstack/vue-virtual": "^3.13.47",
+        "@tiptap/core": "^3.32.0",
+        "@tiptap/extension-details": "^3.32.0",
+        "@tiptap/extension-image": "^3.32.0",
+        "@tiptap/extension-invisible-characters": "^3.32.0",
+        "@tiptap/extension-list": "^3.32.0",
+        "@tiptap/extension-mention": "^3.32.0",
+        "@tiptap/extension-subscript": "^3.32.0",
+        "@tiptap/extension-superscript": "^3.32.0",
+        "@tiptap/extension-table": "^3.32.0",
+        "@tiptap/extension-text-align": "^3.32.0",
+        "@tiptap/extension-text-style": "^3.32.0",
+        "@tiptap/extensions": "^3.32.0",
+        "@tiptap/pm": "^3.32.0",
+        "@tiptap/starter-kit": "^3.32.0",
+        "@tiptap/suggestion": "^3.32.0",
+        "@tiptap/vue-3": "^3.32.0",
+        "@vitejs/plugin-vue": "^6.0.10",
+        "chart.js": "^4.5.1",
+        "pdfjs-dist": "^6.4.299",
+        "shiki": "^4.5.0",
+        "storybook": "^10.6.2",
+        "tailwindcss": "^4.3.3",
+        "typescript": "~6.0.3",
+        "vite": "^8.3.4",
+        "vue": "^3.5.44",
+        "vue-tsc": "^3.3.13",
+        "zod": "^4.6.7"
+    },
+    "publishConfig": {
+        "exports": {
+            ".": {
+                "types": "./dist/index.d.ts",
+                "default": "./dist/index.js"
+            },
+            "./form": {
+                "types": "./dist/form/index.d.ts",
+                "default": "./dist/form.js"
+            },
+            "./data-table": {
+                "types": "./dist/data-table/index.d.ts",
+                "default": "./dist/data-table.js"
+            },
+            "./virtual": {
+                "types": "./dist/virtual/index.d.ts",
+                "default": "./dist/virtual.js"
+            },
+            "./chart": {
+                "types": "./dist/chart/index.d.ts",
+                "default": "./dist/chart.js"
+            },
+            "./editor": {
+                "types": "./dist/editor/index.d.ts",
+                "default": "./dist/editor.js"
+            },
+            "./code": {
+                "types": "./dist/code/index.d.ts",
+                "default": "./dist/code.js"
+            },
+            "./pdf": {
+                "types": "./dist/pdf/index.d.ts",
+                "default": "./dist/pdf.js"
+            },
+            "./locales/*": {
+                "types": "./dist/locales/*.d.ts",
+                "default": "./dist/locales/*.js"
+            },
+            "./styles.css": "./styles.css"
+        }
+    }
+}

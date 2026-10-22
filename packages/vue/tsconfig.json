@@ -1,0 +1,9 @@
+{
+    "extends": "../../tsconfig.base.json",
+    "compilerOptions": {
+        "customConditions": ["wirecore:source"],
+        "types": ["node"],
+        "noEmit": true
+    },
+    "include": ["src", ".storybook", "vite.config.ts"]
+}

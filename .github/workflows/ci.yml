@@ -1,0 +1,109 @@
+# Checks, build, axe and E2E in the browser. Publishing: release.yml
+name: CI
+
+on:
+    push:
+        branches: [main]
+    pull_request:
+    workflow_dispatch:
+
+permissions:
+    contents: read
+
+concurrency:
+    group: ci-${{ github.ref }}
+    cancel-in-progress: true
+
+env:
+    TURBO_TELEMETRY_DISABLED: '1'
+    STORYBOOK_DISABLE_TELEMETRY: '1'
+    NEXT_TELEMETRY_DISABLED: '1'
+    NUXT_TELEMETRY_DISABLED: '1'
+
+jobs:
+    lint:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v5
+            - uses: ./.github/actions/setup
+            - run: pnpm lint
+            - run: pnpm format:check
+
+    typecheck:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v5
+            - uses: ./.github/actions/setup
+            - run: pnpm typecheck
+
+    test:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v5
+            - uses: ./.github/actions/setup
+            - run: pnpm test
+
+    # Licences of the published packages' dependencies and peers against an allowlist (scripts/check-licenses.ts)
+    licenses:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v5
+            - uses: ./.github/actions/setup
+            - run: pnpm licenses:check
+
+    build:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v5
+            - uses: ./.github/actions/setup
+            - run: pnpm build
+            - run: pnpm build-storybook
+            - uses: actions/upload-artifact@v4
+              with:
+                  name: build
+                  retention-days: 7
+                  # .output and .next are hidden folders
+                  include-hidden-files: true
+                  path: |
+                      packages/*/dist
+                      packages/*/storybook-static
+                      apps/storybook/storybook-static
+                      apps/nuxt/.output
+                      apps/next/.next
+                      !apps/next/.next/cache/**
+
+    # axe in a real browser against every story of the Vue, React, React Native and HTML Storybooks (all modes and themes)
+    a11y:
+        needs: build
+        runs-on: ubuntu-latest
+        container: mcr.microsoft.com/playwright:v1.64.1-noble
+        steps:
+            - uses: actions/checkout@v5
+            - uses: ./.github/actions/setup
+              with:
+                  build-tokens: 'false'
+            - uses: actions/download-artifact@v4
+              with:
+                  name: build
+            - working-directory: packages/parity
+              run: node scripts/storybook-a11y.ts ../vue/storybook-static ../react/storybook-static ../native/storybook-static ../css/storybook-static
+
+    # Keyboard/interaction tests in a real browser, each spec against Vue and React (e2e/native: React Native,
+    # e2e/apps: the Nuxt and Next.js demo apps)
+    e2e:
+        needs: build
+        runs-on: ubuntu-latest
+        container: mcr.microsoft.com/playwright:v1.64.1-noble
+        steps:
+            - uses: actions/checkout@v5
+            - uses: ./.github/actions/setup
+              with:
+                  build-tokens: 'false'
+            - uses: actions/download-artifact@v4
+              with:
+                  name: build
+            - working-directory: packages/parity
+              run: STORYBOOK_STATIC=1 npx playwright test
+            # once more with animations – keyboard and focus must also work while overlays animate
+            - working-directory: packages/parity
+              run: STORYBOOK_STATIC=1 E2E_MOTION=1 npx playwright test

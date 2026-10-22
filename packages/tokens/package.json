@@ -1,0 +1,59 @@
+{
+    "name": "@wirecore/wirelayer-tokens",
+    "version": "0.0.0",
+    "description": "WireLayer design tokens and Tailwind v4 theme",
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/wirecore/wirelayer.git",
+        "directory": "packages/tokens"
+    },
+    "homepage": "https://github.com/wirecore/wirelayer#readme",
+    "bugs": {
+        "url": "https://github.com/wirecore/wirelayer/issues"
+    },
+    "type": "module",
+    "sideEffects": [
+        "*.css"
+    ],
+    "exports": {
+        ".": {
+            "wirecore:source": "./src/index.ts",
+            "types": "./dist/index.d.ts",
+            "default": "./dist/index.js"
+        },
+        "./theme.css": "./dist/theme.css",
+        "./native.css": "./dist/native.css",
+        "./fonts.css": "./fonts.css"
+    },
+    "files": [
+        "dist",
+        "src",
+        "fonts.css"
+    ],
+    "scripts": {
+        "build": "tsc -p tsconfig.build.json && node scripts/build-theme.ts",
+        "typecheck": "tsc --noEmit",
+        "test": "vitest run"
+    },
+    "dependencies": {
+        "@fontsource-variable/jetbrains-mono": "^5.3.0",
+        "@fontsource-variable/schibsted-grotesk": "^5.3.0"
+    },
+    "devDependencies": {
+        "@types/node": "^26.6.5",
+        "typescript": "~6.0.3",
+        "vitest": "^5.0.5"
+    },
+    "publishConfig": {
+        "exports": {
+            ".": {
+                "types": "./dist/index.d.ts",
+                "default": "./dist/index.js"
+            },
+            "./theme.css": "./dist/theme.css",
+            "./native.css": "./dist/native.css",
+            "./fonts.css": "./fonts.css"
+        }
+    }
+}

@@ -1,0 +1,10 @@
+{
+    "extends": "../../tsconfig.base.json",
+    "compilerOptions": {
+        "customConditions": ["wirecore:source"],
+        "allowImportingTsExtensions": true,
+        "types": ["node"],
+        "noEmit": true
+    },
+    "include": ["src", "scripts", "test"]
+}

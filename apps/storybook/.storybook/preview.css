@@ -1,0 +1,5 @@
+@import 'tailwindcss';
+@import '@wirecore/wirelayer-tokens/theme.css';
+@import '@wirecore/wirelayer-tokens/fonts.css';
+
+@source '../src';

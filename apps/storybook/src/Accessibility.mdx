@@ -1,0 +1,59 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="Getting started/Accessibility" />
+
+# Accessibility
+
+The library meets **WCAG 2.2 AA**. What the components bring automatically, no project has to build itself –
+and all of it is checked on every test run.
+
+## Built into the components
+
+| Topic                                | Implementation                                                                                                                                                                                                                          |
+| ------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Contrast (1.4.3, 1.4.11)             | All token pairs ≥ 4.5:1 for text, ≥ 3:1 for borders, selected states, icons and focus – in every theme, light and dark, including hover; `checkTheme()` checks your own themes                                                          |
+| Focus (2.4.7)                        | Visible focus ring (`focus-visible`) on everything that is interactive                                                                                                                                                                  |
+| Labels & descriptions (1.3.1, 4.1.2) | `Field` links label, help text and error through `for`/`aria-describedby`; prefix/suffix are read out as well                                                                                                                           |
+| Errors (3.3.1)                       | `error` sets `aria-invalid`, the error text is a live region                                                                                                                                                                            |
+| Required fields (3.3.2)              | `required` on the input; the asterisk is `aria-hidden`                                                                                                                                                                                  |
+| Icon buttons (4.1.2, 2.5.3)          | `label` is required and becomes the `aria-label`; a counter badge becomes part of the name (“Notifications, 4 new”); icons are always `aria-hidden`                                                                                     |
+| Avatars (1.1.1)                      | With `name`: an image (`role="img"`) with the name instead of spelled-out initials; without `name`: decorative (`aria-hidden`)                                                                                                          |
+| Avatar groups (1.3.1)                | `role="group"` with `label`; “+5” is announced as “5 more”                                                                                                                                                                              |
+| Breadcrumb (1.3.1, 2.4.8)            | `<nav aria-label="Breadcrumb">` with `<ol>`, separators `aria-hidden`, current page `aria-current="page"`, icon-only items keep their text for screen readers                                                                           |
+| Status dots (1.4.1)                  | Never color alone – `StatusDot` always shows a text label, the dot is `aria-hidden`                                                                                                                                                     |
+| Selection controls (2.1.1, 4.1.2)    | Checkbox, Switch (`role=\"switch\"`), Radio, Chips (`aria-pressed`) and segments use real inputs or buttons: Tab, Space and arrow keys as in the ARIA Authoring Practices; groups are named; the focus ring sits visibly on the control |
+| High contrast for selection          | Selected chips, segments, checkboxes and switches use the system color `Highlight` in Windows contrast mode                                                                                                                             |
+| Select (4.1.2, 2.1.1)                | Combobox with listbox: open with Enter/arrow, select with Enter, Escape closes, focus returns to the trigger; disabled options are skipped; named through `Field`                                                                       |
+| Tabs (4.1.2, 2.1.1)                  | `tablist` with a name, arrow keys/Home/End switch, the panel is focusable and named after its tab                                                                                                                                       |
+| Steps (1.3.1)                        | `<ol>` with `aria-current=\"step\"`; every step announces its status (completed/current/to do)                                                                                                                                          |
+| Pagination (2.4.8)                   | `<nav>` with a name, page buttons as “Page 2 of 3”, current page `aria-current=\"page\"`, the summary “5–8 of 12” is a live region                                                                                                      |
+| Progress (4.1.2)                     | `progressbar` named after the label, the value as `aria-valuetext` (“68%”)                                                                                                                                                              |
+| Menu (2.1.1, 4.1.2)                  | Trigger with `aria-haspopup`/`aria-expanded`, arrow keys in the menu, Enter selects, Escape closes, focus returns to the trigger                                                                                                        |
+| Dialog (2.1.2, 2.4.3)                | Focus trap, `aria-modal`, named after the title and described by the description, Escape closes, focus returns to the trigger; `role=\"alertdialog\"` for confirmations                                                                 |
+| Tooltip (1.4.13)                     | also appears on keyboard focus, describes the trigger (`aria-describedby`), stays open on hover, Escape closes                                                                                                                          |
+| Toasts (4.1.3, 2.2.1)                | named live region “Notifications”, every toast `role=\"status\"` with a close button; toasts with an action do not disappear by themselves                                                                                              |
+| Loading (4.1.3)                      | A button with `loading` stays focusable (`aria-disabled`, `aria-busy`) and ignores clicks; `Spinner` is a live region                                                                                                                   |
+| Alerts (4.1.3)                       | `Alert` is `role="alert"` (warn, danger) or `role="status"` (info, success)                                                                                                                                                             |
+| Target size (2.5.8)                  | All controls at least 24 × 24 px                                                                                                                                                                                                        |
+| Motion (2.3.3)                       | Overlays fade in and out smoothly (Dialog, Menu, Select, Tooltip, Toasts); with `prefers-reduced-motion` there are no animations and a slower spinner – the keyboard tests run in both variants                                         |
+| High contrast mode                   | Buttons and badges show an outline in Windows contrast mode (`forced-colors`)                                                                                                                                                           |
+
+## What stays with the project
+
+- Every input needs a name: `Field` with `label` – or `aria-label` on the `Input`.
+- Render clickable cards with `asChild` as `<a>` or `<button>`, never as a clickable `<div>`.
+- Add router links (RouterLink, Next.js Link) to the breadcrumb through `BreadcrumbItem` with `asChild`.
+- If a `StatusDot` changes live, give the element `role="status"` so that the change is announced.
+- Default texts (`Loading`, `Close`) come from the `LocaleProvider` (English without a provider, German with `locale="de-DE"`); single texts can be overridden through props like `label` / `dismissLabel`.
+- Set `lang` and `dir` on the `<html>` element – screen readers choose the pronunciation from it, browsers the writing direction.
+- Set the focus sensibly after an `Alert` is closed.
+
+## Automated checks
+
+```sh
+docker compose run --rm workspace pnpm test   # token contrasts + axe in jsdom (Vue and React)
+docker compose run --rm a11y                  # axe in a real browser against every story, light + dark
+docker compose run --rm e2e                   # keyboard interaction in a real browser (Vue and React)
+```
+
+In Storybook, the **Accessibility** panel also shows the axe results of the current story.
