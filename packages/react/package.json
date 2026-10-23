@@ -5,12 +5,12 @@
     "license": "MIT",
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/wirecore/wirelayer.git",
+        "url": "git+https://github.com/WireCore/WireLayer.git",
         "directory": "packages/react"
     },
-    "homepage": "https://github.com/wirecore/wirelayer#readme",
+    "homepage": "https://github.com/WireCore/WireLayer#readme",
     "bugs": {
-        "url": "https://github.com/wirecore/wirelayer/issues"
+        "url": "https://github.com/WireCore/WireLayer/issues"
     },
     "type": "module",
     "sideEffects": [
