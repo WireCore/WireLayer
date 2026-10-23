@@ -15,9 +15,10 @@ import { el, frameworks, render } from './harness.js';
 const servers = Array.from({ length: 23 }, (_, index) => `server-${String(index + 1).padStart(2, '0')}`);
 /** A paged source over the servers; `fail` makes the next request fail */
 function serverSource() {
-    const state = { fail: false };
+    // `gate`: the answers wait until the test opens it (instead of 20 ms) – for states while loading
+    const state = { fail: false, gate: undefined as Promise<void> | undefined };
     const getItems = vi.fn(async ({ page = 1, pageSize = 10, search = '' }: DataRequest) => {
-        await new Promise((done) => setTimeout(done, 20));
+        await (state.gate ?? new Promise((done) => setTimeout(done, 20)));
         if (state.fail) throw new Error('offline');
         const found = servers.filter((name) => name.includes(search));
         return { items: found.slice((page - 1) * pageSize, page * pageSize), totalCount: found.length };
@@ -57,6 +58,9 @@ describe.each(frameworks)('%s', (framework) => {
         it('shows placeholders while the first page loads, an error with a retry button', async () => {
             const { source, state, getItems } = serverSource();
             state.fail = true;
+            // The first answer waits – on a slow machine 20 ms were over before the placeholders were checked
+            let answer!: () => void;
+            state.gate = new Promise((done) => (answer = done));
             await render(
                 framework,
                 el('DataView', {
@@ -68,6 +72,8 @@ describe.each(frameworks)('%s', (framework) => {
                 })
             );
             expect(screen.getByRole('list', { name: 'Server' })).toHaveAttribute('aria-busy', 'true');
+            state.gate = undefined;
+            answer();
             const alert = await screen.findByRole('alert');
             expect(alert).toHaveTextContent('The data could not be loaded.');
             state.fail = false;
