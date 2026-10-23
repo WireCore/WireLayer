@@ -24,7 +24,7 @@ jobs:
     lint:
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v5
+            - uses: actions/checkout@v7
             - uses: ./.github/actions/setup
             - run: pnpm lint
             - run: pnpm format:check
@@ -32,14 +32,14 @@ jobs:
     typecheck:
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v5
+            - uses: actions/checkout@v7
             - uses: ./.github/actions/setup
             - run: pnpm typecheck
 
     test:
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v5
+            - uses: actions/checkout@v7
             - uses: ./.github/actions/setup
             - run: pnpm test
 
@@ -47,14 +47,14 @@ jobs:
     licenses:
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v5
+            - uses: actions/checkout@v7
             - uses: ./.github/actions/setup
             - run: pnpm licenses:check
 
     build:
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v5
+            - uses: actions/checkout@v7
             - uses: ./.github/actions/setup
             - run: pnpm build
             - run: pnpm build-storybook
@@ -85,7 +85,7 @@ jobs:
             matrix:
                 storybook: [vue, react, native, css]
         steps:
-            - uses: actions/checkout@v5
+            - uses: actions/checkout@v7
             - uses: ./.github/actions/setup
               with:
                   build-tokens: 'false'
@@ -115,7 +115,7 @@ jobs:
                     - { name: visual, projects: --project visual }
                     - { name: apps, projects: --project nuxt --project next }
         steps:
-            - uses: actions/checkout@v5
+            - uses: actions/checkout@v7
             - uses: ./.github/actions/setup
               with:
                   build-tokens: 'false'
