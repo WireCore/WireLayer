@@ -11,6 +11,8 @@ runs:
         - uses: actions/setup-node@v5
           with:
               node-version: 26
+              # The pnpm store is cached below – setup-node's own cache would call pnpm before it is installed
+              package-manager-cache: false
         - shell: bash
           run: npm install -g pnpm@12.14.0
         - id: store
