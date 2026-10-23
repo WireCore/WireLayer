@@ -1,6 +1,6 @@
 {
     "name": "@wirecore/wirelayer-css",
-    "version": "0.1.1",
+    "version": "0.2.0",
     "description": "WireLayer components as plain CSS classes (.wc-*) for HTML and server templates",
     "license": "MIT",
     "repository": {

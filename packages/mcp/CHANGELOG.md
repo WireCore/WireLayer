@@ -1,5 +1,12 @@
 # @wirecore/wirelayer-mcp
 
+## 0.1.2
+
+### Patch Changes
+
+- 54609a3: Documentation says English is the default language, as it is in the code: `useLocale` and the MCP server/`llms.txt`
+  no longer claim German without a `LocaleProvider`.
+
 ## 0.1.1
 
 ### Patch Changes
