@@ -1,5 +1,11 @@
 # @wirecore/wirelayer-mcp
 
+## 0.1.1
+
+### Patch Changes
+
+- 1cbdeda: Every package has a README on npm now (installation, usage, links to Storybook and GitHub).
+
 ## 0.1.0
 
 ### Minor Changes
