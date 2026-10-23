@@ -93,10 +93,16 @@ for (const { base, stories } of runs) {
             let violations: { rule: string; nodes: string[] }[] | undefined;
             for (let attempt = 0; attempt < 2 && !violations; attempt++) {
                 try {
-                    violations = await check(`${base}/iframe.html?id=${story.id}&viewMode=story&globals=${appearance}`);
+                    // page.evaluate has no timeout of its own – a story that never settles must not stall the run
+                    violations = await Promise.race([
+                        check(`${base}/iframe.html?id=${story.id}&viewMode=story&globals=${appearance}`),
+                        new Promise<never>((_, fail) =>
+                            setTimeout(() => fail(new Error('timed out after 60 s')), 60_000)
+                        ),
+                    ]);
                 } catch (error) {
-                    // A crashed page (e.g. out of memory) stays dead – continue with a fresh one
-                    if (page.isClosed() || String(error).includes('crashed')) {
+                    // A crashed or stuck page (e.g. out of memory) stays dead – continue with a fresh one
+                    if (page.isClosed() || /crashed|timed out/.test(String(error))) {
                         await page.close().catch(() => {});
                         page = await newPage();
                     }
