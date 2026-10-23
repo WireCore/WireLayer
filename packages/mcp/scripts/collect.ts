@@ -543,8 +543,10 @@ const outputs = (data: Collected) => ({
 if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
     const files = outputs(collect());
     if (process.argv.includes('--check')) {
+        // Only the committed data – llms*.txt are generated from the same data and not in git (missing on a fresh checkout)
         const stale = Object.entries(files).filter(
-            ([path, text]) => !existsSync(path) || readFileSync(path, 'utf8') !== text
+            ([path, text]) =>
+                path.endsWith('components.json') && (!existsSync(path) || readFileSync(path, 'utf8') !== text)
         );
         if (stale.length) {
             console.error(
