@@ -46,3 +46,6 @@ export { moveItem } from '@wirecore/wirelayer-recipes';
 export { moveTreeRow } from '@wirecore/wirelayer-recipes';
 /** A data source controller for own lists (abort, cache, debounced search) and the DataTable adapters */
 export { createDataController, dataSourceToRows, rowsToDataSource } from '@wirecore/wirelayer-recipes';
+
+// Types of the recipes in the pivot props above
+export type { PivotValue } from '@wirecore/wirelayer-recipes';

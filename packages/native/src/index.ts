@@ -347,3 +347,42 @@ export { RadialBar, type RadialBarItem, type RadialBarProps } from './components
 export { Sankey, type SankeyProps } from './components/Sankey/Sankey.js';
 export { Treemap, type TreemapItem, type TreemapProps } from './components/Treemap/Treemap.js';
 export type { FunnelStage, SankeyLinkInput, SankeyNodeInput, VisualTone } from '@wirecore/wirelayer-recipes/native';
+
+// Types of the recipes that appear in the props above – apps use them without depending on the recipes package
+export type {
+    AlertStatus,
+    AlertVariant,
+    AvatarColor,
+    AvatarShape,
+    AvatarSize,
+    AvatarVariant,
+    BadgeVariant,
+    ButtonColor,
+    ButtonShape,
+    ButtonVariant,
+    CarouselBreakpoint,
+    ChipSize,
+    DataQuery,
+    DataSource,
+    DateInput,
+    DateLike,
+    DialogStatus,
+    DurationValueType,
+    HighlightColor,
+    IconButtonVariant,
+    ItemAccessor,
+    ItemValueOf,
+    LayoutGap,
+    MaskTokens,
+    OverlaySize,
+    PhoneCountry,
+    PinInputType,
+    RadioGroupOrientation,
+    RecurrenceScope,
+    ResponsiveColumns,
+    Size,
+    StatusDotStatus,
+    ToastType,
+    UploadFunction,
+    UploadState,
+} from '@wirecore/wirelayer-recipes/native';
