@@ -23,6 +23,8 @@ const canvas = useTemplateRef<HTMLCanvasElement>('canvas');
 let instance: Chart | undefined;
 let observer: MutationObserver | undefined;
 let motion: MediaQueryList | undefined;
+// Without data-mode the page follows the system – recolour when it switches
+let scheme: MediaQueryList | undefined;
 
 const config = () => props.build(readChartTheme(canvas.value!), !!motion?.matches) as unknown as ChartConfiguration;
 function create() {
@@ -46,10 +48,13 @@ onMounted(() => {
     observer = new MutationObserver(update);
     observer.observe(document.documentElement, { attributes: true });
     motion.addEventListener('change', update);
+    scheme = matchMedia('(prefers-color-scheme: dark)');
+    scheme.addEventListener('change', update);
 });
 onBeforeUnmount(() => {
     observer?.disconnect();
     motion?.removeEventListener('change', update);
+    scheme?.removeEventListener('change', update);
     instance?.destroy();
 });
 watch(() => props.build, update);

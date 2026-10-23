@@ -9,6 +9,7 @@ export const colorDeclarations = (set: Partial<ColorSet>) =>
 /**
  * CSS for a theme: its overrides apply with `data-theme="<name>"`, combined with `data-mode` on the same
  * element or nested in either direction. Dark rules are more specific, so they win over the light ones.
+ * Without `data-mode` on the root the system setting decides, like for the base colours.
  * Use it to generate CSS for a custom theme, e.g. in a build script.
  */
 export function themeToCss(theme: Theme): string {
@@ -22,5 +23,12 @@ ${t}[data-mode=dark],
 ${t} [data-mode=dark],
 [data-mode=dark] ${t} {
 ${colorDeclarations(theme.colors.dark)}
+}
+
+@media (prefers-color-scheme: dark) {
+    :root:not([data-mode])${t},
+    :root:not([data-mode]) ${t}:not([data-mode], [data-mode=light] *) {
+${colorDeclarations(theme.colors.dark).replace(/^/gm, '    ')}
+    }
 }`;
 }

@@ -42,6 +42,8 @@ const format = computed(
 const summary = computed(() => sparklineSummary(props.label, props.data, format.value, translations.chart));
 let instance: Chart<'line'> | undefined;
 let observer: MutationObserver | undefined;
+// Without data-mode the page follows the system – recolour when it switches
+let scheme: MediaQueryList | undefined;
 
 function config() {
     const theme = readChartTheme(canvas.value!);
@@ -87,9 +89,12 @@ onMounted(() => {
     if (context) instance = new Chart(context, { type: 'line', ...config() } as never);
     observer = new MutationObserver(update);
     observer.observe(document.documentElement, { attributes: true });
+    scheme = matchMedia('(prefers-color-scheme: dark)');
+    scheme.addEventListener('change', update);
 });
 onBeforeUnmount(() => {
     observer?.disconnect();
+    scheme?.removeEventListener('change', update);
     instance?.destroy();
 });
 watch(() => [...props.data], update);
