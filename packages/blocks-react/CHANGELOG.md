@@ -1,5 +1,18 @@
 # @wirecore/wirelayer-blocks-react
 
+## 0.1.2
+
+### Patch Changes
+
+- Updated dependencies [1ccb5ce]
+- Updated dependencies [54609a3]
+- Updated dependencies [b7530a8]
+- Updated dependencies [54609a3]
+- Updated dependencies [54609a3]
+- Updated dependencies [bbb430c]
+    - @wirecore/wirelayer-react@0.2.0
+    - @wirecore/wirelayer-recipes@0.2.0
+
 ## 0.1.1
 
 ### Patch Changes

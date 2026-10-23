@@ -1,5 +1,46 @@
 # @wirecore/wirelayer-native
 
+## 0.2.0
+
+### Minor Changes
+
+- 54609a3: DataTable: new prop `csvSeparator` for the CSV export, also for the built-in export button. By default the separator
+  now follows the locale like a spreadsheet does (`csvSeparator(locale)` from the recipes): `;` where numbers have a
+  decimal comma (de-DE, fr-FR …), `,` otherwise (en-US …). Before, it was always `;`. `exportCsv({ separator })` still
+  wins over both.
+- 54609a3: **Breaking:** German is a language module like French or Spanish and no longer part of the default bundle (about half
+  of the built-in texts). Only English is built in. Apps that use German register it once at startup, before the first
+  render:
+
+    ```ts
+    import { registerLocale } from '@wirecore/wirelayer-vue'; // or -react, -native
+    import { de } from '@wirecore/wirelayer-vue/locales/de';
+
+    registerLocale('de', de);
+    ```
+
+    `messages` only contains `en` now; the German texts are `de` from `…/locales/de`. The German names and search words of
+    the EmojiPicker moved there as well (`emojiPicker.emojis`); the built-in emojis are English. `localeEmojis(texts)` no
+    longer takes a locale – pass the lines of the language module (`localeEmojis(de.emojiPicker.emojis)`).
+
+- bbb430c: The types that appear in the props are exported by the component packages themselves, so apps no longer need
+  `@wirecore/wirelayer-recipes` (or `NonNullable<BadgeProps['variant']>`) for them – e.g. `BadgeVariant`,
+  `ButtonVariant`, `ButtonSize`, `AlertStatus`, `DialogPosition`, `OverlaySize`, `StatusDotStatus`, `DataSource`,
+  `RecipeClasses`. `/data-table` adds `PivotValue`, `/virtual` `ItemAccessor`, React Native's `/pdf` `PdfZoom`.
+
+### Patch Changes
+
+- 54609a3: Documentation says English is the default language, as it is in the code: `useLocale` and the MCP server/`llms.txt`
+  no longer claim German without a `LocaleProvider`.
+- f396bd4: DataView: in the browser (react-native-web) the scrolling list takes the keyboard focus, so the arrow keys scroll it even
+  when the items have no controls.
+- Updated dependencies [1ccb5ce]
+- Updated dependencies [54609a3]
+- Updated dependencies [54609a3]
+- Updated dependencies [54609a3]
+    - @wirecore/wirelayer-tokens@0.2.0
+    - @wirecore/wirelayer-recipes@0.2.0
+
 ## 0.1.1
 
 ### Patch Changes
