@@ -8,7 +8,7 @@ import {
 } from '@wirecore/wirelayer-recipes/native';
 import { LayoutGrid, List } from 'lucide-react-native';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
-import { FlatList, Text, View, type StyleProp, type ViewStyle } from 'react-native';
+import { FlatList, Platform, Text, View, type StyleProp, type ViewStyle } from 'react-native';
 import { useLocale } from '../../locale.js';
 import { useAnnouncer } from '../../utils/announce.js';
 import { useControllable } from '../../utils/useControllable.js';
@@ -251,6 +251,9 @@ export function DataView<T>({
                 role="list"
                 aria-label={label}
                 aria-busy={firstLoad || (announces && busy) || undefined}
+                // In the browser (react-native-web) the list takes the keyboard focus, so the arrow keys scroll it even
+                // when the items have no controls
+                focusable={Platform.OS === 'web'}
                 contentContainerClassName={styles.content()}
                 onEndReached={infinite && autoLoad && !firstLoad ? onEnd : undefined}
                 onEndReachedThreshold={0.5}
