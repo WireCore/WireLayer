@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { openStory } from './story.js';
+import { focusWithin, openStory } from './story.js';
 
 // Scheduler (resources, timeline, series, "+N more", year) and Gantt in the browser – each against Vue and React
 
@@ -83,6 +83,7 @@ test.describe('Scheduler', () => {
         const panel = page.getByRole('dialog');
         await expect(panel).toBeVisible();
         expect(await panel.getByRole('button').count()).toBeGreaterThan(2);
+        await focusWithin(panel);
         await page.keyboard.press('Escape');
         await expect(panel).toBeHidden();
         await expect(more).toBeFocused();

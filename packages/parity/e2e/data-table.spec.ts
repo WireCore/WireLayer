@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { nextFrame, openStory } from './story.ts';
+import { focusWithin, nextFrame, openStory } from './story.ts';
 
 // The extended DataTable in the browser: filter menu, column menu and drag and drop, rows by keyboard,
 // context menu, row editing, virtual scrolling with frozen rows, full screen and row height
@@ -40,6 +40,7 @@ test.describe('DataTable filter menu', () => {
 
         await page.getByRole('button', { name: 'Filter for Cores, active' }).click();
         await expect(menu).toBeVisible();
+        await focusWithin(menu);
         await page.keyboard.press('Escape');
         await expect(menu).toBeHidden();
         await expect(page.getByRole('button', { name: 'Filter for Cores, active' })).toBeFocused();

@@ -111,6 +111,8 @@ test.describe('MultiSelect', () => {
         const listbox = page.getByRole('listbox');
         await expect(listbox).toBeVisible();
         await expect(listbox).toHaveAttribute('aria-multiselectable', 'true');
+        // Ark highlights an option a frame after opening – the arrow key moves on from there
+        await expect(page.locator('[role=option][data-highlighted]')).toHaveCount(1);
         await page.keyboard.press('ArrowDown');
         await page.keyboard.press('Enter');
         await expect(listbox).toBeVisible();

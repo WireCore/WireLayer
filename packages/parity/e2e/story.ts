@@ -1,4 +1,4 @@
-import type { Page } from '@playwright/test';
+import { expect, type Locator, type Page } from '@playwright/test';
 
 /** Opens a story in isolation (no Storybook UI), so Tab starts at the component. */
 export async function openStory(
@@ -20,3 +20,7 @@ export async function openStory(
  */
 export const nextFrame = (page: Page) =>
     page.evaluate(() => new Promise((done) => requestAnimationFrame(() => requestAnimationFrame(done))));
+
+/** Waits until the focus is inside the element – overlays take it a moment after they appear */
+export const focusWithin = (element: Locator) =>
+    expect.poll(() => element.evaluate((el) => el.contains(document.activeElement))).toBe(true);

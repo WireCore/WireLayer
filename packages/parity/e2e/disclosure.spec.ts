@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { openStory } from './story.ts';
+import { focusWithin, openStory } from './story.ts';
 
 test.describe('Accordion', () => {
     test('toggles with Enter, reports aria-expanded and skips disabled items', async ({ page }) => {
@@ -32,6 +32,7 @@ test.describe('Popover', () => {
         await expect(popover).toBeVisible();
         await expect(popover).toHaveAccessibleDescription(/Frankfurt/);
         await expect(popover.getByRole('button', { name: 'Close', exact: true }).first()).toBeVisible();
+        await focusWithin(popover);
         await page.keyboard.press('Escape');
         await expect(popover).toBeHidden();
         await expect(trigger).toBeFocused();

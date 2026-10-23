@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { nextFrame, openStory } from './story.ts';
+import { focusWithin, nextFrame, openStory } from './story.ts';
 
 test.describe('Menu with groups and submenus', () => {
     test('arrow right opens the submenu, its items can be chosen', async ({ page }) => {
@@ -8,6 +8,7 @@ test.describe('Menu with groups and submenus', () => {
         const menu = page.getByRole('menu').first();
         await expect(menu.getByRole('group', { name: 'Server' })).toBeVisible();
         await expect(menu.getByRole('separator')).toHaveCount(1);
+        await focusWithin(menu);
         await page.keyboard.press('ArrowDown');
         await page.keyboard.press('ArrowDown');
         await expect(page.getByRole('menuitem', { name: 'Move to' })).toHaveAttribute('data-highlighted', '');

@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { openStory } from './story.js';
+import { focusWithin, openStory } from './story.js';
 
 test.describe('Checkbox', () => {
     test('is reachable with Tab, shows a focus ring and toggles with Space', async ({ page }) => {
@@ -141,7 +141,8 @@ test.describe('MultiSelect chips', () => {
         await openStory(page, 'forms-multiselect--select-all');
         await page.getByRole('combobox', { name: 'Services' }).focus();
         await page.keyboard.press('Enter');
-        // The list has the focus; Shift+Tab reaches "select all"
+        // The list has the focus (a moment after opening); Shift+Tab reaches "select all"
+        await focusWithin(page.getByRole('listbox'));
         await page.keyboard.press('Shift+Tab');
         const all = page.getByRole('checkbox', { name: 'Select all' });
         await expect(all).toBeFocused();

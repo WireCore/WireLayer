@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { openStory } from './story.js';
+import { focusWithin, openStory } from './story.js';
 
 test.describe('Menu', () => {
     test('opens with Enter, moves with the arrow keys, selects and returns focus to the trigger', async ({ page }) => {
@@ -23,6 +23,7 @@ test.describe('Menu', () => {
         await page.getByRole('button', { name: 'Actions' }).focus();
         await page.keyboard.press('ArrowDown');
         await expect(page.getByRole('menu')).toBeVisible();
+        await focusWithin(page.getByRole('menu'));
         await page.keyboard.press('Escape');
         await expect(page.getByRole('menu')).toBeHidden();
         await expect(page.getByRole('button', { name: 'Actions' })).toBeFocused();
@@ -182,6 +183,7 @@ test.describe('Motion', () => {
             await expect(dialog).toBeVisible();
             expect(await animationOf(dialog)).toBe('wc-dialog-in');
             expect(await animationOf(page.locator('[data-scope=dialog][data-part=backdrop]'))).toBe('wc-fade-in');
+            await focusWithin(dialog);
             await page.keyboard.press('Escape');
             // The exit animation runs before the dialog is removed
             expect(await animationOf(dialog)).toBe('wc-dialog-out');

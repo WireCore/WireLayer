@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { openStory } from '../story.ts';
+import { focusWithin, openStory } from '../story.ts';
 
 test.describe('Select', () => {
     test('opens a sheet of radio options, focuses the checked one and names the trigger with the value', async ({
@@ -25,6 +25,7 @@ test.describe('Select', () => {
         // react-native-web wraps every modal in an unnamed dialog of its own
         const sheet = page.getByRole('dialog', { name: 'Service' });
         await expect(sheet).toBeVisible();
+        await focusWithin(sheet);
         await page.keyboard.press('Escape');
         await expect(sheet).toBeHidden();
     });
