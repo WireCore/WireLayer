@@ -34,6 +34,8 @@ Not released yet (as of October 2026).
 - [ ] Validate in real-world projects with Nuxt, Next.js, Expo and server templates (HTML) and incorporate the feedback.
       The demo apps in this repository only cover setup, SSR and hydration so far
 - [ ] 1.0.0 after this validation
+- [ ] Consider npm staged publishing (`npm stage publish`, every version approved by a maintainer with 2FA) instead
+      of direct publishing from the release workflow – e.g. before 1.0.0 or once more people can merge
 - [ ] Have the translations fr, es, it, pt, pt-BR, nl, pl, cs, hu, lv, ar, tr (`packages/recipes/src/locales`) reviewed
       by native speakers
 
