@@ -67,6 +67,8 @@ test.describe('ColorPicker', () => {
         await page.getByRole('button', { name: 'Choose #16a34a' }).click();
         await expect(page.getByText('Value: #16A34A')).toBeVisible();
         const hex = page.getByRole('textbox', { name: 'Hex value' });
+        // Vue writes the preset into the field asynchronously – typing before would be overwritten
+        await expect(hex).toHaveValue(/16a34a/i);
         await hex.fill('#7c3aed');
         await hex.press('Enter');
         await expect(page.getByText('Value: #7C3AED')).toBeVisible();

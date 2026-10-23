@@ -61,6 +61,10 @@ const rtl = [
     'layout-appshell--playground',
 ];
 
+// Stories that change on their own (live lines, loading on a timer) – their content depends on timing, the E2E tests
+// check their behavior
+const changing = ['data-logviewer--live', 'data-datatable--infinite', 'data-dataview--infinite'];
+
 async function shoot(page: Page, url: string, name: string) {
     // A fixed "today" for calendars and date pickers
     await page.clock.setFixedTime(new Date('2026-10-20T10:00:00'));
@@ -76,7 +80,7 @@ test.use({ viewport: { width: 1000, height: 700 } });
 
 for (const storybook of storybooks) {
     test.describe(storybook.name, () => {
-        for (const id of storiesOf(storybook)) {
+        for (const id of storiesOf(storybook).filter((id) => !changing.includes(id))) {
             test(id, async ({ page }) => {
                 await shoot(
                     page,

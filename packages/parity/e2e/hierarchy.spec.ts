@@ -65,6 +65,8 @@ test.describe('CascadeSelect', () => {
         await page.keyboard.press('ArrowRight');
         await expect(page.getByRole('menuitem', { name: 'Bavaria' })).toHaveAttribute('data-highlighted', '');
         await page.keyboard.press('ArrowDown');
+        // Arrow right opens the submenu of the item highlighted at that moment
+        await expect(page.getByRole('menuitem', { name: 'Hesse' })).toHaveAttribute('data-highlighted', '');
         await page.keyboard.press('ArrowRight');
         await expect(page.getByRole('menuitemradio', { name: 'Frankfurt' })).toHaveAttribute('data-highlighted', '');
         const boxes = await page.locator('[role=menu]').evaluateAll((menus) =>

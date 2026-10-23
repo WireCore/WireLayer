@@ -92,7 +92,8 @@ test.describe('SpeedDial', () => {
         await expect(trigger).toHaveAttribute('aria-haspopup', 'menu');
         await trigger.focus();
         await page.keyboard.press('Enter');
-        await expect(page.getByRole('menuitem', { name: 'Invite person' })).toBeVisible();
+        // Opened with Enter, Ark highlights the first action a frame later – only then does the arrow key move on
+        await expect(page.getByRole('menuitem', { name: 'Create server' })).toHaveAttribute('data-highlighted', '');
         await page.keyboard.press('ArrowDown');
         await expect(page.getByRole('menuitem', { name: 'Invite person' })).toHaveAttribute('data-highlighted', '');
         await nextFrame(page);

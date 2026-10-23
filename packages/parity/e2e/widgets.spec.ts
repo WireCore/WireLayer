@@ -171,6 +171,8 @@ test.describe('Marquee', () => {
         const first = await offset();
         await expect.poll(offset, { timeout: 5000 }).not.toBe(first);
         await page.getByRole('button', { name: /pause/i }).first().click();
+        // Measure once the browser has stopped the animation – on a slow machine it runs another frame
+        await expect(content).toHaveCSS('animation-play-state', 'paused');
         const paused = await offset();
         await page.waitForTimeout(600);
         expect(await offset()).toBe(paused);

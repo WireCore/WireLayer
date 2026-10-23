@@ -9,7 +9,10 @@ test.describe('DatePicker with time', () => {
         await expect(group.getByRole('spinbutton')).toHaveText(['10', '20', '2026', '02', '30', 'PM']);
         await page.getByRole('button', { name: 'Clear date' }).click();
         await group.getByRole('spinbutton', { name: 'Month' }).click();
-        await page.keyboard.type('110320260915a');
+        await page.keyboard.type('110320260915');
+        // AM/PM only once the field has moved there – a key during the move gets lost
+        await expect(group.getByRole('spinbutton', { name: 'AM/PM' })).toBeFocused();
+        await page.keyboard.press('a');
         await expect(page.getByText('Value: 2026-11-03T09:15')).toBeVisible();
         await page.getByRole('button', { name: 'Open calendar' }).click();
         await page.keyboard.press('ArrowRight');
@@ -45,7 +48,10 @@ test.describe('DateRangePicker', () => {
         const end = page.getByRole('group', { name: 'Maintenance window End' });
         await expect(end.getByRole('spinbutton')).toHaveText(['10', '20', '2026', '05', '30', 'PM']);
         await end.getByRole('spinbutton', { name: 'Hour' }).click();
-        await page.keyboard.type('0645p');
+        await page.keyboard.type('0645');
+        // AM/PM only once the field has moved there – a key during the move gets lost
+        await expect(end.getByRole('spinbutton', { name: 'AM/PM' })).toBeFocused();
+        await page.keyboard.press('p');
         await expect(page.getByText('To: 2026-10-20T18:45')).toBeVisible();
     });
 });
@@ -58,7 +64,10 @@ test.describe('TimePicker', () => {
         // en-US: 12 hours with AM/PM in the field, the value stays "HH:mm"
         await expect(group.getByRole('spinbutton')).toHaveText(['09', '30', 'AM']);
         await group.getByRole('spinbutton', { name: 'Hour' }).click();
-        await page.keyboard.type('0215p');
+        await page.keyboard.type('0215');
+        // AM/PM only once the field has moved there – a key during the move gets lost
+        await expect(group.getByRole('spinbutton', { name: 'AM/PM' })).toBeFocused();
+        await page.keyboard.press('p');
         await expect(page.getByText('Value: 14:15')).toBeVisible();
         await page.getByRole('combobox', { name: 'Select time' }).click();
         const list = page.getByRole('listbox', { name: 'Select time' });

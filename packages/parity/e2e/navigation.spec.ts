@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { openStory } from './story.js';
+import { nextFrame, openStory } from './story.js';
 
 test.describe('Select', () => {
     test('opens, moves and selects with the keyboard and returns focus to the trigger', async ({ page }) => {
@@ -28,6 +28,8 @@ test.describe('Select', () => {
         await trigger.focus();
         await page.keyboard.press('ArrowDown');
         await expect(page.getByRole('listbox')).toBeVisible();
+        // Ark highlights an option a frame after opening – End before that would be overridden
+        await expect(page.locator('[role=option][data-highlighted]')).toHaveCount(1);
         await page.keyboard.press('End');
         // "Network" is disabled – the last enabled option is highlighted
         await expect(page.getByRole('option', { name: 'Hardware' })).toHaveAttribute('data-highlighted', '');
@@ -203,6 +205,8 @@ test.describe('MegaMenu', () => {
         await company.click();
         await expect(services).toHaveAttribute('aria-expanded', 'false');
         await expect(company).toHaveAttribute('aria-expanded', 'true');
+        // Ark listens for outside clicks from the next frame on (so the opening click does not close the panel)
+        await nextFrame(page);
         await page.mouse.click(5, 500);
         await expect(company).toHaveAttribute('aria-expanded', 'false');
     });

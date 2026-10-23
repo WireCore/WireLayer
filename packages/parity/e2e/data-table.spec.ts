@@ -24,7 +24,11 @@ test.describe('DataTable filter menu', () => {
         await expect(menu).toBeVisible();
         await menu.getByRole('combobox', { name: 'Condition 1' }).click();
         await page.getByRole('option', { name: 'Greater than', exact: true }).click();
-        await menu.getByRole('spinbutton', { name: 'Value 1' }).fill('8');
+        // The condition list must be closed, otherwise it takes the Enter
+        await expect(page.getByRole('listbox')).toBeHidden();
+        const value = menu.getByRole('spinbutton', { name: 'Value 1' });
+        await value.fill('8');
+        await expect(value).toHaveValue('8');
         await page.keyboard.press('Enter');
         await expect(menu).toBeHidden();
         await expect(page.getByRole('button', { name: 'Filter for Cores, active' })).toBeFocused();
