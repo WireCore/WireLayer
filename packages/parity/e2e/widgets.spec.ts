@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { openStory } from './story.ts';
+import { nextFrame, openStory } from './story.ts';
 
 // Keyboard and pointer in the browser: sortable lists (keyboard, drag, two clicks), mentions, the emoji grid, the
 // floating panel (Alt+arrows), the image cropper and the angle slider – against the Vue and the React Storybook
@@ -173,6 +173,8 @@ test.describe('Marquee', () => {
         await page.getByRole('button', { name: /pause/i }).first().click();
         // Measure once the browser has stopped the animation – on a slow machine it runs another frame
         await expect(content).toHaveCSS('animation-play-state', 'paused');
+        // The reported position may still lag a frame behind the paused animation
+        await nextFrame(page);
         const paused = await offset();
         await page.waitForTimeout(600);
         expect(await offset()).toBe(paused);

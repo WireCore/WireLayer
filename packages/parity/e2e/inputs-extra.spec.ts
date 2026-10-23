@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { openStory } from './story.ts';
+import { nextFrame, openStory } from './story.ts';
 
 test.describe('PinInput', () => {
     test('is a named group of boxes; typing moves on, pasting fills all', async ({ page }) => {
@@ -69,6 +69,8 @@ test.describe('ColorPicker', () => {
         const hex = page.getByRole('textbox', { name: 'Hex value' });
         // Vue writes the preset into the field asynchronously – typing before would be overwritten
         await expect(hex).toHaveValue(/16a34a/i);
+        await expect(page.getByRole('button', { name: 'Accent color #16A34A' })).toBeAttached();
+        await nextFrame(page);
         await hex.fill('#7c3aed');
         await hex.press('Enter');
         await expect(page.getByText('Value: #7C3AED')).toBeVisible();

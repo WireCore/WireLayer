@@ -64,6 +64,8 @@ test.describe('CascadeSelect', () => {
         await expect(page.getByRole('menuitem', { name: 'Germany' })).toHaveAttribute('data-highlighted', '');
         await page.keyboard.press('ArrowRight');
         await expect(page.getByRole('menuitem', { name: 'Bavaria' })).toHaveAttribute('data-highlighted', '');
+        // With animations Ark highlights before the focus has moved into the submenu
+        await expect(page.locator('[role=menu]:focus')).toContainText('Bavaria');
         await page.keyboard.press('ArrowDown');
         // Arrow right opens the submenu of the item highlighted at that moment
         await expect(page.getByRole('menuitem', { name: 'Hesse' })).toHaveAttribute('data-highlighted', '');

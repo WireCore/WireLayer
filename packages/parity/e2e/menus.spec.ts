@@ -121,6 +121,8 @@ test.describe('Menubar', () => {
         await expect(bar.getByRole('menuitem', { name: 'Edit' })).toBeFocused();
         await page.keyboard.press('ArrowDown');
         await expect(page.getByRole('menuitem', { name: 'Undo' })).toBeVisible();
+        // The arrow key only moves on to the next menu once the focus is in this one (with animations it comes later)
+        await expect(page.locator('[role=menu]:focus')).toContainText('Undo');
         await page.keyboard.press('ArrowRight');
         await expect(page.getByRole('menuitem', { name: 'Zoom in' })).toBeVisible();
         await expect(page.getByRole('menuitem', { name: 'Undo' })).toHaveCount(0);
