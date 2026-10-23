@@ -60,8 +60,8 @@ const icons: Record<EmojiCategory, string> = {
 const noRecent: string[] = [];
 
 /**
- * Emoji picker: search (German words), categories, a grid (arrow keys, Home/End, Ctrl+Home/End; Enter or Space
- * chooses); the name of the focused emoji is shown below. Recently used emojis come first.
+ * Emoji picker: search (English words and those of a language module), categories, a grid (arrow keys, Home/End,
+ * Ctrl+Home/End; Enter or Space chooses); the name of the focused emoji is shown below. Recently used emojis come first.
  */
 export function EmojiPicker({
     classes,
@@ -78,15 +78,12 @@ export function EmojiPicker({
 }: EmojiPickerProps) {
     const emojiPicker = useRecipe('emojiPicker', emojiPickerRecipe, classes);
     const styles = emojiPicker();
-    const { locale, translations } = useLocale();
+    const { translations } = useLocale();
     const t = translations.emojiPicker;
     const headingId = `${useId()}heading`;
     const grid = useRef<HTMLDivElement>(null);
     const focusRequest = useRef<number | null>(null);
-    const all = useMemo(
-        () => emojis ?? localeEmojis(locale, translations.emojiPicker.emojis),
-        [emojis, locale, translations]
-    );
+    const all = useMemo(() => emojis ?? localeEmojis(translations.emojiPicker.emojis), [emojis, translations]);
     const [stored, setStored] = useLocalStorage<string[]>(recentKey, noRecent);
     const recentEntries = useMemo(
         () =>

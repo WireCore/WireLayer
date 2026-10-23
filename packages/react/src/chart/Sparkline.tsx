@@ -79,14 +79,18 @@ export function Sparkline({
             };
         };
         const instance = new ChartJs(context, { type: 'line', ...config() } as ChartConfiguration<'line'>);
-        // Theme and mode live on <html>
-        const observer = new MutationObserver(() => {
+        const recolor = () => {
             Object.assign(instance, config());
             instance.update();
-        });
+        };
+        // Theme and mode live on <html>; without data-mode the page follows the system
+        const observer = new MutationObserver(recolor);
         observer.observe(document.documentElement, { attributes: true });
+        const scheme = matchMedia('(prefers-color-scheme: dark)');
+        scheme.addEventListener('change', recolor);
         return () => {
             observer.disconnect();
+            scheme.removeEventListener('change', recolor);
             instance.destroy();
         };
     }, [key, fill, locale]);

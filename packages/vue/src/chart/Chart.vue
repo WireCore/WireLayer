@@ -60,6 +60,8 @@ const rows = computed(() => chartTable(props.data, format.value, translations.ch
 let instance: Chart<TType> | undefined;
 let observer: MutationObserver | undefined;
 let motion: MediaQueryList | undefined;
+// Without data-mode the page follows the system – recolour when it switches
+let scheme: MediaQueryList | undefined;
 
 function config() {
     const theme = readChartTheme(canvas.value!);
@@ -99,10 +101,13 @@ onMounted(() => {
     observer = new MutationObserver(update);
     observer.observe(document.documentElement, { attributes: true });
     motion.addEventListener('change', update);
+    scheme = matchMedia('(prefers-color-scheme: dark)');
+    scheme.addEventListener('change', update);
 });
 onBeforeUnmount(() => {
     observer?.disconnect();
     motion?.removeEventListener('change', update);
+    scheme?.removeEventListener('change', update);
     instance?.destroy();
 });
 watch(() => props.type, create);

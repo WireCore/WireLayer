@@ -4783,6 +4783,12 @@
                     "description": "Shows an export button; the CSV has the filtered and sorted rows of all pages (or the selection)"
                 },
                 {
+                    "name": "csvSeparator",
+                    "type": "string",
+                    "optional": true,
+                    "description": "Separator of the CSV export, also of the export button – default: from the locale (\";\" where numbers have a decimal comma, e.g. de-DE, as a spreadsheet there expects it; \",\" otherwise)"
+                },
+                {
                     "name": "exportFormats",
                     "type": "('csv' | 'xlsx')[]",
                     "optional": true,
@@ -4975,10 +4981,16 @@
                     "description": "Fixed height (CSS length): the table scrolls inside, header and footer stay visible"
                 },
                 {
+                    "name": "features",
+                    "type": "DataTableFeature[]",
+                    "optional": true,
+                    "description": "Feature modules, imported on their own so apps only bundle what they use (fixed for the life of the table): `virtualRows` from `/virtual` for `virtual`, `dateInput` and `numberInput` for date and number filters and editors (without them the browser's inputs)"
+                },
+                {
                     "name": "virtual",
                     "type": "boolean",
                     "optional": true,
-                    "description": "Only the visible rows are rendered (requires `scrollHeight`)"
+                    "description": "Only the visible rows are rendered (requires `scrollHeight` and the feature `virtualRows`)"
                 },
                 {
                     "name": "rowHeight",
@@ -6483,7 +6495,7 @@
         {
             "name": "EmojiPicker",
             "subpath": "",
-            "description": "Emoji picker: search (German words), categories, a grid (arrow keys, Home/End, Ctrl+Home/End; Enter or Space chooses); the name of the focused emoji is shown below. Recently used emojis come first.",
+            "description": "Emoji picker: search (English words and those of a language module), categories, a grid (arrow keys, Home/End, Ctrl+Home/End; Enter or Space chooses); the name of the focused emoji is shown below. Recently used emojis come first.",
             "category": "Forms",
             "story": "forms-emojipicker--playground",
             "extends": "Omit<ComponentProps<'div'>, 'onSelect' | 'children'>",
@@ -18495,6 +18507,11 @@
             "description": ""
         },
         {
+            "name": "dateInput",
+            "subpath": "/data-table",
+            "description": "DataTable feature: the DatePicker for `date` and `datetime` filters and editors (without: the browser's date input)"
+        },
+        {
             "name": "defaultBubbleTools",
             "subpath": "/editor",
             "description": "Tools of the bubble menu (text selected) by default"
@@ -18638,6 +18655,11 @@
             "name": "navigationProgress",
             "subpath": "",
             "description": "Controls the app-wide <NavigationProgress />, e.g. from router events"
+        },
+        {
+            "name": "numberInput",
+            "subpath": "/data-table",
+            "description": "DataTable feature: the NumberInput for `number` filters and editors (without: the browser's number input)"
         },
         {
             "name": "openDialog",
@@ -18832,7 +18854,7 @@
         {
             "name": "useLocale",
             "subpath": "",
-            "description": "Locale, writing direction and texts of the nearest LocaleProvider – German without one"
+            "description": "Locale, writing direction and texts of the nearest LocaleProvider – English (en-US) without one"
         },
         {
             "name": "useLocalStorage",
@@ -18923,6 +18945,11 @@
             "name": "validateFields",
             "subpath": "/form",
             "description": "Validates some fields of a TanStack form (e.g. one Wizard step) and marks them touched, so their errors show. Resolves with true when none has an error."
+        },
+        {
+            "name": "virtualRows",
+            "subpath": "/virtual",
+            "description": "DataTable feature: only the visible rows are rendered with `virtual` – `<DataTable features={[virtualRows]} virtual>`"
         }
     ],
     "guides": [
@@ -18934,7 +18961,7 @@
         {
             "id": "accessibility-what-stays-with-the-project",
             "title": "What stays with the project",
-            "text": "- Every input needs a name: `Field` with `label` – or `aria-label` on the `Input`.\n- Render clickable cards with `asChild` as `<a>` or `<button>`, never as a clickable `<div>`.\n- Add router links (RouterLink, Next.js Link) to the breadcrumb through `BreadcrumbItem` with `asChild`.\n- If a `StatusDot` changes live, give the element `role=\"status\"` so that the change is announced.\n- Default texts (`Loading`, `Close`) come from the `LocaleProvider` (English without a provider, German with `locale=\"de-DE\"`); single texts can be overridden through props like `label` / `dismissLabel`.\n- Set `lang` and `dir` on the `<html>` element – screen readers choose the pronunciation from it, browsers the writing direction.\n- Set the focus sensibly after an `Alert` is closed."
+            "text": "- Every input needs a name: `Field` with `label` – or `aria-label` on the `Input`.\n- Render clickable cards with `asChild` as `<a>` or `<button>`, never as a clickable `<div>`.\n- Add router links (RouterLink, Next.js Link) to the breadcrumb through `BreadcrumbItem` with `asChild`.\n- If a `StatusDot` changes live, give the element `role=\"status\"` so that the change is announced.\n- Default texts (`Loading`, `Close`) come from the `LocaleProvider` (English without a provider, e.g. German with `locale=\"de-DE\"` after `registerLocale('de', de)`); single texts can be overridden through props like `label` / `dismissLabel`.\n- Set `lang` and `dir` on the `<html>` element – screen readers choose the pronunciation from it, browsers the writing direction.\n- Set the focus sensibly after an `Alert` is closed."
         },
         {
             "id": "accessibility-automated-checks",
@@ -18969,7 +18996,7 @@
         {
             "id": "introduction-light-dark-and-themes",
             "title": "Light, dark and themes",
-            "text": "Light/dark is switched by the `data-mode` attribute, the color theme by the `data-theme` attribute – e.g. on the\n`<html>` element:\n\n```html\n<html data-mode=\"dark\" data-theme=\"ocean\"></html>\n```\n\nWithout attributes, the light theme “WireLayer” (`data-theme=\"wirecore\"`) applies. With Tailwind you can style\nspecifically with `dark:`. More under _Foundations › Themes_."
+            "text": "Light/dark is switched by the `data-mode` attribute, the color theme by the `data-theme` attribute – e.g. on the\n`<html>` element:\n\n```html\n<html data-mode=\"dark\" data-theme=\"ocean\"></html>\n```\n\nWithout `data-mode` the page follows the system setting (`prefers-color-scheme`) – light or dark, without any\nJavaScript. `data-mode=\"light\"` or `data-mode=\"dark\"` forces a mode, also for a part of the page. Without `data-theme`\nthe theme “WireLayer” (`data-theme=\"wirecore\"`) applies. With Tailwind you can style specifically with `dark:` – it\nfollows the same rules. More under _Foundations › Themes_."
         },
         {
             "id": "introduction-customizing-defaults-and-classes-per-part",
@@ -18987,6 +19014,11 @@
             "text": "`@wirecore/wirelayer-blocks-vue` and `@wirecore/wirelayer-blocks-react` build on `@wirecore/wirelayer-vue` and `@wirecore/wirelayer-react`\n(peer dependency) and bring larger building blocks: SiteHeader, CtaSection, ModeToggle, AuthForm, AuthLayout and the\nConditionBuilder (nested AND/OR rules). Examples: _Blocks_ in the Vue and React Storybooks.\n\n```sh\npnpm add @wirecore/wirelayer-blocks-vue    # or @wirecore/wirelayer-blocks-react\n```\n\nThe ConditionBuilder is also the editor for the advanced filter of the DataTable. The table filters by itself (or passes\nthe tree to the server as `condition`); it gets the editor from outside – without it, it shows no button and points this\nout on the console during development:\n\n```tsx\nimport { ConditionBuilder } from '@wirecore/wirelayer-blocks-react';\nimport { DataTable } from '@wirecore/wirelayer-react/data-table';\n\n<DataTable\n    data={rows}\n    columns={columns}\n    advancedFilter\n    renderAdvancedFilter={(props) => <ConditionBuilder {...props} />}\n/>;\n```\n\n```vue\n<DataTable :data=\"rows\" :columns=\"columns\" advanced-filter>\n    <template #advancedFilter=\"{ fields, value, setValue, label }\">\n        <ConditionBuilder :fields=\"fields\" :model-value=\"value\" :label=\"label\" @update:model-value=\"setValue\" />\n    </template>\n</DataTable>\n```"
         },
         {
+            "id": "introduction-datatable-feature-modules",
+            "title": "DataTable feature modules",
+            "text": "Parts of the DataTable that bring a lot of code along are imported on their own – an app only bundles the ones it passes\nin `features` (fixed for the life of a table). The DatePicker alone is about 40 KB (gzip).\n\n| Feature       | Import                                                                 | Adds                                                 | Without it                                   |\n| ------------- | ---------------------------------------------------------------------- | ---------------------------------------------------- | -------------------------------------------- |\n| `virtualRows` | `@wirecore/wirelayer-react/virtual` (peer dependency TanStack Virtual) | only the visible rows are rendered with `virtual`    | all rows are rendered, a hint in development |\n| `dateInput`   | `@wirecore/wirelayer-react/data-table`                                 | DatePicker for `date` and `datetime` filters/editors | the browser's date input                     |\n| `numberInput` | `@wirecore/wirelayer-react/data-table`                                 | NumberInput for `number` filters and editors         | the browser's number input                   |\n\n```tsx\nimport { DataTable, dateInput, numberInput } from '@wirecore/wirelayer-react/data-table';\nimport { virtualRows } from '@wirecore/wirelayer-react/virtual';\n\n// Once for all tables of the app\nconst features = [virtualRows, dateInput, numberInput];\n\n<DataTable data={rows} columns={columns} features={features} scrollHeight=\"480px\" virtual />;\n```\n\n```vue\n<DataTable :data=\"rows\" :columns=\"columns\" :features=\"features\" scroll-height=\"480px\" virtual />\n```\n\nVue: the same imports from `@wirecore/wirelayer-vue/data-table` and `@wirecore/wirelayer-vue/virtual`."
+        },
+        {
             "id": "introduction-ai-assistants-mcp-llms-txt",
             "title": "AI assistants (MCP, llms.txt)",
             "text": "So that Claude, Cursor and others use the components correctly, the API is available as text and as an MCP server:\n\n- **`/llms.txt`** and **`/llms-full.txt`** in this Storybook: an overview and all props (React and Vue names),\n  hooks and these guides in one file.\n- **MCP server** `@wirecore/wirelayer-mcp` with the tools `list_components`, `get_component`, `search_components` and\n  `get_guide`:\n\n```sh\nclaude mcp add wirelayer -- npx -y -p @wirecore/wirelayer-mcp wirelayer-mcp\n```\n\nThe package is called `@wirecore/wirelayer-mcp`, the command `wirelayer-mcp` (the former name `wirecore-mcp` still works).\n\nBoth are generated from the source code (`pnpm --filter @wirecore/wirelayer-mcp collect`); a test checks that they are\nup to date."
@@ -18994,7 +19026,7 @@
         {
             "id": "introduction-language-and-writing-direction",
             "title": "Language and writing direction",
-            "text": "By default the components speak English (`en-US`). `LocaleProvider` switches texts, number and date formats and the\nwriting direction for everything below it – English and German are built in; other languages fall back to English,\nare registered (see below) or get their texts through `translations`:\n\n```vue\n<LocaleProvider locale=\"de-DE\">\n    <App />\n</LocaleProvider>\n```\n\n```tsx\nimport { messages } from '@wirecore/wirelayer-recipes';\n\n<LocaleProvider locale=\"fr-FR\" translations={{ ...messages.en, common: { ...messages.en.common, close: 'Fermer' } }}>\n    <App />\n</LocaleProvider>;\n```\n\nThe app sets `lang` and `dir` on the `<html>` element itself. For languages like Arabic or Hebrew (`dir=\"rtl\"`),\nspacing, borders, directional icons and the arrow keys are mirrored. Your own components read the texts with\n`useTranslations()` and the locale and direction with `useLocale()`. In Storybook the **Language** toolbar item\nswitches between all built-in and registered languages (Arabic also shows the right-to-left layout).\n\n### Registering languages\n\nFrench, Spanish, Italian, Portuguese (Portugal and Brazil), Dutch, Polish, Czech, Hungarian, Latvian, Arabic and\nTurkish ship as separate modules – they cost nothing as long as an app does not import them. Registered once at\nstartup, they apply to every region of the language (`fr` also for `fr-CA`):\n\n```ts\nimport { registerLocale } from '@wirecore/wirelayer-vue'; // likewise @wirecore/wirelayer-react and @wirecore/wirelayer-native\nimport { ar } from '@wirecore/wirelayer-vue/locales/ar';\nimport { fr } from '@wirecore/wirelayer-vue/locales/fr';\nimport { ptBR } from '@wirecore/wirelayer-vue/locales/pt-BR';\n\nregisterLocale('fr', fr);\nregisterLocale('ar', ar); // ar-EG, ar-MA … – right to left\nregisterLocale('pt-BR', ptBR); // a region takes precedence over its language (pt)\n```\n\nInstead of registering, a module can also be passed directly: `<LocaleProvider locale=\"fr-FR\" :translations=\"fr\">`.\nPlurals follow the rules of the language (`Intl.PluralRules`, e.g. the six forms of Arabic), numbers in the texts\nfollow the locale (`ar-EG` writes Arabic-Indic digits, `de-DE` only groups from 10.000 on). The texts should be proofread by\nnative speakers before use."
+            "text": "By default the components speak English (`en-US`). `LocaleProvider` switches texts, number and date formats and the\nwriting direction for everything below it – English is built in; other languages are registered once (see below),\nget their texts through `translations` or fall back to English:\n\n```vue\n<LocaleProvider locale=\"de-DE\"><!-- after registerLocale('de', de) -->\n    <App />\n</LocaleProvider>\n```\n\n```tsx\nimport { messages } from '@wirecore/wirelayer-recipes';\n\n<LocaleProvider locale=\"fr-FR\" translations={{ ...messages.en, common: { ...messages.en.common, close: 'Fermer' } }}>\n    <App />\n</LocaleProvider>;\n```\n\nThe app sets `lang` and `dir` on the `<html>` element itself. For languages like Arabic or Hebrew (`dir=\"rtl\"`),\nspacing, borders, directional icons and the arrow keys are mirrored. Your own components read the texts with\n`useTranslations()` and the locale and direction with `useLocale()`. In Storybook the **Language** toolbar item\nswitches between English and the registered languages (Arabic also shows the right-to-left layout).\n\n### Registering languages\n\nGerman, French, Spanish, Italian, Portuguese (Portugal and Brazil), Dutch, Polish, Czech, Hungarian, Latvian, Arabic\nand Turkish ship as separate modules – they cost nothing as long as an app does not import them. Registered once at\nstartup, they apply to every region of the language (`fr` also for `fr-CA`):\n\n```ts\nimport { registerLocale } from '@wirecore/wirelayer-vue'; // likewise @wirecore/wirelayer-react and @wirecore/wirelayer-native\nimport { ar } from '@wirecore/wirelayer-vue/locales/ar';\nimport { de } from '@wirecore/wirelayer-vue/locales/de';\nimport { fr } from '@wirecore/wirelayer-vue/locales/fr';\nimport { ptBR } from '@wirecore/wirelayer-vue/locales/pt-BR';\n\nregisterLocale('de', de); // de-DE, de-AT, de-CH …\nregisterLocale('fr', fr);\nregisterLocale('ar', ar); // ar-EG, ar-MA … – right to left\nregisterLocale('pt-BR', ptBR); // a region takes precedence over its language (pt)\n```\n\nInstead of registering, a module can also be passed directly: `<LocaleProvider locale=\"fr-FR\" :translations=\"fr\">`.\nPlurals follow the rules of the language (`Intl.PluralRules`, e.g. the six forms of Arabic), numbers in the texts\nfollow the locale (`ar-EG` writes Arabic-Indic digits, `de-DE` only groups from 10.000 on). The texts should be proofread by\nnative speakers before use."
         },
         {
             "id": "introduction-server-data-and-loading-more",
@@ -22596,6 +22628,12 @@
                         "type": "string",
                         "optional": true,
                         "description": "Name of the exported file without extension (default \"export\")"
+                    },
+                    {
+                        "name": "csvSeparator",
+                        "type": "string",
+                        "optional": true,
+                        "description": "Separator of the CSV export, also of the export button – default: from the locale (\";\" where numbers have a decimal comma, e.g. de-DE, as a spreadsheet there expects it; \",\" otherwise)"
                     },
                     {
                         "name": "exportFormats",
@@ -32748,7 +32786,7 @@
             {
                 "name": "useLocale",
                 "subpath": "",
-                "description": "Locale and texts of the nearest LocaleProvider – German without one"
+                "description": "Locale and texts of the nearest LocaleProvider – English (en-US) without one"
             },
             {
                 "name": "useReducedMotion",

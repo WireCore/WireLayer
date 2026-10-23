@@ -1,4 +1,4 @@
-import { advancedFilterEditor, el, icon, type El } from './harness.js';
+import { advancedFilterEditor, el, feature, icon, type El } from './harness.js';
 
 // Every component in its variants and states – rendered by the parity, axe and SSR tests
 const buttonVariants = ['primary', 'secondary', 'success', 'info', 'warn', 'danger', 'outline', 'text', 'soft', 'link'];
@@ -2392,6 +2392,17 @@ export const cases: [string, El][] = [
     ['ModeToggle', el('ModeToggle', {})],
 
     ['DataTable', el('DataTable', { data: servers, columns: serverColumns, caption: 'Server', getRowId })],
+    [
+        // The filter row with DatePicker and NumberInput instead of the browser's inputs
+        'DataTable features dateInput, numberInput',
+        el('DataTable', {
+            data: servers,
+            columns: serverColumns,
+            caption: 'Server',
+            getRowId,
+            features: [feature('dateInput'), feature('numberInput')],
+        }),
+    ],
     [
         'DataTable paginated selectable',
         el('DataTable', {

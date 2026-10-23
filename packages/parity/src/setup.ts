@@ -2,6 +2,11 @@ import '@testing-library/jest-dom/vitest';
 import { cleanup as cleanupReact } from '@testing-library/react';
 import { cleanup as cleanupVue } from '@testing-library/vue';
 import { afterEach, vi } from 'vitest';
+import { registerLocale } from '@wirecore/wirelayer-recipes';
+import { de } from '@wirecore/wirelayer-recipes/locales/de';
+
+// German is a language module like the others – registered once, as an app that uses it does
+registerLocale('de', de);
 
 // jsdom has no layout APIs; Ark's positioning (Select, Menu, Tooltip …) needs these to exist.
 // (Not in the SSR test, which runs without a DOM.)

@@ -16,6 +16,7 @@ export type {
     RowsRequest,
     RowsResult,
 } from '@wirecore/wirelayer-recipes';
+import type { Component, Ref } from 'vue';
 import type {
     ConditionField,
     ConditionGroup,
@@ -159,7 +160,7 @@ export interface DataTableAllSelection {
 export interface DataTableCsvOptions {
     /** Only the selected rows (default: the filtered and sorted rows of all pages) */
     selectionOnly?: boolean;
-    /** Separator, default ";" (opens in a German Excel) */
+    /** Separator – default: `csvSeparator` of the table, else from the locale (";" with a decimal comma, "," otherwise) */
     separator?: string;
     /** Byte order mark at the start, so Excel reads UTF-8 – default true */
     bom?: boolean;
@@ -279,4 +280,35 @@ export interface DataTableRowAction<TData> {
     value: string;
     row: TData;
     rowId: string;
+}
+
+/** What the table gives the virtualizer of `virtualRows` */
+export interface DataTableVirtualOptions {
+    count: number;
+    getScrollElement: () => HTMLElement | null;
+    estimateSize: (index: number) => number;
+    overscan: number;
+    getItemKey: (index: number) => string | number;
+    initialRect: { width: number; height: number };
+}
+
+/** The virtualizer of `virtualRows`: which rows to render and where they are */
+export interface DataTableVirtualizer {
+    getVirtualItems(): { index: number; start: number; end: number }[];
+    getTotalSize(): number;
+    measureElement(element: Element): void;
+    scrollToIndex(index: number, options?: { align?: 'start' | 'center' | 'end' | 'auto' }): void;
+}
+
+/**
+ * A feature module for `features`, imported on its own so apps only bundle what they use: `virtualRows` (from
+ * `@wirecore/wirelayer-vue/data-table/virtual`, needs @tanstack/vue-virtual), `dateInput` and `numberInput`
+ */
+export interface DataTableFeature {
+    /** Renders only the visible rows with `virtual` */
+    useVirtualizer?: (options: Readonly<Ref<DataTableVirtualOptions>>) => Readonly<Ref<DataTableVirtualizer>>;
+    /** Input of `date` and `datetime` filters and editors – without it the browser's date input */
+    dateInput?: Component;
+    /** Input of `number` filters and editors – without it the browser's number input */
+    numberInput?: Component;
 }

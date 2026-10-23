@@ -13,8 +13,9 @@ Light/dark is independent of it and combines with every theme.
 <html data-theme="ocean" data-mode="dark"></html>
 ```
 
-Both attributes also work on parts of the page. Without attributes, the theme
-“WireLayer” (`data-theme="wirecore"`) applies in light mode.
+Both attributes also work on parts of the page. Without `data-mode` the page follows the system setting (light or
+dark), `data-mode="light"` or `"dark"` forces a mode. Without `data-theme` the theme “WireLayer”
+(`data-theme="wirecore"`) applies. Custom themes from `themeToCss` follow the system setting the same way.
 
 <ThemeTable />
 

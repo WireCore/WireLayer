@@ -5,7 +5,7 @@ import {
     type ConditionField,
     type ConditionGroup,
 } from '@wirecore/wirelayer-recipes';
-import { DataTable, type DataTableColumn } from '@wirecore/wirelayer-vue/data-table';
+import { DataTable, dateInput, numberInput, type DataTableColumn } from '@wirecore/wirelayer-vue/data-table';
 import { computed, ref, type ConcreteComponent } from 'vue';
 import ConditionBuilder from './ConditionBuilder.vue';
 
@@ -133,6 +133,7 @@ export const InDataTable: Story = {
         setup: () => ({
             rows: machines,
             columns: machineColumns,
+            features: [dateInput, numberInput],
             getRowId: (row: Machine) => row.id,
             tree: ref<ConditionGroup>({
                 type: 'group',
@@ -146,6 +147,7 @@ export const InDataTable: Story = {
                 v-model:advanced-filter-value="tree"
                 :data="rows"
                 :columns="columns"
+                :features="features"
                 caption="Machines"
                 :get-row-id="getRowId"
                 :row-label="getRowId"

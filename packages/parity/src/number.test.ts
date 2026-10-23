@@ -1,10 +1,18 @@
-import { numberInputKey, numberSeparators, parseLocaleNumber } from '@wirecore/wirelayer-recipes';
+import { csvSeparator, numberInputKey, numberSeparators, parseLocaleNumber } from '@wirecore/wirelayer-recipes';
 import { describe, expect, it } from 'vitest';
 
 describe('number input helpers', () => {
     it('knows the separators of a locale', () => {
         expect(numberSeparators('de-DE')).toEqual({ decimal: ',', group: '.' });
         expect(numberSeparators('en-US')).toEqual({ decimal: '.', group: ',' });
+    });
+
+    it('picks the CSV separator a spreadsheet in the locale opens', () => {
+        // A decimal comma would split the numbers – those locales use ";"
+        expect(csvSeparator('de-DE')).toBe(';');
+        expect(csvSeparator('fr-FR')).toBe(';');
+        expect(csvSeparator('en-US')).toBe(',');
+        expect(csvSeparator('en-GB')).toBe(',');
     });
 
     it('reads comma and dot as decimal separator in every locale', () => {

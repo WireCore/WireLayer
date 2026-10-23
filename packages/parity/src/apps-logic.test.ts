@@ -16,7 +16,6 @@ import {
     languageFromFileName,
     markdownElements,
     markdownToText,
-    messages,
     parseInline,
     parseMarkdown,
     pieLegend,
@@ -39,6 +38,7 @@ import {
     type MarkdownElement,
 } from '@wirecore/wirelayer-recipes';
 import { describe, expect, it, vi } from 'vitest';
+import { de as german } from '@wirecore/wirelayer-recipes/locales/de';
 
 // Logic of the app patterns, chat, Markdown, charts, editor and code blocks (framework-neutral, @wirecore/wirelayer-recipes)
 
@@ -257,7 +257,7 @@ describe('Kanban, session timeout, auth', () => {
         expect(validateAuth('reset', { ...empty, email: 'a@b.de' }, { validators: { email: ownDomain } })).toEqual({
             email: 'Company addresses only',
         });
-        expect(validateAuth('signIn', empty, { texts: messages.de.validation }).email).toBe('Pflichtfeld');
+        expect(validateAuth('signIn', empty, { texts: german.validation }).email).toBe('Pflichtfeld');
     });
 });
 
@@ -378,7 +378,7 @@ describe('ready-made charts', () => {
             ],
             theme,
             format,
-            messages.de.chart
+            german.chart
         );
         expect(config.data.datasets[0]!.backgroundColor).toEqual([theme.palette[2], theme.palette[4]]);
         const label = (config.options.plugins.tooltip.callbacks.label as (context: { dataIndex: number }) => string)({

@@ -55,6 +55,7 @@ import {
     type UploadState,
 } from '@wirecore/wirelayer-recipes';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { de } from '@wirecore/wirelayer-recipes/locales/de';
 
 // Logic of the building blocks and special inputs: colours (OKLCH), phone numbers, emojis, sortable moves, mentions,
 // JSON, logs, uploads, watermark, ring parts and the floating panel's keys
@@ -158,33 +159,33 @@ describe('phone numbers', () => {
 });
 
 describe('emojis', () => {
-    it('finds emojis by German words, ignoring case and accents; names first', () => {
+    it('finds emojis by English words, ignoring case and accents; names first', () => {
         const all = defaultEmojis();
         expect(all.length).toBeGreaterThan(300);
-        expect(searchEmojis(all, 'Glück').map((entry) => entry.emoji)).toContain('🍀');
-        expect(searchEmojis(all, 'gluck').map((entry) => entry.emoji)).toContain('🍀');
-        expect(searchEmojis(all, 'daumen hoch')[0]!.emoji).toBe('👍');
+        expect(all.find((entry) => entry.emoji === '🍀')!.name).toBe('Four leaf clover');
+        expect(searchEmojis(all, 'Luck').map((entry) => entry.emoji)).toContain('🍀');
+        expect(searchEmojis(all, 'thumbs up')[0]!.emoji).toBe('👍');
+        expect(searchEmojis(all, 'glück')).toEqual([]);
         expect(searchEmojis(all, 'xyzxyz')).toEqual([]);
         expect(searchEmojis(all, '  ')).toHaveLength(all.length);
     });
 
-    it('localeEmojis: German or English names; English words always find; language modules add their own', () => {
-        const german = localeEmojis('de-DE');
+    it('localeEmojis: names and words of a language module; English words always find', () => {
+        expect(localeEmojis()).toEqual(defaultEmojis());
+        const german = localeEmojis(de.emojiPicker.emojis);
+        expect(german).toHaveLength(defaultEmojis().length);
         expect(german.find((entry) => entry.emoji === '🍀')!.name).toBe('Kleeblatt');
+        expect(german.find((entry) => entry.emoji === '👍')!.name).toBe('Daumen hoch');
+        // Accents ignored: "gluck" finds "glück"
+        expect(searchEmojis(german, 'gluck').map((entry) => entry.emoji)).toContain('🍀');
+        expect(searchEmojis(german, 'daumen hoch')[0]!.emoji).toBe('👍');
         expect(searchEmojis(german, 'clover')[0]!.emoji).toBe('🍀');
-        expect(searchEmojis(german, 'glück').map((entry) => entry.emoji)).toContain('🍀');
-        const english = localeEmojis('en-US');
-        expect(english).toHaveLength(german.length);
-        expect(english.every((entry) => !!entry.name)).toBe(true);
-        expect(english.find((entry) => entry.emoji === '👍')!.name).toBe('Thumbs up');
-        expect(searchEmojis(english, 'thumbs up')[0]!.emoji).toBe('👍');
-        expect(searchEmojis(english, 'glück')).toEqual([]);
-        const french = localeEmojis('fr-FR', '🍀 Trèfle à quatre feuilles|chance');
+        const french = localeEmojis('🍀 Trèfle à quatre feuilles|chance');
         expect(french.find((entry) => entry.emoji === '🍀')!.name).toBe('Trèfle à quatre feuilles');
         expect(searchEmojis(french, 'chance')[0]!.emoji).toBe('🍀');
         expect(searchEmojis(french, 'luck').map((entry) => entry.emoji)).toContain('🍀');
         expect(french.find((entry) => entry.emoji === '👍')!.name).toBe('Thumbs up');
-        expect(localeEmojis('fr-FR', '🍀 Trèfle à quatre feuilles|chance')).toBe(french);
+        expect(localeEmojis('🍀 Trèfle à quatre feuilles|chance')).toBe(french);
     });
 
     it('moves through a grid with arrows, Home/End and Ctrl+Home/End', () => {

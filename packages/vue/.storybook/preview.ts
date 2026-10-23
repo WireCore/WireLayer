@@ -10,6 +10,7 @@ import { h } from 'vue';
 import { LocaleProvider, registerLocale } from '../src/index.js';
 import { ar } from '../src/locales/ar.js';
 import { cs } from '../src/locales/cs.js';
+import { de } from '../src/locales/de.js';
 import { es } from '../src/locales/es.js';
 import { fr } from '../src/locales/fr.js';
 import { hu } from '../src/locales/hu.js';
@@ -23,7 +24,7 @@ import { tr } from '../src/locales/tr.js';
 import './preview.css';
 
 // The toolbar languages that are not built in – an app registers the ones it needs the same way
-const locales = { fr, es, it, pt, 'pt-BR': ptBR, nl, pl, cs, hu, lv, tr, ar };
+const locales = { de, fr, es, it, pt, 'pt-BR': ptBR, nl, pl, cs, hu, lv, tr, ar };
 for (const [code, texts] of Object.entries(locales)) registerLocale(code, texts);
 
 // The story inside LocaleProvider; lang and dir on <html> like an app would set them

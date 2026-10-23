@@ -44,7 +44,7 @@ and all of it is checked on every test run.
 - Render clickable cards with `asChild` as `<a>` or `<button>`, never as a clickable `<div>`.
 - Add router links (RouterLink, Next.js Link) to the breadcrumb through `BreadcrumbItem` with `asChild`.
 - If a `StatusDot` changes live, give the element `role="status"` so that the change is announced.
-- Default texts (`Loading`, `Close`) come from the `LocaleProvider` (English without a provider, German with `locale="de-DE"`); single texts can be overridden through props like `label` / `dismissLabel`.
+- Default texts (`Loading`, `Close`) come from the `LocaleProvider` (English without a provider, e.g. German with `locale="de-DE"` after `registerLocale('de', de)`); single texts can be overridden through props like `label` / `dismissLabel`.
 - Set `lang` and `dir` on the `<html>` element – screen readers choose the pronunciation from it, browsers the writing direction.
 - Set the focus sensibly after an `Alert` is closed.
 

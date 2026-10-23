@@ -27,6 +27,8 @@ export function ChartCanvas({
 
     useEffect(() => {
         const motion = matchMedia('(prefers-reduced-motion: reduce)');
+        // Without data-mode the page follows the system – recolour when it switches
+        const scheme = matchMedia('(prefers-color-scheme: dark)');
         const config = () =>
             latest.current(readChartTheme(canvas.current!), motion.matches) as unknown as ChartConfiguration;
         let instance: ChartJs | undefined;
@@ -50,9 +52,11 @@ export function ChartCanvas({
         const observer = new MutationObserver(update);
         observer.observe(document.documentElement, { attributes: true });
         motion.addEventListener('change', update);
+        scheme.addEventListener('change', update);
         return () => {
             observer.disconnect();
             motion.removeEventListener('change', update);
+            scheme.removeEventListener('change', update);
             instance?.destroy();
         };
     }, []);

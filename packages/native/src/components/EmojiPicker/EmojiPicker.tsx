@@ -73,12 +73,12 @@ export function EmojiPicker({
     className,
     ...props
 }: EmojiPickerProps) {
-    const { locale, translations } = useLocale();
+    const { translations } = useLocale();
     const t = translations.emojiPicker;
     const inSheet = open !== undefined || onOpenChange !== undefined;
     const styles = emojiPicker({ inSheet });
     const { announce, region } = useAnnouncer();
-    const all = useMemo(() => emojis ?? localeEmojis(locale, t.emojis), [emojis, locale, t]);
+    const all = useMemo(() => emojis ?? localeEmojis(t.emojis), [emojis, t]);
     const [stored, setStored] = useControllable(recentEmojis, NO_RECENT, onRecentChange);
     const recentEntries = useMemo(
         () =>

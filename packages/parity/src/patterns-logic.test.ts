@@ -53,6 +53,7 @@ import {
     type ConditionGroup,
 } from '@wirecore/wirelayer-recipes';
 import { describe, expect, it, vi } from 'vitest';
+import { de as german } from '@wirecore/wirelayer-recipes/locales/de';
 
 const key = (key: string, mods: Partial<Record<'ctrlKey' | 'metaKey' | 'altKey' | 'shiftKey', boolean>> = {}) => ({
     key,
@@ -115,7 +116,7 @@ describe('hotkeys', () => {
     });
 
     it('formats per platform and language', () => {
-        const de = messages.de.hotkeys.keys;
+        const de = german.hotkeys.keys;
         expect(formatHotkey('mod+shift+k', de)).toEqual([['Strg', 'Umschalt', 'K']]);
         expect(formatHotkey('mod+shift+k', de, true)).toEqual([['⌘', '⇧', 'K']]);
         expect(formatHotkey('g i', de)).toEqual([['G'], ['I']]);
@@ -298,7 +299,7 @@ describe('validators', () => {
         const result = isEmail()['~standard'].validate('x');
         expect(result.issues?.[0]?.message).toBe('Please enter a valid email address');
         expect(isEmail()['~standard'].validate('a@b.de')).toEqual({ value: 'a@b.de' });
-        const de = createValidators(messages.de.validation, 'de-DE');
+        const de = createValidators(german.validation, 'de-DE');
         expect(de.isRequired()('')).toBe('Pflichtfeld');
         expect(de.isInRange({ max: 1000 })(2000)).toBe('Höchstens 1.000');
     });

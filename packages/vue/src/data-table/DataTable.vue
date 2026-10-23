@@ -43,12 +43,12 @@ import {
     type SortingState,
     type Updater,
 } from '@tanstack/vue-table';
-import { useVirtualizer } from '@tanstack/vue-virtual';
 import {
     aggregateValues,
     applyPending,
     changesByRow,
     conditionFieldsFromColumns,
+    csvSeparator as localeCsvSeparator,
     emptyConditionGroup,
     isActiveCondition,
     matchesCondition,
@@ -131,6 +131,7 @@ import {
     onBeforeUnmount,
     onMounted,
     onUpdated,
+    provide,
     ref,
     shallowRef,
     useAttrs,
@@ -154,7 +155,7 @@ import Select from '../components/Select/Select.vue';
 import Skeleton from '../components/Skeleton/Skeleton.vue';
 import Spinner from '../components/Spinner/Spinner.vue';
 import { useLocale, useTranslations } from '../locale.js';
-import { features } from './features.js';
+import { featureKey, features as tableFeatures } from './features.js';
 import FilterMenu from './FilterMenu.vue';
 import type {
     DataTableAdvancedFilterProps,
@@ -168,6 +169,7 @@ import type {
     DataTableCsvOptions,
     DataTableDataSource,
     DataTableEditorProps,
+    DataTableFeature,
     DataTableFilterInputProps,
     DataTablePivot,
     DataTablePrintOptions,
@@ -294,6 +296,9 @@ export interface DataTableProps<T> {
     pinnedColumns?: { start: string[]; end: string[] };
     /** Shows an export button; the CSV has the filtered and sorted rows of all pages (or the selection) */
     exportFilename?: string;
+    /** Separator of the CSV export, also of the export button – default: from the locale (";" where numbers have a
+     * decimal comma, e.g. de-DE, as a spreadsheet there expects it; "," otherwise) */
+    csvSeparator?: string;
     /** Formats of the export button: CSV (default), Excel (.xlsx) or both */
     exportFormats?: ('csv' | 'xlsx')[];
     /** Groups the rows by the values of these columns (expandable group rows) – v-model:group-by */
@@ -351,7 +356,13 @@ export interface DataTableProps<T> {
     fullscreenToggle?: boolean;
     /** Fixed height (CSS length): the table scrolls inside, header and footer stay visible */
     scrollHeight?: string;
-    /** Only the visible rows are rendered (requires `scrollHeight`) */
+    /**
+     * Feature modules, imported on their own so apps only bundle what they use (fixed for the life of the table):
+     * `virtualRows` from `/virtual` for `virtual`, `dateInput` and `numberInput` for date and number filters and
+     * editors (without them the browser's inputs)
+     */
+    features?: DataTableFeature[];
+    /** Only the visible rows are rendered (requires `scrollHeight` and the feature `virtualRows`) */
     virtual?: boolean;
     /** Estimated row height in px for `virtual` */
     rowHeight?: number;
@@ -390,6 +401,7 @@ const props = withDefaults(defineProps<DataTableProps<TData>>(), {
     columnOrder: undefined,
     pinnedColumns: undefined,
     exportFilename: undefined,
+    csvSeparator: undefined,
     groupBy: undefined,
     frozenRows: undefined,
     rowActions: undefined,
@@ -481,8 +493,11 @@ const attrs = useAttrs();
 const slots = useSlots();
 const id = useId();
 const t = translations.dataTable;
+// Read once: the virtualizer of `virtualRows` is a composable of this setup
+const feature: DataTableFeature = Object.assign({}, ...(props.features ?? []));
+provide(featureKey, feature);
 
-type Features = typeof features;
+type Features = typeof tableFeatures;
 type TableRow = Row<Features, TData>;
 type TableColumn = Column<Features, TData, unknown>;
 type Density = 'sm' | 'md' | 'lg';
@@ -778,7 +793,7 @@ function toDef(column: DataTableColumn<TData>): ColumnDef<Features, TData> {
 const tableColumns = computed(() => columnDefs.value.map(toDef));
 
 const table = useTable({
-    features,
+    features: tableFeatures,
     columns: tableColumns,
     data: tableData,
     getRowId: (row: TData, index: number) =>
@@ -2038,7 +2053,7 @@ function extendRangeByKey(event: KeyboardEvent) {
     };
     void nextTick(() => {
         if (reveal() || !virtualOn.value) return;
-        virtualizer.value.scrollToIndex(
+        virtualizer?.value.scrollToIndex(
             items.value.findIndex((item) => item.kind === 'row' && item.row.id === next.focus.rowId)
         );
         requestAnimationFrame(() => requestAnimationFrame(() => void reveal()));
@@ -2231,7 +2246,7 @@ async function revealMatch() {
         cellElement(match.rowId, match.columnId)?.scrollIntoView?.({ block: 'nearest', inline: 'nearest' });
     const index = items.value.findIndex((item) => item.kind === 'row' && item.row.id === match.rowId);
     if (virtualOn.value && index >= 0) {
-        virtualizer.value.scrollToIndex(index, { align: 'center' });
+        virtualizer?.value.scrollToIndex(index, { align: 'center' });
         requestAnimationFrame(() => requestAnimationFrame(show));
     } else show();
 }
@@ -2371,7 +2386,8 @@ function generateCsv(options: DataTableCsvOptions = {}) {
                 : display(column, row.getValue(column.id), row.original)
         )
     );
-    const csv = toCsv([visible.map((column) => column.exportHeader ?? column.header), ...records], options.separator);
+    const separator = options.separator ?? props.csvSeparator ?? localeCsvSeparator(localeContext.value.locale);
+    const csv = toCsv([visible.map((column) => column.exportHeader ?? column.header), ...records], separator);
     return options.bom === false ? csv.slice(1) : csv;
 }
 /** Downloads the CSV – `true` (or `{ selectionOnly: true }`) only the selected rows */
@@ -2629,10 +2645,9 @@ onBeforeUnmount(() => restoreInert.splice(0).forEach((element) => (element.inert
 
 // Scrolling: virtual rows and the end of the list
 const scrollElement = useTemplateRef<HTMLDivElement>('scroll');
-const virtualOn = computed(() => !!props.virtual && !!props.scrollHeight);
-const virtualizer = useVirtualizer(
+const virtualizer = feature.useVirtualizer?.(
     computed(() => ({
-        count: virtualOn.value ? items.value.length : 0,
+        count: props.virtual && props.scrollHeight ? items.value.length : 0,
         getScrollElement: () => scrollElement.value,
         estimateSize: () => props.rowHeight,
         overscan: 8,
@@ -2641,7 +2656,13 @@ const virtualizer = useVirtualizer(
         initialRect: { width: 0, height: Number.parseInt(props.scrollHeight ?? '', 10) || 400 },
     }))
 );
-const virtualItems = computed(() => (virtualOn.value ? virtualizer.value.getVirtualItems() : []));
+if (props.virtual && !virtualizer) {
+    warnInDevelopment(
+        'DataTable: `virtual` needs the feature virtualRows from @wirecore/wirelayer-vue/virtual (`:features="[virtualRows]"`) – all rows are rendered'
+    );
+}
+const virtualOn = computed(() => !!props.virtual && !!props.scrollHeight && !!virtualizer);
+const virtualItems = computed(() => (virtualOn.value ? (virtualizer?.value.getVirtualItems() ?? []) : []));
 const shownItems = computed(() =>
     virtualOn.value
         ? virtualItems.value.map((virtual) => ({ ...items.value[virtual.index]!, index: virtual.index }))
@@ -2649,10 +2670,10 @@ const shownItems = computed(() =>
 );
 const paddingTop = computed(() => (virtualOn.value ? (virtualItems.value[0]?.start ?? 0) : 0));
 const paddingBottom = computed(() =>
-    virtualOn.value ? virtualizer.value.getTotalSize() - (virtualItems.value.at(-1)?.end ?? 0) : 0
+    virtualOn.value ? (virtualizer?.value.getTotalSize() ?? 0) - (virtualItems.value.at(-1)?.end ?? 0) : 0
 );
 const measure = (element: unknown) => {
-    if (virtualOn.value && element instanceof Element) virtualizer.value.measureElement(element);
+    if (virtualOn.value && element instanceof Element) virtualizer?.value.measureElement(element);
 };
 let endReported = false;
 watch(
@@ -2711,7 +2732,7 @@ function onGridKey(event: KeyboardEvent) {
     if (treeGrid.value && onTreeGridKey(event)) return;
     gridKeydown(event, tableElement.value, {
         itemCount: items.value.length,
-        scrollToItem: virtualOn.value ? (index) => virtualizer.value.scrollToIndex(index) : undefined,
+        scrollToItem: virtualOn.value ? (index) => virtualizer?.value.scrollToIndex(index) : undefined,
         pageRows:
             scrollElement.value && props.scrollHeight
                 ? Math.max(1, Math.floor(scrollElement.value.clientHeight / props.rowHeight) - 1)

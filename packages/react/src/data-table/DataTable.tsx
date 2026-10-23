@@ -1,3 +1,6 @@
+/* eslint-disable react-hooks/refs, react-hooks/immutability, react-hooks/set-state-in-effect --
+   Not for the React Compiler (it skips the component): TanStack Table and Virtual keep their state in mutable objects.
+   Until the virtualizer moved into the feature virtualRows, its import made the compiler skip the component as well */
 import { Menu as ArkMenu } from '@ark-ui/react/menu';
 import { Portal } from '@ark-ui/react/portal';
 import {
@@ -17,13 +20,13 @@ import {
     type SortingState,
     type Updater,
 } from '@tanstack/react-table';
-import { useVirtualizer } from '@tanstack/react-virtual';
 import {
     aggregateValues,
     applyPending,
     changesByRow,
     autoRowSpans,
     conditionFieldsFromColumns,
+    csvSeparator,
     emptyConditionGroup,
     isActiveCondition,
     matchesCondition,
@@ -155,7 +158,7 @@ import { Select } from '../components/Select/Select.js';
 import { Skeleton } from '../components/Skeleton/Skeleton.js';
 import { Spinner } from '../components/Spinner/Spinner.js';
 import { useLocale, useTranslations } from '../components/LocaleProvider/LocaleProvider.js';
-import { features } from './features.js';
+import { FeatureContext, features as tableFeatures } from './features.js';
 import { FilterMenu } from './FilterMenu.js';
 import type {
     DataTableAdvancedFilterProps,
@@ -169,12 +172,15 @@ import type {
     DataTableCsvOptions,
     DataTableDataSource,
     DataTableEditorProps,
+    DataTableFeature,
     DataTablePivot,
     DataTablePrintOptions,
     DataTableRowAction,
     DataTableRowClick,
     DataTableRowEdit,
     DataTableRowReorder,
+    DataTableVirtualizer,
+    DataTableVirtualOptions,
     DataTableXlsxOptions,
 } from './types.js';
 import { ValueInput } from './ValueInput.js';
@@ -344,6 +350,9 @@ export interface DataTableProps<TData> extends Omit<
     onPinnedColumnsChange?: (pinned: { start: string[]; end: string[] }) => void;
     /** Shows an export button; the CSV has the filtered and sorted rows of all pages (or the selection) */
     exportFilename?: string;
+    /** Separator of the CSV export, also of the export button – default: from the locale (";" where numbers have a
+     * decimal comma, e.g. de-DE, as a spreadsheet there expects it; "," otherwise) */
+    csvSeparator?: string;
     /** Formats of the export button: CSV (default), Excel (.xlsx) or both */
     exportFormats?: ('csv' | 'xlsx')[];
     /** Groups the rows by the values of these columns (expandable group rows) */
@@ -417,7 +426,13 @@ export interface DataTableProps<TData> extends Omit<
     fullscreenToggle?: boolean;
     /** Fixed height (CSS length): the table scrolls inside, header and footer stay visible */
     scrollHeight?: string;
-    /** Only the visible rows are rendered (requires `scrollHeight`) */
+    /**
+     * Feature modules, imported on their own so apps only bundle what they use (fixed for the life of the table):
+     * `virtualRows` from `/virtual` for `virtual`, `dateInput` and `numberInput` for date and number filters and
+     * editors (without them the browser's inputs)
+     */
+    features?: DataTableFeature[];
+    /** Only the visible rows are rendered (requires `scrollHeight` and the feature `virtualRows`) */
     virtual?: boolean;
     /** Estimated row height in px for `virtual` */
     rowHeight?: number;
@@ -445,7 +460,7 @@ export interface DataTableProps<TData> extends Omit<
     classes?: RecipeClasses<typeof dataTableRecipe>;
 }
 
-type Features = typeof features;
+type Features = typeof tableFeatures;
 
 const resolve = <T,>(updater: Updater<T>, current: T) =>
     typeof updater === 'function' ? (updater as (old: T) => T)(current) : updater;
@@ -491,6 +506,8 @@ const TEXT_CONTROLS = 'input, textarea, select, [contenteditable=""], [contented
 /** Widths of the utility columns when columns have fixed widths */
 const UTILITY_WIDTH = { drag: 40, select: 48, expand: 40, number: 56, actions: 88 } as const;
 type Utility = keyof typeof UTILITY_WIDTH;
+/** Without the feature virtualRows: no virtualizer, all rows are rendered */
+const noVirtualizer = () => undefined;
 
 /** Data table on TanStack Table: sorting (also by several columns), search, filter row or filter menus with match modes, pagination, selection, column menu (pin, move, hide, group), resizing, column groups, totals, row details, row actions, row reordering, editing (cell or row), virtual scrolling, full screen, CSV export and saved state */
 export function DataTable<TData extends object>({
@@ -567,6 +584,7 @@ export function DataTable<TData extends object>({
     pinnedColumns,
     onPinnedColumnsChange,
     exportFilename,
+    csvSeparator: csvSeparatorProp,
     exportFormats,
     groupBy,
     onGroupByChange,
@@ -599,6 +617,7 @@ export function DataTable<TData extends object>({
     striped = false,
     fullscreenToggle = false,
     scrollHeight,
+    features,
     virtual = false,
     rowHeight = 41,
     onLoadMore,
@@ -625,6 +644,8 @@ export function DataTable<TData extends object>({
     const t = translations.dataTable;
     const id = useId();
     const root = useRef<HTMLDivElement>(null);
+    // Read once: the virtualizer of `virtualRows` is a hook of this component
+    const [feature] = useState<DataTableFeature>(() => Object.assign({}, ...(features ?? [])));
     const labelFor = (row: TData, index: number) => rowLabelProp?.(row, index) ?? t.row(index);
     const expandLabelFor = (row: TData, index: number) =>
         expandLabelProp?.(row, index) ?? t.subRows(labelFor(row, index));
@@ -911,7 +932,7 @@ export function DataTable<TData extends object>({
     }, [columnDefs, locale]);
 
     const table = useTable({
-        features,
+        features: tableFeatures,
         columns,
         data,
         getRowId: (row: TData, index: number) =>
@@ -995,7 +1016,7 @@ export function DataTable<TData extends object>({
     const grid = navigation === 'grid';
     // A tree table with grid keys is a treegrid: rows with level and open state, left/right close and open them
     const treeGrid = grid && !!getSubRows;
-    const virtualOn = virtual && !!scrollHeight;
+    const virtualOn = virtual && !!scrollHeight && !!feature.useVirtualizer;
     const paged = !!pageSize;
     const styles = dataTable({ ...look, fullscreen, grid });
     const styleFor = (columnId: string) => {
@@ -2085,7 +2106,7 @@ export function DataTable<TData extends object>({
             return true;
         };
         if (!reveal() && virtualOn) {
-            virtualizer.scrollToIndex(
+            virtualizer?.scrollToIndex(
                 items.findIndex((item) => item.kind === 'row' && item.row.id === next.focus.rowId)
             );
             requestAnimationFrame(() => requestAnimationFrame(() => void reveal()));
@@ -2278,7 +2299,7 @@ export function DataTable<TData extends object>({
             });
         const index = items.findIndex((item) => item.kind === 'row' && item.row.id === currentMatch.rowId);
         if (virtualOn && index >= 0) {
-            virtualizer.scrollToIndex(index, { align: 'center' });
+            virtualizer?.scrollToIndex(index, { align: 'center' });
             requestAnimationFrame(() => requestAnimationFrame(show));
         } else show();
     });
@@ -2365,10 +2386,8 @@ export function DataTable<TData extends object>({
                     : display(column, row.getValue(column.id), row.original)
             )
         );
-        const csv = toCsv(
-            [visible.map((column) => column.exportHeader ?? column.header), ...records],
-            options.separator
-        );
+        const separator = options.separator ?? csvSeparatorProp ?? csvSeparator(locale);
+        const csv = toCsv([visible.map((column) => column.exportHeader ?? column.header), ...records], separator);
         return options.bom === false ? csv.slice(1) : csv;
     };
     const exportCsv = (options: boolean | DataTableCsvOptions = false) => {
@@ -2553,8 +2572,9 @@ export function DataTable<TData extends object>({
 
     // Scrolling: virtual rows and the end of the list
     const scrollElement = useRef<HTMLDivElement>(null);
-    // eslint-disable-next-line react-hooks/incompatible-library
-    const virtualizer = useVirtualizer({
+    const useRows: (options: DataTableVirtualOptions) => DataTableVirtualizer | undefined =
+        feature.useVirtualizer ?? noVirtualizer;
+    const virtualizer = useRows({
         count: virtualOn ? items.length : 0,
         getScrollElement: () => scrollElement.current,
         estimateSize: () => rowHeight,
@@ -2563,14 +2583,21 @@ export function DataTable<TData extends object>({
         // Rows of the first screen before the table is measured (no empty flash, SSR)
         initialRect: { width: 0, height: Number.parseInt(scrollHeight ?? '', 10) || 400 },
     });
-    const virtualItems = virtualOn ? virtualizer.getVirtualItems() : [];
+    useEffect(() => {
+        if (virtual && !feature.useVirtualizer)
+            warnInDevelopment(
+                'DataTable: `virtual` needs the feature virtualRows, so all rows are rendered – pass ' +
+                    '`features={[virtualRows]}` with virtualRows from @wirecore/wirelayer-react/virtual'
+            );
+    }, [virtual, feature]);
+    const virtualItems = virtualOn ? (virtualizer?.getVirtualItems() ?? []) : [];
     const shownItems = virtualOn
         ? virtualItems.map((item) => ({ ...items[item.index]!, index: item.index }))
         : items.map((item, index) => ({ ...item, index }));
     const paddingTop = virtualOn ? (virtualItems[0]?.start ?? 0) : 0;
-    const paddingBottom = virtualOn ? virtualizer.getTotalSize() - (virtualItems.at(-1)?.end ?? 0) : 0;
+    const paddingBottom = virtualOn ? (virtualizer?.getTotalSize() ?? 0) - (virtualItems.at(-1)?.end ?? 0) : 0;
     const measure = (element: HTMLTableRowElement | null) => {
-        if (virtualOn && element) virtualizer.measureElement(element);
+        if (virtualOn && element) virtualizer?.measureElement(element);
     };
     const endReported = useRef(false);
     useEffect(() => {
@@ -2627,7 +2654,7 @@ export function DataTable<TData extends object>({
         if (treeGrid && onTreeGridKey(event)) return;
         gridKeydown(event.nativeEvent, tableElement.current, {
             itemCount: items.length,
-            scrollToItem: virtualOn ? (index) => virtualizer.scrollToIndex(index) : undefined,
+            scrollToItem: virtualOn ? (index) => virtualizer?.scrollToIndex(index) : undefined,
             pageRows:
                 scrollElement.current && scrollHeight
                     ? Math.max(1, Math.floor(scrollElement.current.clientHeight / rowHeight) - 1)
@@ -4013,5 +4040,9 @@ export function DataTable<TData extends object>({
         </div>
     );
 
-    return fullscreen ? createPortal(content, document.body) : <Fragment>{content}</Fragment>;
+    return (
+        <FeatureContext.Provider value={feature}>
+            {fullscreen ? createPortal(content, document.body) : <Fragment>{content}</Fragment>}
+        </FeatureContext.Provider>
+    );
 }

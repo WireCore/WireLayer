@@ -1,13 +1,12 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, inject } from 'vue';
 import Checkbox from '../components/Checkbox/Checkbox.vue';
-import DatePicker from '../components/DatePicker/DatePicker.vue';
 import Input from '../components/Input/Input.vue';
 import MultiSelect from '../components/MultiSelect/MultiSelect.vue';
-import NumberInput from '../components/NumberInput/NumberInput.vue';
 import Select from '../components/Select/Select.vue';
 import Textarea from '../components/Textarea/Textarea.vue';
 import { useTranslations } from '../locale.js';
+import { featureKey } from './features.js';
 
 // One value of a filter condition or an edited cell – the matching input for the type
 
@@ -24,6 +23,8 @@ const props = defineProps<{
 const emit = defineEmits<{ 'update:modelValue': [value: unknown] }>();
 const t = useTranslations().dataTable;
 const translations = useTranslations();
+// DatePicker and NumberInput come from the features dateInput and numberInput – without them the browser's inputs
+const feature = inject(featureKey, {});
 
 // Choices with values of their own keep them (objects, numbers); text choices stay text as before
 const byValue = computed(() => (props.options ?? []).some((option) => typeof option !== 'string'));
@@ -41,6 +42,8 @@ const items = computed(() => [
 const text = computed(() =>
     props.modelValue === null || props.modelValue === undefined ? '' : String(props.modelValue)
 );
+/** The browser's number input: an empty or invalid entry is no number */
+const toNumber = (value: string | undefined) => (value && Number.isFinite(Number(value)) ? Number(value) : null);
 const selected = computed(() => (byValue.value ? (props.modelValue ?? (props.any ? '' : null)) : text.value));
 </script>
 
@@ -62,21 +65,41 @@ const selected = computed(() => (byValue.value ? (props.modelValue ?? (props.any
         :model-value="text"
         @update:model-value="emit('update:modelValue', $event ?? '')"
     />
-    <NumberInput
-        v-else-if="type === 'number'"
+    <component
+        :is="feature.numberInput"
+        v-else-if="type === 'number' && feature.numberInput"
         size="sm"
         :aria-label="label"
         :invalid="invalid"
         :model-value="typeof modelValue === 'number' ? modelValue : null"
         @update:model-value="emit('update:modelValue', $event)"
     />
-    <DatePicker
-        v-else-if="type === 'date' || type === 'datetime'"
+    <Input
+        v-else-if="type === 'number'"
+        type="number"
+        size="sm"
+        :aria-label="label"
+        :invalid="invalid"
+        :model-value="typeof modelValue === 'number' ? String(modelValue) : ''"
+        @update:model-value="emit('update:modelValue', toNumber($event))"
+    />
+    <component
+        :is="feature.dateInput"
+        v-else-if="(type === 'date' || type === 'datetime') && feature.dateInput"
         :aria-label="label"
         :invalid="invalid"
         :with-time="type === 'datetime'"
         :model-value="text || null"
         @update:model-value="emit('update:modelValue', $event)"
+    />
+    <Input
+        v-else-if="type === 'date' || type === 'datetime'"
+        :type="type === 'date' ? 'date' : 'datetime-local'"
+        size="sm"
+        :aria-label="label"
+        :invalid="invalid"
+        :model-value="text.slice(0, type === 'date' ? 10 : 16)"
+        @update:model-value="emit('update:modelValue', $event || null)"
     />
     <MultiSelect
         v-else-if="type === 'multiSelect'"

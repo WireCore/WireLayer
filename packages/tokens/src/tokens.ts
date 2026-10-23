@@ -1,4 +1,4 @@
-/** Colour schemes, switched with `data-mode` (`:root` = light). */
+/** Colour schemes, switched with `data-mode` – without it the system setting (`prefers-color-scheme`) decides. */
 export const modes = ['light', 'dark'] as const;
 export type Mode = (typeof modes)[number];
 

@@ -226,7 +226,7 @@ export const exportColumns = <T>(columns: readonly TableViewColumn<T>[]) =>
 
 /** Options of the CSV of a table */
 export interface TableCsvOptions {
-    /** Separator, default ";" (opens in a German Excel) */
+    /** Separator (default ";"; the DataTable passes its `csvSeparator`, by default from the locale) */
     separator?: string;
     /** Byte order mark at the start, so Excel reads UTF-8 – default true */
     bom?: boolean;

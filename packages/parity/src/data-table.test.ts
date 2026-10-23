@@ -47,7 +47,8 @@ import {
     zipStore,
 } from '@wirecore/wirelayer-recipes';
 import { describe, expect, it, vi } from 'vitest';
-import { el, frameworks, render, toReact, type El } from './harness.js';
+import { el, feature, frameworks, render, toReact, type El } from './harness.js';
+import { de as german } from '@wirecore/wirelayer-recipes/locales/de';
 
 // The extended DataTable (PrimeVue feature set): sorting by several columns, filter menus, column menu, details,
 // row order, selection modes, editing, totals and the saved state – in Vue and React alike
@@ -592,13 +593,11 @@ describe('Data source controller', () => {
         expect(controller.current).toMatchObject({ status: 'error', items: [1] });
         expect(states).toContain('loading');
         expect(queryKey({ page: 1, search: undefined })).toBe(queryKey({ page: 1 }));
-        expect(dataAnnouncement(controller.current, messages.de, 'de-DE')).toBe(
-            'Die Daten konnten nicht geladen werden.'
-        );
-        expect(dataAnnouncement({ status: 'success', items: [1], totalCount: 1 }, messages.de, 'de-DE')).toBe(
+        expect(dataAnnouncement(controller.current, german, 'de-DE')).toBe('Die Daten konnten nicht geladen werden.');
+        expect(dataAnnouncement({ status: 'success', items: [1], totalCount: 1 }, german, 'de-DE')).toBe(
             '1 Eintrag geladen'
         );
-        expect(dataAnnouncement({ status: 'success', items: [], totalCount: 1234 }, messages.de, 'de-DE')).toBe(
+        expect(dataAnnouncement({ status: 'success', items: [], totalCount: 1234 }, german, 'de-DE')).toBe(
             '1.234 Einträge geladen'
         );
         expect(dataAnnouncement({ status: 'success', items: [], totalCount: 1 }, messages.en, 'en-US')).toBe(
@@ -711,6 +710,54 @@ describe.each(frameworks)('%s DataTable', (framework) => {
         await userEvent.type(screen.getByRole('spinbutton', { name: 'Filter Load' }), '71');
         await waitFor(() => expect(names()).toEqual(['db-primary']));
         expect(screen.getAllByRole('status')[0]).toHaveTextContent('1 entry');
+    });
+
+    it("date and number filters: the browser's inputs without features", async () => {
+        await render(framework, table({ columns: [...columns, { id: 'since', header: 'Since', filter: 'date' }] }));
+        expect(screen.getByRole('spinbutton', { name: 'Filter Load' })).toHaveAttribute('type', 'number');
+        const since = screen.getByLabelText('Filter Since');
+        expect(since).toHaveAttribute('type', 'date');
+        fireEvent.input(since, { target: { value: '2024-03-01' } });
+        await waitFor(() => expect(names()).toEqual(['web-01']));
+    });
+
+    it('date and number filters: DatePicker and NumberInput with the features dateInput and numberInput', async () => {
+        const container = await render(
+            framework,
+            table({
+                columns: [...columns, { id: 'since', header: 'Since', filter: 'date' }],
+                features: [feature('dateInput'), feature('numberInput')],
+            })
+        );
+        const load = screen.getByRole('spinbutton', { name: 'Filter Load' });
+        expect(load).not.toHaveAttribute('type', 'number');
+        expect(load.closest('[data-scope="number-input"]')).not.toBeNull();
+        expect(container.querySelector('[data-scope="date-picker"]')).not.toBeNull();
+    });
+
+    const many = Array.from({ length: 200 }, (_, index) => ({
+        ...fleet[0]!,
+        id: `web-${index}`,
+        name: `web-${index}`,
+    }));
+
+    it('virtual without the feature virtualRows: all rows and a warning', async () => {
+        const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+        await render(framework, table({ data: many, scrollHeight: '400px', virtual: true }));
+        expect(names()).toHaveLength(200);
+        expect(screen.getByRole('table')).not.toHaveAttribute('aria-rowcount');
+        expect(warn).toHaveBeenCalledWith(expect.stringContaining('`virtual` needs the feature virtualRows'));
+        warn.mockRestore();
+    });
+
+    it('virtual with the feature virtualRows: only the visible rows', async () => {
+        await render(
+            framework,
+            table({ data: many, scrollHeight: '400px', virtual: true, features: [feature('virtualRows')] })
+        );
+        // jsdom has no layout: the virtualizer renders no rows, the table announces all of them
+        expect(names().length).toBeLessThan(200);
+        expect(screen.getByRole('table')).toHaveAttribute('aria-rowcount', '201');
     });
 
     it('column menu: hide, move and pin columns', async () => {
@@ -1137,15 +1184,33 @@ describe.each(frameworks)('%s DataTable', (framework) => {
                 ],
             })
         );
+        // en-US: "," – a spreadsheet there expects it
         expect(handle!.generateCsv({ bom: false }).split('\r\n')).toEqual([
-            'Hostname;Load',
-            'web-01;0.42',
-            'db-primary;0.71',
-            'k8s-node-3;0.18',
+            'Hostname,Load',
+            'web-01,0.42',
+            'db-primary,0.71',
+            'k8s-node-3,0.18',
         ]);
-        expect(handle!.generateCsv({ selectionOnly: true, separator: ',' })).toBe(
-            '\uFEFFHostname,Load\r\ndb-primary,0.71'
+        expect(handle!.generateCsv({ selectionOnly: true, separator: ';' })).toBe(
+            '\uFEFFHostname;Load\r\ndb-primary;0.71'
         );
+    });
+
+    it('csvSeparator sets the separator of the export, the option of a single export still wins', async () => {
+        let handle: { generateCsv: (options?: object) => string } | undefined;
+        await render(
+            framework,
+            table({
+                ref: (value: typeof handle | null) => (handle = value ?? handle),
+                csvSeparator: '\t',
+                columns: [
+                    { id: 'name', header: 'Name' },
+                    { id: 'location', header: 'Location' },
+                ],
+            })
+        );
+        expect(handle!.generateCsv({ bom: false }).split('\r\n')[0]).toBe('Name\tLocation');
+        expect(handle!.generateCsv({ bom: false, separator: '|' }).split('\r\n')[0]).toBe('Name|Location');
     });
 
     it('edits with a select of values, an own editor and a check that answers later', async () => {

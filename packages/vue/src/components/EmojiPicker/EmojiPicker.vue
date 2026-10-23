@@ -67,9 +67,7 @@ const icons: Record<EmojiCategory, string> = {
     symbols: '❤️',
 };
 
-const all = computed(
-    () => props.emojis ?? localeEmojis(locale.value.locale, locale.value.translations.emojiPicker.emojis)
-);
+const all = computed(() => props.emojis ?? localeEmojis(t.value.emojis));
 const stored = useLocalStorage<string[]>(props.recentKey, []);
 const recentEntries = computed(() =>
     props.recent
@@ -135,8 +133,9 @@ function onSearchKeydown(event: KeyboardEvent) {
 
 <template>
     <!--
-        Emoji picker: search (German words), categories, a grid (arrow keys, Home/End, Ctrl+Home/End; Enter or
-        Space chooses); the name of the focused emoji is shown below. Recently used emojis come first.
+        Emoji picker: search (English words and those of a language module), categories, a grid (arrow keys, Home/End,
+        Ctrl+Home/End; Enter or Space chooses); the name of the focused emoji is shown below. Recently used emojis come
+        first.
     -->
     <div
         v-bind="{ ...attrs, class: styles.base({ class: normalizeClass(attrs.class) }) }"

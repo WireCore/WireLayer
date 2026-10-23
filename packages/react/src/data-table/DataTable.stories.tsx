@@ -11,9 +11,13 @@ import { Progress } from '../components/Progress/Progress.js';
 import { Select } from '../components/Select/Select.js';
 import { Switch } from '../components/Switch/Switch.js';
 import { DataTable, type DataTableHandle, type DataTableProps } from './DataTable.js';
-import { defineMatchMode, moveItem, moveTreeRow } from './index.js';
+import { dateInput, defineMatchMode, moveItem, moveTreeRow, numberInput } from './index.js';
+import { virtualRows } from '../virtual/index.js';
 import type { DataTableColumn, DataTablePivot, RowsRequest } from './types.js';
 import type { ConditionGroup } from '@wirecore/wirelayer-recipes';
+
+// The feature modules of the tables below, each imported on its own: virtual rows, DatePicker and NumberInput
+const features = [virtualRows, dateInput, numberInput];
 
 interface ServerRow {
     id: string;
@@ -122,6 +126,7 @@ function ServerTable(props: Partial<DataTableProps<ServerRow>>) {
     return (
         <div className="flex max-w-[900px] flex-col gap-2">
             <DataTable<ServerRow>
+                features={features}
                 data={servers}
                 columns={columns}
                 caption="Servers"
@@ -191,6 +196,7 @@ function FileTable() {
     const [expanded, setExpanded] = useState(['projects']);
     return (
         <DataTable<FileRow>
+            features={features}
             data={fileRows}
             columns={fileColumns}
             caption="Files"
@@ -240,6 +246,7 @@ function HostTable() {
     return (
         <div className="flex max-w-[720px] flex-col gap-2">
             <DataTable<HostRow>
+                features={features}
                 data={rows}
                 columns={hostColumns}
                 caption="Servers"
@@ -268,6 +275,7 @@ export const Tools: Story = { render: () => <HostTable /> };
 export const Grouped: Story = {
     render: () => (
         <DataTable<HostRow>
+            features={features}
             data={hosts}
             columns={[
                 { id: 'name', header: 'Name', sortable: true },
@@ -346,6 +354,7 @@ function FilterMenuTable() {
     const [sorting, setSorting] = useState<DataTableProps<MachineRow>['sorting']>([{ id: 'location', desc: false }]);
     return (
         <DataTable<MachineRow>
+            features={features}
             data={machines(40)}
             columns={machineColumns}
             caption="Machines"
@@ -389,6 +398,7 @@ function RowsTable() {
     return (
         <div className="flex max-w-[900px] flex-col gap-2">
             <DataTable<MachineRow>
+                features={features}
                 data={rows}
                 columns={rowColumns}
                 caption="Machines"
@@ -455,6 +465,7 @@ function RowEditingTable() {
     const [rows, setRows] = useState(() => machines(5));
     return (
         <DataTable<MachineRow>
+            features={features}
             data={rows}
             columns={editColumns}
             caption="Machines"
@@ -476,6 +487,7 @@ export const RowEditing: Story = { render: () => <RowEditingTable /> };
 export const Totals: Story = {
     render: () => (
         <DataTable<MachineRow>
+            features={features}
             data={machines(12)}
             columns={[
                 { id: 'name', header: 'Name', footer: 'Total' },
@@ -510,6 +522,7 @@ function LargeTable() {
     return (
         <div className="flex max-w-[900px] flex-col gap-2">
             <DataTable<MachineRow>
+                features={features}
                 data={rows}
                 columns={machineColumns.slice(0, 5)}
                 caption="All machines"
@@ -557,6 +570,7 @@ export const VirtualWidth: Story = {
     name: 'Virtual: fit width',
     render: () => (
         <DataTable<MachineRow>
+            features={features}
             data={widthRows}
             columns={machineColumns.slice(0, 3).map((column) => ({ ...column, filter: undefined, copyable: false }))}
             caption="Machines"
@@ -658,6 +672,7 @@ export const OwnFilters: Story = {
     name: 'Custom filters',
     render: () => (
         <DataTable<ServiceRow>
+            features={features}
             data={services}
             columns={serviceColumns}
             caption="Services"
@@ -684,6 +699,7 @@ function KeyboardTable() {
     const [rows, setRows] = useState(() => machines(2000));
     return (
         <DataTable<MachineRow>
+            features={features}
             data={rows}
             columns={keyboardColumns}
             caption="Machines"
@@ -715,6 +731,7 @@ export const KeyboardGrouped: Story = {
     name: 'Keyboard with groups',
     render: () => (
         <DataTable<MachineRow>
+            features={features}
             data={machines(12)}
             columns={machineColumns.slice(0, 5).map((column) => ({ ...column, filter: undefined }))}
             caption="Machines by location"
@@ -735,6 +752,7 @@ function StatusBarTable() {
     return (
         <div className="flex max-w-[760px] flex-col gap-3">
             <DataTable<MachineRow>
+                features={features}
                 ref={table}
                 data={machines(12)}
                 columns={[
@@ -785,6 +803,7 @@ function RowLinksTable() {
     return (
         <div className="flex max-w-[900px] flex-col gap-2">
             <DataTable<MachineRow>
+                features={features}
                 data={machines(6)}
                 columns={rowColumns.map((column) => ({ ...column, copyable: undefined }))}
                 caption="Machines"
@@ -814,6 +833,7 @@ function SkeletonTable() {
                 Loading
             </Switch>
             <DataTable<MachineRow>
+                features={features}
                 data={machines(8)}
                 columns={rowColumns}
                 caption="Machines"
@@ -916,6 +936,7 @@ function EditorsTable() {
     const [rows, setRows] = useState(() => plans.map((plan) => ({ ...plan })));
     return (
         <DataTable<PlanRow>
+            features={features}
             data={rows}
             columns={planColumns}
             caption="Maintenance schedule"
@@ -954,6 +975,7 @@ export const ExcelExport: Story = {
     name: 'Excel export',
     render: () => (
         <DataTable<MachineRow>
+            features={features}
             data={machines(12)}
             columns={excelColumns}
             caption="Machines"
@@ -991,6 +1013,7 @@ function SpreadsheetTable() {
     return (
         <div className="flex max-w-[900px] flex-col gap-3">
             <DataTable<MachineRow>
+                features={features}
                 data={rows}
                 columns={sheetColumns}
                 caption="Machines"
@@ -1043,6 +1066,7 @@ function BatchTable() {
     return (
         <div className="flex max-w-[900px] flex-col gap-3">
             <DataTable<MachineRow>
+                features={features}
                 data={rows}
                 columns={sheetColumns}
                 caption="Machines"
@@ -1112,6 +1136,7 @@ function ServerSourceTable() {
     return (
         <div className="flex max-w-[900px] flex-col gap-3">
             <DataTable<MachineRow>
+                features={features}
                 ref={table}
                 columns={[
                     { id: 'name', header: 'Name', width: 150, sortable: true },
@@ -1219,6 +1244,7 @@ function PivotTable() {
                 />
             </div>
             <DataTable<MachineRow>
+                features={features}
                 data={machines(40)}
                 columns={pivotColumns}
                 caption="Cores by location and system"
@@ -1250,6 +1276,7 @@ export const MergedCells: Story = {
     name: 'Merged cells',
     render: () => (
         <DataTable<MachineRow>
+            features={features}
             data={mergedRows}
             columns={[
                 { id: 'location', header: 'Location', rowSpan: 'auto' },
@@ -1282,6 +1309,7 @@ export const Find: Story = {
     name: 'Find',
     render: () => (
         <DataTable<MachineRow>
+            features={features}
             data={machines(2000)}
             columns={keyboardColumns.map((column) => ({ ...column, editable: false }))}
             caption="Machines"
@@ -1299,6 +1327,7 @@ function PrintTable() {
     const table = useRef<DataTableHandle>(null);
     return (
         <DataTable<MachineRow>
+            features={features}
             ref={table}
             data={machines(60)}
             columns={excelColumns}
@@ -1329,6 +1358,7 @@ function MoveRowsTables() {
     return (
         <div className="flex max-w-[800px] flex-col gap-6">
             <DataTable<MachineRow>
+                features={features}
                 data={rows}
                 columns={machineColumns.slice(0, 4).map((column) => ({ ...column, filter: undefined }))}
                 caption="Machines by location"
@@ -1346,6 +1376,7 @@ function MoveRowsTables() {
                 }
             />
             <DataTable<FileRow>
+                features={features}
                 data={files}
                 columns={fileColumns}
                 caption="Files"
@@ -1377,6 +1408,7 @@ export const ColumnGroups: Story = {
     name: 'Managing column groups',
     render: () => (
         <DataTable<MachineRow>
+            features={features}
             data={machines(6)}
             columns={[
                 {
@@ -1431,6 +1463,7 @@ function AdvancedFilterTable() {
     const [tree, setTree] = useState(() => loadOver(50));
     return (
         <DataTable
+            features={features}
             data={rows}
             columns={machineColumns}
             caption="Machines"

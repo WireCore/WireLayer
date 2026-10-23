@@ -57,6 +57,8 @@ export function Chart<TType extends ChartType>({
     // (Re)create the chart when the type changes; recolour on theme/mode/motion changes
     useEffect(() => {
         const motion = matchMedia('(prefers-reduced-motion: reduce)');
+        // Without data-mode the page follows the system – recolour when it switches
+        const scheme = matchMedia('(prefers-color-scheme: dark)');
         const config = () => {
             const theme = readChartTheme(canvas.current!);
             return {
@@ -83,9 +85,11 @@ export function Chart<TType extends ChartType>({
         const observer = new MutationObserver(update);
         observer.observe(document.documentElement, { attributes: true });
         motion.addEventListener('change', update);
+        scheme.addEventListener('change', update);
         return () => {
             observer.disconnect();
             motion.removeEventListener('change', update);
+            scheme.removeEventListener('change', update);
             instance?.destroy();
         };
     }, [type, locale]);

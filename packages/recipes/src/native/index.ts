@@ -35,6 +35,7 @@ export {
     defaultLocale,
     formatFileSize,
     messages,
+    csvSeparator,
     numberSeparators,
     parseLocaleNumber,
     pluralText,

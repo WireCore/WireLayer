@@ -3,6 +3,7 @@ import {
     cellValue,
     createDataController,
     createXlsx,
+    csvSeparator,
     dataAnnouncement,
     dataTable,
     filterTableRows,
@@ -153,6 +154,9 @@ export interface DataTableProps<TData> {
     onRowClick?: (click: DataTableRowClick<TData>) => void;
     /** Name of the exported file without extension (default "export") */
     exportFilename?: string;
+    /** Separator of the CSV export, also of the export button – default: from the locale (";" where numbers have a
+     * decimal comma, e.g. de-DE, as a spreadsheet there expects it; "," otherwise) */
+    csvSeparator?: string;
     /** Formats of the export: CSV (default), Excel (.xlsx) or both */
     exportFormats?: ('csv' | 'xlsx')[];
     /**
@@ -242,6 +246,7 @@ export function DataTable<TData extends object>({
     onRowAction,
     onRowClick,
     exportFilename,
+    csvSeparator: csvSeparatorProp,
     exportFormats,
     onExport,
     hasMore,
@@ -446,7 +451,10 @@ export function DataTable<TData extends object>({
         });
     };
     const generateCsv = (options: DataTableCsvOptions = {}) =>
-        tableCsv(exportRows(options.selectionOnly), columns, { separator: options.separator, bom: options.bom });
+        tableCsv(exportRows(options.selectionOnly), columns, {
+            separator: options.separator ?? csvSeparatorProp ?? csvSeparator(locale),
+            bom: options.bom,
+        });
     const generateXlsx = (options: DataTableXlsxOptions = {}) =>
         createXlsx(
             tableXlsxSheet(exportRows(options.selectionOnly), columns, {

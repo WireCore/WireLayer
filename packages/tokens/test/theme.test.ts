@@ -1,5 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
+import { themes, themeToCss } from '../src/index.js';
 
 const css = readFileSync(new URL('../dist/theme.css', import.meta.url), 'utf8');
 
@@ -28,5 +29,30 @@ describe('animation theme variables', () => {
         );
         expect(dynamic.length).toBeGreaterThan(0);
         for (const { inline, rule } of dynamic) expect(inline, rule).toBe(true);
+    });
+});
+
+describe('light and dark', () => {
+    // Without data-mode the page follows the system; data-mode="light"|"dark" forces a mode (checked in the browser
+    // as well – this keeps the generated rules from getting lost)
+    it('uses the dark colours for a page without data-mode when the system is dark', () => {
+        expect(css).toMatch(
+            /@media \(prefers-color-scheme: dark\) \{\s*\/\*[^*]*\*\/\s*:root:where\(:not\(\[data-mode\]\)\) \{\s*color-scheme: dark;/
+        );
+    });
+
+    it('also applies the dark variant to a page without data-mode, except in a forced light part', () => {
+        expect(css).toContain('&:where([data-mode=dark], [data-mode=dark] *)');
+        expect(css).toContain(
+            '&:where(:root:not([data-mode]), :root:not([data-mode]) *):not(:where([data-mode=light], [data-mode=light] *))'
+        );
+    });
+
+    it('gives every theme with dark colours the system case, too', () => {
+        for (const theme of themes.filter((theme) => Object.keys(theme.colors.dark).length)) {
+            const rules = themeToCss(theme);
+            expect(rules, theme.name).toContain(`:root:not([data-mode])[data-theme=${theme.name}]`);
+            expect(css, theme.name).toContain(rules);
+        }
     });
 });

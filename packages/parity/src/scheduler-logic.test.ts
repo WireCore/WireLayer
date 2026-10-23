@@ -32,6 +32,7 @@ import {
     type SchedulerEvent,
 } from '@wirecore/wirelayer-recipes';
 import { describe, expect, it } from 'vitest';
+import { de as german } from '@wirecore/wirelayer-recipes/locales/de';
 
 // Scheduler, series, iCalendar and Gantt logic of @wirecore/wirelayer-recipes – framework-neutral, shared by Vue and React
 
@@ -160,7 +161,7 @@ describe('recurrence rules', () => {
     });
 
     it('describes rules in German and English', () => {
-        const de = (rule: string, start?: string) => describeRecurrence(rule, messages.de, 'de-DE', start);
+        const de = (rule: string, start?: string) => describeRecurrence(rule, german, 'de-DE', start);
         expect(de('FREQ=MONTHLY;BYDAY=2MO')).toBe('Jeden 2. Montag im Monat');
         expect(de('FREQ=MONTHLY;BYDAY=-1FR')).toBe('Jeden letzten Freitag im Monat');
         expect(de('FREQ=WEEKLY;INTERVAL=2;BYDAY=MO,WE')).toBe('Alle 2 Wochen am Montag und Mittwoch');
@@ -507,11 +508,11 @@ describe('Gantt logic', () => {
     });
 
     it('scale per zoom, bars moved and resized, arrow paths', () => {
-        const scale = ganttScale(tasks, 'week', 'de-DE', messages.de);
+        const scale = ganttScale(tasks, 'week', 'de-DE', german);
         expect(scale.start).toBe('2026-10-19');
         expect(scale.bottom.map((unit) => unit.label)).toEqual(['KW 43', 'KW 44', 'KW 45']);
         expect(scale.top.map((unit) => unit.label)).toEqual(['Oktober 2026', 'November 2026']);
-        expect(ganttScale(tasks, 'quarter', 'de-DE', messages.de).bottom[0]).toEqual({
+        expect(ganttScale(tasks, 'quarter', 'de-DE', german).bottom[0]).toEqual({
             start: '2026-10-01',
             days: 92,
             label: 'Q4',

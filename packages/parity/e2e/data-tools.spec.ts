@@ -39,10 +39,10 @@ test.describe('DataTable tools', () => {
         expect(download.suggestedFilename()).toBe('server.csv');
         const csv = await readFile((await download.path())!, 'utf8');
         expect(csv.split('\r\n')).toEqual([
-            '﻿Name;Location;Operating system;Owner;Load',
-            'k8s-node-3;Nuremberg;Talos 1.12;Platform;18',
-            'backup-02;Nuremberg;Debian 12;Platform;96',
-            'cache-01;Nuremberg;Alpine 3.22;Team Web;55',
+            '﻿Name,Location,Operating system,Owner,Load',
+            'k8s-node-3,Nuremberg,Talos 1.12,Platform,18',
+            'backup-02,Nuremberg,Debian 12,Platform,96',
+            'cache-01,Nuremberg,Alpine 3.22,Team Web,55',
         ]);
     });
 

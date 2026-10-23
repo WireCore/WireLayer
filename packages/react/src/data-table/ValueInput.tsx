@@ -1,11 +1,11 @@
+import { useContext } from 'react';
 import { Checkbox } from '../components/Checkbox/Checkbox.js';
-import { DatePicker } from '../components/DatePicker/DatePicker.js';
 import { Input } from '../components/Input/Input.js';
 import { MultiSelect } from '../components/MultiSelect/MultiSelect.js';
-import { NumberInput } from '../components/NumberInput/NumberInput.js';
 import { Select } from '../components/Select/Select.js';
 import { Textarea } from '../components/Textarea/Textarea.js';
 import { useTranslations } from '../components/LocaleProvider/LocaleProvider.js';
+import { FeatureContext } from './features.js';
 
 export interface ValueInputProps {
     type: 'text' | 'textarea' | 'number' | 'select' | 'multiSelect' | 'date' | 'datetime' | 'boolean' | 'checkbox';
@@ -23,6 +23,8 @@ export interface ValueInputProps {
 export function ValueInput({ type, value, onChange, label, options, any = false, invalid }: ValueInputProps) {
     const translations = useTranslations();
     const t = translations.dataTable;
+    // DatePicker and NumberInput come from the features dateInput and numberInput – without them the browser's inputs
+    const { dateInput: DatePicker, numberInput: NumberInput } = useContext(FeatureContext);
     // Choices with values of their own keep them (objects, numbers); text choices stay text as before
     const byValue = (options ?? []).some((option) => typeof option !== 'string');
     const items: unknown[] = [
@@ -59,7 +61,7 @@ export function ValueInput({ type, value, onChange, label, options, any = false,
                 onChange={(event) => onChange(event.target.value)}
             />
         );
-    if (type === 'number')
+    if (type === 'number' && NumberInput)
         return (
             <NumberInput
                 size="sm"
@@ -69,7 +71,21 @@ export function ValueInput({ type, value, onChange, label, options, any = false,
                 onValueChange={onChange}
             />
         );
-    if (type === 'date' || type === 'datetime')
+    if (type === 'number')
+        return (
+            <Input
+                type="number"
+                size="sm"
+                aria-label={label}
+                invalid={invalid}
+                value={typeof value === 'number' ? String(value) : ''}
+                // The browser's number input: an empty or invalid entry is no number
+                onChange={({ target }) =>
+                    onChange(target.value && Number.isFinite(Number(target.value)) ? Number(target.value) : null)
+                }
+            />
+        );
+    if ((type === 'date' || type === 'datetime') && DatePicker)
         return (
             <DatePicker
                 aria-label={label}
@@ -77,6 +93,17 @@ export function ValueInput({ type, value, onChange, label, options, any = false,
                 withTime={type === 'datetime'}
                 value={text || null}
                 onValueChange={onChange}
+            />
+        );
+    if (type === 'date' || type === 'datetime')
+        return (
+            <Input
+                type={type === 'date' ? 'date' : 'datetime-local'}
+                size="sm"
+                aria-label={label}
+                invalid={invalid}
+                value={text.slice(0, type === 'date' ? 10 : 16)}
+                onChange={({ target }) => onChange(target.value || null)}
             />
         );
     if (type === 'multiSelect')
