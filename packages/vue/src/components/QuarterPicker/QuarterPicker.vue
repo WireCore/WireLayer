@@ -200,6 +200,9 @@ function applyPreset(range: PeriodRange) {
     open.value = false;
 }
 const initialFocus = () => buttons.value[focusIndex.value] ?? null;
+// Fixed objects: a new literal in the template on every render makes Ark update the machine, which can re-render
+// endlessly (Vue only stops it in development)
+const bottomStartPositioning = { placement: 'bottom-start', gutter: 4 } as const;
 </script>
 
 <template>
@@ -210,7 +213,7 @@ const initialFocus = () => buttons.value[focusIndex.value] ?? null;
     <div :class="styles.base({ class: split.className })" :style="split.style">
         <Popover.Root
             :open="open"
-            :positioning="{ placement: 'bottom-start', gutter: 4 }"
+            :positioning="bottomStartPositioning"
             :initial-focus-el="initialFocus"
             lazy-mount
             unmount-on-exit

@@ -160,6 +160,9 @@ function pasteText(text: string) {
     set(time);
     return true;
 }
+// Fixed objects: a new literal in the template on every render makes Ark update the machine, which can re-render
+// endlessly (Vue only stops it in development)
+const bottomEndPositioning = { placement: 'bottom-end', gutter: 4 } as const;
 </script>
 
 <template>
@@ -216,7 +219,7 @@ function pasteText(text: string) {
                 :model-value="wall ? [wall] : []"
                 :disabled="state.disabled || state.readOnly"
                 :ids="{ label: `${id}list` }"
-                :positioning="{ placement: 'bottom-end', gutter: 4 }"
+                :positioning="bottomEndPositioning"
                 lazy-mount
                 unmount-on-exit
                 @value-change="set($event.value[0] ?? null)"

@@ -206,6 +206,9 @@ function onOpenChange(open: boolean) {
     if (props.dataSource) source.search('');
 }
 const activeId = (api: Api) => (api.highlightedItem ? api.getItemProps({ item: api.highlightedItem }).id : undefined);
+// Fixed objects: a new literal in the template on every render makes Ark update the machine, which can re-render
+// endlessly (Vue only stops it in development)
+const listPositioning = { sameWidth: true, gutter: 4 } as const;
 </script>
 
 <template>
@@ -219,7 +222,7 @@ const activeId = (api: Api) => (api.highlightedItem ? api.getItemProps({ item: a
         :invalid="invalid"
         :required="required"
         :name="name"
-        :positioning="{ sameWidth: true, gutter: 4 }"
+        :positioning="listPositioning"
         :composite="!filter"
         v-bind="standalone ? { ids: {} } : {}"
         lazy-mount

@@ -42,6 +42,9 @@ function onOpenChange(next: boolean) {
     if (next) answered = false;
     else if (!answered) emit('cancel');
 }
+// Fixed objects: a new literal in the template on every render makes Ark update the machine, which can re-render
+// endlessly (Vue only stops it in development)
+const bottomPositioning = { placement: 'bottom', gutter: 8 } as const;
 </script>
 
 <template>
@@ -52,7 +55,7 @@ function onOpenChange(next: boolean) {
     <Popover.Root
         :open="open"
         :initial-focus-el="() => (cancelButton?.$el as HTMLElement | undefined) ?? null"
-        :positioning="{ placement: 'bottom', gutter: 8 }"
+        :positioning="bottomPositioning"
         lazy-mount
         unmount-on-exit
         @update:open="onOpenChange"

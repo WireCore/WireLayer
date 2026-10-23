@@ -81,12 +81,15 @@ function clear() {
     emit('update:modelValue', undefined);
     open.value = false;
 }
+// Fixed objects: a new literal in the template on every render makes Ark update the machine, which can re-render
+// endlessly (Vue only stops it in development)
+const bottomEndPositioning = { placement: 'bottom-end', gutter: 4 } as const;
 </script>
 
 <template>
     <Popover.Root
         :open="open"
-        :positioning="{ placement: 'bottom-end', gutter: 4 }"
+        :positioning="bottomEndPositioning"
         lazy-mount
         unmount-on-exit
         @open-change="onOpenChange($event.open)"

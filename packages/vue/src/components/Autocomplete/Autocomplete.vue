@@ -170,6 +170,9 @@ function onInput(details: { inputValue: string; reason?: string }) {
     setText(details.inputValue);
     if (details.reason === 'input-change') onFilter(details.inputValue);
 }
+// Fixed objects: a new literal in the template on every render makes Ark update the machine, which can re-render
+// endlessly (Vue only stops it in development)
+const listPositioning = { sameWidth: true, gutter: 4 } as const;
 </script>
 
 <template>
@@ -209,7 +212,7 @@ function onInput(details: { inputValue: string; reason?: string }) {
         :required="required"
         :name="name"
         :placeholder="placeholder"
-        :positioning="{ sameWidth: true, gutter: 4 }"
+        :positioning="listPositioning"
         :translations="translations.combobox"
         lazy-mount
         unmount-on-exit

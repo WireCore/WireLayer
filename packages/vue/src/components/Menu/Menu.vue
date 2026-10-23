@@ -95,13 +95,15 @@ watch(overlay.isOpen, async (open) => {
     // After Ark has focused the menu
     requestAnimationFrame(() => requestAnimationFrame(() => search.value?.focus()));
 });
+// One object until the inputs change – a new one on every render can make Ark re-render endlessly
+const positioning = computed(() => overlay.positioning({}));
 </script>
 
 <template>
     <!-- The trigger is the slotted element (e.g. a Button or IconButton) -->
     <Menu.Root
         :open="overlay.isOpen.value"
-        :positioning="overlay.positioning({})"
+        :positioning="positioning"
         :anchor-point="overlay.anchorPoint.value"
         lazy-mount
         unmount-on-exit

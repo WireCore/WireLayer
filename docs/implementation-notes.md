@@ -80,6 +80,11 @@ Worth reading before changing the affected areas.
 
 ## Vue and React
 
+- **Object literals as props of Ark components (Vue):** `:positioning="{ placement: … }"` in a template creates a new
+  object on every render. Ark updates its machine with it, which renders again – in menus, where every highlight
+  renders, this became an endless loop. Vue only stops it in development (“Maximum recursive updates exceeded”); the
+  production build froze (submenus of Menu, Menubar and CascadeSelect, found by the E2E tests against the static
+  Storybooks). Fixed objects are constants in the script, ones that depend on props are a `computed`.
 - **Vue component names** have no prefix (`Button`, `Input`) – decided, identical to the React API.
 - **Naming:** light/dark is `data-mode`, the color theme `data-theme`, as in PrimeVue. Previously `data-theme` meant
   light/dark; renamed before the first release.

@@ -109,6 +109,9 @@ function onContentKey(event: KeyboardEvent, index: number) {
     event.preventDefault();
     move(index + step, true);
 }
+// Fixed objects: a new literal in the template on every render makes Ark update the machine, which can re-render
+// endlessly (Vue only stops it in development)
+const bottomStartPositioning = { placement: 'bottom-start', gutter: 4 } as const;
 </script>
 
 <template>
@@ -120,7 +123,7 @@ function onContentKey(event: KeyboardEvent, index: number) {
                 v-for="(entry, index) in menus"
                 :key="entry.label"
                 :open="open === index"
-                :positioning="{ placement: 'bottom-start', gutter: 4 }"
+                :positioning="bottomStartPositioning"
                 lazy-mount
                 unmount-on-exit
                 @open-change="open = $event.open ? index : open === index ? null : open"

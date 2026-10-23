@@ -6,6 +6,7 @@ import {
     type OverlayHandle,
     type RecipeClasses,
 } from '@wirecore/wirelayer-recipes';
+import { computed } from 'vue';
 import { useAnchoredOverlay } from '../../overlay.js';
 import { useRecipe } from '../../recipes.js';
 
@@ -41,6 +42,8 @@ const overlay = useAnchoredOverlay({
     onOpenChange: (next) => emit('update:open', next),
 });
 defineExpose<OverlayHandle>(overlay.handle);
+// One object until the inputs change – a new one on every render can make Ark re-render endlessly
+const positioning = computed(() => overlay.positioning({}));
 </script>
 
 <template>
@@ -52,7 +55,7 @@ defineExpose<OverlayHandle>(overlay.handle);
         :open="overlay.isOpen.value"
         :open-delay="openDelay"
         :close-delay="closeDelay"
-        :positioning="overlay.positioning({})"
+        :positioning="positioning"
         lazy-mount
         unmount-on-exit
         @update:open="overlay.onOpenChange($event)"

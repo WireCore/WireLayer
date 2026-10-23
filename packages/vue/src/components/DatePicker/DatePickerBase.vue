@@ -166,6 +166,9 @@ function pasteText(text: string, index: number): boolean {
     emit('change', next.filter(Boolean));
     return true;
 }
+// Fixed objects: a new literal in the template on every render makes Ark update the machine, which can re-render
+// endlessly (Vue only stops it in development)
+const bottomStartPositioning = { placement: 'bottom-start', gutter: 4 } as const;
 </script>
 
 <template>
@@ -188,7 +191,7 @@ function pasteText(text: string, index: number): boolean {
         :num-of-months="numberOfMonths"
         :time-zone="timeZone"
         v-bind="state"
-        :positioning="{ placement: 'bottom-start', gutter: 4 }"
+        :positioning="bottomStartPositioning"
         :translations="calendarTranslations"
         lazy-mount
         unmount-on-exit

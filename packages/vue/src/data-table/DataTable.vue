@@ -2895,6 +2895,9 @@ defineExpose({
     /** Redoes the last undone cell change – like Ctrl+Y */
     redo,
 });
+// Fixed objects: a new literal in the template on every render makes Ark update the machine, which can re-render
+// endlessly (Vue only stops it in development)
+const bottomEndPositioning = { placement: 'bottom-end', gutter: 4 } as const;
 </script>
 
 <template>
@@ -2952,12 +2955,7 @@ defineExpose({
                         :aria-pressed="showFilters"
                         @click="toggleFilters"
                     />
-                    <Menu.Root
-                        v-if="densityToggle"
-                        :positioning="{ placement: 'bottom-end', gutter: 4 }"
-                        lazy-mount
-                        unmount-on-exit
-                    >
+                    <Menu.Root v-if="densityToggle" :positioning="bottomEndPositioning" lazy-mount unmount-on-exit>
                         <Menu.Trigger as-child>
                             <IconButton :icon="Rows3" :label="t.density" variant="outline" size="sm" />
                         </Menu.Trigger>
@@ -2986,12 +2984,7 @@ defineExpose({
                             </Menu.Positioner>
                         </Teleport>
                     </Menu.Root>
-                    <Menu.Root
-                        v-if="columnToggle"
-                        :positioning="{ placement: 'bottom-end', gutter: 4 }"
-                        lazy-mount
-                        unmount-on-exit
-                    >
+                    <Menu.Root v-if="columnToggle" :positioning="bottomEndPositioning" lazy-mount unmount-on-exit>
                         <Menu.Trigger as-child>
                             <Button variant="outline" size="sm" :leading-icon="Columns3">{{ t.columns }}</Button>
                         </Menu.Trigger>

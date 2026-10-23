@@ -15,6 +15,8 @@ defineSlots<{
 const menu = useRecipe('menu', menuRecipe);
 const emit = defineEmits<{ select: [value: string] }>();
 const styles = menu();
+// One object for every render: a new literal each time makes Ark update the submenu and re-render endlessly
+const submenuPositioning = { placement: 'right-start', offset: { mainAxis: SUBMENU_GUTTER } } as const;
 const state = useMenuState();
 const keyOf = (entry: MenuEntry, index: number) => {
     if (!('type' in entry)) return entry.value;
@@ -78,7 +80,7 @@ const keyOf = (entry: MenuEntry, index: number) => {
         </Menu.CheckboxItem>
         <Menu.Root
             v-else-if="!('type' in entry) && entry.children"
-            :positioning="{ placement: 'right-start', offset: { mainAxis: SUBMENU_GUTTER } }"
+            :positioning="submenuPositioning"
             @select="emit('select', $event.value)"
         >
             <Menu.TriggerItem :class="styles.item()">

@@ -32,6 +32,9 @@ const stopHover = (event: PointerEvent) => event.stopImmediatePropagation();
 function onOpenChange(option: CascadeOption<unknown>, open: boolean) {
     if (open) context.open(option);
 }
+// Fixed objects: a new literal in the template on every render makes Ark update the machine, which can re-render
+// endlessly (Vue only stops it in development)
+const submenuPositioning = { placement: 'right-start', offset: { mainAxis: SUBMENU_GUTTER } } as const;
 </script>
 
 <template>
@@ -64,7 +67,7 @@ function onOpenChange(option: CascadeOption<unknown>, open: boolean) {
         <template v-for="option in options" :key="context.keyOf(option)">
             <Menu.Root
                 v-if="branch(option)"
-                :positioning="{ placement: 'right-start', offset: { mainAxis: SUBMENU_GUTTER } }"
+                :positioning="submenuPositioning"
                 @open-change="onOpenChange(option, $event.open)"
             >
                 <Menu.TriggerItem

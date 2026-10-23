@@ -181,16 +181,14 @@ const triggerLabel = computed(() =>
 const Wrap: FunctionalComponent<{ wrap: boolean; class: string }> = (wrapProps, { slots }) =>
     wrapProps.wrap ? h('div', { class: wrapProps.class }, slots.default?.()) : slots.default?.();
 Wrap.props = ['wrap', 'class'];
+// Fixed objects: a new literal in the template on every render makes Ark update the machine, which can re-render
+// endlessly (Vue only stops it in development)
+const listPositioning = { placement: 'bottom-start', gutter: 4, sameWidth: true } as const;
 </script>
 
 <template>
     <!-- Select whose options are a tree: the button opens the tree in a panel, choosing a node closes it -->
-    <Popover.Root
-        v-model:open="open"
-        :positioning="{ placement: 'bottom-start', gutter: 4, sameWidth: true }"
-        lazy-mount
-        unmount-on-exit
-    >
+    <Popover.Root v-model:open="open" :positioning="listPositioning" lazy-mount unmount-on-exit>
         <div :class="styles.base({ class: normalizeClass(attrs.class) })" :style="attrs.style">
             <!-- Several nodes: chips in a box, the trigger fills the rest of the row -->
             <div

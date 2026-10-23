@@ -72,6 +72,9 @@ const textOf = (color: { toString(format: 'hex' | 'hexa'): string }) =>
         ? color.toString(hexFormat.value)
         : formatColor(color.toString(hexFormat.value), props.format);
 const ariaLabel = computed(() => attrs['aria-label'] as string | undefined);
+// Fixed objects: a new literal in the template on every render makes Ark update the machine, which can re-render
+// endlessly (Vue only stops it in development)
+const bottomStartPositioning = { placement: 'bottom-start', gutter: 4 } as const;
 </script>
 
 <template>
@@ -85,7 +88,7 @@ const ariaLabel = computed(() => attrs['aria-label'] as string | undefined);
         :read-only="readOnly ?? field?.readOnly"
         :invalid="invalid ?? field?.invalid"
         :name="name"
-        :positioning="{ placement: 'bottom-start', gutter: 4 }"
+        :positioning="bottomStartPositioning"
         lazy-mount
         unmount-on-exit
         @value-change="emit('update:modelValue', textOf($event.value))"

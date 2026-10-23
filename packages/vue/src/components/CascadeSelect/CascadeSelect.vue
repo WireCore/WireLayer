@@ -215,6 +215,11 @@ function onPick(keys: string[]) {
     if (keys[0]) choose(keys[0]);
     else clear();
 }
+// Fixed objects: a new literal in the template on every render makes Ark update the machine, which can re-render
+// endlessly (Vue only stops it in development)
+const listPositioning = { sameWidth: true, gutter: 4 } as const;
+const bottomEndPositioning = { placement: 'bottom-end', gutter: 4 } as const;
+const bottomStartPositioning = { placement: 'bottom-start', gutter: 4 } as const;
 </script>
 
 <template>
@@ -233,7 +238,7 @@ function onPick(keys: string[]) {
         :disabled="isDisabled"
         :invalid="isInvalid"
         :placeholder="placeholderText"
-        :positioning="{ sameWidth: true, gutter: 4 }"
+        :positioning="listPositioning"
         :translations="translations.combobox"
         :open-on-click="false"
         lazy-mount
@@ -250,7 +255,7 @@ function onPick(keys: string[]) {
             <Combobox.ClearTrigger v-if="clearable" :class="styles.levelsTrigger()">
                 <X :class="styles.clearIcon()" aria-hidden="true" />
             </Combobox.ClearTrigger>
-            <Menu.Root :positioning="{ placement: 'bottom-end', gutter: 4 }" lazy-mount unmount-on-exit>
+            <Menu.Root :positioning="bottomEndPositioning" lazy-mount unmount-on-exit>
                 <Menu.Trigger
                     :class="styles.levelsTrigger()"
                     :disabled="isDisabled"
@@ -304,7 +309,7 @@ function onPick(keys: string[]) {
         </Teleport>
         <span role="status" :class="styles.status()">{{ status }}</span>
     </Combobox.Root>
-    <Menu.Root v-else :positioning="{ placement: 'bottom-start', gutter: 4 }" lazy-mount unmount-on-exit>
+    <Menu.Root v-else :positioning="bottomStartPositioning" lazy-mount unmount-on-exit>
         <div :class="styles.base({ class: normalizeClass(attrs.class) })" :style="attrs.style">
             <!-- No wrapper without a clear button (unchanged DOM) -->
             <div v-if="clearable" :class="styles.control()">

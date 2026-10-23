@@ -79,6 +79,9 @@ function commit(api: { setValue(value: unknown): void }) {
     draft.value = null;
     if (hex && hex !== current.value) api.setValue(parseColor(hex));
 }
+// Fixed objects: a new literal in the template on every render makes Ark update the machine, which can re-render
+// endlessly (Vue only stops it in development)
+const bottomStartPositioning = { placement: 'bottom-start', gutter: 4 } as const;
 </script>
 
 <template>
@@ -91,7 +94,7 @@ function commit(api: { setValue(value: unknown): void }) {
         :disabled="disabled ?? field?.disabled"
         :read-only="readOnly ?? field?.readOnly"
         :invalid="isInvalid"
-        :positioning="{ placement: 'bottom-start', gutter: 4 }"
+        :positioning="bottomStartPositioning"
         lazy-mount
         unmount-on-exit
         @value-change="onArkChange($event.value.toString(alpha ? 'hexa' : 'hex'))"

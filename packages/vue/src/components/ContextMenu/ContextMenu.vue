@@ -6,7 +6,7 @@ import {
     type OverlayHandle,
     type RecipeClasses,
 } from '@wirecore/wirelayer-recipes';
-import { onBeforeUnmount, type Component } from 'vue';
+import { computed, onBeforeUnmount, type Component } from 'vue';
 import MenuEntries from '../Menu/MenuEntries.vue';
 import { provideMenuState } from '../Menu/state.js';
 import type { MenuCheckboxItem, MenuEntry, MenuItem, MenuRadioItem } from '../Menu/types.js';
@@ -57,6 +57,8 @@ defineExpose<OverlayHandle>(overlay.handle);
 // Touch and pen: holding still for half a second opens the menu at the finger
 const longPress = createLongPress((point) => overlay.handle.open(point));
 onBeforeUnmount(longPress.cancel);
+// One object until the inputs change – a new one on every render can make Ark re-render endlessly
+const positioning = computed(() => overlay.positioning({}));
 </script>
 
 <template>
@@ -66,7 +68,7 @@ onBeforeUnmount(longPress.cancel);
     -->
     <Menu.Root
         :open="overlay.isOpen.value"
-        :positioning="overlay.positioning({})"
+        :positioning="positioning"
         :anchor-point="overlay.anchorPoint.value"
         lazy-mount
         unmount-on-exit

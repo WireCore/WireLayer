@@ -43,13 +43,17 @@ provide(
     computed(() => ({ overlay: props.overlay, width: props.width }))
 );
 defineExpose<OverlayHandle>(overlay.handle);
+// One object until the inputs change – a new one on every render can make Ark re-render endlessly
+const positioning = computed(() =>
+    overlay.positioning({ placement: props.placement, gutter: 10, sameWidth: props.width === 'trigger' })
+);
 </script>
 
 <template>
     <!-- Non-modal panel next to its trigger; Escape and clicking outside close it, focus returns to the trigger -->
     <Popover.Root
         :open="overlay.isOpen.value"
-        :positioning="overlay.positioning({ placement, gutter: 10, sameWidth: width === 'trigger' })"
+        :positioning="positioning"
         :modal="trapFocus"
         :final-focus-el="overlay.finalFocusEl"
         lazy-mount
