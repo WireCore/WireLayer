@@ -4,10 +4,13 @@
 //   node scripts/storybook-a11y.ts http://localhost:6007 http://localhost:6008 http://localhost:6009 http://localhost:6010
 //   A11Y_FILTER=datepicker node scripts/storybook-a11y.ts …  (only matching stories)
 //   node scripts/storybook-a11y.ts ../vue/storybook-static ../react/storybook-static ../native/storybook-static ../css/storybook-static
+//   A11Y_SHARD=1/2 …        (every second story, starting with the first – for parallel CI jobs)
+//   A11Y_CONCURRENCY=2 …    (pages at once; default: the CPU cores, at most 4)
+import { availableParallelism } from 'node:os';
 import { fileURLToPath } from 'node:url';
 import type { AxeResults } from 'axe-core';
 import { modes, themes } from '@wirecore/wirelayer-tokens';
-import { chromium } from 'playwright';
+import { chromium, type Page } from 'playwright';
 import { serve } from './serve.ts';
 
 const AXE_SOURCE = fileURLToPath(import.meta.resolve('axe-core/axe.min.js'));
@@ -25,12 +28,34 @@ if (targets.length === 0)
 const browser = await chromium.launch();
 // Reduced motion: no colour transitions while the theme switches, so axe measures the final colours
 const newPage = () => browser.newPage({ reducedMotion: 'reduce' });
-let page = await newPage();
 
-async function check(url: string) {
+async function check(page: Page, url: string) {
     await page.goto(url);
     await page.waitForSelector('#storybook-root > *', { state: 'attached' });
     await page.evaluate(() => document.fonts.ready.then(() => undefined));
+    // Until the story has not changed for 150 ms (at most 3 s): pdf.js re-renders a page in steps, in between its text
+    // points to links that are not there yet (aria-owns) – with several pages at once axe would catch such a moment
+    await page.evaluate(
+        () =>
+            new Promise<void>((done) => {
+                const finish = () => {
+                    observer.disconnect();
+                    done();
+                };
+                let quiet = setTimeout(finish, 150);
+                const observer = new MutationObserver(() => {
+                    clearTimeout(quiet);
+                    quiet = setTimeout(finish, 150);
+                });
+                observer.observe(document.body, {
+                    subtree: true,
+                    childList: true,
+                    attributes: true,
+                    characterData: true,
+                });
+                setTimeout(finish, 3000);
+            })
+    );
     // The Storybook a11y addon brings its own axe instance – reuse it instead of loading a second one
     if (!(await page.evaluate(() => 'axe' in window))) await page.addScriptTag({ path: AXE_SOURCE });
     return page.evaluate(async () => {
@@ -71,7 +96,12 @@ for (const target of targets) {
         stories: Object.values(index.entries).filter((entry) => entry.type === 'story' && filter.test(entry.id)),
     });
 }
-const total = runs.reduce((sum, run) => sum + run.stories.length, 0) * appearances.length;
+// A11Y_SHARD=2/3: every third story, starting with the second
+const [shard = 1, shards = 1] = (process.env.A11Y_SHARD ?? '1/1').split('/').map(Number);
+const queue = runs
+    .flatMap(({ base, stories }) => stories.map((story) => ({ base, story })))
+    .filter((_, index) => index % shards === shard - 1);
+const total = queue.length * appearances.length;
 const started = Date.now();
 
 /** "[ 37 %]  556/1504  ~6 min left  Forms/Select › Playground" – once per story */
@@ -85,8 +115,12 @@ function progress(story: IndexEntry) {
     );
 }
 
-for (const { base, stories } of runs) {
-    for (const story of stories) {
+/** Checks the next story of the queue in all modes and themes on its own page, until the queue is empty */
+async function worker() {
+    let page = await newPage();
+    let used = 0;
+    for (let next = queue.shift(); next; next = queue.shift()) {
+        const { base, story } = next;
         progress(story);
         for (const appearance of appearances) {
             // A dev Storybook may reload once while Vite optimises a new dependency – try a second time
@@ -95,7 +129,7 @@ for (const { base, stories } of runs) {
                 try {
                     // page.evaluate has no timeout of its own – a story that never settles must not stall the run
                     violations = await Promise.race([
-                        check(`${base}/iframe.html?id=${story.id}&viewMode=story&globals=${appearance}`),
+                        check(page, `${base}/iframe.html?id=${story.id}&viewMode=story&globals=${appearance}`),
                         new Promise<never>((_, fail) =>
                             setTimeout(() => fail(new Error('timed out after 60 s')), 60_000)
                         ),
@@ -113,7 +147,7 @@ for (const { base, stories } of runs) {
             violations ??= [];
             checked++;
             // A fresh page now and then: the renderer kept growing over thousands of stories (GBs per Storybook)
-            if (checked % 50 === 0) {
+            if (++used % 50 === 0) {
                 await page.close().catch(() => {});
                 page = await newPage();
             }
@@ -126,7 +160,12 @@ for (const { base, stories } of runs) {
             }
         }
     }
+    await page.close().catch(() => {});
 }
+
+// Several pages at once – the stories are independent; the modes and themes of a story stay on one page
+const concurrency = Number(process.env.A11Y_CONCURRENCY) || Math.min(4, availableParallelism());
+await Promise.all(Array.from({ length: concurrency }, worker));
 
 await browser.close();
 console.log(`\n${checked - failed}/${checked} story/mode/theme combinations without axe violations`);

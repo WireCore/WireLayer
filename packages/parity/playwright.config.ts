@@ -32,6 +32,10 @@ export default defineConfig({
     reporter: 'list',
     // CI: one retry against load spikes – Playwright still reports such tests as "flaky"
     retries: isStatic ? 1 : 0,
+    // Every test on its own: the big files (visual, css/parity) spread over all workers instead of one each
+    fullyParallel: true,
+    // GitHub's runners have 4 cores – Playwright's default (half of them) leaves the browser idle while it waits
+    workers: process.env.CI ? '75%' : undefined,
     use: {
         // No transitions by default, so assertions see final states immediately;
         // E2E_MOTION=1 runs everything with animations (keyboard/focus must work during them too)

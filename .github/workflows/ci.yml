@@ -73,17 +73,23 @@ jobs:
                       !apps/next/.next/cache/**
 
     # axe in a real browser against every story of the Vue, React, React Native and HTML Storybooks (all modes and themes)
-    # – one job per Storybook, so they run side by side
+    # – one job per Storybook, the two biggest split in halves (A11Y_SHARD), so they run side by side
     a11y:
-        name: a11y (${{ matrix.storybook }})
+        name: a11y (${{ matrix.storybook }}${{ matrix.shard != '1/1' && format(' {0}', matrix.shard) || '' }})
         needs: build
         runs-on: ubuntu-latest
-        timeout-minutes: 90
+        timeout-minutes: 60
         container: mcr.microsoft.com/playwright:v1.64.1-noble
         strategy:
             fail-fast: false
             matrix:
-                storybook: [vue, react, native, css]
+                include:
+                    - { storybook: vue, shard: 1/2 }
+                    - { storybook: vue, shard: 2/2 }
+                    - { storybook: react, shard: 1/2 }
+                    - { storybook: react, shard: 2/2 }
+                    - { storybook: native, shard: 1/1 }
+                    - { storybook: css, shard: 1/1 }
         steps:
             - uses: actions/checkout@v7
             - uses: ./.github/actions/setup
@@ -94,6 +100,8 @@ jobs:
                   name: build
             - working-directory: packages/parity
               run: node scripts/storybook-a11y.ts ../${{ matrix.storybook }}/storybook-static
+              env:
+                  A11Y_SHARD: ${{ matrix.shard }}
 
     # Keyboard/interaction tests in a real browser, each spec against Vue and React (e2e/native: React Native,
     # e2e/apps: the Nuxt and Next.js demo apps)

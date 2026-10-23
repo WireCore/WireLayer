@@ -859,11 +859,11 @@ describe.each(frameworks)('%s option lists', (framework) => {
         );
         const input = screen.getByRole('combobox', { name: 'Person' });
         expect(input).toHaveValue('Jonas Weber');
-        // Typing at jsdom speed outruns Ark's input sync (effects) – a short delay per key, like a person
-        const user = userEvent.setup({ delay: 10 });
+        // Pasted in one go: typed key by key, Ark's input sync (effects) can overwrite a key on a slow machine in jsdom
+        // ("John De") – the own entry is what this test is about
+        const user = userEvent.setup();
         await user.clear(input);
-        await user.type(input, 'John Doe');
-        // On a slow machine Ark's sync can still be behind the last keys – Enter only once the field has the text
+        await user.paste('John Doe');
         await waitFor(() => expect(input).toHaveValue('John Doe'));
         await user.keyboard('{Enter}');
         expect(onChange).toHaveBeenLastCalledWith('John Doe');
