@@ -72,6 +72,25 @@ async function shoot(page: Page, url: string, name: string) {
     await page.locator('#storybook-root > *, #root > *').first().waitFor();
     await page.waitForLoadState('networkidle');
     await page.evaluate(() => document.fonts.ready);
+    // Lists that scroll to their end (LogViewer "Follow") do so in steps – under load a pause between two steps looks
+    // stable to toHaveScreenshot; wait until no scroll position has changed for 10 frames
+    await page.evaluate(
+        () =>
+            new Promise<void>((done) => {
+                const positions = () =>
+                    [...document.querySelectorAll('*')].map((element) => element.scrollTop + element.scrollLeft).join();
+                let last = positions();
+                let quiet = 0;
+                const frame = () => {
+                    const now = positions();
+                    quiet = now === last ? quiet + 1 : 0;
+                    last = now;
+                    if (quiet >= 10) done();
+                    else requestAnimationFrame(frame);
+                };
+                requestAnimationFrame(frame);
+            })
+    );
     await expect(page).toHaveScreenshot(`${name}.png`);
 }
 
