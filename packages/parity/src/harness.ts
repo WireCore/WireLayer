@@ -89,10 +89,15 @@ export const el = (type: El['type'], props: Record<string, unknown> = {}, ...chi
 
 const isComponent = (type: El['type']): type is ComponentName => /^[A-Z]/.test(type);
 
-/** Replaces icon placeholders – also inside arrays and plain objects, e.g. `items: [{ icon }]`. */
+/** Placeholder for a DataTable feature module – resolved to the export of the rendering framework. */
+export const feature = (name: 'virtualRows' | 'dateInput' | 'numberInput') => ({ $feature: name });
+
+/** Replaces icon and feature placeholders – also inside arrays and plain objects, e.g. `items: [{ icon }]`. */
 function resolveIcons(value: unknown, framework: Framework): unknown {
     const iconName = (value as { $icon?: keyof typeof icons } | null)?.$icon;
     if (iconName) return icons[iconName][framework];
+    const featureName = (value as { $feature?: ReturnType<typeof feature>['$feature'] } | null)?.$feature;
+    if (featureName) return (framework === 'vue' ? VueLib : ReactLib)[featureName];
     if (Array.isArray(value)) return value.map((item) => resolveIcons(item, framework));
     if (value && Object.getPrototypeOf(value) === Object.prototype) {
         return Object.fromEntries(Object.entries(value).map(([key, item]) => [key, resolveIcons(item, framework)]));

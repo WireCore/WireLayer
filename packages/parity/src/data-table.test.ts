@@ -47,7 +47,7 @@ import {
     zipStore,
 } from '@wirecore/wirelayer-recipes';
 import { describe, expect, it, vi } from 'vitest';
-import { el, frameworks, render, toReact, type El } from './harness.js';
+import { el, feature, frameworks, render, toReact, type El } from './harness.js';
 import { de as german } from '@wirecore/wirelayer-recipes/locales/de';
 
 // The extended DataTable (PrimeVue feature set): sorting by several columns, filter menus, column menu, details,
@@ -710,6 +710,54 @@ describe.each(frameworks)('%s DataTable', (framework) => {
         await userEvent.type(screen.getByRole('spinbutton', { name: 'Filter Load' }), '71');
         await waitFor(() => expect(names()).toEqual(['db-primary']));
         expect(screen.getAllByRole('status')[0]).toHaveTextContent('1 entry');
+    });
+
+    it("date and number filters: the browser's inputs without features", async () => {
+        await render(framework, table({ columns: [...columns, { id: 'since', header: 'Since', filter: 'date' }] }));
+        expect(screen.getByRole('spinbutton', { name: 'Filter Load' })).toHaveAttribute('type', 'number');
+        const since = screen.getByLabelText('Filter Since');
+        expect(since).toHaveAttribute('type', 'date');
+        fireEvent.input(since, { target: { value: '2024-03-01' } });
+        await waitFor(() => expect(names()).toEqual(['web-01']));
+    });
+
+    it('date and number filters: DatePicker and NumberInput with the features dateInput and numberInput', async () => {
+        const container = await render(
+            framework,
+            table({
+                columns: [...columns, { id: 'since', header: 'Since', filter: 'date' }],
+                features: [feature('dateInput'), feature('numberInput')],
+            })
+        );
+        const load = screen.getByRole('spinbutton', { name: 'Filter Load' });
+        expect(load).not.toHaveAttribute('type', 'number');
+        expect(load.closest('[data-scope="number-input"]')).not.toBeNull();
+        expect(container.querySelector('[data-scope="date-picker"]')).not.toBeNull();
+    });
+
+    const many = Array.from({ length: 200 }, (_, index) => ({
+        ...fleet[0]!,
+        id: `web-${index}`,
+        name: `web-${index}`,
+    }));
+
+    it('virtual without the feature virtualRows: all rows and a warning', async () => {
+        const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+        await render(framework, table({ data: many, scrollHeight: '400px', virtual: true }));
+        expect(names()).toHaveLength(200);
+        expect(screen.getByRole('table')).not.toHaveAttribute('aria-rowcount');
+        expect(warn).toHaveBeenCalledWith(expect.stringContaining('`virtual` needs the feature virtualRows'));
+        warn.mockRestore();
+    });
+
+    it('virtual with the feature virtualRows: only the visible rows', async () => {
+        await render(
+            framework,
+            table({ data: many, scrollHeight: '400px', virtual: true, features: [feature('virtualRows')] })
+        );
+        // jsdom has no layout: the virtualizer renders no rows, the table announces all of them
+        expect(names().length).toBeLessThan(200);
+        expect(screen.getByRole('table')).toHaveAttribute('aria-rowcount', '201');
     });
 
     it('column menu: hide, move and pin columns', async () => {

@@ -1,5 +1,5 @@
-// DataTable on TanStack Table – requires @tanstack/vue-table (and @tanstack/vue-virtual for `virtual`) as optional
-// peer dependencies
+// DataTable on TanStack Table – requires @tanstack/vue-table as an optional peer dependency (virtual rows: the feature
+// virtualRows from /virtual with @tanstack/vue-virtual)
 export { default as DataTable, type DataTableProps } from './DataTable.vue';
 export type {
     DataTableAdvancedFilterProps,
@@ -15,6 +15,7 @@ export type {
     DataTableDataSource,
     DataTableEditor,
     DataTableEditorProps,
+    DataTableFeature,
     DataTableFilterConstraint,
     DataTableFilterInputProps,
     DataTableFilterRule,
@@ -30,6 +31,8 @@ export type {
     DataTableRowEdit,
     DataTableRowReorder,
     DataTableSort,
+    DataTableVirtualizer,
+    DataTableVirtualOptions,
     DataTableXlsxOptions,
     DataQuery,
     DataRequest,
@@ -38,6 +41,8 @@ export type {
     RowsRequest,
     RowsResult,
 } from './types.js';
+/** Feature modules for `features`: the DatePicker and NumberInput of date and number filters and editors */
+export { dateInput, numberInput } from './inputs.js';
 /** Registers an own match mode for the filter menus of all tables (label, value input, test) */
 export { defineMatchMode } from '@wirecore/wirelayer-recipes';
 /** Moves a row in your data after a row-reorder event: `data = moveItem(data, from, to)` */

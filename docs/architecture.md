@@ -25,7 +25,7 @@
 | Variants              | [tailwind-variants](https://www.tailwind-variants.org) – framework-neutral, also usable in React Native                                                                                                                                                                                                                                                    |
 | Vue and React         | Developed side by side, API parity from day one                                                                                                                                                                                                                                                                                                            |
 | CSS classes (`.wc-*`) | **Generated** from the recipes, never maintained by hand                                                                                                                                                                                                                                                                                                   |
-| TanStack              | Form bindings and DataTable as subpaths with an optional peer dependency (`@wirecore/wirelayer-vue/form`, `@wirecore/wirelayer-react/data-table` …) · Virtual for long lists                                                                                                                                                                               |
+| TanStack              | Form bindings and DataTable as subpaths with an optional peer dependency (`@wirecore/wirelayer-vue/form`, `@wirecore/wirelayer-react/data-table` …) · Virtual for long lists · DataTable feature modules (`features`): `virtualRows` from `/virtual`, `dateInput`/`numberInput` – only what a table gets ends up in the bundle                             |
 | Third-party libraries | Only as optional peer dependencies behind their own subpaths (`/chart`, `/editor`, `/code`, `/pdf` …); MIT-compatible license, no pro/commercial packages (`@tiptap-pro/*`, `uniwind-pro`)                                                                                                                                                                 |
 | Icons                 | Lucide: `@lucide/vue` (successor of `lucide-vue-next`), `lucide-react`, `lucide-react-native`                                                                                                                                                                                                                                                              |
 | Fonts                 | Local via `@fontsource-variable/*` – no Google Fonts CDN (GDPR)                                                                                                                                                                                                                                                                                            |
@@ -85,8 +85,8 @@ stable technical API that matches the scope `@wirecore`, or infrastructure:
    ├─► @wirecore/wirelayer-css     generated .wc-* classes for HTML & server templates (+ fonts with OFL.txt)
    ├─► @wirecore/wirelayer-vue     Ark UI Vue    + recipes + Lucide
    │      ├─ /form         TanStack Form, validators    (optional)
-   │      ├─ /data-table   TanStack Table + Virtual     (optional)
-   │      ├─ /virtual      TanStack Virtual             (optional)
+   │      ├─ /data-table   TanStack Table               (optional)
+   │      ├─ /virtual      TanStack Virtual, virtualRows (optional)
    │      ├─ /chart        Chart.js                     (optional)
    │      ├─ /editor       Tiptap                       (optional)
    │      ├─ /code         Shiki (shiki/core + language allowlist, optional)

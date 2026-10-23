@@ -4981,10 +4981,16 @@
                     "description": "Fixed height (CSS length): the table scrolls inside, header and footer stay visible"
                 },
                 {
+                    "name": "features",
+                    "type": "DataTableFeature[]",
+                    "optional": true,
+                    "description": "Feature modules, imported on their own so apps only bundle what they use (fixed for the life of the table): `virtualRows` from `/virtual` for `virtual`, `dateInput` and `numberInput` for date and number filters and editors (without them the browser's inputs)"
+                },
+                {
                     "name": "virtual",
                     "type": "boolean",
                     "optional": true,
-                    "description": "Only the visible rows are rendered (requires `scrollHeight`)"
+                    "description": "Only the visible rows are rendered (requires `scrollHeight` and the feature `virtualRows`)"
                 },
                 {
                     "name": "rowHeight",
@@ -18501,6 +18507,11 @@
             "description": ""
         },
         {
+            "name": "dateInput",
+            "subpath": "/data-table",
+            "description": "DataTable feature: the DatePicker for `date` and `datetime` filters and editors (without: the browser's date input)"
+        },
+        {
             "name": "defaultBubbleTools",
             "subpath": "/editor",
             "description": "Tools of the bubble menu (text selected) by default"
@@ -18644,6 +18655,11 @@
             "name": "navigationProgress",
             "subpath": "",
             "description": "Controls the app-wide <NavigationProgress />, e.g. from router events"
+        },
+        {
+            "name": "numberInput",
+            "subpath": "/data-table",
+            "description": "DataTable feature: the NumberInput for `number` filters and editors (without: the browser's number input)"
         },
         {
             "name": "openDialog",
@@ -18929,6 +18945,11 @@
             "name": "validateFields",
             "subpath": "/form",
             "description": "Validates some fields of a TanStack form (e.g. one Wizard step) and marks them touched, so their errors show. Resolves with true when none has an error."
+        },
+        {
+            "name": "virtualRows",
+            "subpath": "/virtual",
+            "description": "DataTable feature: only the visible rows are rendered with `virtual` – `<DataTable features={[virtualRows]} virtual>`"
         }
     ],
     "guides": [
@@ -18991,6 +19012,11 @@
             "id": "introduction-blocks-and-conditionbuilder",
             "title": "Blocks and ConditionBuilder",
             "text": "`@wirecore/wirelayer-blocks-vue` and `@wirecore/wirelayer-blocks-react` build on `@wirecore/wirelayer-vue` and `@wirecore/wirelayer-react`\n(peer dependency) and bring larger building blocks: SiteHeader, CtaSection, ModeToggle, AuthForm, AuthLayout and the\nConditionBuilder (nested AND/OR rules). Examples: _Blocks_ in the Vue and React Storybooks.\n\n```sh\npnpm add @wirecore/wirelayer-blocks-vue    # or @wirecore/wirelayer-blocks-react\n```\n\nThe ConditionBuilder is also the editor for the advanced filter of the DataTable. The table filters by itself (or passes\nthe tree to the server as `condition`); it gets the editor from outside – without it, it shows no button and points this\nout on the console during development:\n\n```tsx\nimport { ConditionBuilder } from '@wirecore/wirelayer-blocks-react';\nimport { DataTable } from '@wirecore/wirelayer-react/data-table';\n\n<DataTable\n    data={rows}\n    columns={columns}\n    advancedFilter\n    renderAdvancedFilter={(props) => <ConditionBuilder {...props} />}\n/>;\n```\n\n```vue\n<DataTable :data=\"rows\" :columns=\"columns\" advanced-filter>\n    <template #advancedFilter=\"{ fields, value, setValue, label }\">\n        <ConditionBuilder :fields=\"fields\" :model-value=\"value\" :label=\"label\" @update:model-value=\"setValue\" />\n    </template>\n</DataTable>\n```"
+        },
+        {
+            "id": "introduction-datatable-feature-modules",
+            "title": "DataTable feature modules",
+            "text": "Parts of the DataTable that bring a lot of code along are imported on their own – an app only bundles the ones it passes\nin `features` (fixed for the life of a table). The DatePicker alone is about 40 KB (gzip).\n\n| Feature       | Import                                                                 | Adds                                                 | Without it                                   |\n| ------------- | ---------------------------------------------------------------------- | ---------------------------------------------------- | -------------------------------------------- |\n| `virtualRows` | `@wirecore/wirelayer-react/virtual` (peer dependency TanStack Virtual) | only the visible rows are rendered with `virtual`    | all rows are rendered, a hint in development |\n| `dateInput`   | `@wirecore/wirelayer-react/data-table`                                 | DatePicker for `date` and `datetime` filters/editors | the browser's date input                     |\n| `numberInput` | `@wirecore/wirelayer-react/data-table`                                 | NumberInput for `number` filters and editors         | the browser's number input                   |\n\n```tsx\nimport { DataTable, dateInput, numberInput } from '@wirecore/wirelayer-react/data-table';\nimport { virtualRows } from '@wirecore/wirelayer-react/virtual';\n\n// Once for all tables of the app\nconst features = [virtualRows, dateInput, numberInput];\n\n<DataTable data={rows} columns={columns} features={features} scrollHeight=\"480px\" virtual />;\n```\n\n```vue\n<DataTable :data=\"rows\" :columns=\"columns\" :features=\"features\" scroll-height=\"480px\" virtual />\n```\n\nVue: the same imports from `@wirecore/wirelayer-vue/data-table` and `@wirecore/wirelayer-vue/virtual`."
         },
         {
             "id": "introduction-ai-assistants-mcp-llms-txt",

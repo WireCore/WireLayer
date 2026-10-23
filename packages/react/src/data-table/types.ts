@@ -1,4 +1,6 @@
-import type { ReactNode } from 'react';
+import type { ComponentType, ReactNode } from 'react';
+import type { DatePickerProps } from '../components/DatePicker/DatePicker.js';
+import type { NumberInputProps } from '../components/NumberInput/NumberInput.js';
 export type {
     DataTableAggregate,
     DataTableFilterConstraint,
@@ -286,4 +288,35 @@ export interface DataTableRowAction<TData> {
     value: string;
     row: TData;
     rowId: string;
+}
+
+/** What the table gives the virtualizer of `virtualRows` */
+export interface DataTableVirtualOptions {
+    count: number;
+    getScrollElement: () => HTMLElement | null;
+    estimateSize: (index: number) => number;
+    overscan: number;
+    getItemKey: (index: number) => string | number;
+    initialRect: { width: number; height: number };
+}
+
+/** The virtualizer of `virtualRows`: which rows to render and where they are */
+export interface DataTableVirtualizer {
+    getVirtualItems(): { index: number; start: number; end: number }[];
+    getTotalSize(): number;
+    measureElement(element: Element): void;
+    scrollToIndex(index: number, options?: { align?: 'start' | 'center' | 'end' | 'auto' }): void;
+}
+
+/**
+ * A feature module for `features`, imported on its own so apps only bundle what they use: `virtualRows` (from
+ * `@wirecore/wirelayer-react/data-table/virtual`, needs @tanstack/react-virtual), `dateInput` and `numberInput`
+ */
+export interface DataTableFeature {
+    /** Renders only the visible rows with `virtual` */
+    useVirtualizer?: (options: DataTableVirtualOptions) => DataTableVirtualizer;
+    /** Input of `date` and `datetime` filters and editors – without it the browser's date input */
+    dateInput?: ComponentType<DatePickerProps>;
+    /** Input of `number` filters and editors – without it the browser's number input */
+    numberInput?: ComponentType<NumberInputProps>;
 }

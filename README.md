@@ -73,17 +73,17 @@ All components and props: Storybook and `llms.txt`, or the MCP server `@wirecore
 What a large library needs lives in its own subpaths – it only ends up in the bundle when the app imports it, and then
 needs the respective peer dependency:
 
-| Subpath           | Vue / React                             | React Native (`@wirecore/wirelayer-native/…`)        |
-| ----------------- | --------------------------------------- | ---------------------------------------------------- |
-| `/form`           | TanStack Form, validators, FormList     | TanStack Form                                        |
-| `/data-table`     | DataTable (TanStack Table + Virtual)    | DataTable without TanStack (table or cards)          |
-| `/virtual`        | VirtualSelect, VirtualList, VirtualTree | –                                                    |
-| `/chart`          | Charts on Chart.js                      | Charts on react-native-svg                           |
-| `/editor`         | Rich text editor on Tiptap              | –                                                    |
-| `/code`           | CodeHighlight on Shiki (`shiki/core`)   | CodeHighlight on Shiki (JavaScript RegExp engine)    |
-| `/pdf`            | PdfViewer on pdf.js (`pdfjs-dist`)      | PdfViewer on react-native-pdf (development build)    |
-| `/locales/<code>` | Language modules (see below)            | Language modules                                     |
-| `/expo-*`         | –                                       | `expo-sharing`, `expo-clipboard`, file/image pickers |
+| Subpath           | Vue / React                                                        | React Native (`@wirecore/wirelayer-native/…`)        |
+| ----------------- | ------------------------------------------------------------------ | ---------------------------------------------------- |
+| `/form`           | TanStack Form, validators, FormList                                | TanStack Form                                        |
+| `/data-table`     | DataTable (TanStack Table)                                         | DataTable without TanStack (table or cards)          |
+| `/virtual`        | VirtualSelect, VirtualList, VirtualTree, `virtualRows` (DataTable) | –                                                    |
+| `/chart`          | Charts on Chart.js                                                 | Charts on react-native-svg                           |
+| `/editor`         | Rich text editor on Tiptap                                         | –                                                    |
+| `/code`           | CodeHighlight on Shiki (`shiki/core`)                              | CodeHighlight on Shiki (JavaScript RegExp engine)    |
+| `/pdf`            | PdfViewer on pdf.js (`pdfjs-dist`)                                 | PdfViewer on react-native-pdf (development build)    |
+| `/locales/<code>` | Language modules (see below)                                       | Language modules                                     |
+| `/expo-*`         | –                                                                  | `expo-sharing`, `expo-clipboard`, file/image pickers |
 
 ## Languages
 

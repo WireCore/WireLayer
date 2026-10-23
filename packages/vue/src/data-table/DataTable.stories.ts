@@ -2,7 +2,8 @@ import { Container, Database, EllipsisVertical, HardDrive, Pencil, Server } from
 import type { Meta, StoryObj } from '@storybook/vue3-vite';
 import type { ConditionGroup } from '@wirecore/wirelayer-recipes';
 import { computed, ref, type ConcreteComponent } from 'vue';
-import { defineMatchMode, moveItem, moveTreeRow, type RowsRequest } from './index.js';
+import { dateInput, defineMatchMode, moveItem, moveTreeRow, numberInput, type RowsRequest } from './index.js';
+import { virtualRows } from '../virtual/index.js';
 import Badge from '../components/Badge/Badge.vue';
 import Button from '../components/Button/Button.vue';
 import Checkbox from '../components/Checkbox/Checkbox.vue';
@@ -13,6 +14,9 @@ import Progress from '../components/Progress/Progress.vue';
 import Select from '../components/Select/Select.vue';
 import Switch from '../components/Switch/Switch.vue';
 import DataTable from './DataTable.vue';
+
+// The feature modules of the tables below, each imported on its own: virtual rows, DatePicker and NumberInput
+const features = [virtualRows, dateInput, numberInput];
 
 interface ServerRow {
     id: string;
@@ -85,6 +89,7 @@ const meta = {
     render: (args) => ({
         components: { Badge, DataTable: DataTable as ConcreteComponent, IconButton, Progress },
         setup: () => ({
+            features,
             args,
             selection: ref<string[]>([]),
             statusVariant,
@@ -96,6 +101,7 @@ const meta = {
         template: `
             <div class="flex max-w-[900px] flex-col gap-2">
                 <DataTable
+                    :features="features"
                     v-bind="args"
                     v-model:selection="selection"
                     :get-row-id="getRowId"
@@ -175,6 +181,7 @@ export const Tree: Story = {
     render: () => ({
         components: { DataTable: DataTable as ConcreteComponent },
         setup: () => ({
+            features,
             rows: fileRows,
             columns: [
                 { id: 'name', header: 'Name' },
@@ -188,6 +195,7 @@ export const Tree: Story = {
         }),
         template: `
             <DataTable
+                :features="features"
                 v-model:expanded="expanded"
                 :data="rows"
                 :columns="columns"
@@ -243,6 +251,7 @@ export const Tools: Story = {
             const rows = ref(hosts.map((host) => ({ ...host })));
             const lastEdit = ref('–');
             return {
+                features,
                 rows,
                 lastEdit,
                 columns: hostColumns,
@@ -257,6 +266,7 @@ export const Tools: Story = {
         template: `
             <div class="flex max-w-[720px] flex-col gap-2">
                 <DataTable
+                    :features="features"
                     :data="rows"
                     :columns="columns"
                     caption="Servers"
@@ -280,6 +290,7 @@ export const Grouped: Story = {
     render: () => ({
         components: { DataTable: DataTable as ConcreteComponent },
         setup: () => ({
+            features,
             rows: hosts,
             columns: [
                 { id: 'name', header: 'Name', sortable: true },
@@ -291,6 +302,7 @@ export const Grouped: Story = {
         }),
         template: `
             <DataTable
+                :features="features"
                 :data="rows"
                 :columns="columns"
                 caption="Servers by location"
@@ -375,6 +387,7 @@ export const FilterMenu: Story = {
     render: () => ({
         components: { DataTable: DataTable as ConcreteComponent },
         setup: () => ({
+            features,
             rows: machines(40),
             columns: machineColumns,
             card,
@@ -384,6 +397,7 @@ export const FilterMenu: Story = {
         }),
         template: `
             <DataTable
+                :features="features"
                 v-model:sorting="sorting"
                 :data="rows"
                 :columns="columns"
@@ -414,6 +428,7 @@ export const Rows: Story = {
             const rows = ref(machines(6));
             const last = ref('–');
             return {
+                features,
                 rows,
                 last,
                 card,
@@ -435,6 +450,7 @@ export const Rows: Story = {
         template: `
             <div class="flex max-w-[900px] flex-col gap-2">
                 <DataTable
+                    :features="features"
                     v-model:selection="selection"
                     :data="rows"
                     :columns="columns"
@@ -471,6 +487,7 @@ export const RowEditing: Story = {
         setup: () => {
             const rows = ref(machines(5));
             return {
+                features,
                 rows,
                 card,
                 getRowId: machineId,
@@ -506,6 +523,7 @@ export const RowEditing: Story = {
         },
         template: `
             <DataTable
+                :features="features"
                 :data="rows"
                 :columns="columns"
                 caption="Machines"
@@ -524,6 +542,7 @@ export const Totals: Story = {
     render: () => ({
         components: { DataTable: DataTable as ConcreteComponent },
         setup: () => ({
+            features,
             rows: machines(12),
             card,
             getRowId: machineId,
@@ -548,6 +567,7 @@ export const Totals: Story = {
         }),
         template: `
             <DataTable
+                :features="features"
                 :data="rows"
                 :columns="columns"
                 caption="Resources by location"
@@ -574,6 +594,7 @@ export const VirtualWidth: Story = {
     render: () => ({
         components: { DataTable: DataTable as ConcreteComponent },
         setup: () => ({
+            features,
             rows: widthRows,
             card,
             columns: machineColumns.slice(0, 3).map((column) => ({ ...column, filter: undefined, copyable: false })),
@@ -581,6 +602,7 @@ export const VirtualWidth: Story = {
         }),
         template: `
             <DataTable
+                :features="features"
                 :data="rows"
                 :columns="columns"
                 caption="Machines"
@@ -604,6 +626,7 @@ export const Large: Story = {
             const rows = ref(machines(2000));
             const loading = ref(false);
             return {
+                features,
                 rows,
                 loading,
                 card,
@@ -623,6 +646,7 @@ export const Large: Story = {
         template: `
             <div class="flex max-w-[900px] flex-col gap-2">
                 <DataTable
+                    :features="features"
                     :data="rows"
                     :columns="columns"
                     caption="All machines"
@@ -729,9 +753,16 @@ export const OwnFilters: Story = {
     name: 'Custom filters',
     render: () => ({
         components: { Badge, Checkbox, DataTable: DataTable as ConcreteComponent },
-        setup: () => ({ rows: services, columns: serviceColumns, card, getRowId: (row: ServiceRow) => row.id }),
+        setup: () => ({
+            features,
+            rows: services,
+            columns: serviceColumns,
+            card,
+            getRowId: (row: ServiceRow) => row.id,
+        }),
         template: `
             <DataTable
+                :features="features"
                 :data="rows"
                 :columns="columns"
                 caption="Services"
@@ -780,6 +811,7 @@ export const Keyboard: Story = {
         setup: () => {
             const rows = ref(machines(2000));
             return {
+                features,
                 rows,
                 card,
                 columns: keyboardColumns,
@@ -791,6 +823,7 @@ export const Keyboard: Story = {
         },
         template: `
             <DataTable
+                :features="features"
                 :data="rows"
                 :columns="columns"
                 caption="Machines"
@@ -815,6 +848,7 @@ export const KeyboardGrouped: Story = {
     render: () => ({
         components: { DataTable: DataTable as ConcreteComponent },
         setup: () => ({
+            features,
             rows: machines(12),
             card,
             columns: machineColumns.slice(0, 5).map((column) => ({ ...column, filter: undefined })),
@@ -823,6 +857,7 @@ export const KeyboardGrouped: Story = {
         }),
         template: `
             <DataTable
+                :features="features"
                 :data="rows"
                 :columns="columns"
                 caption="Machines by location"
@@ -849,6 +884,7 @@ export const StatusBar: Story = {
             const table = ref<{ generateCsv: (options?: object) => string } | null>(null);
             const csv = ref('');
             return {
+                features,
                 table,
                 csv,
                 rows: machines(12),
@@ -874,6 +910,7 @@ export const StatusBar: Story = {
         template: `
             <div class="flex max-w-[760px] flex-col gap-3">
                 <DataTable
+                    :features="features"
                     ref="table"
                     v-model:selection="selection"
                     :data="rows"
@@ -905,6 +942,7 @@ export const RowLinks: Story = {
         setup: () => {
             const last = ref('–');
             return {
+                features,
                 last,
                 card,
                 rows: machines(6),
@@ -917,6 +955,7 @@ export const RowLinks: Story = {
         template: `
             <div class="flex max-w-[900px] flex-col gap-2">
                 <DataTable
+                    :features="features"
                     :data="rows"
                     :columns="columns"
                     caption="Machines"
@@ -936,6 +975,7 @@ export const SkeletonLoading: Story = {
     render: () => ({
         components: { DataTable: DataTable as ConcreteComponent, Switch },
         setup: () => ({
+            features,
             loading: ref(true),
             rows: machines(8),
             card,
@@ -946,6 +986,7 @@ export const SkeletonLoading: Story = {
             <div class="flex max-w-[900px] flex-col gap-3">
                 <Switch v-model:checked="loading">Loading</Switch>
                 <DataTable
+                    :features="features"
                     :data="rows"
                     :columns="columns"
                     caption="Machines"
@@ -1031,6 +1072,7 @@ export const Editors: Story = {
         setup: () => {
             const rows = ref(plans.map((plan) => ({ ...plan })));
             return {
+                features,
                 rows,
                 card,
                 columns: planColumns,
@@ -1042,6 +1084,7 @@ export const Editors: Story = {
         },
         template: `
             <DataTable
+                :features="features"
                 :data="rows"
                 :columns="columns"
                 caption="Maintenance schedule"
@@ -1091,6 +1134,7 @@ export const ExcelExport: Story = {
     render: () => ({
         components: { DataTable: DataTable as ConcreteComponent },
         setup: () => ({
+            features,
             rows: machines(12),
             columns: excelColumns,
             card,
@@ -1099,6 +1143,7 @@ export const ExcelExport: Story = {
         }),
         template: `
             <DataTable
+                :features="features"
                 :data="rows"
                 :columns="columns"
                 caption="Machines"
@@ -1152,6 +1197,7 @@ export const Spreadsheet: Story = {
             const marked = ref('–');
             const problems = ref<string[]>([]);
             return {
+                features,
                 rows,
                 marked,
                 problems,
@@ -1174,6 +1220,7 @@ export const Spreadsheet: Story = {
         template: `
             <div class="flex max-w-[900px] flex-col gap-3">
                 <DataTable
+                    :features="features"
                     :data="rows"
                     :columns="columns"
                     caption="Machines"
@@ -1206,6 +1253,7 @@ export const Batch: Story = {
             const rows = ref(machines(8));
             const saved = ref('');
             return {
+                features,
                 rows,
                 saved,
                 card,
@@ -1224,6 +1272,7 @@ export const Batch: Story = {
         template: `
             <div class="flex max-w-[900px] flex-col gap-3">
                 <DataTable
+                    :features="features"
                     :data="rows"
                     :columns="columns"
                     caption="Machines"
@@ -1284,6 +1333,7 @@ export const ServerSource: Story = {
             const table = ref<{ refresh: () => Promise<void> } | null>(null);
             const fail = ref(false);
             return {
+                features,
                 table,
                 fail,
                 card,
@@ -1313,6 +1363,7 @@ export const ServerSource: Story = {
         template: `
             <div class="flex max-w-[900px] flex-col gap-3">
                 <DataTable
+                    :features="features"
                     ref="table"
                     :columns="columns"
                     caption="Machines"
@@ -1367,6 +1418,7 @@ export const Pivot: Story = {
             const columnsBy = ref('os');
             const aggregate = ref<'sum' | 'avg' | 'count'>('sum');
             return {
+                features,
                 rowsBy,
                 columnsBy,
                 aggregate,
@@ -1393,6 +1445,7 @@ export const Pivot: Story = {
                     <Select v-model="aggregate" aria-label="Values" class="w-56" :items="aggregates" />
                 </div>
                 <DataTable
+                    :features="features"
                     :data="rows"
                     :columns="columns"
                     caption="Cores by location and system"
@@ -1418,6 +1471,7 @@ export const MergedCells: Story = {
     render: () => ({
         components: { DataTable: DataTable as ConcreteComponent },
         setup: () => ({
+            features,
             rows: mergedRows,
             card,
             getRowId: machineId,
@@ -1443,6 +1497,7 @@ export const MergedCells: Story = {
         }),
         template: `
             <DataTable
+                :features="features"
                 :data="rows"
                 :columns="columns"
                 caption="Machines by location and system"
@@ -1465,6 +1520,7 @@ export const Find: Story = {
     render: () => ({
         components: { DataTable: DataTable as ConcreteComponent },
         setup: () => ({
+            features,
             rows: machines(2000),
             columns: keyboardColumns.map((column) => ({ ...column, editable: false })),
             card,
@@ -1473,6 +1529,7 @@ export const Find: Story = {
         }),
         template: `
             <DataTable
+                :features="features"
                 :data="rows"
                 :columns="columns"
                 caption="Machines"
@@ -1496,6 +1553,7 @@ export const Print: Story = {
     render: () => ({
         components: { Button, DataTable: DataTable as ConcreteComponent },
         setup: () => ({
+            features,
             table: ref<{ print: (options?: object) => void } | null>(null),
             rows: machines(60),
             columns: excelColumns,
@@ -1505,6 +1563,7 @@ export const Print: Story = {
         }),
         template: `
             <DataTable
+                :features="features"
                 ref="table"
                 :data="rows"
                 :columns="columns"
@@ -1537,6 +1596,7 @@ export const MoveRows: Story = {
             const rows = ref(machines(8));
             const files = ref(fileRows);
             return {
+                features,
                 rows,
                 files,
                 card,
@@ -1563,6 +1623,7 @@ export const MoveRows: Story = {
         template: `
             <div class="flex max-w-[800px] flex-col gap-6">
                 <DataTable
+                    :features="features"
                     :data="rows"
                     :columns="machineColumns"
                     caption="Machines by location"
@@ -1574,6 +1635,7 @@ export const MoveRows: Story = {
                     @row-reorder="onMove"
                 />
                 <DataTable
+                    :features="features"
                     :data="files"
                     :columns="fileColumns"
                     caption="Files"
@@ -1598,6 +1660,7 @@ export const ColumnGroups: Story = {
     render: () => ({
         components: { DataTable: DataTable as ConcreteComponent },
         setup: () => ({
+            features,
             rows: machines(6),
             card,
             getRowId: machineId,
@@ -1631,6 +1694,7 @@ export const ColumnGroups: Story = {
         }),
         template: `
             <DataTable
+                :features="features"
                 :data="rows"
                 :columns="columns"
                 caption="Machines"
@@ -1666,6 +1730,7 @@ export const AdvancedFilter: Story = {
     render: () => ({
         components: { DataTable: DataTable as ConcreteComponent, Field, NumberInput },
         setup: () => ({
+            features,
             rows: machines(40),
             columns: machineColumns,
             card,
@@ -1677,6 +1742,7 @@ export const AdvancedFilter: Story = {
         }),
         template: `
             <DataTable
+                :features="features"
                 v-model:advanced-filter-value="tree"
                 :data="rows"
                 :columns="columns"

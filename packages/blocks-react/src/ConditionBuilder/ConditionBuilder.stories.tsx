@@ -5,7 +5,7 @@ import {
     type ConditionField,
     type ConditionGroup,
 } from '@wirecore/wirelayer-recipes';
-import { DataTable, type DataTableColumn } from '@wirecore/wirelayer-react/data-table';
+import { DataTable, dateInput, numberInput, type DataTableColumn } from '@wirecore/wirelayer-react/data-table';
 import { useState } from 'react';
 import { ConditionBuilder, type ConditionBuilderProps } from './ConditionBuilder.js';
 
@@ -135,6 +135,7 @@ function TableWithBuilder() {
         <DataTable
             data={machines}
             columns={machineColumns}
+            features={[dateInput, numberInput]}
             caption="Machines"
             getRowId={(row) => row.id}
             rowLabel={(row) => row.id}

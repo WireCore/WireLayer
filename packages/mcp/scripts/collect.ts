@@ -456,6 +456,7 @@ const conventions = [
     '- React props in camelCase; Vue takes the same props in kebab-case. Controlled values: React `value` + `onValueChange`, Vue `v-model`; other `onXChange` pairs are `v-model:x` in Vue, other callbacks `@x` events.',
     '- `className` (React) is `class` (Vue). Every component takes `classes` (extra Tailwind classes per part) and reads defaults from `RecipesProvider`.',
     '- Content: React props of type ReactNode/render functions are named slots in Vue (e.g. DataTable `cell` → `#cell-<id>`, `expansion` → `#expansion`).',
+    "- DataTable feature modules in `features` (only these end up in the bundle): `virtualRows` from `@wirecore/wirelayer-react/virtual` for `virtual`; `dateInput` and `numberInput` from `@wirecore/wirelayer-react/data-table` for DatePicker/NumberInput in date and number filters and editors (without them: the browser's inputs). Vue: the same from `@wirecore/wirelayer-vue/…`.",
     '- Texts come from `LocaleProvider` (en-US built in; de, fr, es, it, pt, pt-BR, nl, pl, cs, hu, lv, ar, tr via `registerLocale(\'fr\', fr)` with `fr` from `@wirecore/wirelayer-vue/locales/fr` or `@wirecore/wirelayer-react/locales/fr`); dates are ISO strings ("2026-10-20", "2026-10-20T10:00").',
 ].join('\n');
 

@@ -197,6 +197,33 @@ import { DataTable } from '@wirecore/wirelayer-react/data-table';
 </DataTable>
 ```
 
+## DataTable feature modules
+
+Parts of the DataTable that bring a lot of code along are imported on their own – an app only bundles the ones it passes
+in `features` (fixed for the life of a table). The DatePicker alone is about 40 KB (gzip).
+
+| Feature       | Import                                                                 | Adds                                                 | Without it                                   |
+| ------------- | ---------------------------------------------------------------------- | ---------------------------------------------------- | -------------------------------------------- |
+| `virtualRows` | `@wirecore/wirelayer-react/virtual` (peer dependency TanStack Virtual) | only the visible rows are rendered with `virtual`    | all rows are rendered, a hint in development |
+| `dateInput`   | `@wirecore/wirelayer-react/data-table`                                 | DatePicker for `date` and `datetime` filters/editors | the browser's date input                     |
+| `numberInput` | `@wirecore/wirelayer-react/data-table`                                 | NumberInput for `number` filters and editors         | the browser's number input                   |
+
+```tsx
+import { DataTable, dateInput, numberInput } from '@wirecore/wirelayer-react/data-table';
+import { virtualRows } from '@wirecore/wirelayer-react/virtual';
+
+// Once for all tables of the app
+const features = [virtualRows, dateInput, numberInput];
+
+<DataTable data={rows} columns={columns} features={features} scrollHeight="480px" virtual />;
+```
+
+```vue
+<DataTable :data="rows" :columns="columns" :features="features" scroll-height="480px" virtual />
+```
+
+Vue: the same imports from `@wirecore/wirelayer-vue/data-table` and `@wirecore/wirelayer-vue/virtual`.
+
 ## AI assistants (MCP, llms.txt)
 
 So that Claude, Cursor and others use the components correctly, the API is available as text and as an MCP server:

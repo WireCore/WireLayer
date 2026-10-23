@@ -22,6 +22,8 @@ import {
     sortFn_alphanumeric,
     tableFeatures,
 } from '@tanstack/vue-table';
+import type { InjectionKey } from 'vue';
+import type { DataTableFeature } from './types.js';
 
 /** Registered TanStack Table v9 features – stable at module scope */
 export const features = tableFeatures({
@@ -49,3 +51,6 @@ export const features = tableFeatures({
     columnSizingFeature,
     columnResizingFeature,
 });
+
+/** The feature modules of a table (`features`) for its value inputs in filter menus and editors */
+export const featureKey: InjectionKey<DataTableFeature> = Symbol('wirecore-data-table-features');
