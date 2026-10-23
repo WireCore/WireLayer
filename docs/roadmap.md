@@ -6,9 +6,9 @@ Not released yet (as of October 2026).
 
 - **Vue and React:** around 180 components (235 exports including parts such as `TabsList`) with an identical API and
   identical DOM, plus DataTable (feature set on par with PrimeVue and beyond), forms, charts, editor, CodeHighlight,
-  PdfViewer, Scheduler and Gantt, visualizations, around 40 hooks/composables, `LocaleProvider` (English and German
-  built in, eleven more languages plus pt-BR to register, RTL) and `RecipesProvider` for customization; subpaths `/form`,
-  `/data-table`, `/virtual`, `/chart`, `/editor`, `/code`, `/pdf`, `/locales/<code>`
+  PdfViewer, Scheduler and Gantt, visualizations, around 40 hooks/composables, `LocaleProvider` (English built in,
+  German and eleven more languages plus pt-BR to register, RTL) and `RecipesProvider` for customization; subpaths
+  `/form`, `/data-table`, `/virtual`, `/chart`, `/editor`, `/code`, `/pdf`, `/locales/<code>`
 - **React Native:** around 145 components (174 exports) – forms and inputs with the prop names of the web (lists of
   arbitrary values, groups, search and loading more in bottom sheets, date/time, color, file and code inputs), TanStack
   Form via `@wirecore/wirelayer-native/form`; display (Statistic, Timeline, rings, Gauge, Carousel, Gallery with pinch
@@ -106,8 +106,8 @@ Not released yet (as of October 2026).
       packages
 - [ ] Markdown: deliberately without images (they become links), HTML, reference links (`[a][1]`), Setext headings and
       indented code blocks
-- [ ] EmojiPicker: no skin tones; names and search terms in English and German, the language modules have none of their
-      own yet (`emojiPicker.emojis` is empty – English)
+- [ ] EmojiPicker: no skin tones; names and search terms in English (built in) and German (`locales/de`) – the other
+      language modules have none of their own yet (`emojiPicker.emojis` is empty – English)
 - [ ] PhoneInput checks the length per country, not a complete numbering plan (that would need libphonenumber-js as an
       optional subpath); with +1 the selected country (US/CA) stays
 - [ ] LogViewer renders lines with a fixed height (no wrapping, horizontal scrolling); `rowHeight` must match custom

@@ -24,6 +24,7 @@ import {
     changesByRow,
     autoRowSpans,
     conditionFieldsFromColumns,
+    csvSeparator,
     emptyConditionGroup,
     isActiveCondition,
     matchesCondition,
@@ -344,6 +345,9 @@ export interface DataTableProps<TData> extends Omit<
     onPinnedColumnsChange?: (pinned: { start: string[]; end: string[] }) => void;
     /** Shows an export button; the CSV has the filtered and sorted rows of all pages (or the selection) */
     exportFilename?: string;
+    /** Separator of the CSV export, also of the export button – default: from the locale (";" where numbers have a
+     * decimal comma, e.g. de-DE, as a spreadsheet there expects it; "," otherwise) */
+    csvSeparator?: string;
     /** Formats of the export button: CSV (default), Excel (.xlsx) or both */
     exportFormats?: ('csv' | 'xlsx')[];
     /** Groups the rows by the values of these columns (expandable group rows) */
@@ -567,6 +571,7 @@ export function DataTable<TData extends object>({
     pinnedColumns,
     onPinnedColumnsChange,
     exportFilename,
+    csvSeparator: csvSeparatorProp,
     exportFormats,
     groupBy,
     onGroupByChange,
@@ -2365,10 +2370,8 @@ export function DataTable<TData extends object>({
                     : display(column, row.getValue(column.id), row.original)
             )
         );
-        const csv = toCsv(
-            [visible.map((column) => column.exportHeader ?? column.header), ...records],
-            options.separator
-        );
+        const separator = options.separator ?? csvSeparatorProp ?? csvSeparator(locale);
+        const csv = toCsv([visible.map((column) => column.exportHeader ?? column.header), ...records], separator);
         return options.bom === false ? csv.slice(1) : csv;
     };
     const exportCsv = (options: boolean | DataTableCsvOptions = false) => {

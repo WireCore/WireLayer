@@ -87,22 +87,24 @@ needs the respective peer dependency:
 
 ## Languages
 
-English (default) and German are built in. More languages are available as separate modules and only end up in the
-bundle when an app imports them: `fr`, `es`, `it`, `pt` (Portugal), `pt-BR`, `nl`, `pl`, `cs`, `hu`, `lv`, `ar` and
+English (default) is built in. More languages are available as separate modules and only end up in the bundle when an
+app imports them: `de`, `fr`, `es`, `it`, `pt` (Portugal), `pt-BR`, `nl`, `pl`, `cs`, `hu`, `lv`, `ar` and
 `tr` – each under `@wirecore/wirelayer-vue/locales/<code>`, `@wirecore/wirelayer-react/locales/<code>`,
 `@wirecore/wirelayer-native/locales/<code>` (or `@wirecore/wirelayer-recipes/locales/<code>`).
 
 ```ts
 import { registerLocale } from '@wirecore/wirelayer-vue'; // or @wirecore/wirelayer-react, @wirecore/wirelayer-native
+import { de } from '@wirecore/wirelayer-vue/locales/de';
 import { fr } from '@wirecore/wirelayer-vue/locales/fr';
 import { ptBR } from '@wirecore/wirelayer-vue/locales/pt-BR';
 
 // Once at startup, before the first render
+registerLocale('de', de); // applies to de-DE, de-AT, de-CH …
 registerLocale('fr', fr); // applies to fr-FR, fr-CA, fr-CH …
 registerLocale('pt-BR', ptBR); // a region takes precedence over its language
 ```
 
-After that, `<LocaleProvider locale="fr-CA">` is enough (`<LocaleProvider locale="de-DE">` for the built-in German).
+After that, `<LocaleProvider locale="de-DE">` or `<LocaleProvider locale="fr-CA">` is enough.
 Alternatively, `LocaleProvider` receives the texts directly (`translations={fr}`). Unregistered languages fall back to
 English; the writing direction (`ar`, `he`, `fa`, `ur` → right to left) follows from the locale. Custom languages are a
 complete `Translations` object – the TypeScript type reports missing texts. The bundled translations should be reviewed

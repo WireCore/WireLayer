@@ -112,7 +112,7 @@ export function authFields(mode: AuthMode): AuthField[] {
 }
 
 export interface AuthValidationOptions {
-    /** Messages of another language (default German) */
+    /** Messages of another language (default English) */
     texts?: ValidationTexts;
     /** Minimum length of a new password (sign up, default 8) */
     passwordMinLength?: number;

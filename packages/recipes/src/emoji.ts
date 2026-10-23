@@ -1,9 +1,8 @@
-import { defaultLocale } from './i18n.js';
 import { foldText } from './tree-data.js';
 
-// Emoji data for EmojiPicker: a selection of about 500 common emojis with German and English names and search words,
-// grouped by category. Skin tones are left out (the default yellow). Own data replaces or extends it (EmojiPicker
-// `emojis`); language modules add names and search words of further languages (`emojiPicker.emojis`).
+// Emoji data for EmojiPicker: a selection of about 500 common emojis with English names and search words, grouped by
+// category. Skin tones are left out (the default yellow). Own data replaces or extends it (EmojiPicker `emojis`);
+// language modules add names and search words of their language (`emojiPicker.emojis`, e.g. German in locales/de).
 
 export type EmojiCategory =
     'recent' | 'smileys' | 'people' | 'nature' | 'food' | 'travel' | 'activities' | 'objects' | 'symbols';
@@ -17,517 +16,9 @@ export interface EmojiData {
     category: Exclude<EmojiCategory, 'recent'>;
 }
 
-// "emoji Name|Suchwörter" per line – compact to keep the bundle small
+// "emoji Name|search words" per line – compact to keep the bundle small
 const raw: Record<Exclude<EmojiCategory, 'recent'>, string> = {
-    smileys: `😀 Grinsendes Gesicht|lachen freude fröhlich
-😃 Grinsen mit großen Augen|lachen freude
-😄 Lachendes Gesicht|lachen freude glücklich
-😁 Strahlendes Gesicht|grinsen zähne
-😆 Lachen mit zugekniffenen Augen|lachen lustig
-😅 Lachen mit Schweißtropfen|erleichtert puh
-🤣 Vor Lachen auf dem Boden|lachen lol lustig
-😂 Tränen vor Lachen|lachen lustig weinen
-🙂 Leicht lächelndes Gesicht|lächeln
-🙃 Umgekehrtes Gesicht|ironie albern
-😉 Zwinkerndes Gesicht|zwinkern scherz
-😊 Lächeln mit lachenden Augen|freundlich erröten
-😇 Lächeln mit Heiligenschein|engel unschuldig
-🥰 Lächeln mit Herzen|verliebt liebe
-😍 Herzaugen|verliebt liebe toll
-🤩 Sternaugen|begeistert wow
-😘 Kuss zuwerfen|kuss liebe
-😋 Lecker|genießen essen zunge
-😛 Zunge herausstrecken|frech
-😜 Zwinkern mit Zunge|albern frech
-🤪 Verrücktes Gesicht|albern verrückt
-🤑 Geldgesicht|geld reich
-🤗 Umarmung|umarmen danke
-🤭 Hand vor dem Mund|kichern hoppla
-🤫 Pst|leise geheim ruhe
-🤔 Nachdenkliches Gesicht|denken überlegen hmm
-🤐 Reißverschlussmund|schweigen geheim
-🤨 Hochgezogene Augenbraue|skeptisch zweifel
-😐 Neutrales Gesicht|neutral egal
-😑 Ausdrucksloses Gesicht|genervt egal
-😶 Gesicht ohne Mund|sprachlos
-😏 Süffisantes Lächeln|grinsen schelmisch
-😒 Gelangweiltes Gesicht|unzufrieden genervt
-🙄 Augenrollen|genervt
-😬 Grimasse|peinlich angespannt
-😌 Erleichtertes Gesicht|zufrieden ruhig
-😔 Nachdenklich traurig|traurig
-😪 Müdes Gesicht|schläfrig
-😴 Schlafendes Gesicht|schlafen müde zzz
-😷 Gesicht mit Maske|krank maske
-🤒 Gesicht mit Thermometer|krank fieber
-🤢 Übelkeit|krank übel
-🤧 Niesendes Gesicht|schnupfen erkältung
-🥵 Heißes Gesicht|hitze schwitzen
-🥶 Kaltes Gesicht|kalt frieren
-😵 Benommenes Gesicht|schwindelig
-🤯 Explodierender Kopf|überwältigt wow
-🤠 Cowboy|hut
-🥳 Partygesicht|feiern party geburtstag
-😎 Sonnenbrille|cool lässig
-🤓 Strebergesicht|nerd brille
-🧐 Gesicht mit Monokel|prüfen genau
-😕 Verwirrtes Gesicht|unsicher
-😟 Besorgtes Gesicht|sorge
-🙁 Leicht trauriges Gesicht|traurig
-😮 Offener Mund|überrascht staunen
-😲 Erstauntes Gesicht|überrascht schock
-😳 Errötetes Gesicht|peinlich verlegen
-🥺 Flehendes Gesicht|bitte bettelnd
-😨 Ängstliches Gesicht|angst
-😰 Besorgt mit Schweiß|angst stress
-😢 Weinendes Gesicht|traurig träne
-😭 Laut weinend|traurig weinen
-😱 Schreiendes Gesicht|angst schock horror
-😖 Verwirrtes Gesicht|frustriert
-😞 Enttäuschtes Gesicht|enttäuscht traurig
-😓 Niedergeschlagen mit Schweiß|stress
-😩 Erschöpftes Gesicht|müde fertig
-😫 Müde|erschöpft
-🥱 Gähnendes Gesicht|gähnen müde langweilig
-😤 Triumphierendes Gesicht|schnauben stolz
-😡 Wütendes Gesicht|wut ärger
-😠 Verärgertes Gesicht|ärger böse
-🤬 Fluchendes Gesicht|schimpfen wut
-😈 Lachender Teufel|teufel frech
-💀 Totenkopf|tot schädel
-💩 Kothaufen|lustig
-🤡 Clown|clownsgesicht
-👻 Gespenst|geist halloween
-👽 Außerirdischer|alien ufo
-🤖 Roboter|bot maschine ki
-😺 Lachende Katze|katze
-😻 Katze mit Herzaugen|katze verliebt
-🙈 Nichts sehen|affe peinlich
-🙉 Nichts hören|affe
-🙊 Nichts sagen|affe geheim`,
-    people: `👋 Winkende Hand|hallo tschüss winken
-🤚 Erhobene Hand|stopp melden
-✋ Hand|stopp halt fünf
-🖖 Vulkanischer Gruß|spock
-👌 OK-Zeichen|ok gut perfekt
-🤌 Zusammengelegte Finger|italienisch was
-✌️ Victory-Zeichen|sieg frieden
-🤞 Gekreuzte Finger|glück daumen drücken
-🤟 Ich liebe dich|liebe geste
-🤘 Teufelsgruß|rock metal
-🤙 Ruf mich an|telefon
-👈 Zeigefinger links|links zeigen
-👉 Zeigefinger rechts|rechts zeigen
-👆 Zeigefinger nach oben|oben
-👇 Zeigefinger nach unten|unten
-☝️ Zeigefinger|eins hinweis
-👍 Daumen hoch|gut ja zustimmung like
-👎 Daumen runter|schlecht nein ablehnung
-✊ Erhobene Faust|faust solidarität
-👊 Faust|faustschlag
-👏 Klatschende Hände|applaus bravo klatschen
-🙌 Erhobene Hände|feiern hurra
-👐 Offene Hände|umarmung
-🤲 Handflächen nach oben|bitten
-🤝 Handschlag|vereinbarung deal partner
-🙏 Gefaltete Hände|bitte danke beten
-✍️ Schreibende Hand|schreiben notiz
-💪 Bizeps|stark kraft muskel
-🧠 Gehirn|denken klug
-👀 Augen|schauen sehen
-👁️ Auge|sehen
-👄 Mund|lippen
-👶 Baby|kind säugling
-🧒 Kind|kind
-👦 Junge|kind
-👧 Mädchen|kind
-🧑 Person|mensch
-👨 Mann|mensch
-👩 Frau|mensch
-🧓 Ältere Person|alt senior
-👮 Polizist|polizei
-🕵️ Detektiv|spion ermittler
-👷 Bauarbeiter|baustelle helm
-🧑‍💻 Person am Computer|programmieren entwickler technik
-🧑‍🏫 Lehrkraft|lehrer schule
-🧑‍⚕️ Ärztin oder Arzt|medizin gesundheit
-🧑‍🍳 Koch|kochen küche
-🦸 Superheld|held
-🙋 Person mit erhobener Hand|melden frage hallo
-🤷 Schulterzucken|egal weiß nicht
-🤦 Hand vor die Stirn|facepalm oh nein
-🙇 Verbeugung|entschuldigung danke
-💁 Infoschalter-Person|info hilfe
-🏃 Laufende Person|laufen rennen sport
-🚶 Gehende Person|gehen spazieren
-💃 Tanzende Frau|tanzen party
-🕺 Tanzender Mann|tanzen party
-👨‍👩‍👧 Familie|eltern kind
-👥 Silhouetten|gruppe team leute
-🗣️ Sprechender Kopf|sprechen reden`,
-    nature: `🐶 Hundegesicht|hund haustier
-🐱 Katzengesicht|katze haustier
-🐭 Mausgesicht|maus
-🐹 Hamster|haustier
-🐰 Hasengesicht|hase kaninchen ostern
-🦊 Fuchs|fuchs
-🐻 Bär|bär
-🐼 Panda|bär
-🐨 Koala|bär
-🐯 Tigergesicht|tiger
-🦁 Löwe|löwe
-🐮 Kuhgesicht|kuh
-🐷 Schweinegesicht|schwein
-🐸 Frosch|frosch
-🐵 Affengesicht|affe
-🐔 Huhn|huhn vogel
-🐧 Pinguin|vogel
-🐦 Vogel|vogel
-🦆 Ente|vogel
-🦅 Adler|vogel
-🦉 Eule|vogel nacht
-🐝 Biene|honig insekt
-🐛 Raupe|insekt
-🦋 Schmetterling|insekt
-🐌 Schnecke|langsam
-🐞 Marienkäfer|glück insekt
-🐢 Schildkröte|langsam
-🐍 Schlange|reptil
-🐙 Oktopus|krake meer
-🐠 Tropischer Fisch|fisch meer
-🐬 Delfin|meer
-🐳 Wal|meer
-🦈 Hai|meer
-🐊 Krokodil|reptil
-🦒 Giraffe|tier
-🐘 Elefant|tier
-🐴 Pferdegesicht|pferd
-🦄 Einhorn|fantasie
-🐾 Pfotenabdrücke|tier spuren
-💐 Blumenstrauß|blumen geschenk
-🌸 Kirschblüte|blume frühling
-🌹 Rose|blume liebe
-🌻 Sonnenblume|blume sommer
-🌷 Tulpe|blume frühling
-🌱 Keimling|pflanze wachsen
-🌲 Nadelbaum|baum wald
-🌳 Laubbaum|baum
-🌴 Palme|urlaub strand
-🌵 Kaktus|wüste pflanze
-🍀 Kleeblatt|glück
-🍁 Ahornblatt|herbst
-🍂 Herbstlaub|herbst blätter
-🌍 Weltkugel Europa und Afrika|erde welt global
-🌙 Mondsichel|mond nacht
-⭐ Stern|stern
-🌟 Leuchtender Stern|stern glanz
-⚡ Blitz|strom energie schnell
-🔥 Feuer|heiß flamme trend
-🌈 Regenbogen|farben
-☀️ Sonne|sonnig wetter
-⛅ Sonne hinter Wolke|wetter wolkig
-☁️ Wolke|wetter
-🌧️ Regenwolke|regen wetter
-❄️ Schneeflocke|schnee winter kalt
-💧 Tropfen|wasser
-🌊 Welle|meer wasser`,
-    food: `🍏 Grüner Apfel|obst
-🍎 Roter Apfel|obst
-🍐 Birne|obst
-🍊 Mandarine|obst orange
-🍋 Zitrone|obst sauer
-🍌 Banane|obst
-🍉 Wassermelone|obst sommer
-🍇 Trauben|obst wein
-🍓 Erdbeere|obst
-🍒 Kirschen|obst
-🍑 Pfirsich|obst
-🥭 Mango|obst
-🍍 Ananas|obst
-🥥 Kokosnuss|obst
-🥝 Kiwi|obst
-🍅 Tomate|gemüse
-🥑 Avocado|gemüse
-🥦 Brokkoli|gemüse
-🥕 Karotte|möhre gemüse
-🌽 Maiskolben|mais gemüse
-🌶️ Peperoni|scharf
-🥔 Kartoffel|gemüse
-🍄 Pilz|pilz
-🥜 Erdnüsse|nüsse
-🍞 Brot|bäckerei
-🥐 Croissant|frühstück
-🥨 Brezel|bayern
-🧀 Käse|käse
-🥚 Ei|frühstück
-🍳 Spiegelei|frühstück braten
-🥞 Pfannkuchen|frühstück
-🥓 Speck|frühstück
-🍔 Hamburger|burger fastfood
-🍟 Pommes|fastfood
-🍕 Pizza|italienisch
-🌭 Hotdog|würstchen
-🥪 Sandwich|brot
-🌮 Taco|mexikanisch
-🥗 Salat|gesund
-🍝 Spaghetti|nudeln pasta
-🍜 Nudelsuppe|ramen
-🍣 Sushi|japanisch fisch
-🍦 Softeis|eis dessert
-🍩 Donut|süß
-🍪 Keks|süß
-🎂 Geburtstagskuchen|geburtstag torte feiern
-🍰 Kuchenstück|kuchen torte
-🧁 Cupcake|kuchen süß
-🍫 Schokolade|süß
-🍬 Bonbon|süß
-🍯 Honigtopf|honig
-☕ Heißgetränk|kaffee tee pause
-🍵 Tee|tee
-🥤 Becher mit Strohhalm|getränk
-🍺 Bier|getränk prost
-🍻 Anstoßende Biergläser|prost feiern
-🍷 Weinglas|wein getränk
-🥂 Sektgläser|anstoßen feiern prost
-🍾 Sektflasche|feiern
-🍽️ Teller mit Besteck|essen mahlzeit`,
-    travel: `🚗 Auto|fahrzeug
-🚕 Taxi|fahrzeug
-🚌 Bus|fahrzeug verkehr
-🚑 Krankenwagen|notfall
-🚒 Feuerwehrauto|feuerwehr
-🚓 Polizeiauto|polizei
-🚚 Lieferwagen|lieferung lkw versand
-🚜 Traktor|landwirtschaft
-🚲 Fahrrad|rad
-🛴 Tretroller|roller
-🏍️ Motorrad|fahrzeug
-🚂 Lokomotive|zug bahn
-🚆 Zug|bahn reise
-🚇 U-Bahn|bahn
-✈️ Flugzeug|fliegen reise urlaub
-🛫 Abflug|fliegen reise
-🛬 Landung|fliegen ankunft
-🚀 Rakete|start launch schnell
-🛸 Ufo|außerirdisch
-🚁 Hubschrauber|fliegen
-⛵ Segelboot|boot segeln
-🚢 Schiff|boot reise
-⚓ Anker|schiff
-⛽ Zapfsäule|tanken benzin
-🚦 Ampel|verkehr
-🚧 Baustelle|arbeit sperrung
-🗺️ Weltkarte|karte reise
-🧭 Kompass|richtung navigation
-🏔️ Schneebedeckter Berg|berg
-🏖️ Strand mit Sonnenschirm|urlaub strand
-🏝️ Insel|urlaub
-🏠 Haus|zuhause heim
-🏡 Haus mit Garten|zuhause
-🏢 Bürogebäude|büro firma arbeit
-🏥 Krankenhaus|klinik
-🏦 Bank|geld
-🏨 Hotel|reise übernachtung
-🏫 Schule|bildung
-🏭 Fabrik|industrie
-🏰 Schloss|burg
-⛪ Kirche|religion
-🗼 Turm|tokio
-🗽 Freiheitsstatue|new york
-🎡 Riesenrad|kirmes
-🌃 Nacht mit Sternen|stadt nacht
-🌅 Sonnenaufgang|morgen
-⏰ Wecker|zeit wecker morgen
-⌛ Sanduhr|zeit warten
-⏱️ Stoppuhr|zeit messen
-🕐 Ein Uhr|uhr zeit`,
-    activities: `⚽ Fußball|sport ball
-🏀 Basketball|sport ball
-🏈 Football|sport ball
-⚾ Baseball|sport ball
-🎾 Tennis|sport ball
-🏐 Volleyball|sport ball
-🏓 Tischtennis|sport
-🏸 Badminton|sport
-🥅 Tor|sport
-⛳ Golffahne|golf sport
-🎣 Angel|angeln fisch
-🎿 Ski|wintersport
-🏂 Snowboarder|wintersport
-🏊 Schwimmer|schwimmen sport
-🚴 Radfahrer|fahrrad sport
-🏆 Pokal|sieg gewinner preis
-🥇 Goldmedaille|erster sieg gewinner
-🥈 Silbermedaille|zweiter
-🥉 Bronzemedaille|dritter
-🏅 Sportmedaille|medaille preis
-🎖️ Orden|auszeichnung
-🎫 Eintrittskarte|ticket
-🎟️ Ticket|eintritt
-🎭 Theatermasken|theater kultur
-🎨 Farbpalette|kunst malen design
-🎬 Filmklappe|film kino
-🎤 Mikrofon|singen karaoke
-🎧 Kopfhörer|musik hören
-🎵 Musiknote|musik
-🎶 Musiknoten|musik
-🎹 Klaviatur|klavier musik
-🎸 Gitarre|musik
-🎮 Videospiel|spielen gaming controller
-🕹️ Joystick|spielen gaming
-🎲 Würfel|spiel glück
-🧩 Puzzleteil|puzzle lösung
-♟️ Schachfigur|schach strategie
-🎯 Volltreffer|ziel treffer
-🎳 Bowling|spiel
-🎉 Konfettibombe|feiern party glückwunsch
-🎊 Konfettiball|feiern party
-🎈 Luftballon|party geburtstag
-🎁 Geschenk|geburtstag überraschung
-🎄 Weihnachtsbaum|weihnachten
-🎃 Kürbislaterne|halloween
-✨ Funkeln|glanz neu magie`,
-    objects: `⌚ Armbanduhr|uhr zeit
-📱 Mobiltelefon|handy smartphone
-💻 Laptop|computer rechner arbeit
-⌨️ Tastatur|computer tippen
-🖥️ Bildschirm|computer monitor
-🖨️ Drucker|drucken
-🖱️ Computermaus|maus klicken
-💾 Diskette|speichern
-💿 CD|daten musik
-📷 Kamera|foto
-📹 Videokamera|video
-📞 Telefonhörer|telefon anrufen
-☎️ Telefon|anrufen
-📺 Fernseher|tv
-📻 Radio|musik
-🔋 Batterie|akku energie
-🔌 Stecker|strom
-💡 Glühbirne|idee licht tipp
-🔦 Taschenlampe|licht
-🕯️ Kerze|licht
-🗑️ Papierkorb|löschen müll
-💰 Geldsack|geld reich
-💳 Kreditkarte|bezahlen geld
-💶 Euroschein|geld euro
-🧾 Beleg|quittung rechnung
-✉️ Briefumschlag|brief post mail
-📧 E-Mail|mail nachricht
-📨 Eingehender Umschlag|mail empfangen
-📦 Paket|versand lieferung
-📮 Briefkasten|post
-📝 Notiz|schreiben memo
-✏️ Bleistift|schreiben bearbeiten
-🖊️ Kugelschreiber|schreiben
-📁 Ordner|datei ablage
-📂 Geöffneter Ordner|datei
-📄 Dokument|datei seite
-📊 Balkendiagramm|statistik daten chart
-📈 Steigender Trend|wachstum statistik
-📉 Fallender Trend|rückgang statistik
-📅 Kalender|datum termin
-📆 Abreißkalender|datum termin
-📌 Pinnnadel|merken wichtig
-📍 Stecknadel|ort standort
-📎 Büroklammer|anhang
-📏 Lineal|messen
-✂️ Schere|schneiden
-🔒 Geschlossenes Schloss|sicher gesperrt privat
-🔓 Offenes Schloss|entsperrt
-🔑 Schlüssel|passwort zugang
-🔨 Hammer|werkzeug bauen
-🛠️ Werkzeuge|reparieren einstellungen
-⚙️ Zahnrad|einstellungen technik
-🧰 Werkzeugkasten|werkzeug
-🧲 Magnet|anziehen
-🧪 Reagenzglas|labor test chemie
-🔬 Mikroskop|wissenschaft forschung
-🔭 Teleskop|astronomie
-💊 Tablette|medizin
-🩺 Stethoskop|arzt medizin
-🛒 Einkaufswagen|einkaufen shop
-🎒 Rucksack|schule
-👓 Brille|lesen
-📚 Bücher|lesen lernen bibliothek
-📖 Offenes Buch|lesen
-🔍 Lupe|suchen suche
-🔔 Glocke|benachrichtigung
-📣 Megafon|ankündigung
-🏷️ Etikett|tag label preis
-🔗 Link|verknüpfung kette`,
-    symbols: `❤️ Rotes Herz|liebe herz
-🧡 Oranges Herz|herz
-💛 Gelbes Herz|herz
-💚 Grünes Herz|herz
-💙 Blaues Herz|herz
-💜 Lila Herz|herz
-🖤 Schwarzes Herz|herz
-🤍 Weißes Herz|herz
-💔 Gebrochenes Herz|trauer liebe
-💕 Zwei Herzen|liebe
-💯 Hundert Punkte|perfekt voll
-💢 Ärger-Symbol|wut
-💥 Zusammenstoß|knall boom
-💫 Schwindelig|sterne
-💬 Sprechblase|nachricht kommentar chat
-💭 Gedankenblase|denken
-💤 Schlafen|zzz müde
-✅ Weißes Häkchen auf Grün|erledigt ja fertig ok
-☑️ Abgehaktes Kästchen|erledigt
-✔️ Häkchen|ok richtig
-❌ Kreuz|nein falsch fehler löschen
-❎ Kreuz-Schaltfläche|nein
-➕ Plus|hinzufügen mehr
-➖ Minus|weniger entfernen
-❓ Fragezeichen|frage hilfe
-❗ Ausrufezeichen|wichtig achtung
-⚠️ Warnung|achtung vorsicht
-⛔ Zutritt verboten|stopp verbot
-🚫 Verboten|nein verbot
-♻️ Recycling|umwelt
-✳️ Achtzackiger Stern|stern
-🆕 Neu|neu
-🆗 OK|ok
-🆘 SOS|hilfe notfall
-🔴 Roter Kreis|rot punkt
-🟠 Oranger Kreis|orange punkt
-🟡 Gelber Kreis|gelb punkt
-🟢 Grüner Kreis|grün punkt
-🔵 Blauer Kreis|blau punkt
-🟣 Lila Kreis|lila punkt
-⚫ Schwarzer Kreis|schwarz punkt
-⚪ Weißer Kreis|weiß punkt
-🔺 Rotes Dreieck|nach oben
-🔻 Rotes Dreieck nach unten|nach unten
-⬆️ Pfeil nach oben|oben hoch
-⬇️ Pfeil nach unten|unten runter
-⬅️ Pfeil nach links|links zurück
-➡️ Pfeil nach rechts|rechts weiter
-🔄 Pfeile gegen den Uhrzeigersinn|aktualisieren neu laden
-🔁 Wiederholen|schleife
-▶️ Wiedergabe|abspielen play
-⏸️ Pause|pause
-⏹️ Stopp|stopp
-🔇 Stumm|ton aus
-🔊 Lautsprecher laut|ton an
-©️ Copyright|recht
-®️ Eingetragene Marke|marke
-™️ Markenzeichen|marke
-#️⃣ Raute|hashtag nummer
-🔢 Zahlen|nummer
-ℹ️ Information|info hinweis
-🏁 Zielflagge|ziel rennen fertig
-🚩 Dreiecksflagge|markierung warnung
-🏳️ Weiße Flagge|aufgeben
-🇩🇪 Flagge Deutschland|deutschland
-🇦🇹 Flagge Österreich|österreich
-🇨🇭 Flagge Schweiz|schweiz
-🇪🇺 Flagge Europäische Union|eu europa`,
-};
-
-// The same emojis in English ("emoji Name|search words" per line)
-const rawEnglish = `😀 Grinning face|smile happy joy
+    smileys: `😀 Grinning face|smile happy joy
 😃 Grinning face with big eyes|smile happy
 😄 Grinning face with smiling eyes|laugh happy
 😁 Beaming face|grin teeth
@@ -612,8 +103,8 @@ const rawEnglish = `😀 Grinning face|smile happy joy
 😻 Cat with heart eyes|cat love
 🙈 See-no-evil monkey|monkey
 🙉 Hear-no-evil monkey|monkey
-🙊 Speak-no-evil monkey|monkey
-👋 Waving hand|wave hello bye
+🙊 Speak-no-evil monkey|monkey`,
+    people: `👋 Waving hand|wave hello bye
 🤚 Raised back of hand|hand
 ✋ Raised hand|hand stop high five
 🖖 Vulcan salute|spock
@@ -672,8 +163,8 @@ const rawEnglish = `😀 Grinning face|smile happy joy
 🕺 Man dancing|dance
 👨‍👩‍👧 Family|parents child
 👥 Busts in silhouette|people users team
-🗣️ Speaking head|speak talk
-🐶 Dog face|dog puppy
+🗣️ Speaking head|speak talk`,
+    nature: `🐶 Dog face|dog puppy
 🐱 Cat face|cat kitten
 🐭 Mouse face|mouse
 🐹 Hamster|pet
@@ -738,8 +229,8 @@ const rawEnglish = `😀 Grinning face|smile happy joy
 🌧️ Cloud with rain|rain weather
 ❄️ Snowflake|snow cold winter
 💧 Droplet|water drop
-🌊 Water wave|wave sea ocean
-🍏 Green apple|fruit
+🌊 Water wave|wave sea ocean`,
+    food: `🍏 Green apple|fruit
 🍎 Red apple|fruit
 🍐 Pear|fruit
 🍊 Tangerine|orange fruit
@@ -798,8 +289,8 @@ const rawEnglish = `😀 Grinning face|smile happy joy
 🍷 Wine glass|wine
 🥂 Clinking glasses|cheers champagne toast
 🍾 Bottle with popping cork|champagne celebrate
-🍽️ Fork and knife with plate|dinner meal
-🚗 Automobile|car
+🍽️ Fork and knife with plate|dinner meal`,
+    travel: `🚗 Automobile|car
 🚕 Taxi|cab
 🚌 Bus|public transport
 🚑 Ambulance|emergency
@@ -848,8 +339,8 @@ const rawEnglish = `😀 Grinning face|smile happy joy
 ⏰ Alarm clock|alarm time
 ⌛ Hourglass done|time wait
 ⏱️ Stopwatch|timer time
-🕐 One o’clock|time clock
-⚽ Soccer ball|football sport
+🕐 One o’clock|time clock`,
+    activities: `⚽ Soccer ball|football sport
 🏀 Basketball|sport
 🏈 American football|sport
 ⚾ Baseball|sport
@@ -894,8 +385,8 @@ const rawEnglish = `😀 Grinning face|smile happy joy
 🎁 Wrapped gift|present gift
 🎄 Christmas tree|christmas
 🎃 Jack-o-lantern|halloween pumpkin
-✨ Sparkles|shine magic new
-⌚ Watch|time
+✨ Sparkles|shine magic new`,
+    objects: `⌚ Watch|time
 📱 Mobile phone|smartphone
 💻 Laptop|computer
 ⌨️ Keyboard|computer type
@@ -963,8 +454,8 @@ const rawEnglish = `😀 Grinning face|smile happy joy
 🔔 Bell|notification
 📣 Megaphone|announcement
 🏷️ Label|tag
-🔗 Link|chain url
-❤️ Red heart|love
+🔗 Link|chain url`,
+    symbols: `❤️ Red heart|love
 🧡 Orange heart|love
 💛 Yellow heart|love
 💚 Green heart|love
@@ -1031,7 +522,8 @@ const rawEnglish = `😀 Grinning face|smile happy joy
 🇩🇪 Flag Germany|germany
 🇦🇹 Flag Austria|austria
 🇨🇭 Flag Switzerland|switzerland
-🇪🇺 Flag European Union|eu europe`;
+🇪🇺 Flag European Union|eu europe`,
+};
 
 /** Order of the categories (recently used first) */
 export const emojiCategories: EmojiCategory[] = [
@@ -1048,7 +540,7 @@ export const emojiCategories: EmojiCategory[] = [
 
 let parsed: EmojiData[] | undefined;
 
-/** The built-in emojis (parsed once) */
+/** The built-in emojis with their English names (parsed once) */
 export function defaultEmojis(): EmojiData[] {
     parsed ??= (Object.entries(raw) as [EmojiData['category'], string][]).flatMap(([category, lines]) =>
         lines.split('\n').map((line) => {
@@ -1072,29 +564,24 @@ function parseEmojiTexts(lines: string) {
     return texts;
 }
 
-let english: Map<string, { name: string; keywords: string[] }> | undefined;
-const byLocale = new Map<string, EmojiData[]>();
+const byTexts = new Map<string, EmojiData[]>();
 
 /**
- * The built-in emojis for a locale: German names in German, English ones otherwise. `texts` – lines "😀 Name|search
- * words", e.g. `emojiPicker.emojis` of a language module – give names and search words of another language. The
- * English name and words always find an emoji as well (and in German the German ones).
+ * The built-in emojis in a language: `texts` – lines "😀 Name|search words", e.g. `emojiPicker.emojis` of a language
+ * module – give names and search words; emojis without a line keep their English name. The English name and words
+ * always find an emoji as well.
  */
-export function localeEmojis(locale = defaultLocale, texts = ''): EmojiData[] {
-    const german = locale.split('-')[0]!.toLowerCase() === 'de';
-    const key = `${german ? 'de' : 'other'}\n${texts}`;
-    let result = byLocale.get(key);
+export function localeEmojis(texts = ''): EmojiData[] {
+    let result = byTexts.get(texts);
     if (result) return result;
-    english ??= parseEmojiTexts(rawEnglish);
     const own = parseEmojiTexts(texts);
     result = defaultEmojis().map((entry) => {
-        const en = english!.get(entry.emoji);
-        const local = own.get(entry.emoji) ?? (german ? { name: entry.name, keywords: entry.keywords ?? [] } : en);
+        const local = own.get(entry.emoji);
         if (!local) return entry;
-        const extra = local === en || !en ? [] : [...en.name.toLowerCase().split(' '), ...en.keywords];
-        return { ...entry, name: local.name, keywords: [...new Set([...local.keywords, ...extra])] };
+        const english = [...entry.name.toLowerCase().split(' '), ...(entry.keywords ?? [])];
+        return { ...entry, name: local.name, keywords: [...new Set([...local.keywords, ...english])] };
     });
-    byLocale.set(key, result);
+    byTexts.set(texts, result);
     return result;
 }
 

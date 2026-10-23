@@ -8,7 +8,7 @@ export function provideLocale(locale: ComputedRef<ResolvedLocale>) {
     provide(key, locale);
 }
 
-/** Locale, writing direction and texts of the nearest LocaleProvider – German without one */
+/** Locale, writing direction and texts of the nearest LocaleProvider – English (en-US) without one */
 export function useLocale(): ComputedRef<ResolvedLocale> {
     return inject(key, fallback);
 }

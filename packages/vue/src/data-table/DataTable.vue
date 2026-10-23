@@ -49,6 +49,7 @@ import {
     applyPending,
     changesByRow,
     conditionFieldsFromColumns,
+    csvSeparator,
     emptyConditionGroup,
     isActiveCondition,
     matchesCondition,
@@ -294,6 +295,9 @@ export interface DataTableProps<T> {
     pinnedColumns?: { start: string[]; end: string[] };
     /** Shows an export button; the CSV has the filtered and sorted rows of all pages (or the selection) */
     exportFilename?: string;
+    /** Separator of the CSV export, also of the export button – default: from the locale (";" where numbers have a
+     * decimal comma, e.g. de-DE, as a spreadsheet there expects it; "," otherwise) */
+    csvSeparator?: string;
     /** Formats of the export button: CSV (default), Excel (.xlsx) or both */
     exportFormats?: ('csv' | 'xlsx')[];
     /** Groups the rows by the values of these columns (expandable group rows) – v-model:group-by */
@@ -390,6 +394,7 @@ const props = withDefaults(defineProps<DataTableProps<TData>>(), {
     columnOrder: undefined,
     pinnedColumns: undefined,
     exportFilename: undefined,
+    csvSeparator: undefined,
     groupBy: undefined,
     frozenRows: undefined,
     rowActions: undefined,
@@ -2371,7 +2376,8 @@ function generateCsv(options: DataTableCsvOptions = {}) {
                 : display(column, row.getValue(column.id), row.original)
         )
     );
-    const csv = toCsv([visible.map((column) => column.exportHeader ?? column.header), ...records], options.separator);
+    const separator = options.separator ?? props.csvSeparator ?? localeCsvSeparator(localeContext.value.locale);
+    const csv = toCsv([visible.map((column) => column.exportHeader ?? column.header), ...records], separator);
     return options.bom === false ? csv.slice(1) : csv;
 }
 /** Downloads the CSV – `true` (or `{ selectionOnly: true }`) only the selected rows */

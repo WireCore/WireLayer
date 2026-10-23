@@ -80,7 +80,7 @@ export interface DataTableColumn<TData> {
 export interface DataTableCsvOptions {
     /** Only the selected rows (default: the filtered and sorted rows of all pages) */
     selectionOnly?: boolean;
-    /** Separator, default ";" (opens in a German Excel) */
+    /** Separator – default: `csvSeparator` of the table, else from the locale (";" with a decimal comma, "," otherwise) */
     separator?: string;
     /** Byte order mark at the start, so Excel reads UTF-8 – default true */
     bom?: boolean;

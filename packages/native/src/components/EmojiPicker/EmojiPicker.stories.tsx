@@ -29,7 +29,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-/** Inline: search (English words, German too in a German locale), categories as tabs, recent emojis first */
+/** Inline: search (English words, with a language module like German also its words), categories as tabs, recent emojis first */
 export const Playground: Story = {};
 
 function SheetDemo() {

@@ -5,16 +5,21 @@ import {
     AppShell,
     ConfirmDialog,
     LocaleProvider,
+    registerLocale,
     SegmentedControl,
     SegmentedControlItem,
     SidebarNav,
     Toaster,
 } from '@wirecore/wirelayer-react';
+import { de } from '@wirecore/wirelayer-react/locales/de';
 import { Gauge, Send } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { createContext, useContext, useState, type ReactNode } from 'react';
 import { isDemoLocale, texts, type DemoLocale } from './texts';
+
+// German is a separate language module – registered once, before the first render (server and browser)
+registerLocale('de', de);
 
 const TextsContext = createContext(texts['en-US']);
 

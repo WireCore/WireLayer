@@ -22,7 +22,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-/** Search (English names, German too in a German locale), categories, a grid with arrow keys; recent ones first */
+/** Search (English names, with a language module like German also its names), categories, a grid with arrow keys; recent ones first */
 export const Playground: Story = {};
 
 /** Own emojis (e.g. reactions) */

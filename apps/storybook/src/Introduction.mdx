@@ -111,8 +111,10 @@ Light/dark is switched by the `data-mode` attribute, the color theme by the `dat
 <html data-mode="dark" data-theme="ocean"></html>
 ```
 
-Without attributes, the light theme “WireLayer” (`data-theme="wirecore"`) applies. With Tailwind you can style
-specifically with `dark:`. More under _Foundations › Themes_.
+Without `data-mode` the page follows the system setting (`prefers-color-scheme`) – light or dark, without any
+JavaScript. `data-mode="light"` or `data-mode="dark"` forces a mode, also for a part of the page. Without `data-theme`
+the theme “WireLayer” (`data-theme="wirecore"`) applies. With Tailwind you can style specifically with `dark:` – it
+follows the same rules. More under _Foundations › Themes_.
 
 ## Customizing: defaults and classes per part
 
@@ -216,11 +218,11 @@ up to date.
 ## Language and writing direction
 
 By default the components speak English (`en-US`). `LocaleProvider` switches texts, number and date formats and the
-writing direction for everything below it – English and German are built in; other languages fall back to English,
-are registered (see below) or get their texts through `translations`:
+writing direction for everything below it – English is built in; other languages are registered once (see below),
+get their texts through `translations` or fall back to English:
 
 ```vue
-<LocaleProvider locale="de-DE">
+<LocaleProvider locale="de-DE"><!-- after registerLocale('de', de) -->
     <App />
 </LocaleProvider>
 ```
@@ -236,20 +238,22 @@ import { messages } from '@wirecore/wirelayer-recipes';
 The app sets `lang` and `dir` on the `<html>` element itself. For languages like Arabic or Hebrew (`dir="rtl"`),
 spacing, borders, directional icons and the arrow keys are mirrored. Your own components read the texts with
 `useTranslations()` and the locale and direction with `useLocale()`. In Storybook the **Language** toolbar item
-switches between all built-in and registered languages (Arabic also shows the right-to-left layout).
+switches between English and the registered languages (Arabic also shows the right-to-left layout).
 
 ### Registering languages
 
-French, Spanish, Italian, Portuguese (Portugal and Brazil), Dutch, Polish, Czech, Hungarian, Latvian, Arabic and
-Turkish ship as separate modules – they cost nothing as long as an app does not import them. Registered once at
+German, French, Spanish, Italian, Portuguese (Portugal and Brazil), Dutch, Polish, Czech, Hungarian, Latvian, Arabic
+and Turkish ship as separate modules – they cost nothing as long as an app does not import them. Registered once at
 startup, they apply to every region of the language (`fr` also for `fr-CA`):
 
 ```ts
 import { registerLocale } from '@wirecore/wirelayer-vue'; // likewise @wirecore/wirelayer-react and @wirecore/wirelayer-native
 import { ar } from '@wirecore/wirelayer-vue/locales/ar';
+import { de } from '@wirecore/wirelayer-vue/locales/de';
 import { fr } from '@wirecore/wirelayer-vue/locales/fr';
 import { ptBR } from '@wirecore/wirelayer-vue/locales/pt-BR';
 
+registerLocale('de', de); // de-DE, de-AT, de-CH …
 registerLocale('fr', fr);
 registerLocale('ar', ar); // ar-EG, ar-MA … – right to left
 registerLocale('pt-BR', ptBR); // a region takes precedence over its language (pt)

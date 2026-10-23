@@ -10,8 +10,8 @@ export const localeGlobalTypes = {
             icon: 'globe',
             items: [
                 { value: 'en-US', title: 'English' },
-                { value: 'de-DE', title: 'Deutsch' },
                 // Not built in – each preview registers them (registerLocale) from its package's locales/<code>
+                { value: 'de-DE', title: 'Deutsch' },
                 { value: 'fr-FR', title: 'Français' },
                 { value: 'es-ES', title: 'Español' },
                 { value: 'it-IT', title: 'Italiano' },

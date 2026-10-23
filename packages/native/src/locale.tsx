@@ -23,7 +23,7 @@ export function LocaleProvider({ locale = defaultLocale, translations, children 
     return <LocaleContext.Provider value={value}>{children}</LocaleContext.Provider>;
 }
 
-/** Locale and texts of the nearest LocaleProvider – German without one */
+/** Locale and texts of the nearest LocaleProvider – English (en-US) without one */
 export function useLocale(): ResolvedLocale {
     return useContext(LocaleContext);
 }

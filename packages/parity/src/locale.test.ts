@@ -31,6 +31,7 @@ import { createElement } from 'react';
 import { beforeAll, describe, expect, expectTypeOf, it } from 'vitest';
 import { h, nextTick, ref, type Component } from 'vue';
 import { el, frameworks, normalize, render, renderSettled } from './harness.js';
+import { de as german } from '@wirecore/wirelayer-recipes/locales/de';
 
 const items = [
     { value: 'web', label: 'Software & Web' },
@@ -139,6 +140,7 @@ describe('switching the language at runtime', () => {
 
 // The languages that are not built in, by the locale tag whose plural rules they follow
 const locales: Record<string, [code: string, texts: Translations]> = {
+    'de-DE': ['de', german],
     'fr-FR': ['fr', fr],
     'es-ES': ['es', es],
     'it-IT': ['it', italian],
@@ -156,7 +158,7 @@ const languages = Object.entries(locales).map(([tag, [code, texts]]) => [tag, co
 
 describe('language modules', () => {
     it('are not built in: unregistered languages fall back to English', () => {
-        expect(Object.keys(messages)).toEqual(['de', 'en']);
+        expect(Object.keys(messages)).toEqual(['en']);
         expect(resolveLocale('fr-CA').translations).toBe(messages.en);
         expect(resolveLocale('ar-EG').translations).toBe(messages.en);
     });
@@ -193,7 +195,7 @@ describe('language modules', () => {
             : [];
 
     it.each(languages)('%s has exactly the keys of German', (_tag, _code, texts) => {
-        expect(shape(texts)).toEqual(shape(messages.de));
+        expect(shape(texts)).toEqual(shape(german));
     });
 
     it.each(languages)('%s has a plural form for every category of whole numbers', (tag, _code, texts) => {
@@ -295,7 +297,7 @@ describe('registered languages', () => {
         expect(resolveLocale('pt-BR').translations).toBe(ptBR);
         expect(resolveLocale('pt-PT').translations).toBe(pt);
         expect(resolveLocale('pt-AO').translations).toBe(pt);
-        expect(resolveLocale('de-AT').translations).toBe(messages.de);
+        expect(resolveLocale('de-AT').translations).toBe(german);
         expect(resolveLocale('sv-SE').translations).toBe(messages.en);
         // Texts passed to LocaleProvider win
         expect(resolveLocale('fr-FR', messages.en).translations).toBe(messages.en);
@@ -374,7 +376,7 @@ describe('numbers in texts', () => {
         expect(localizeTexts(ar, 'ar-MA').dataTable.rowCount(25)).toMatch(/25/);
         // Names stay as they are
         expect(texts.chip.remove('web-01')).toContain('web-01');
-        expect(localizeTexts(messages.de, 'de-DE').dataTable.rowCount(12345)).toBe('12.345 Zeilen');
+        expect(localizeTexts(german, 'de-DE').dataTable.rowCount(12345)).toBe('12.345 Zeilen');
     });
 
     it.each(frameworks)('%s LocaleProvider passes the localized texts on', async (framework) => {

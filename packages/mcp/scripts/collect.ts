@@ -449,14 +449,14 @@ const nativeIntro =
     'React Native (Expo) components with Uniwind: same prop names and values as the React components where they fit on a phone – pickers open as bottom sheets, touch targets are at least 44 pt, no hover, gestures always with accessibility actions. Forms with TanStack Form via `@wirecore/wirelayer-native/form`; DataTable (no TanStack; table or cards per row) via `@wirecore/wirelayer-native/data-table`; charts drawn with react-native-svg (no Chart.js) via `@wirecore/wirelayer-native/chart`; PdfViewer on react-native-pdf (development build, not Expo Go) via `@wirecore/wirelayer-native/pdf`; CodeHighlight with Shiki via `@wirecore/wirelayer-native/code`; file pickers via `@wirecore/wirelayer-native/expo-document-picker` and `@wirecore/wirelayer-native/expo-image-picker`, `useClipboard` via `@wirecore/wirelayer-native/expo-clipboard`, `shareFile`/`shareUri` (DataTable export, PDFs) via `@wirecore/wirelayer-native/expo-sharing` (optional peer dependencies). Overlays: Dialog, Drawer (from every edge), Menu and ContextMenu as sheets, Popover next to its trigger; `toast()`, `confirm()`, `prompt()` and `openDialog()` need `<Toaster />`, `<ConfirmDialog />` and `<DialogHost />` once at the root.';
 
 const intro =
-    'WireLayer: a component library for Vue 3 (@wirecore/wirelayer-vue), React (@wirecore/wirelayer-react), React Native (@wirecore/wirelayer-native) and plain HTML (@wirecore/wirelayer-css). Vue and React share the same API and DOM; Tailwind CSS v4 recipes in @wirecore/wirelayer-recipes; WCAG 2.2 AA; German UI texts by default, English via LocaleProvider.';
+    'WireLayer: a component library for Vue 3 (@wirecore/wirelayer-vue), React (@wirecore/wirelayer-react), React Native (@wirecore/wirelayer-native) and plain HTML (@wirecore/wirelayer-css). Vue and React share the same API and DOM; Tailwind CSS v4 recipes in @wirecore/wirelayer-recipes; WCAG 2.2 AA; English UI texts by default, German and other languages via LocaleProvider.';
 const conventions = [
     '## Conventions',
     '',
     '- React props in camelCase; Vue takes the same props in kebab-case. Controlled values: React `value` + `onValueChange`, Vue `v-model`; other `onXChange` pairs are `v-model:x` in Vue, other callbacks `@x` events.',
     '- `className` (React) is `class` (Vue). Every component takes `classes` (extra Tailwind classes per part) and reads defaults from `RecipesProvider`.',
     '- Content: React props of type ReactNode/render functions are named slots in Vue (e.g. DataTable `cell` → `#cell-<id>`, `expansion` → `#expansion`).',
-    '- Texts come from `LocaleProvider` (de-DE default, en-US built in; fr, es, it, pt, pt-BR, nl, pl, cs, hu, lv, ar, tr via `registerLocale(\'fr\', fr)` with `fr` from `@wirecore/wirelayer-vue/locales/fr` or `@wirecore/wirelayer-react/locales/fr`); dates are ISO strings ("2026-10-20", "2026-10-20T10:00").',
+    '- Texts come from `LocaleProvider` (en-US built in; de, fr, es, it, pt, pt-BR, nl, pl, cs, hu, lv, ar, tr via `registerLocale(\'fr\', fr)` with `fr` from `@wirecore/wirelayer-vue/locales/fr` or `@wirecore/wirelayer-react/locales/fr`); dates are ISO strings ("2026-10-20", "2026-10-20T10:00").',
 ].join('\n');
 
 export function llmsIndex(data: Collected, storybook = '') {

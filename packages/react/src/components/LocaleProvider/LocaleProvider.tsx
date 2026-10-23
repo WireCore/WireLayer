@@ -28,7 +28,7 @@ export function LocaleProvider({ locale = defaultLocale, translations, children 
     );
 }
 
-/** Locale, writing direction and texts of the nearest LocaleProvider – German without one */
+/** Locale, writing direction and texts of the nearest LocaleProvider – English (en-US) without one */
 export function useLocale(): ResolvedLocale {
     return useContext(LocaleContext);
 }

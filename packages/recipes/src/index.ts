@@ -412,6 +412,7 @@ export {
     localizeTexts,
     messages,
     numberInputKey,
+    csvSeparator,
     numberSeparators,
     parseLocaleNumber,
     pluralText,
