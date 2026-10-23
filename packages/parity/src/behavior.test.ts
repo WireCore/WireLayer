@@ -862,7 +862,10 @@ describe.each(frameworks)('%s option lists', (framework) => {
         // Typing at jsdom speed outruns Ark's input sync (effects) – a short delay per key, like a person
         const user = userEvent.setup({ delay: 10 });
         await user.clear(input);
-        await user.type(input, 'John Doe{Enter}');
+        await user.type(input, 'John Doe');
+        // On a slow machine Ark's sync can still be behind the last keys – Enter only once the field has the text
+        await waitFor(() => expect(input).toHaveValue('John Doe'));
+        await user.keyboard('{Enter}');
         expect(onChange).toHaveBeenLastCalledWith('John Doe');
         expect(input).toHaveValue('John Doe');
     });

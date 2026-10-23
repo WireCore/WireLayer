@@ -160,6 +160,8 @@ test.describe('Editor menus', () => {
         await page.keyboard.press('Alt+F10');
         await expect(menu.getByRole('button', { name: 'Heading', exact: true })).toBeFocused();
         await page.keyboard.press('Enter');
+        // The menu hands the focus back to the text a moment later – keys before that would be lost
+        await expect(textbox).toBeFocused();
         await page.keyboard.type('Meetings with @cl');
         const list = page.getByRole('listbox', { name: 'Suggestions' });
         await expect(list.getByRole('option')).toHaveText(['Clara Weiß']);

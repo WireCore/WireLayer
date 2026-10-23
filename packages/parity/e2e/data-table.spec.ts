@@ -24,12 +24,14 @@ test.describe('DataTable filter menu', () => {
         await expect(menu).toBeVisible();
         await menu.getByRole('combobox', { name: 'Condition 1' }).click();
         await page.getByRole('option', { name: 'Greater than', exact: true }).click();
-        // The condition list must be closed, otherwise it takes the Enter
+        // The condition list returns the focus to its field with a delay – wait for it, or it takes the focus back
+        // from the value field and gets the Enter
         await expect(page.getByRole('listbox')).toBeHidden();
+        await expect(menu.getByRole('combobox', { name: 'Condition 1' })).toBeFocused();
         const value = menu.getByRole('spinbutton', { name: 'Value 1' });
         await value.fill('8');
         await expect(value).toHaveValue('8');
-        await page.keyboard.press('Enter');
+        await value.press('Enter');
         await expect(menu).toBeHidden();
         await expect(page.getByRole('button', { name: 'Filter for Cores, active' })).toBeFocused();
         await expect(page.getByText('10 entries')).toBeAttached();

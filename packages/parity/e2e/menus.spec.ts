@@ -88,6 +88,8 @@ test.describe('ContextMenu', () => {
         await area.focus();
         await page.keyboard.press('Shift+F10');
         await expect(page.getByRole('menu')).toBeVisible();
+        // Escape closes once the menu has the focus (it gets it a moment after it appears)
+        await expect(page.locator('[role=menu]:focus')).toHaveCount(1);
         await page.keyboard.press('Escape');
         await expect(page.getByRole('menu')).toHaveCount(0);
     });
