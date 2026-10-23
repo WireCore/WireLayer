@@ -108,6 +108,9 @@ Worth reading before changing the affected areas.
   browser – the root is therefore always called `root`, new nodes only get IDs on user actions.
 - **Returning focus:** `useFocusReturn` remembers the focused element synchronously on open (Vue `flush: 'sync'`, React
   layout effect) – otherwise a focus trap has already moved the focus.
+- **Returning focus and reopening:** the focus return after closing runs a frame and 50 ms later (the menu is still
+  being removed). A menu opened again in between had its focus taken away – on a slow machine even reliably
+  (ContextMenu: choose an action, then Shift+F10). The return now skips when the overlay is open again.
 - **Focus after reordering (React):** the next arrow key arrived before the focus was on the moved item (moving between
   lists, found by the E2E test). Sortable therefore renders the new order with `flushSync` and focuses immediately; Vue
   focuses after `nextTick`.

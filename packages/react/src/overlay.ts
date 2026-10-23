@@ -51,6 +51,8 @@ export function useAnchoredOverlay(options: {
             const target = returnFocus.current;
             // Lost focus: on the page, gone with the menu, or still in the closing menu (removed a moment later)
             const restore = () => {
+                // Opened again in the meantime: the focus belongs to the new popup
+                if (wasOpen.current) return;
                 const active = document.activeElement;
                 if (!active || active === document.body || !active.isConnected || active.closest('[data-scope=menu]'))
                     target?.focus();
