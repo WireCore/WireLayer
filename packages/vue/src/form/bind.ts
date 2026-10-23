@@ -4,8 +4,9 @@ import type { CheckedState } from '../components/Checkbox/Checkbox.vue';
 /** v-bind for Input and Textarea: `<Input v-bind="bindInput(field)" />` */
 export const bindInput = (field: AnyFieldApi) => ({
     name: field.name,
-    modelValue: field.state.value as string,
-    'onUpdate:modelValue': (value: string) => field.handleChange(value),
+    modelValue: (field.state.value as string | undefined) ?? '',
+    // Input and Textarea emit string | undefined (defineModel) – the field keeps a string, like in React
+    'onUpdate:modelValue': (value: string | undefined) => field.handleChange(value ?? ''),
     onBlur: field.handleBlur,
 });
 

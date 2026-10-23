@@ -5,5 +5,5 @@
         "types": ["node"],
         "noEmit": true
     },
-    "include": ["src", ".storybook", "vite.config.ts"]
+    "include": ["src", "typecheck", ".storybook", "vite.config.ts"]
 }
