@@ -33,6 +33,29 @@ async function check(page: Page, url: string) {
     await page.goto(url);
     await page.waitForSelector('#storybook-root > *', { state: 'attached' });
     await page.evaluate(() => document.fonts.ready.then(() => undefined));
+    // Until the story has not changed for 150 ms (at most 3 s): pdf.js re-renders a page in steps, in between its text
+    // points to links that are not there yet (aria-owns) – with several pages at once axe would catch such a moment
+    await page.evaluate(
+        () =>
+            new Promise<void>((done) => {
+                const finish = () => {
+                    observer.disconnect();
+                    done();
+                };
+                let quiet = setTimeout(finish, 150);
+                const observer = new MutationObserver(() => {
+                    clearTimeout(quiet);
+                    quiet = setTimeout(finish, 150);
+                });
+                observer.observe(document.body, {
+                    subtree: true,
+                    childList: true,
+                    attributes: true,
+                    characterData: true,
+                });
+                setTimeout(finish, 3000);
+            })
+    );
     // The Storybook a11y addon brings its own axe instance – reuse it instead of loading a second one
     if (!(await page.evaluate(() => 'axe' in window))) await page.addScriptTag({ path: AXE_SOURCE });
     return page.evaluate(async () => {
