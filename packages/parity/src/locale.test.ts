@@ -30,7 +30,7 @@ import * as vue from '@wirecore/wirelayer-vue';
 import { createElement } from 'react';
 import { beforeAll, describe, expect, expectTypeOf, it } from 'vitest';
 import { h, nextTick, ref, type Component } from 'vue';
-import { el, frameworks, normalize, render } from './harness.js';
+import { el, frameworks, normalize, render, renderSettled } from './harness.js';
 
 const items = [
     { value: 'web', label: 'Software & Web' },
@@ -326,7 +326,9 @@ describe('registered languages', () => {
         const texts = locales[tag]![1];
 
         it('Vue and React render the same DOM', async () => {
-            expect(normalize(await render('vue', tree(tag)))).toBe(normalize(await render('react', tree(tag))));
+            expect(normalize(await renderSettled('vue', tree(tag)))).toBe(
+                normalize(await renderSettled('react', tree(tag)))
+            );
         });
 
         it.each(frameworks)('%s shows the registered texts', async (framework) => {

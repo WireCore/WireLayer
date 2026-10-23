@@ -211,25 +211,31 @@ export async function render(framework: Framework, node: El): Promise<HTMLElemen
     if (framework === 'react') {
         const { container } = renderReact(toReact(node));
         // Ark React measures some layouts (carousel pages) one task later than Ark Vue
-        await settle(container, () => act(() => new Promise((done) => setTimeout(done))));
+        await act(() => new Promise((done) => setTimeout(done)));
         return container;
     }
     const { container } = renderVue({ render: () => toVue(node) });
     await nextTick();
-    await settle(container as HTMLElement, () => new Promise<void>((done) => setTimeout(done)).then(() => nextTick()));
     return container as HTMLElement;
 }
 
 /**
- * Waits task by task until the DOM stops changing: on a slow machine Ark's effects (e.g. the open state of tree
- * branches in React) can take longer than one task, and Vue and React would be compared half done
+ * For comparing Vue and React: renders, then waits task by task until the DOM stops changing – on a slow machine
+ * Ark's effects (e.g. the open state of tree branches in React) can take longer than one task, and the two would be
+ * compared half done. Behavior tests use render(), they look at states in between (loading, …)
  */
-async function settle(container: HTMLElement, task: () => Promise<unknown>) {
+export async function renderSettled(framework: Framework, node: El): Promise<HTMLElement> {
+    const container = await render(framework, node);
+    const task =
+        framework === 'react'
+            ? () => act(() => new Promise((done) => setTimeout(done)))
+            : () => new Promise<void>((done) => setTimeout(done)).then(() => nextTick());
     let last: string | undefined;
     for (let round = 0; round < 10 && container.innerHTML !== last; round++) {
         last = container.innerHTML;
         await task();
     }
+    return container;
 }
 
 const ID_ATTRIBUTES = new Set(['id', 'for', 'aria-describedby', 'aria-labelledby', 'aria-controls', 'headers']);

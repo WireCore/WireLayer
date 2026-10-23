@@ -1,11 +1,11 @@
 import axe from 'axe-core';
 import { describe, expect, it } from 'vitest';
 import { cases } from './cases.js';
-import { el, frameworks, normalize, render } from './harness.js';
+import { el, frameworks, normalize, render, renderSettled } from './harness.js';
 
 describe('Vue and React render the same DOM', () => {
     it.each(cases)('%s', async (_, node) => {
-        expect(normalize(await render('vue', node))).toBe(normalize(await render('react', node)));
+        expect(normalize(await renderSettled('vue', node))).toBe(normalize(await renderSettled('react', node)));
     });
 });
 
