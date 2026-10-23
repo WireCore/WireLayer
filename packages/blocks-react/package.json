@@ -1,6 +1,6 @@
 {
     "name": "@wirecore/wirelayer-blocks-react",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "description": "Page blocks for React (site header, CTA section, mode toggle, sign-in form and layout) and the condition builder, built on @wirecore/wirelayer-react",
     "license": "MIT",
     "repository": {

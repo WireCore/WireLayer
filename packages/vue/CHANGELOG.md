@@ -1,5 +1,14 @@
 # @wirecore/wirelayer-vue
 
+## 0.1.1
+
+### Patch Changes
+
+- 1cbdeda: Every package has a README on npm now (installation, usage, links to Storybook and GitHub).
+- Updated dependencies [1cbdeda]
+    - @wirecore/wirelayer-tokens@0.1.1
+    - @wirecore/wirelayer-recipes@0.1.1
+
 ## 0.1.0
 
 ### Minor Changes
