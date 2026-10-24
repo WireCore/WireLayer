@@ -8,7 +8,7 @@ Component library for **Vue**, **React**, **React Native** and **HTML**, built o
 
 ## Installation
 
-Tailwind CSS v4 is required.
+Tailwind CSS v4.1 or newer is required.
 
 ```sh
 pnpm add @wirecore/wirelayer-vue      # or
