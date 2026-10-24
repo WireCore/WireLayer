@@ -1,0 +1,15 @@
+/*
+ * WireLayer theme and fonts without the classes of the components – for a smaller CSS file. Import the classes of
+ * the components and recipes you use after it (only these end up in the CSS):
+ *   @import 'tailwindcss';
+ *   @import '@wirecore/wirelayer-vue/styles-core.css';
+ *   @import '@wirecore/wirelayer-vue/sources/Button.css';
+ *   @import '@wirecore/wirelayer-recipes/sources/card.css';
+ */
+@import '@wirecore/wirelayer-tokens/theme.css';
+@import '@wirecore/wirelayer-tokens/fonts.css';
+
+/* Lets the components warn in development when the classes of a recipe they render were not imported */
+:root {
+    --wc-recipe-sources: 1;
+}

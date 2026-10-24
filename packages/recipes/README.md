@@ -16,6 +16,8 @@ pnpm add @wirecore/wirelayer-recipes
 
 Usually you do not install it directly – the framework packages depend on it. Use it to build your own components in the WireLayer look or to customize the recipes (`RecipesProvider`).
 
+With `styles-core.css` of the framework packages (smaller CSS file), import the classes of each recipe you call yourself: `@import '@wirecore/wirelayer-recipes/sources/card.css';`
+
 Part of [WireLayer](https://github.com/WireCore/WireLayer) – one look and one API for Vue, React, React Native and HTML, accessible according to WCAG 2.2 AA.
 
 ## License

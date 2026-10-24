@@ -21,6 +21,9 @@ pnpm add @wirecore/wirelayer-native   # React Native / Expo
 @import '@wirecore/wirelayer-vue/styles.css'; /* or @wirecore/wirelayer-react/styles.css */
 ```
 
+For a smaller CSS file, import `styles-core.css` instead and only the classes of the components you use
+(`@wirecore/wirelayer-vue/sources/Button.css` …) – Storybook › Getting started › Welcome.
+
 ```vue
 <script setup lang="ts">
 import { Button, Field, Input } from '@wirecore/wirelayer-vue';

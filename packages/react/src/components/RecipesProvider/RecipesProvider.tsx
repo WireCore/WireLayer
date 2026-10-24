@@ -1,4 +1,5 @@
 import {
+    checkRecipeSources,
     mergeRecipeOverrides,
     withRecipeOverrides,
     type AnyRecipe,
@@ -29,5 +30,6 @@ export function RecipesProvider({ recipes, children }: RecipesProviderProps) {
 /** The recipe with the defaults and classes of the nearest RecipesProvider and the component's `classes` prop */
 export function useRecipe<R extends AnyRecipe>(name: string, recipe: R, classes?: RecipeClasses<R>): R {
     const provided = useContext(RecipesContext);
+    checkRecipeSources(name);
     return withRecipeOverrides(recipe, [provided[name], classes ? { classes } : undefined]);
 }

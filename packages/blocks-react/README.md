@@ -18,6 +18,8 @@ pnpm add @wirecore/wirelayer-blocks-react @wirecore/wirelayer-react
 import { ConditionBuilder } from '@wirecore/wirelayer-blocks-react';
 ```
 
+The classes come with `@wirecore/wirelayer-react/styles.css`. With `styles-core.css` (smaller CSS file), import those of each block you use: `@import '@wirecore/wirelayer-blocks-react/sources/SiteHeader.css';`
+
 Part of [WireLayer](https://github.com/WireCore/WireLayer) – one look and one API for Vue, React, React Native and HTML, accessible according to WCAG 2.2 AA.
 
 ## License

@@ -827,7 +827,7 @@ export {
     type TrendDirection,
     type TrendTone,
 } from './format.js';
-export { warnInDevelopment } from './dev.js';
+export { checkRecipeSources, warnInDevelopment } from './dev.js';
 export {
     formatHotkey,
     formatHotkeyText,

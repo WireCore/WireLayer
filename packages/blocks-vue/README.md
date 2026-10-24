@@ -20,6 +20,8 @@ import { ConditionBuilder } from '@wirecore/wirelayer-blocks-vue';
 </script>
 ```
 
+The classes come with `@wirecore/wirelayer-vue/styles.css`. With `styles-core.css` (smaller CSS file), import those of each block you use: `@import '@wirecore/wirelayer-blocks-vue/sources/SiteHeader.css';`
+
 Part of [WireLayer](https://github.com/WireCore/WireLayer) – one look and one API for Vue, React, React Native and HTML, accessible according to WCAG 2.2 AA.
 
 ## License
