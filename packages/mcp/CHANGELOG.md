@@ -1,5 +1,11 @@
 # @wirecore/wirelayer-mcp
 
+## 0.1.4
+
+### Patch Changes
+
+- 9c4aa96: Getting started (MCP server and `llms.txt`) names Tailwind CSS 4.1 or newer as the requirement.
+
 ## 0.1.3
 
 ### Patch Changes
