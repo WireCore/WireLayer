@@ -1,5 +1,17 @@
 # @wirecore/wirelayer-react
 
+## 0.3.1
+
+### Patch Changes
+
+- 9c4aa96: Fix: the sources files of `styles-core.css` brought the classes of all recipes with automatic source detection
+  (`@import 'tailwindcss'`) – Tailwind scans the whole folder of a file that an `@source` in `node_modules` points to,
+  and the class lists of all recipes were files in one folder. `sources/<recipe>.css` now contains the classes as
+  `@source inline()`; the imports stay the same. Tailwind CSS 4.1 or newer is required (`@source inline()`, and
+  `@source not`, which `styles.css` already used): the peer dependency is now `^4.1.0`.
+- Updated dependencies [9c4aa96]
+    - @wirecore/wirelayer-recipes@0.3.1
+
 ## 0.3.0
 
 ### Minor Changes
