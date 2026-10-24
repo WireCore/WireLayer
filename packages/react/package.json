@@ -62,14 +62,17 @@
             "types": "./dist/locales/*.d.ts",
             "default": "./dist/locales/*.js"
         },
-        "./styles.css": "./styles.css"
+        "./styles.css": "./styles.css",
+        "./styles-core.css": "./styles-core.css",
+        "./sources/*": "./dist/sources/*"
     },
     "files": [
         "dist",
-        "styles.css"
+        "styles.css",
+        "styles-core.css"
     ],
     "scripts": {
-        "build": "vite build && tsc -p tsconfig.build.json",
+        "build": "vite build && tsc -p tsconfig.build.json && node ../../scripts/sources.ts components",
         "typecheck": "tsc --noEmit",
         "storybook": "storybook dev -p 6008 --host 0.0.0.0 --no-open",
         "build-storybook": "storybook build"
@@ -252,7 +255,9 @@
                 "types": "./dist/locales/*.d.ts",
                 "default": "./dist/locales/*.js"
             },
-            "./styles.css": "./styles.css"
+            "./styles.css": "./styles.css",
+            "./styles-core.css": "./styles-core.css",
+            "./sources/*": "./dist/sources/*"
         }
     }
 }

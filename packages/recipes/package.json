@@ -33,6 +33,7 @@
             "default": "./dist/locales/*.js"
         },
         "./tailwind.css": "./tailwind.css",
+        "./sources/*": "./dist/sources/*",
         "./native.css": "./native.css"
     },
     "files": [
@@ -42,7 +43,7 @@
         "native.css"
     ],
     "scripts": {
-        "build": "tsc -p tsconfig.build.json",
+        "build": "tsc -p tsconfig.build.json && node ../../scripts/sources.ts recipes",
         "typecheck": "tsc --noEmit"
     },
     "dependencies": {
@@ -67,6 +68,7 @@
                 "default": "./dist/locales/*.js"
             },
             "./tailwind.css": "./tailwind.css",
+            "./sources/*": "./dist/sources/*",
             "./native.css": "./native.css"
         }
     }

@@ -3,6 +3,7 @@
     "tasks": {
         "build": {
             "dependsOn": ["^build"],
+            "inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/scripts/sources.ts"],
             "outputs": ["dist/**"]
         },
         "build-storybook": {
@@ -16,7 +17,8 @@
             "dependsOn": ["^build"]
         },
         "test": {
-            "dependsOn": ["@wirecore/wirelayer-tokens#build"]
+            "dependsOn": ["@wirecore/wirelayer-tokens#build"],
+            "inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/scripts/sources.ts"]
         },
         "@wirecore/wirelayer-css#test": {
             "dependsOn": ["build"]

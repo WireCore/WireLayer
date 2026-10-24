@@ -19,6 +19,8 @@ pnpm add @wirecore/wirelayer-vue
 @import '@wirecore/wirelayer-vue/styles.css';
 ```
 
+For a smaller CSS file, import `@wirecore/wirelayer-vue/styles-core.css` instead and only the classes of the components you use (`@wirecore/wirelayer-vue/sources/Button.css` …) – see Storybook › Getting started › Welcome.
+
 ```vue
 <script setup lang="ts">
 import { Button, Field, Input } from '@wirecore/wirelayer-vue';

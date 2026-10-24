@@ -19,6 +19,8 @@ pnpm add @wirecore/wirelayer-react
 @import '@wirecore/wirelayer-react/styles.css';
 ```
 
+For a smaller CSS file, import `@wirecore/wirelayer-react/styles-core.css` instead and only the classes of the components you use (`@wirecore/wirelayer-react/sources/Button.css` …) – see Storybook › Getting started › Welcome.
+
 ```tsx
 import { Button, Field, Input } from '@wirecore/wirelayer-react';
 

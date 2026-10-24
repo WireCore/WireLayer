@@ -19,13 +19,14 @@
             "wirecore:source": "./src/index.ts",
             "types": "./dist/index.d.ts",
             "default": "./dist/index.js"
-        }
+        },
+        "./sources/*": "./dist/sources/*"
     },
     "files": [
         "dist"
     ],
     "scripts": {
-        "build": "vite build && tsc -p tsconfig.build.json",
+        "build": "vite build && tsc -p tsconfig.build.json && node ../../scripts/sources.ts components",
         "typecheck": "tsc --noEmit"
     },
     "peerDependencies": {
@@ -57,7 +58,8 @@
             ".": {
                 "types": "./dist/index.d.ts",
                 "default": "./dist/index.js"
-            }
+            },
+            "./sources/*": "./dist/sources/*"
         }
     }
 }

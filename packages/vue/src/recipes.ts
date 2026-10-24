@@ -1,4 +1,5 @@
 import {
+    checkRecipeSources,
     mergeRecipeOverrides,
     withRecipeOverrides,
     type AnyRecipe,
@@ -28,6 +29,7 @@ export function useRecipe<R extends AnyRecipe>(
     classes?: () => RecipeClasses<R> | undefined
 ): R {
     const provided = inject(key, null);
+    checkRecipeSources(name);
     return ((props?: Record<string, unknown>) =>
         withRecipeOverrides(recipe, [provided?.value[name], classes ? { classes: classes() } : undefined])(props)) as R;
 }

@@ -30,6 +30,27 @@ Tailwind CSS v4 is required. The library ships the theme, the fonts and the clas
 @import '@wirecore/wirelayer-vue/styles.css'; /* or @wirecore/wirelayer-react/styles.css */
 ```
 
+### Smaller CSS: only the components you use
+
+`styles.css` brings the classes of all components (about 175 kB, 28 kB gzip). A site that uses only a few imports the
+theme and fonts with `styles-core.css` instead, and then the classes of each component it uses – one file per
+component, and one per recipe for recipes it calls itself:
+
+```css
+@import 'tailwindcss';
+@import '@wirecore/wirelayer-vue/styles-core.css'; /* or @wirecore/wirelayer-react/styles-core.css */
+@import '@wirecore/wirelayer-vue/sources/Button.css';
+@import '@wirecore/wirelayer-vue/sources/Field.css';
+@import '@wirecore/wirelayer-vue/sources/Input.css';
+@import '@wirecore/wirelayer-blocks-vue/sources/SiteHeader.css';
+@import '@wirecore/wirelayer-recipes/sources/card.css'; /* card() from @wirecore/wirelayer-recipes */
+```
+
+The file of a component also brings the classes of the components it renders (SiteHeader → IconButton); exports
+that render components, such as `confirm` or the DataTable feature `dateInput`, have a file too. In development the
+components warn in the console when the classes of a recipe they render are missing. Recipes you call yourself
+(`card()`) are not checked – add their files along with the import.
+
 ## Usage
 
 ```vue
