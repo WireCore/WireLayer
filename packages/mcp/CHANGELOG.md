@@ -1,5 +1,12 @@
 # @wirecore/wirelayer-mcp
 
+## 0.1.3
+
+### Patch Changes
+
+- 5e0740a: Getting started (MCP server and `llms.txt`) describes the smaller CSS with `styles-core.css` and the classes per
+  component.
+
 ## 0.1.2
 
 ### Patch Changes

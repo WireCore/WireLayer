@@ -1,6 +1,6 @@
 {
     "name": "@wirecore/wirelayer-recipes",
-    "version": "0.2.0",
+    "version": "0.3.0",
     "description": "Framework-agnostic WireLayer component recipes (tailwind-variants)",
     "license": "MIT",
     "repository": {
