@@ -12,7 +12,7 @@ import { useRecipe } from '../RecipesProvider/RecipesProvider.js';
 
 export interface FunnelProps extends Omit<ComponentProps<'figure'>, 'children' | 'title'> {
     /** The stages, widest first */
-    stages: FunnelStage[];
+    stages: readonly FunnelStage[];
     /** Title, also the accessible name of the funnel */
     title: string;
     /** The title only for screen readers */

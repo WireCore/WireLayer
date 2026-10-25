@@ -10,7 +10,7 @@ export interface InlineCodeProps {
     /** Language id or alias, e.g. "ts", "css", "bash" (default: plain text) */
     language?: string;
     /** More grammars than the built-in ones (see CodeHighlight) */
-    languages?: CodeLanguageInput[];
+    languages?: readonly CodeLanguageInput[];
     /** Extra classes of the recipe (see the recipe) */
     classes?: RecipeClasses<typeof inlineCodeRecipe>;
 }

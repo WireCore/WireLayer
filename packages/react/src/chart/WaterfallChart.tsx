@@ -15,7 +15,7 @@ import { ChartCanvas } from './ChartCanvas.js';
 
 export interface WaterfallChartProps {
     /** Changes and totals in order (`total: true` shows the running sum) */
-    steps: WaterfallStep[];
+    steps: readonly WaterfallStep[];
     /** Title of the chart, also its accessible name */
     title: string;
     hideTitle?: boolean;

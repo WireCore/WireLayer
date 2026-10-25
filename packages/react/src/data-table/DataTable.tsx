@@ -215,7 +215,7 @@ export interface DataTableProps<TData> extends Omit<
     'children' | 'ref' | 'contextMenu' | 'onScrollEnd' | 'onRowClick'
 > {
     /** The rows (with `dataSource` the table loads them itself) */
-    data?: TData[];
+    data?: readonly TData[];
     /**
      * Rows from a server instead of `data` and `manual`: the table asks `getRows` (page, sorting, filters, search,
      * grouping, abort signal) whenever they change, cancels outdated requests, goes back to page 1 when filters,
@@ -231,7 +231,7 @@ export interface DataTableProps<TData> extends Omit<
      * `values` aggregated in the cells, totals per row and column (ids are column ids of `columns`)
      */
     pivot?: DataTablePivot;
-    columns: DataTableColumn<TData>[];
+    columns: readonly DataTableColumn<TData>[];
     /** Accessible name of the table (visually hidden caption) */
     caption: string;
     getRowId?: (row: TData, index: number) => string;
@@ -239,7 +239,7 @@ export interface DataTableProps<TData> extends Omit<
     pageSize?: number;
     onPageSizeChange?: (pageSize: number) => void;
     /** Choices for the rows per page, shown next to the pagination */
-    pageSizeOptions?: number[];
+    pageSizeOptions?: readonly number[];
     /** Current page (1-based); controlled together with onPageChange */
     page?: number;
     onPageChange?: (page: number) => void;
@@ -359,7 +359,7 @@ export interface DataTableProps<TData> extends Omit<
     groupBy?: string | string[];
     onGroupByChange?: (ids: string[]) => void;
     /** Rows (ids) that stay at the top, also while scrolling and paging */
-    frozenRows?: string[];
+    frozenRows?: readonly string[];
     /** Rows can be moved with the drag handle (mouse or arrow keys) */
     reorderableRows?: boolean;
     onRowReorder?: (move: DataTableRowReorder<TData>) => void;
@@ -431,7 +431,7 @@ export interface DataTableProps<TData> extends Omit<
      * `virtualRows` from `/virtual` for `virtual`, `dateInput` and `numberInput` for date and number filters and
      * editors (without them the browser's inputs)
      */
-    features?: DataTableFeature[];
+    features?: readonly DataTableFeature[];
     /** Only the visible rows are rendered (requires `scrollHeight` and the feature `virtualRows`) */
     virtual?: boolean;
     /** Estimated row height in px for `virtual` */
@@ -671,7 +671,7 @@ export function DataTable<TData extends object>({
     const pivotModel = useMemo(() => {
         if (!pivot) return null;
         const byId = new Map<string, DataTableColumn<TData>>();
-        const walk = (list: DataTableColumn<TData>[]) =>
+        const walk = (list: readonly DataTableColumn<TData>[]) =>
             list.forEach((column) => (column.columns ? walk(column.columns) : byId.set(column.id, column)));
         walk(columnsProp);
         const columnValue = (row: TData, columnId: string) => {
@@ -841,7 +841,7 @@ export function DataTable<TData extends object>({
         setSeenSize(size);
         if (size) setInternalDensity(size);
     }
-    const rowPinning = useMemo(() => ({ top: frozenRows ?? [], bottom: [] }), [frozenRows]);
+    const rowPinning = useMemo(() => ({ top: [...(frozenRows ?? [])], bottom: [] }), [frozenRows]);
 
     const setSorting = (next: SortingState) => {
         setInternalSorting(next);

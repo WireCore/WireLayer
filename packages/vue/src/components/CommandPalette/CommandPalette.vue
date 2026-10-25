@@ -28,7 +28,7 @@ export interface CommandItem {
     group?: string;
     icon?: Component;
     /** Further words that find the item */
-    keywords?: string[];
+    keywords?: readonly string[];
     /** Shortcut hint on the right (display only) */
     shortcut?: string;
     /** Second line below the label */
@@ -36,7 +36,7 @@ export interface CommandItem {
 }
 
 export interface CommandPaletteProps {
-    items: CommandItem[];
+    items: readonly CommandItem[];
     /** Open state – use with v-model:open */
     open?: boolean;
     /**

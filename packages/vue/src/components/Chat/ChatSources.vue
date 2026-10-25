@@ -14,7 +14,7 @@ export interface ChatSource {
 }
 
 export interface ChatSourcesProps {
-    sources: ChatSource[];
+    sources: readonly ChatSource[];
     /** Summary text (default "3 sources") */
     title?: string;
     /** Open at first */

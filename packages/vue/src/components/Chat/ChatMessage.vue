@@ -26,7 +26,7 @@ export interface ChatMessageProps {
     time?: string | number | Date;
     /** Delivery status of an own message: sending, sent, read, error */
     status?: ChatStatus;
-    attachments?: ChatAttachment[];
+    attachments?: readonly ChatAttachment[];
     /** start (others, default), end (own messages) or center (system notes) */
     align?: 'start' | 'end' | 'center';
     /** Follows a message of the same author: avatar and name only for screen readers */

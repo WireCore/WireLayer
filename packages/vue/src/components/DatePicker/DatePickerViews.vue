@@ -20,13 +20,13 @@ export interface CalendarViewOptions {
     /** highlightToday false: today without its own style */
     plainToday?: boolean;
     hideOutsideDays?: boolean;
-    weekendDays?: number[];
+    weekendDays?: readonly number[];
     allowDeselect?: boolean;
     /** "Today" in this zone */
     timeZone?: string;
 }
 
-const props = defineProps<{ presets?: CalendarPreset[] } & CalendarViewOptions>();
+const props = defineProps<{ presets?: readonly CalendarPreset[] } & CalendarViewOptions>();
 defineSlots<{ day?(props: { date: string } & CalendarDayState): unknown }>();
 const datePicker = useRecipe('datePicker', datePickerRecipe);
 const styles = datePicker();

@@ -11,7 +11,7 @@ export interface NativeSelectOption {
 }
 
 export interface NativeSelectProps extends Omit<ComponentProps<'select'>, 'size' | 'onChange'> {
-    items: NativeSelectOption[];
+    items: readonly NativeSelectOption[];
     onValueChange?: (value: string) => void;
     /** First, empty option, e.g. "Please choose" */
     placeholder?: string;

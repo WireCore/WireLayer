@@ -1,4 +1,4 @@
-import { Info } from '@lucide/vue';
+import { Info, LayoutGrid } from '@lucide/vue';
 import type { Meta, StoryObj } from '@storybook/vue3-vite';
 import { ref } from 'vue';
 import Button from '../Button/Button.vue';
@@ -46,6 +46,28 @@ export const TriggerWidthAndOverlay: Story = {
                 <PopoverContent title="Location" description="Applies to all new servers.">
                     <PopoverClose><Button size="sm">Frankfurt</Button></PopoverClose>
                     <PopoverClose><Button size="sm" variant="outline">Nuremberg</Button></PopoverClose>
+                </PopoverContent>
+            </Popover>`,
+    }),
+};
+
+/**
+ * Only own content, e.g. an app switcher: `hide-title` keeps the title for screen readers, `:closable="false"` drops
+ * the close button (Escape, outside clicks and PopoverClose still close)
+ */
+export const HiddenTitleWithoutClose: Story = {
+    render: () => ({
+        components: { Button, IconButton, Popover, PopoverClose, PopoverContent, PopoverTrigger },
+        setup: () => ({ LayoutGrid, apps: ['Mail', 'Calendar', 'Files', 'Chat', 'Billing', 'Admin'] }),
+        template: `
+            <Popover placement="bottom-start">
+                <PopoverTrigger><IconButton :icon="LayoutGrid" label="Apps" /></PopoverTrigger>
+                <PopoverContent title="Apps" hide-title :closable="false" class="w-64">
+                    <div class="grid grid-cols-3 gap-1">
+                        <PopoverClose v-for="app in apps" :key="app">
+                            <Button size="sm" variant="text">{{ app }}</Button>
+                        </PopoverClose>
+                    </div>
                 </PopoverContent>
             </Popover>`,
     }),

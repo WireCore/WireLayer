@@ -21,7 +21,7 @@ export interface RadialBarItem {
 
 export interface RadialBarProps {
     /** One ring per item, the first outermost */
-    items: RadialBarItem[];
+    items: readonly RadialBarItem[];
     /** Accessible name (visible with `showTitle`) */
     label: string;
     showTitle?: boolean;

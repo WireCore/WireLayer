@@ -211,8 +211,8 @@ export interface SankeyLinkLayout extends SankeyLinkInput {
  * in- and outflow; bands leave and enter in the order of the nodes on the other side.
  */
 export function sankeyLayout(
-    nodes: SankeyNodeInput[],
-    links: SankeyLinkInput[],
+    nodes: readonly SankeyNodeInput[],
+    links: readonly SankeyLinkInput[],
     width: number,
     height: number,
     { nodeWidth = 12, padding = 14 } = {}

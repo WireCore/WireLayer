@@ -12,7 +12,7 @@ export interface StepItem {
 }
 
 export interface StepsProps extends ComponentProps<'ol'> {
-    items: StepItem[];
+    items: readonly StepItem[];
     /** Index of the current step; earlier steps are done */
     current: number;
     /** Accessible name of the list, e.g. "Project timeline" */

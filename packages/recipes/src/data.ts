@@ -91,7 +91,7 @@ export const dataTable = tv({
         filterCell: 'px-3 py-2 font-normal normal-case',
         /** Filter menu (popover): conditions with match mode and value */
         filterPanel: [
-            'z-50 flex w-80 max-w-[calc(100vw-2rem)] flex-col gap-3 rounded-xl border border-line-2 bg-card p-3 text-fg outline-none',
+            'z-50 flex w-80 max-w-[calc(100vw-2rem)] flex-col gap-3 rounded-popup border border-line-2 bg-card p-3 text-fg outline-none',
             'shadow-[0_14px_32px_-12px_rgba(0,0,0,.45)]',
             ...popupMotion,
         ],

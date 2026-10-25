@@ -107,7 +107,7 @@ export const overlayBadge = tv({
 export const confirmPopup = tv({
     slots: {
         content: [
-            'z-50 flex w-72 max-w-[calc(100vw-2rem)] flex-col gap-3 rounded-xl border border-line-2 bg-card p-4 text-fg outline-none',
+            'z-50 flex w-72 max-w-[calc(100vw-2rem)] flex-col gap-3 rounded-popup border border-line-2 bg-card p-4 text-fg outline-none',
             'shadow-[0_14px_32px_-12px_rgba(0,0,0,.45)]',
             'motion-safe:data-[state=open]:animate-pop-in motion-safe:data-[state=closed]:animate-pop-out',
         ],

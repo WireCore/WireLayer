@@ -51,12 +51,12 @@ export interface GanttLink {
 }
 
 export interface GanttProps {
-    tasks: GanttTask[];
+    tasks: readonly GanttTask[];
     /** Unit of the time axis – use with v-model:zoom */
     zoom?: GanttZoom;
     defaultZoom?: GanttZoom;
     /** Zoom levels offered in the toolbar */
-    zooms?: GanttZoom[];
+    zooms?: readonly GanttZoom[];
     /** Ids of the expanded groups – use with v-model:expanded (default: all expanded) */
     expanded?: string[];
     defaultExpanded?: string[];

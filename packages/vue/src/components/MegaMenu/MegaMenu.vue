@@ -4,6 +4,7 @@ import { ArrowRight, ChevronDown, Menu } from '@lucide/vue';
 import {
     createHoverIntent,
     isCurrentLink,
+    linkTarget,
     megaMenu as megaMenuRecipe,
     type MegaMenuCollapse,
     type RecipeClasses,
@@ -20,7 +21,7 @@ import { useLocale, useTranslations } from '../../locale.js';
 import { useRecipe } from '../../recipes.js';
 
 export interface MegaMenuProps {
-    items: MegaMenuItem[];
+    items: readonly MegaMenuItem[];
     /** Name of the navigation landmark (default "Main navigation") */
     label?: string;
     /** click (default) or hover – hover opens after `openDelay` with the mouse only, never on touch */
@@ -41,7 +42,7 @@ export interface MegaMenuProps {
     isCurrent?: (link: MegaMenuLink | MegaMenuItem) => boolean;
     /** Level of the group headings (default 3) */
     headingLevel?: 2 | 3 | 4 | 5;
-    /** Component for the links, e.g. RouterLink or NuxtLink (gets `href`); default <a> */
+    /** Component for the links, e.g. RouterLink or NuxtLink (gets `to` for links with `to`, else `href`); default <a> */
     linkAs?: string | Component;
     /** Open panel (its value, '' for none) – use with v-model:value */
     value?: string;
@@ -209,7 +210,7 @@ const describedBy = (prefix: string, link: MegaMenuLink) =>
                         <NavigationMenu.Link as-child :current="linkCurrent(item)">
                             <component
                                 :is="linkAs"
-                                :href="item.href"
+                                v-bind="linkTarget(item.href, item.to)"
                                 :class="styles.link()"
                                 @click="emit('navigate', item, $event)"
                             >
@@ -264,14 +265,14 @@ const describedBy = (prefix: string, link: MegaMenuLink) =>
                                                 <NavigationMenu.Link as-child :current="linkCurrent(link)">
                                                     <component
                                                         :is="linkAs"
-                                                        :href="link.href"
-                                                        :class="styles.panelLink()"
-                                                        v-bind="
-                                                            describedBy(
+                                                        v-bind="{
+                                                            ...linkTarget(link.href, link.to),
+                                                            ...describedBy(
                                                                 `${id}-${itemIndex}-${columnIndex}-${groupIndex}-${linkIndex}`,
                                                                 link
-                                                            )
-                                                        "
+                                                            ),
+                                                        }"
+                                                        :class="styles.panelLink()"
                                                         @click="emit('navigate', link, $event)"
                                                     >
                                                         <slot name="item" :link="link">
@@ -308,7 +309,7 @@ const describedBy = (prefix: string, link: MegaMenuLink) =>
                                         <NavigationMenu.Link v-if="group.moreHref" as-child>
                                             <component
                                                 :is="linkAs"
-                                                :href="group.moreHref"
+                                                v-bind="linkTarget(group.moreHref, group.moreTo)"
                                                 :class="styles.more()"
                                                 :aria-label="
                                                     group.moreLabel
@@ -347,7 +348,7 @@ const describedBy = (prefix: string, link: MegaMenuLink) =>
                                     <NavigationMenu.Link as-child>
                                         <component
                                             :is="linkAs"
-                                            :href="item.featured.href"
+                                            v-bind="linkTarget(item.featured.href, item.featured.to)"
                                             :class="styles.featuredTitle()"
                                             @click="emit('navigate', item.featured, $event)"
                                         >
@@ -364,7 +365,7 @@ const describedBy = (prefix: string, link: MegaMenuLink) =>
                             <NavigationMenu.Link as-child>
                                 <component
                                     :is="linkAs"
-                                    :href="item.allHref"
+                                    v-bind="linkTarget(item.allHref, item.allTo)"
                                     :class="styles.more()"
                                     @click="
                                         emit(
@@ -387,7 +388,7 @@ const describedBy = (prefix: string, link: MegaMenuLink) =>
                 <NavigationMenu.Link v-else as-child :current="linkCurrent(item)">
                     <component
                         :is="linkAs"
-                        :href="item.href"
+                        v-bind="linkTarget(item.href, item.to)"
                         :class="styles.link()"
                         @click="emit('navigate', item, $event)"
                     >
@@ -420,7 +421,7 @@ const describedBy = (prefix: string, link: MegaMenuLink) =>
                                     <component
                                         :is="linkAs"
                                         v-if="item.href"
-                                        :href="item.href"
+                                        v-bind="linkTarget(item.href, item.to)"
                                         :class="styles.mobilePanelLink()"
                                         :aria-current="linkCurrent(item) ? 'page' : undefined"
                                         @click="onDrawerLink(item, $event)"
@@ -446,7 +447,7 @@ const describedBy = (prefix: string, link: MegaMenuLink) =>
                                             <li v-for="link in group.items" :key="link.href">
                                                 <component
                                                     :is="linkAs"
-                                                    :href="link.href"
+                                                    v-bind="linkTarget(link.href, link.to)"
                                                     :class="styles.mobilePanelLink()"
                                                     :aria-current="linkCurrent(link) ? 'page' : undefined"
                                                     @click="onDrawerLink(link, $event)"
@@ -467,7 +468,7 @@ const describedBy = (prefix: string, link: MegaMenuLink) =>
                                         <component
                                             :is="linkAs"
                                             v-if="group.moreHref"
-                                            :href="group.moreHref"
+                                            v-bind="linkTarget(group.moreHref, group.moreTo)"
                                             :class="styles.more()"
                                             :aria-label="
                                                 group.moreLabel
@@ -482,7 +483,7 @@ const describedBy = (prefix: string, link: MegaMenuLink) =>
                                     <component
                                         :is="linkAs"
                                         v-if="item.featured"
-                                        :href="item.featured.href"
+                                        v-bind="linkTarget(item.featured.href, item.featured.to)"
                                         :class="styles.mobilePanelLink()"
                                         @click="onDrawerLink(item.featured, $event)"
                                     >
@@ -491,7 +492,7 @@ const describedBy = (prefix: string, link: MegaMenuLink) =>
                                     <component
                                         :is="linkAs"
                                         v-if="item.allHref"
-                                        :href="item.allHref"
+                                        v-bind="linkTarget(item.allHref, item.allTo)"
                                         :class="styles.more()"
                                         @click="onDrawerLink({ label: item.label, href: item.allHref }, $event)"
                                     >
@@ -501,7 +502,7 @@ const describedBy = (prefix: string, link: MegaMenuLink) =>
                                 <component
                                     :is="linkAs"
                                     v-else
-                                    :href="item.href"
+                                    v-bind="linkTarget(item.href, item.to)"
                                     :class="styles.mobileLink()"
                                     :aria-current="linkCurrent(item) ? 'page' : undefined"
                                     @click="onDrawerLink(item, $event)"

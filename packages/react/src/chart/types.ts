@@ -10,11 +10,11 @@ import type { CSSProperties } from 'react';
 /** Props of the ready-made chart types BarChart, LineChart and CompositeChart */
 export interface SeriesChartBaseProps {
     /** The rows: one object per category with a value per series */
-    data: ChartRow[];
+    data: readonly ChartRow[];
     /** Property of each row with the category (x axis) */
     categoryKey: string;
     /** The series: key of the value, label, colour, axis, stack … */
-    series: ChartSeries[];
+    series: readonly ChartSeries[];
     /** Title of the chart, also its accessible name */
     title: string;
     /** Keep the title for screen readers only */
@@ -26,7 +26,7 @@ export interface SeriesChartBaseProps {
     /** Formats values in the axis, tooltips, legend and table (default: numbers in the locale) */
     formatValue?: (value: number) => string;
     /** Reference lines (`value`) and areas (`from`–`to`), on the value axis or with `axis: 'x'` on the categories */
-    references?: ChartReference[];
+    references?: readonly ChartReference[];
     /** Logarithmic value axis */
     scale?: 'linear' | 'logarithmic';
     /** Legend (default: with more than one series) */

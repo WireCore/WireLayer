@@ -19,7 +19,7 @@ import { useRecipe } from '../../recipes.js';
 export type TreeSelectValue = string | string[] | null;
 
 export interface TreeSelectProps<T extends TreeSelectValue = string | null> {
-    items: TreeNode[];
+    items: readonly TreeNode[];
     /** Chosen node id (an array of ids with `multiple`) – use with v-model */
     modelValue?: T;
     defaultValue?: T;

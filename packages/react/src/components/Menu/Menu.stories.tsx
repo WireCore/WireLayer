@@ -1,7 +1,20 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import type { OverlayHandle } from '@wirecore/wirelayer-recipes';
-import { Copy, Ellipsis, FolderInput, MapPin, Pencil, RotateCw, SlidersHorizontal, Trash2 } from 'lucide-react';
+import {
+    Copy,
+    Ellipsis,
+    FolderInput,
+    LogOut,
+    MapPin,
+    Pencil,
+    RotateCw,
+    Settings,
+    SlidersHorizontal,
+    Trash2,
+    UserRound,
+} from 'lucide-react';
 import { useRef, useState } from 'react';
+import { Avatar } from '../Avatar/Avatar.js';
 import { Badge } from '../Badge/Badge.js';
 import { Button } from '../Button/Button.js';
 import { IconButton } from '../IconButton/IconButton.js';
@@ -31,9 +44,16 @@ function MenuDemo(props: Omit<MenuProps, 'children'>) {
 const meta = {
     title: 'Overlays/Menu',
     component: Menu,
-    args: { items, children: <span /> },
-    argTypes: { items: { control: false }, children: { control: false } },
-    render: (args) => <MenuDemo items={args.items} />,
+    args: { items, placement: 'bottom-start', arrow: false, children: <span /> },
+    argTypes: {
+        items: { control: false },
+        placement: {
+            control: 'select',
+            options: ['bottom-start', 'bottom', 'bottom-end', 'top-start', 'top', 'top-end', 'left', 'right'],
+        },
+        children: { control: false },
+    },
+    render: (args) => <MenuDemo items={args.items} placement={args.placement} arrow={args.arrow} />,
 } satisfies Meta<typeof Menu>;
 
 export default meta;
@@ -144,7 +164,8 @@ function SearchableDemo() {
 export const Searchable: Story = { render: () => <SearchableDemo /> };
 
 /**
- * Items with `href` are links (with a router: `linkAs={Link}`); `renderItem` shows own content, here a badge.
+ * Items with `href` or `to` are links: `linkAs={Link}` with `href` for Next.js, with `to` for React Router or TanStack
+ * Router. `renderItem` shows own content, here a badge.
  */
 export const LinksAndOwnContent: Story = {
     render: () => (
@@ -194,3 +215,31 @@ function OpenAtAnchorDemo() {
  * Here a click on a table row opens the menu at the pointer, the button at itself.
  */
 export const OpenAtAnchor: Story = { render: () => <OpenAtAnchorDemo /> };
+
+const account: MenuEntry[] = [
+    {
+        type: 'group',
+        label: 'julia@example.com',
+        items: [
+            { value: 'profile', label: 'Profile', icon: UserRound },
+            { value: 'settings', label: 'Settings', icon: Settings },
+        ],
+    },
+    { type: 'separator' },
+    { value: 'logout', label: 'Sign out', icon: LogOut },
+];
+
+/**
+ * User menu at the right edge of a header: the Avatar as the trigger (`as="button"`, named by `name`), opening
+ * towards the start (`placement="bottom-end"`) with an arrow at the avatar.
+ */
+export const UserMenu: Story = {
+    render: () => (
+        <div className="flex w-full max-w-xl items-center justify-between rounded-lg border border-line px-4 py-2">
+            <span className="text-sm font-semibold">Console</span>
+            <Menu items={account} placement="bottom-end" arrow>
+                <Avatar as="button" name="Julia Klein" color="auto" size="sm" />
+            </Menu>
+        </div>
+    ),
+};

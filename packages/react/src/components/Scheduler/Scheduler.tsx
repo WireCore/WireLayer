@@ -132,7 +132,7 @@ export interface SchedulerDropOutside {
 
 export interface SchedulerProps extends Omit<ComponentProps<'div'>, 'children' | 'defaultValue'> {
     /** Events; with `dataSource` they are shown together with the loaded ones */
-    events?: SchedulerEvent[];
+    events?: readonly SchedulerEvent[];
     /** Shown view; controlled together with onViewChange */
     view?: SchedulerView;
     defaultView?: SchedulerView;
@@ -142,7 +142,7 @@ export interface SchedulerProps extends Omit<ComponentProps<'div'>, 'children' |
     defaultDate?: string;
     onDateChange?: (date: string) => void;
     /** Views offered in the toolbar ('timeline' and 'year' as well) */
-    views?: SchedulerView[];
+    views?: readonly SchedulerView[];
     /** Hours shown in the day and week view (and the day of the timeline) */
     startHour?: number;
     endHour?: number;
@@ -163,7 +163,7 @@ export interface SchedulerProps extends Omit<ComponentProps<'div'>, 'children' |
     /** Time the day and week view scroll to at the start ("08:00") */
     startScrollTime?: string;
     /** People, rooms or machines: columns in the day and week view, rows in the timeline, a filter in the toolbar */
-    resources?: SchedulerResource[];
+    resources?: readonly SchedulerResource[];
     /**
      * Day and week view with many resources: at most this many resources as columns at a time, buttons in the toolbar
      * page through them (default: all, side by side)
@@ -184,7 +184,7 @@ export interface SchedulerProps extends Omit<ComponentProps<'div'>, 'children' |
     defaultZoom?: number;
     onZoomChange?: (zoom: number) => void;
     /** Opening hours by weekday – times outside are hatched (resources can have their own) */
-    businessHours?: SchedulerBusinessHours[];
+    businessHours?: readonly SchedulerBusinessHours[];
     /** Leaves out the weekend days of the locale in the week, month and timeline views */
     hideWeekends?: boolean;
     /** Overlapping events side by side (`columns`, default) or stacked with an offset */

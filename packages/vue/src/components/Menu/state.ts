@@ -17,7 +17,7 @@ const key: InjectionKey<MenuState> = Symbol('wirecore-menu-state');
  * menu works without handling the events (they still report every change).
  */
 export function provideMenuState(options: {
-    items: () => MenuEntry[] | MenuEntry[][];
+    items: () => readonly MenuEntry[] | (readonly MenuEntry[])[];
     linkAs: () => Component | string | undefined;
     onCheckedChange: (value: string, checked: boolean) => void;
     onValueChange: (name: string, value: string) => void;

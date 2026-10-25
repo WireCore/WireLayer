@@ -9,7 +9,7 @@ import type { ComputedRef, InjectionKey } from 'vue';
 
 /** What the parts of a ConditionBuilder share */
 export interface ConditionContext {
-    fields: ConditionField[];
+    fields: readonly ConditionField[];
     maxDepth: number;
     disabled: boolean;
     negatable: boolean;

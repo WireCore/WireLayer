@@ -17,7 +17,7 @@ import { useRecipe } from '../../recipes.js';
 // The popup of ColorPicker and ColorInput (inside Ark's ColorPicker.Root)
 const props = defineProps<{
     alpha: boolean;
-    swatches?: string[];
+    swatches?: readonly string[];
     withPicker: boolean;
     eyeDropper: boolean;
     channelInputs: boolean;

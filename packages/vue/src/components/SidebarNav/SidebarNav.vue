@@ -7,7 +7,7 @@ import { useAppShellRail } from '../AppShell/context.js';
 import { useRecipe } from '../../recipes.js';
 
 export interface SidebarNavProps {
-    items: SidebarNavItem[];
+    items: readonly SidebarNavItem[];
     /** Name of the navigation landmark, e.g. "Main navigation" */
     label: string;
     /**

@@ -20,11 +20,11 @@ export interface CodeFile {
     code: string;
     language?: string;
     /** Lines to mark (1-based) */
-    highlightLines?: number[];
+    highlightLines?: readonly number[];
 }
 
 export interface CodeHighlightTabsProps {
-    files: CodeFile[];
+    files: readonly CodeFile[];
     /** Name of the shown file – use with v-model */
     modelValue?: string;
     defaultValue?: string;
@@ -40,7 +40,7 @@ export interface CodeHighlightTabsProps {
     /** Long lines wrap */
     wrap?: boolean;
     /** More grammars than the built-in ones (see CodeHighlight) */
-    languages?: CodeLanguageInput[];
+    languages?: readonly CodeLanguageInput[];
     /** Extra classes per part of the component, e.g. { base: "…" } (see the recipe) */
     classes?: RecipeClasses<typeof codeTabsRecipe>;
 }

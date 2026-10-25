@@ -20,7 +20,7 @@ import { useLocale } from '../LocaleProvider/LocaleProvider.js';
 import { useRecipe } from '../RecipesProvider/RecipesProvider.js';
 
 export interface DataViewProps<T> {
-    items?: T[];
+    items?: readonly T[];
     /** Accessible name of the list, e.g. "Server" */
     label: string;
     layout?: 'list' | 'grid';
@@ -32,7 +32,7 @@ export interface DataViewProps<T> {
     pageSize?: number;
     onPageSizeChange?: (pageSize: number) => void;
     /** Page sizes to choose from below the items */
-    pageSizes?: number[];
+    pageSizes?: readonly number[];
     /** Current page, 1-based */
     page?: number;
     defaultPage?: number;

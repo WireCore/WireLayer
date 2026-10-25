@@ -36,6 +36,8 @@ import { Button, Field, Input } from '@wirecore/wirelayer-vue';
 
 Optional subpaths with their own peer dependencies: `/form` (TanStack Form), `/data-table`, `/virtual`, `/chart` (Chart.js), `/editor` (Tiptap), `/code` (Shiki), `/pdf` (pdf.js), `/locales/<code>`. Setup for Nuxt: Storybook › Getting started.
 
+Component API for AI assistants (props, events, slots and the guides): the MCP server [`@wirecore/wirelayer-mcp`](https://www.npmjs.com/package/@wirecore/wirelayer-mcp) – `claude mcp add wirelayer -- npx -y -p @wirecore/wirelayer-mcp wirelayer-mcp` – or [llms.txt](https://wirecore.github.io/WireLayer/llms.txt). The package itself ships no llms.txt.
+
 Part of [WireLayer](https://github.com/WireCore/WireLayer) – one look and one API for Vue, React, React Native and HTML, accessible according to WCAG 2.2 AA.
 
 ## License

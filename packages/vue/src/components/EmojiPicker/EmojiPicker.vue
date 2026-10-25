@@ -19,7 +19,7 @@ import { useRecipe } from '../../recipes.js';
 
 export interface EmojiPickerProps {
     /** The emojis to offer (default: about 500 common ones with names and search words in the language) */
-    emojis?: EmojiData[];
+    emojis?: readonly EmojiData[];
     /** Emojis per row (default 8) */
     columns?: number;
     /** Search field (default true) */

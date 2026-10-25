@@ -48,7 +48,7 @@ const props = defineProps<
         period?: 'month' | 'year';
         classes?: RecipeClasses<typeof datePickerRecipe>;
         /** Range presets below the calendar */
-        presets?: CalendarPreset[];
+        presets?: readonly CalendarPreset[];
         size?: 'sm' | 'md' | 'lg';
         /** clearable false: no clear button */
         hideClear?: boolean;

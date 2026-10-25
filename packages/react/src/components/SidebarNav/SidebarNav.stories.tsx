@@ -28,7 +28,7 @@ const items: SidebarNavItem[] = [
 
 function Demo(args: SidebarNavProps) {
     const [nav, setNav] = useState(args.items);
-    const mark = (list: SidebarNavItem[], item: SidebarNavItem): SidebarNavItem[] =>
+    const mark = (list: readonly SidebarNavItem[], item: SidebarNavItem): SidebarNavItem[] =>
         list.map((entry) => ({
             ...entry,
             current: entry === item,

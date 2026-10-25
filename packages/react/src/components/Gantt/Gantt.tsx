@@ -58,13 +58,13 @@ export interface GanttLink {
 }
 
 export interface GanttProps extends Omit<ComponentProps<'div'>, 'children' | 'title'> {
-    tasks: GanttTask[];
+    tasks: readonly GanttTask[];
     /** Unit of the time axis; controlled together with onZoomChange */
     zoom?: GanttZoom;
     defaultZoom?: GanttZoom;
     onZoomChange?: (zoom: GanttZoom) => void;
     /** Zoom levels offered in the toolbar */
-    zooms?: GanttZoom[];
+    zooms?: readonly GanttZoom[];
     /** Ids of the expanded groups; controlled together with onExpandedChange (default: all expanded) */
     expanded?: string[];
     defaultExpanded?: string[];

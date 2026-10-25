@@ -55,7 +55,7 @@ export const taskDuration = (task: Pick<GanttTask, 'start' | 'end' | 'milestone'
     task.milestone ? 0 : Math.max(1, daysBetween(task.start, task.end) + 1);
 
 /** Sub-tasks by parent id (top-level tasks under "") in their order */
-function childrenOf(tasks: GanttTask[]) {
+function childrenOf(tasks: readonly GanttTask[]) {
     const ids = new Set(tasks.map((task) => task.id));
     const children = new Map<string, GanttTask[]>();
     for (const task of tasks) {
@@ -66,7 +66,7 @@ function childrenOf(tasks: GanttTask[]) {
 }
 
 /** Dates and progress of every task – groups span their sub-tasks, their progress is weighted by duration */
-export function ganttSpans(tasks: GanttTask[]): Map<string, { start: string; end: string; progress: number }> {
+export function ganttSpans(tasks: readonly GanttTask[]): Map<string, { start: string; end: string; progress: number }> {
     const children = childrenOf(tasks);
     const spans = new Map<string, { start: string; end: string; progress: number }>();
     const visit = (task: GanttTask, seen: Set<string>): { start: string; end: string; progress: number } => {
@@ -94,7 +94,7 @@ export function ganttSpans(tasks: GanttTask[]): Map<string, { start: string; end
 }
 
 /** The visible rows: top-level tasks and the sub-tasks of expanded groups, depth first */
-export function ganttRows(tasks: GanttTask[], expanded: Iterable<string>): GanttRow[] {
+export function ganttRows(tasks: readonly GanttTask[], expanded: Iterable<string>): GanttRow[] {
     const open = new Set(expanded);
     const children = childrenOf(tasks);
     const spans = ganttSpans(tasks);
@@ -122,7 +122,7 @@ export function ganttRows(tasks: GanttTask[], expanded: Iterable<string>): Gantt
 }
 
 /** Ids of all tasks that have sub-tasks (e.g. to expand everything) */
-export const ganttGroupIds = (tasks: GanttTask[]) => [...childrenOf(tasks).keys()].filter(Boolean);
+export const ganttGroupIds = (tasks: readonly GanttTask[]) => [...childrenOf(tasks).keys()].filter(Boolean);
 
 /** A task moved by days, or with `resize` its end moved (at least one day long); milestones keep start = end */
 export function shiftTask(
@@ -200,7 +200,7 @@ const UNITS: Record<GanttZoom, { bottom: 'day' | 'week' | 'month' | 'quarter'; t
  * (or around `fallback` without tasks), with the header units labelled in the locale.
  */
 export function ganttScale(
-    tasks: Pick<GanttTask, 'start' | 'end'>[],
+    tasks: readonly Pick<GanttTask, 'start' | 'end'>[],
     zoom: GanttZoom,
     locale: string,
     translations: Translations,
@@ -275,7 +275,7 @@ export function dependencyPath(
 // ── Dependencies ────────────────────────────────────────────────────────────────────────────────────────────────
 
 /** Ids of the tasks a task depends on, groups replaced by their sub-tasks without children (leaves) */
-function leafDependencies(tasks: GanttTask[]) {
+function leafDependencies(tasks: readonly GanttTask[]) {
     const children = childrenOf(tasks);
     const leaves = (id: string, seen = new Set<string>()): string[] => {
         const kids = children.get(id);
@@ -290,7 +290,7 @@ function leafDependencies(tasks: GanttTask[]) {
  * predecessors start at their planned start, the others as soon as their predecessors are finished; latest ends run
  * back from the end of the project, tasks without slack are critical. Tasks in a cycle of dependencies are left out.
  */
-export function criticalPath(tasks: GanttTask[]): Set<string> {
+export function criticalPath(tasks: readonly GanttTask[]): Set<string> {
     const { children, leaves } = leafDependencies(tasks);
     const nodes = tasks.filter((task) => !children.get(task.id)?.length);
     const byId = new Map(nodes.map((task) => [task.id, task]));
@@ -346,7 +346,7 @@ export function criticalPath(tasks: GanttTask[]): Set<string> {
 }
 
 /** Whether "`to` depends on `from`" would close a cycle (or is the task itself, or exists already) */
-export function dependencyCycle(tasks: GanttTask[], from: string, to: string): boolean {
+export function dependencyCycle(tasks: readonly GanttTask[], from: string, to: string): boolean {
     if (from === to) return true;
     const byId = new Map(tasks.map((task) => [task.id, task]));
     if (byId.get(to)?.dependencies?.includes(from)) return true;
@@ -468,7 +468,7 @@ export const gantt = tv({
  * Tasks that can become a predecessor of the task (a new finish-to-start dependency): not the task itself, not one it
  * already depends on, none that would close a cycle – in the order of `tasks`
  */
-export function ganttPredecessors(tasks: GanttTask[], taskId: string): GanttTask[] {
+export function ganttPredecessors(tasks: readonly GanttTask[], taskId: string): GanttTask[] {
     const task = tasks.find((entry) => entry.id === taskId);
     if (!task) return [];
     return tasks.filter(

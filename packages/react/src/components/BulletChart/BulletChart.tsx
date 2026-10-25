@@ -21,7 +21,7 @@ export interface BulletChartProps extends Omit<ComponentProps<'div'>, 'children'
     /** Target value: a marker across the bar */
     target?: number;
     /** Upper limits of the qualitative bands (e.g. poor, fair, good), shown as shades behind the bar */
-    ranges?: number[];
+    ranges?: readonly number[];
     /** Colour of the bar (default primary) */
     tone?: VisualTone;
     /** Formats the values (default: numbers in the locale) */

@@ -1,7 +1,10 @@
 import type { AnyFieldApi } from '@tanstack/vue-form';
 import type { CheckedState } from '../components/Checkbox/Checkbox.vue';
 
-/** v-bind for Input and Textarea: `<Input v-bind="bindInput(field)" />` */
+/**
+ * v-bind for the components with a string v-model: Input, Textarea, PasswordInput, SearchField, MaskInput, PhoneInput,
+ * ColorInput, JsonInput, PinInput, Mentions and Autocomplete – `<Input v-bind="bindInput(field)" />`
+ */
 export const bindInput = (field: AnyFieldApi) => ({
     name: field.name,
     modelValue: (field.state.value as string | undefined) ?? '',

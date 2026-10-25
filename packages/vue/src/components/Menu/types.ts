@@ -1,3 +1,4 @@
+import type { LinkTo } from '@wirecore/wirelayer-recipes';
 import type { Component } from 'vue';
 
 export interface MenuItem {
@@ -14,6 +15,8 @@ export interface MenuItem {
     children?: MenuEntry[];
     /** Link target – the item is a link (rendered with the menu's `linkAs`, e.g. a router link) */
     href?: string;
+    /** Router target instead of `href`, passed as `to` to `linkAs` (e.g. RouterLink, React Router or TanStack Link) */
+    to?: LinkTo;
     /** Closes the menu when chosen (default true) */
     closeOnSelect?: boolean;
 }
@@ -50,14 +53,14 @@ export interface MenuRadioGroup {
     label?: string;
     /** Initially chosen value */
     value?: string;
-    items: MenuRadioItem[];
+    items: readonly MenuRadioItem[];
 }
 
 /** Items under a heading */
 export interface MenuGroup {
     type: 'group';
     label: string;
-    items: MenuEntry[];
+    items: readonly MenuEntry[];
 }
 
 export interface MenuSeparator {

@@ -35,7 +35,7 @@ import { createContext, useContext, useEffect, useRef, useState, type ComponentP
 
 /** What the parts of a ConditionBuilder share */
 interface ConditionContext {
-    fields: ConditionField[];
+    fields: readonly ConditionField[];
     maxDepth: number;
     disabled: boolean;
     negatable: boolean;
@@ -332,7 +332,7 @@ function ConditionGroupView({
 
 export interface ConditionBuilderProps extends Omit<ComponentProps<'div'>, 'defaultValue'> {
     /** Fields the rules can test: id, label, type (text, number, date, select, boolean), options of a select */
-    fields: ConditionField[];
+    fields: readonly ConditionField[];
     /** The condition tree (JSON: groups with combinator and children, rules with field, operator, value) – controlled */
     value?: ConditionGroup;
     defaultValue?: ConditionGroup;

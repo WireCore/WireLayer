@@ -18,7 +18,7 @@ import { useRecipe } from '../../recipes.js';
 
 export interface ChatMessagesProps<T extends ChatMessageData = ChatMessageData> {
     /** The messages, oldest first */
-    messages: T[];
+    messages: readonly T[];
     /** Accessible name of the list (default "Messages") */
     label?: string;
     /** Messages of the same author within this many minutes are grouped (default 5) */

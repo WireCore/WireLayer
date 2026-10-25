@@ -10,7 +10,7 @@ export interface MeterGroupItem {
 }
 
 export interface MeterGroupProps {
-    items: MeterGroupItem[];
+    items: readonly MeterGroupItem[];
     /** Visible label, e.g. "Storage" */
     label: string;
     /** The whole (default: the sum of the values) */

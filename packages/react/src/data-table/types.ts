@@ -54,7 +54,7 @@ export interface DataTableFilterInputProps<TData> {
 /** What the editor of the advanced filter gets (`renderAdvancedFilter`) – fits ConditionBuilder's props */
 export interface DataTableAdvancedFilterProps {
     /** The fields the rules can test */
-    fields: ConditionField[];
+    fields: readonly ConditionField[];
     /** The condition tree */
     value: ConditionGroup;
     /** Sets the tree – the table filters at once */
@@ -99,9 +99,9 @@ export interface DataTableColumn<TData> {
      * Choices of a select filter (default: all values of the column as shown). Objects with a value of their own
      * (`{ value, label, group }`) or numbers compare the cell value instead of the shown text.
      */
-    filterOptions?: DataTableOption[];
+    filterOptions?: readonly DataTableOption[];
     /** Match modes offered in the filter menu (default: all of the filter type and own ones for the type) */
-    matchModes?: DataTableMatchMode[];
+    matchModes?: readonly DataTableMatchMode[];
     /** Match mode of the filter row (default: the first of the type) – `between` shows a from and a to input */
     filterMatchMode?: DataTableMatchMode;
     /**
@@ -124,7 +124,7 @@ export interface DataTableColumn<TData> {
     /** Input for editing, default text */
     editor?: DataTableEditor;
     /** Choices of a select or multi select editor */
-    editOptions?: DataTableOption[];
+    editOptions?: readonly DataTableOption[];
     /** Checks an edited value: an error text keeps the editor open – may answer later (a promise) */
     validate?: (value: unknown, row: TData) => string | undefined | Promise<string | undefined>;
     /** Total of the column in the footer row and in group rows */

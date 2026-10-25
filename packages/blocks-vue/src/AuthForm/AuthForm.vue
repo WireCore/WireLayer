@@ -25,7 +25,7 @@ export interface AuthFormProps {
     mode?: AuthMode;
     defaultMode?: AuthMode;
     /** Modes the links switch between (default sign in, sign up and reset) */
-    modes?: AuthMode[];
+    modes?: readonly AuthMode[];
     /** Heading (default by mode) */
     title?: string;
     /** Text below the heading (default by mode) */

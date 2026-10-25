@@ -307,7 +307,7 @@ export const datePicker = tv({
         trigger: boxButton,
         triggerIcon: 'size-4',
         content: [
-            'z-50 flex w-[304px] flex-col gap-2 rounded-xl border border-line-2 bg-card p-3 text-fg outline-none',
+            'z-50 flex w-[304px] flex-col gap-2 rounded-popup border border-line-2 bg-card p-3 text-fg outline-none',
             'shadow-[0_14px_32px_-12px_rgba(0,0,0,.45)]',
             'motion-safe:data-[state=open]:animate-pop-in motion-safe:data-[state=closed]:animate-pop-out',
             'data-[side=bottom]:[--wc-pop-y:-4px] data-[side=top]:[--wc-pop-y:4px]',
@@ -635,7 +635,7 @@ export const colorPicker = tv({
         /** Name of the trigger without a Field (read before the value) */
         hiddenName: 'sr-only',
         content: [
-            'z-50 flex w-[264px] flex-col gap-3 rounded-xl border border-line-2 bg-card p-3 text-fg outline-none',
+            'z-50 flex w-[264px] flex-col gap-3 rounded-popup border border-line-2 bg-card p-3 text-fg outline-none',
             'shadow-[0_14px_32px_-12px_rgba(0,0,0,.45)]',
             'motion-safe:data-[state=open]:animate-pop-in motion-safe:data-[state=closed]:animate-pop-out',
         ],

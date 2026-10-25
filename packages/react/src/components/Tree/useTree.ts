@@ -40,7 +40,7 @@ import { treeCarry, type TreeDropAllowed, type TreeNode, type TreeTransfer } fro
 
 /** The props the tree logic reads – shared by Tree and VirtualTree */
 export interface TreeModelProps {
-    items: TreeNode[];
+    items: readonly TreeNode[];
     selectedValue?: string[];
     defaultSelectedValue?: string[];
     onSelectionChange?: (ids: string[]) => void;
@@ -79,7 +79,7 @@ export interface TreeDragContext {
 }
 
 const find = (items: TreeNode[], id: string) => locateTreeNode(items, id)?.node;
-const hasLazyNodes = (items: TreeNode[]) => {
+const hasLazyNodes = (items: readonly TreeNode[]) => {
     let found = false;
     walkTree(items, (node) => {
         if (isLazyNode(node)) found = true;

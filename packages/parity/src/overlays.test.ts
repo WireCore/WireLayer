@@ -4,7 +4,9 @@ import { cleanup as cleanupVue } from '@testing-library/vue';
 import userEvent from '@testing-library/user-event';
 import * as React from '@wirecore/wirelayer-react';
 import * as Vue from '@wirecore/wirelayer-vue';
+import { createElement } from 'react';
 import { describe, expect, it, vi } from 'vitest';
+import { defineComponent, h } from 'vue';
 import { el, frameworks, icon, normalize, render, type El, type Framework } from './harness.js';
 
 // Overlays, menus and notifications: open states (portals) in both frameworks, services and imperative opening
@@ -91,8 +93,27 @@ describe('open overlays render the same DOM', () => {
             '[role=dialog]',
         ],
         [
+            'Popover: hidden title, without close button',
+            el(
+                'Popover',
+                { defaultOpen: true, placement: 'bottom-start' },
+                el('PopoverTrigger', {}, el('Button', {}, 'Apps')),
+                el('PopoverContent', { title: 'Apps', hideTitle: true, closable: false }, 'Mail')
+            ),
+            '[role=dialog]',
+        ],
+        [
             'Menu: links, checkbox and radio items, filter field',
             el('Menu', { items: menuItems, defaultOpen: true, searchable: true }, el('Button', {}, 'View')),
+            '[role=menu]',
+        ],
+        [
+            'Menu: arrow and placement',
+            el(
+                'Menu',
+                { items: menuItems, defaultOpen: true, arrow: true, placement: 'bottom-end' },
+                el('Button', {}, 'View')
+            ),
             '[role=menu]',
         ],
     ];
@@ -412,6 +433,36 @@ describe.each(frameworks)('%s', (framework) => {
             expect(link).toHaveAttribute('href', '/docs');
         });
 
+        it('items with to hand it to linkAs as `to` (router links)', async () => {
+            // Stand-in for RouterLink / React Router's Link: needs `to`, resolves the href itself
+            const RouterLink =
+                framework === 'vue'
+                    ? defineComponent({
+                          props: { to: { type: String, required: true } },
+                          setup:
+                              (props, { slots }) =>
+                              () =>
+                                  h('a', { href: `#${props.to}` }, slots.default?.()),
+                      })
+                    : ({ to, ...props }: { to: string }) => createElement('a', { ...props, href: `#${to}` });
+            await render(
+                framework,
+                el(
+                    'Menu',
+                    {
+                        items: [{ value: 'settings', label: 'Settings', to: '/settings' }],
+                        linkAs: RouterLink,
+                        defaultOpen: true,
+                    },
+                    el('Button', {}, 'Account')
+                )
+            );
+            const link = await screen.findByRole('menuitem', { name: 'Settings' });
+            expect(link.tagName).toBe('A');
+            expect(link).toHaveAttribute('href', '#/settings');
+            expect(link).not.toHaveAttribute('to');
+        });
+
         it('own item content (slot / renderItem)', async () => {
             await render(
                 framework,
@@ -462,6 +513,36 @@ describe.each(frameworks)('%s', (framework) => {
             await act(async () => handle!.close());
             await waitFor(() => expect(screen.queryByRole('menu')).toBeNull());
         });
+
+        it('an Avatar as button opens the menu (user menu)', async () => {
+            await render(
+                framework,
+                el(
+                    'Menu',
+                    { items: [{ value: 'logout', label: 'Sign out' }], placement: 'bottom-end', arrow: true },
+                    el('Avatar', { name: 'Julia Klein', as: 'button' })
+                )
+            );
+            const trigger = screen.getByRole('button', { name: 'Julia Klein' });
+            expect(trigger).toHaveAttribute('type', 'button');
+            expect(trigger).toHaveAttribute('aria-haspopup', 'menu');
+            expect(screen.queryByRole('img', { name: 'Julia Klein' })).toBeNull();
+            await userEvent.click(trigger);
+            expect(await screen.findByRole('menuitem', { name: 'Sign out' })).toBeInTheDocument();
+            expect(trigger).toHaveAttribute('aria-expanded', 'true');
+        });
+
+        it('shows the arrow only with `arrow`', async () => {
+            await render(framework, el('Menu', { items: menuItems, defaultOpen: true }, el('Button', {}, 'View')));
+            expect((await screen.findByRole('menu')).querySelector('[data-part=arrow]')).toBeNull();
+            if (framework === 'vue') cleanupVue();
+            else cleanupReact();
+            await render(
+                framework,
+                el('Menu', { items: menuItems, defaultOpen: true, arrow: true }, el('Button', {}, 'View'))
+            );
+            expect((await screen.findByRole('menu')).querySelector('[data-part=arrow]')).not.toBeNull();
+        });
     });
 
     describe('Popover and HoverCard', () => {
@@ -482,6 +563,21 @@ describe.each(frameworks)('%s', (framework) => {
             );
             await act(async () => handle!.open(document.getElementById('target')!));
             expect(await screen.findByRole('dialog', { name: 'Details' })).toBeInTheDocument();
+        });
+
+        it('Popover with a hidden title and without close button keeps its accessible name', async () => {
+            await render(
+                framework,
+                el(
+                    'Popover',
+                    { defaultOpen: true },
+                    el('PopoverTrigger', {}, el('Button', {}, 'Apps')),
+                    el('PopoverContent', { title: 'Apps', hideTitle: true, closable: false }, 'Mail')
+                )
+            );
+            const dialog = await screen.findByRole('dialog', { name: 'Apps' });
+            expect(within(dialog).getByText('Apps')).toHaveClass('sr-only');
+            expect(within(dialog).queryByRole('button')).toBeNull();
         });
 
         it('HoverCard opens at the anchor prop', async () => {

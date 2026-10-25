@@ -32,7 +32,7 @@ export interface PasswordInputProps extends Omit<ComponentProps<'input'>, 'size'
      * Checklist below the field, updated while typing: each rule with its state (icon and text), linked to the input
      * as its description
      */
-    requirements?: PasswordRequirement[];
+    requirements?: readonly PasswordRequirement[];
     /** Shows a spinner in the field and marks it busy (aria-busy) */
     loading?: boolean;
     /** Shows a button that empties the field while it has a value */

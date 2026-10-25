@@ -32,7 +32,7 @@ import type { TreeDropAllowed, TreeNode, TreeTransfer } from './types.js';
 
 /** The props the tree logic reads – shared by Tree and VirtualTree */
 export interface TreeModelProps {
-    items: TreeNode[];
+    items: readonly TreeNode[];
     selectionMode?: 'single' | 'multiple';
     selectedValue?: string[];
     defaultSelectedValue?: string[];
@@ -66,7 +66,7 @@ export interface TreeModelEmit {
 }
 
 const find = (items: TreeNode[], id: string) => locateTreeNode(items, id)?.node;
-const hasLazyNodes = (items: TreeNode[]) => {
+const hasLazyNodes = (items: readonly TreeNode[]) => {
     let found = false;
     walkTree(items, (node) => {
         if (isLazyNode(node)) found = true;

@@ -15,7 +15,7 @@ export interface WizardStep {
 }
 
 export interface WizardProps extends Omit<ComponentProps<'div'>, 'children'> {
-    steps: WizardStep[];
+    steps: readonly WizardStep[];
     /** Current step (0-based; steps + summary = done) – controlled with onStepChange */
     step?: number;
     defaultStep?: number;

@@ -29,7 +29,7 @@ export interface TimeGridProps<T extends string | TimeRange | null = string | nu
     /** Minutes between the slots when `times` is not given */
     interval?: number;
     /** Times that are taken */
-    disabledTimes?: string[];
+    disabledTimes?: readonly string[];
     /** A start and an end slot instead of one (toggle buttons instead of radio buttons) */
     range?: boolean;
     /** 12 or 24 hours; default from the locale */

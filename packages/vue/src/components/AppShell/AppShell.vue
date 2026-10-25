@@ -30,7 +30,7 @@ export interface AppShellProps {
      * Further skip links after the one to the main area, e.g. [{ href: '#search', label: 'Skip to search' }] –
      * then rendered as a named list (SkipLinks)
      */
-    skipLinks?: SkipLink[];
+    skipLinks?: readonly SkipLink[];
     /** The navbar is a rail of icons on the desktop (a SidebarNav inside shows tooltips) – v-model:navbar-collapsed */
     navbarCollapsed?: boolean;
     /** A button in the header folds and unfolds the navbar (desktop) */

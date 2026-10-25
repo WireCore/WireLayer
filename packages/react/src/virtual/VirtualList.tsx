@@ -12,7 +12,7 @@ import { useRecipe } from '../components/RecipesProvider/RecipesProvider.js';
 import { useDataSource } from '../utils/data-source.js';
 
 export interface VirtualListProps<T> {
-    items?: T[];
+    items?: readonly T[];
     /** Accessible name of the list */
     label: string;
     /** Estimated row height in px (rows are measured when shown) */

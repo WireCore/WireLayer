@@ -25,7 +25,7 @@ export interface CodeHighlightProps extends Omit<ComponentProps<'figure'>, 'chil
     fileName?: string;
     lineNumbers?: boolean;
     /** Lines to mark (1-based) */
-    highlightLines?: number[];
+    highlightLines?: readonly number[];
     /** Copy button in the header */
     copyable?: boolean;
     /** The header with title, language and buttons (default true) */
@@ -42,14 +42,14 @@ export interface CodeHighlightProps extends Omit<ComponentProps<'figure'>, 'chil
     /** Marks lines starting with "+" as added and "-" as removed (e.g. a patch) */
     diff?: boolean;
     /** Added lines (1-based) – shown with "+" in front */
-    addedLines?: number[];
+    addedLines?: readonly number[];
     /** Removed lines (1-based) – shown with "−" in front */
-    removedLines?: number[];
+    removedLines?: readonly number[];
     /**
      * More grammars than the built-in ones (Shiki registrations or loaders, e.g. `() => import('shiki/langs/ruby.mjs')`)
      * – their licence is the responsibility of the app
      */
-    languages?: CodeLanguageInput[];
+    languages?: readonly CodeLanguageInput[];
     /** Extra classes per part of the component, e.g. { base: "…" } (see the recipe) */
     classes?: RecipeClasses<typeof codeHighlightRecipe>;
 }

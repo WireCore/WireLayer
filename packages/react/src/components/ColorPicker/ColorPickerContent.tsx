@@ -31,7 +31,7 @@ export function ColorPickerContent({
     classes,
 }: {
     alpha: boolean;
-    swatches?: string[];
+    swatches?: readonly string[];
     withPicker: boolean;
     eyeDropper: boolean;
     channelInputs: boolean;

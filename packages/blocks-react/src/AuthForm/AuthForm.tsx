@@ -25,7 +25,7 @@ export interface AuthFormProps extends Omit<ComponentProps<'div'>, 'children' | 
     defaultMode?: AuthMode;
     onModeChange?: (mode: AuthMode) => void;
     /** Modes the links switch between (default sign in, sign up and reset) */
-    modes?: AuthMode[];
+    modes?: readonly AuthMode[];
     /** Heading (default by mode) */
     title?: string;
     /** Text below the heading (default by mode) */

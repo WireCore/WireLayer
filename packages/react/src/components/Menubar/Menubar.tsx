@@ -15,11 +15,11 @@ import { useRecipe } from '../RecipesProvider/RecipesProvider.js';
 
 export interface MenubarMenu {
     label: string;
-    items: MenuEntry[];
+    items: readonly MenuEntry[];
 }
 
 export interface MenubarProps extends MenuItemOptions {
-    menus: MenubarMenu[];
+    menus: readonly MenubarMenu[];
     /** Name of the menu bar, e.g. "Application" */
     'aria-label'?: string;
     /** Below the md breakpoint (768px) a menu button with all menus replaces the bar */
@@ -138,7 +138,7 @@ export function Menubar({
                     items={menus.map((entry, index) => ({
                         value: `menubar-${index}`,
                         label: entry.label,
-                        children: entry.items,
+                        children: [...entry.items],
                     }))}
                     {...itemOptions}
                 >

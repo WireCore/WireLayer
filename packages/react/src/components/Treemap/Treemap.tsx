@@ -17,7 +17,7 @@ export interface TreemapItem {
 }
 
 export interface TreemapProps extends Omit<ComponentProps<'div'>, 'children'> {
-    items: TreemapItem[];
+    items: readonly TreemapItem[];
     /** Accessible name of the list (and visible title with `showTitle`) */
     label: string;
     showTitle?: boolean;

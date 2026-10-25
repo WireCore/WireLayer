@@ -15,10 +15,10 @@ import { useRecipe } from '../../recipes.js';
 
 export interface ContextMenuProps {
     /** Items, groups, separators, checkbox items, radio groups and submenus – as in Menu */
-    items: MenuEntry[];
+    items: readonly MenuEntry[];
     /** Accessible name of the menu – without it the menu is named by the area's content */
     label?: string;
-    /** Component for items with href, e.g. RouterLink or NuxtLink (gets `href`); default <a> */
+    /** Component for link items, e.g. RouterLink or NuxtLink (gets `to` for items with `to`, else `href`); default <a> */
     linkAs?: Component | string;
     /** Extra classes per part of the component, e.g. { base: "…" } (see the recipe) */
     classes?: RecipeClasses<typeof menuRecipe>;

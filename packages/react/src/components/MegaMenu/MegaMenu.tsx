@@ -2,6 +2,8 @@ import { NavigationMenu, useNavigationMenu } from '@ark-ui/react/navigation-menu
 import {
     createHoverIntent,
     isCurrentLink,
+    linkTarget,
+    type LinkTo,
     type HoverIntent,
     megaMenu as megaMenuRecipe,
     type BadgeVariant,
@@ -33,6 +35,8 @@ import { useRecipe } from '../RecipesProvider/RecipesProvider.js';
 export interface MegaMenuLink {
     label: string;
     href: string;
+    /** Router target, passed as `to` to `linkAs` instead of `href`; `href` still identifies the link (`currentHref`) */
+    to?: LinkTo;
     /** Second line; linked to the link with aria-describedby */
     description?: string;
     icon?: IconComponent;
@@ -46,20 +50,24 @@ export interface MegaMenuLink {
 /** Links under a visible heading (the list is named by it) */
 export interface MegaMenuGroup {
     title: string;
-    items: MegaMenuLink[];
+    items: readonly MegaMenuLink[];
     /** "Show all" link below the group */
     moreHref?: string;
+    /** Router target of the "Show all" link (see `MegaMenuLink.to`) */
+    moreTo?: LinkTo;
     moreLabel?: string;
 }
 
 export interface MegaMenuColumn {
-    groups: MegaMenuGroup[];
+    groups: readonly MegaMenuGroup[];
 }
 
 /** Promotion or teaser beside the columns */
 export interface MegaMenuFeatured {
     title: string;
     href: string;
+    /** Router target (see `MegaMenuLink.to`) */
+    to?: LinkTo;
     description?: string;
     /** Small line above the title, e.g. "New" or "Case study" */
     eyebrow?: string;
@@ -75,16 +83,20 @@ export interface MegaMenuItem {
     value?: string;
     /** Link of the entry; together with columns/featured it gets a separate chevron button for the panel */
     href?: string;
+    /** Router target of the entry's link (see `MegaMenuLink.to`) */
+    to?: LinkTo;
     current?: boolean;
-    columns?: MegaMenuColumn[];
+    columns?: readonly MegaMenuColumn[];
     featured?: MegaMenuFeatured;
     /** "Show all" at the bottom of the panel */
     allHref?: string;
+    /** Router target of "Show all" (see `MegaMenuLink.to`) */
+    allTo?: LinkTo;
     allLabel?: string;
 }
 
 export interface MegaMenuProps extends Omit<ComponentProps<'nav'>, 'dir'> {
-    items: MegaMenuItem[];
+    items: readonly MegaMenuItem[];
     /** Name of the navigation landmark (default "Main navigation") */
     label?: string;
     /** click (default) or hover – hover opens after `openDelay` with the mouse only, never on touch */
@@ -105,7 +117,7 @@ export interface MegaMenuProps extends Omit<ComponentProps<'nav'>, 'dir'> {
     isCurrent?: (link: MegaMenuLink | MegaMenuItem) => boolean;
     /** Level of the group headings (default 3) */
     headingLevel?: 2 | 3 | 4 | 5;
-    /** Component for the links, e.g. a router link (gets `href`); default <a> */
+    /** Component for the links, e.g. a router link (gets `to` for links with `to`, else `href`); default <a> */
     linkAs?: ElementType;
     /** Open panel (its value, '' for none) */
     value?: string;
@@ -288,7 +300,11 @@ export function MegaMenu({
                                 {item.href ? (
                                     <>
                                         <NavigationMenu.Link asChild current={linkCurrent(item)}>
-                                            <Link href={item.href} className={styles.link()} onClick={navigate(item)}>
+                                            <Link
+                                                {...linkTarget(item.href, item.to)}
+                                                className={styles.link()}
+                                                onClick={navigate(item)}
+                                            >
                                                 {item.label}
                                             </Link>
                                         </NavigationMenu.Link>
@@ -345,7 +361,10 @@ export function MegaMenu({
                                                                                         current={linkCurrent(link)}
                                                                                     >
                                                                                         <Link
-                                                                                            href={link.href}
+                                                                                            {...linkTarget(
+                                                                                                link.href,
+                                                                                                link.to
+                                                                                            )}
                                                                                             className={styles.panelLink()}
                                                                                             // The description is no part of the name
                                                                                             aria-labelledby={
@@ -414,7 +433,10 @@ export function MegaMenu({
                                                                     {group.moreHref && (
                                                                         <NavigationMenu.Link asChild>
                                                                             <Link
-                                                                                href={group.moreHref}
+                                                                                {...linkTarget(
+                                                                                    group.moreHref,
+                                                                                    group.moreTo
+                                                                                )}
                                                                                 className={styles.more()}
                                                                                 aria-label={
                                                                                     group.moreLabel
@@ -463,7 +485,7 @@ export function MegaMenu({
                                                         )}
                                                         <NavigationMenu.Link asChild>
                                                             <Link
-                                                                href={item.featured.href}
+                                                                {...linkTarget(item.featured.href, item.featured.to)}
                                                                 className={styles.featuredTitle()}
                                                                 onClick={navigate(item.featured)}
                                                             >
@@ -484,7 +506,7 @@ export function MegaMenu({
                                         <div className={styles.footer()}>
                                             <NavigationMenu.Link asChild>
                                                 <Link
-                                                    href={item.allHref}
+                                                    {...linkTarget(item.allHref, item.allTo)}
                                                     className={styles.more()}
                                                     onClick={navigate({
                                                         label: item.allLabel ?? texts.showAll,
@@ -501,7 +523,11 @@ export function MegaMenu({
                             </>
                         ) : (
                             <NavigationMenu.Link asChild current={linkCurrent(item)}>
-                                <Link href={item.href} className={styles.link()} onClick={navigate(item)}>
+                                <Link
+                                    {...linkTarget(item.href, item.to)}
+                                    className={styles.link()}
+                                    onClick={navigate(item)}
+                                >
                                     {item.label}
                                 </Link>
                             </NavigationMenu.Link>
@@ -539,7 +565,7 @@ export function MegaMenu({
                                             >
                                                 {item.href && (
                                                     <Link
-                                                        href={item.href}
+                                                        {...linkTarget(item.href, item.to)}
                                                         className={styles.mobilePanelLink()}
                                                         aria-current={linkCurrent(item) ? 'page' : undefined}
                                                         onClick={(event: MouseEvent<HTMLAnchorElement>) =>
@@ -569,7 +595,7 @@ export function MegaMenu({
                                                                         return (
                                                                             <li key={link.href}>
                                                                                 <Link
-                                                                                    href={link.href}
+                                                                                    {...linkTarget(link.href, link.to)}
                                                                                     className={styles.mobilePanelLink()}
                                                                                     aria-current={
                                                                                         linkCurrent(link)
@@ -601,7 +627,7 @@ export function MegaMenu({
                                                                 </ul>
                                                                 {group.moreHref && (
                                                                     <Link
-                                                                        href={group.moreHref}
+                                                                        {...linkTarget(group.moreHref, group.moreTo)}
                                                                         className={styles.more()}
                                                                         aria-label={
                                                                             group.moreLabel
@@ -629,7 +655,7 @@ export function MegaMenu({
                                                 )}
                                                 {item.featured && (
                                                     <Link
-                                                        href={item.featured.href}
+                                                        {...linkTarget(item.featured.href, item.featured.to)}
                                                         className={styles.mobilePanelLink()}
                                                         onClick={(event: MouseEvent<HTMLAnchorElement>) =>
                                                             onDrawerLink(item.featured!, event)
@@ -640,7 +666,7 @@ export function MegaMenu({
                                                 )}
                                                 {item.allHref && (
                                                     <Link
-                                                        href={item.allHref}
+                                                        {...linkTarget(item.allHref, item.allTo)}
                                                         className={styles.more()}
                                                         onClick={(event: MouseEvent<HTMLAnchorElement>) =>
                                                             onDrawerLink(
@@ -656,7 +682,7 @@ export function MegaMenu({
                                         ) : (
                                             <Link
                                                 key={itemValue(item)}
-                                                href={item.href}
+                                                {...linkTarget(item.href, item.to)}
                                                 className={styles.mobileLink()}
                                                 aria-current={linkCurrent(item) ? 'page' : undefined}
                                                 onClick={(event: MouseEvent<HTMLAnchorElement>) =>

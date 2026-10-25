@@ -45,12 +45,13 @@ export function walkTree<T extends HierarchyNode>(
  * of its own keeps them – the parent can always take over (manual loading). `key` names a node (default: `id`).
  */
 export function withLoadedChildren<T extends LazyNode>(
-    items: T[],
+    items: readonly T[],
     loaded: Readonly<Record<string, T[]>>,
     key: (node: T) => string = idOf
 ): T[] {
-    if (!Object.keys(loaded).length) return items;
-    const resolve = (list: T[]): T[] => {
+    // The items are never changed, only copied – read-only input comes back as it is
+    if (!Object.keys(loaded).length) return items as T[];
+    const resolve = (list: readonly T[]): T[] => {
         let changed = false;
         const next = list.map((node) => {
             const own = node.children as T[] | undefined;
@@ -61,7 +62,7 @@ export function withLoadedChildren<T extends LazyNode>(
             changed = true;
             return { ...node, children: resolved };
         });
-        return changed ? next : list;
+        return changed ? next : (list as T[]);
     };
     return resolve(items);
 }

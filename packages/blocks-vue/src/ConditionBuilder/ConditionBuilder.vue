@@ -22,7 +22,7 @@ export interface ConditionBuilderProps {
     modelValue?: ConditionGroup;
     defaultValue?: ConditionGroup;
     /** Fields the rules can test: id, label, type (text, number, date, select, boolean), options of a select */
-    fields: ConditionField[];
+    fields: readonly ConditionField[];
     /** Name of the whole tree (default "Conditions") */
     label?: string;
     /** How deep groups can be nested (default 3) */

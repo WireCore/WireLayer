@@ -45,7 +45,7 @@ export interface TimePickerProps {
     /** 12 or 24 hours; default from the locale */
     hourCycle?: 'h12' | 'h23';
     /** Own times for the list instead of every `step` minutes, optionally named */
-    options?: TimeOption[];
+    options?: readonly TimeOption[];
     /** 24 or 12 hours follow the locale */
     locale?: string;
     disabled?: boolean;

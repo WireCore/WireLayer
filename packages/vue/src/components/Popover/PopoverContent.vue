@@ -12,7 +12,11 @@ const translations = useTranslations();
 export interface PopoverContentProps {
     /** Accessible name of the panel (role="dialog") */
     title: string;
+    /** The title only for screen readers, e.g. when the content speaks for itself */
+    hideTitle?: boolean;
     description?: string;
+    /** Shows the close button (default true); without it the panel closes with Escape, outside clicks or PopoverClose */
+    closable?: boolean;
     /** Accessible name of the close button */
     closeLabel?: string;
     /** Extra classes per part of the component, e.g. { base: "…" } (see the recipe) */
@@ -20,12 +24,12 @@ export interface PopoverContentProps {
 }
 
 defineOptions({ inheritAttrs: false });
-const props = defineProps<PopoverContentProps>();
+const props = withDefaults(defineProps<PopoverContentProps>(), { closable: true });
 const popover = useRecipe('popover', popoverRecipe, () => props.classes);
 const attrs = useAttrs();
 const root = inject(popoverRootKey, null);
 const context = usePopoverContext();
-const styles = computed(() => popover({ width: root?.value.width }));
+const styles = computed(() => popover({ width: root?.value.width, hideTitle: props.hideTitle }));
 // Ark only links title/description that exist when the popover is created – with lazy mounting they don't
 const titleId = useId();
 const descriptionId = useId();
@@ -48,7 +52,11 @@ const descriptionId = useId();
                     {{ description }}
                 </Popover.Description>
                 <div v-if="$slots.default" :class="styles.body()"><slot /></div>
-                <Popover.CloseTrigger :class="styles.close()" :aria-label="closeLabel ?? translations.common.close">
+                <Popover.CloseTrigger
+                    v-if="closable"
+                    :class="styles.close()"
+                    :aria-label="closeLabel ?? translations.common.close"
+                >
                     <X :class="styles.closeIcon()" aria-hidden="true" />
                 </Popover.CloseTrigger>
             </Popover.Content>

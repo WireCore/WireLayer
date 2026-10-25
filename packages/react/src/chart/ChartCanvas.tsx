@@ -9,7 +9,7 @@ export interface ChartBuild {
     type: string;
     data: unknown;
     options: Record<string, unknown>;
-    plugins?: unknown[];
+    plugins?: readonly unknown[];
 }
 
 export function ChartCanvas({

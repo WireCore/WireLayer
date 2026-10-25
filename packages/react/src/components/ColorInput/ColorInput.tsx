@@ -22,7 +22,7 @@ export interface ColorInputProps extends Omit<ComponentProps<'input'>, 'value' |
     /** Adds an opacity slider */
     alpha?: boolean;
     /** Preset colours in the popup */
-    swatches?: string[];
+    swatches?: readonly string[];
     /** Area and sliders in the popup (default true); false: only the `swatches` */
     withPicker?: boolean;
     /** Button to pick a colour from the screen (where supported) */

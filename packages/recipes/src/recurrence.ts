@@ -268,7 +268,7 @@ export function expandRecurrence(event: SchedulerEvent, range: DateRange, timeZo
 }
 
 /** All events with their series expanded for a range; events without rule that do not touch it are left out */
-export function expandEvents(events: SchedulerEvent[], range: DateRange, timeZone?: string): SchedulerEvent[] {
+export function expandEvents(events: readonly SchedulerEvent[], range: DateRange, timeZone?: string): SchedulerEvent[] {
     return events.flatMap((event) => expandRecurrence(event, range, timeZone));
 }
 
@@ -373,7 +373,7 @@ function shiftWall(value: string, ms: number) {
  * read in `timeZone` (else local time).
  */
 export function applyEventChange(
-    events: SchedulerEvent[],
+    events: readonly SchedulerEvent[],
     change: SchedulerEventChange,
     timeZone?: string
 ): SchedulerEvent[] {

@@ -17,7 +17,7 @@ export interface SliderProps {
     /** Visible label, also the accessible name of the thumbs */
     label: string;
     /** Names of the thumbs of a range slider, read after the label */
-    thumbLabels?: string[];
+    thumbLabels?: readonly string[];
     /** Shows the formatted value next to the label */
     showValue?: boolean;
     /** Formats the shown and announced value, e.g. (v) => `${v} %` */

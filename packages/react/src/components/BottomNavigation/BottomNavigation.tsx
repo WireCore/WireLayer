@@ -2,6 +2,8 @@ import {
     bottomNavigation as bottomNavigationRecipe,
     formatCount,
     isCurrentLink,
+    linkTarget,
+    type LinkTo,
     type RecipeClasses,
 } from '@wirecore/wirelayer-recipes';
 import type { ComponentProps, ElementType, MouseEvent } from 'react';
@@ -12,6 +14,8 @@ import { useRecipe } from '../RecipesProvider/RecipesProvider.js';
 export interface BottomNavigationItem {
     label: string;
     href: string;
+    /** Router target, passed as `to` to `linkAs` instead of `href`; `href` still identifies the item (`currentHref`) */
+    to?: LinkTo;
     icon: IconComponent;
     /** Count (shown as 99+ above 99) or short text on the icon; it is part of the link's name */
     badge?: number | string;
@@ -21,14 +25,14 @@ export interface BottomNavigationItem {
 
 export interface BottomNavigationProps extends ComponentProps<'nav'> {
     /** 3 to 5 destinations */
-    items: BottomNavigationItem[];
+    items: readonly BottomNavigationItem[];
     /** Name of the navigation landmark (default "Navigation") */
     label?: string;
     /** Path of the current page – the item with exactly this href gets aria-current="page" */
     currentHref?: string;
     /** Own check for the current page, e.g. with the router */
     isCurrent?: (item: BottomNavigationItem) => boolean;
-    /** Component for the links, e.g. a router link (gets `href`); default <a> */
+    /** Component for the links, e.g. a router link (gets `to` for links with `to`, else `href`); default <a> */
     linkAs?: ElementType;
     /** A link was clicked – call event.preventDefault() and route yourself in a single-page app */
     onNavigate?: (item: BottomNavigationItem, event: MouseEvent<HTMLAnchorElement>) => void;
@@ -69,7 +73,7 @@ export function BottomNavigation({
                     return (
                         <li key={item.href} className={styles.item()}>
                             <Link
-                                href={item.href}
+                                {...linkTarget(item.href, item.to)}
                                 className={styles.link()}
                                 aria-current={isCurrentLink(item, currentHref, isCurrent) ? 'page' : undefined}
                                 onClick={(event: MouseEvent<HTMLAnchorElement>) => onNavigate?.(item, event)}

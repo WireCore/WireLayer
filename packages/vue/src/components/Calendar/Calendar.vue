@@ -27,9 +27,9 @@ export interface CalendarProps<T extends DateLike[] = string[]> {
     /** Days that cannot be chosen – receives the ISO date */
     isDateUnavailable?: (date: string) => boolean;
     /** Single days that cannot be chosen (holidays, booked days) */
-    excludeDates?: DateLike[];
+    excludeDates?: readonly DateLike[];
     /** With selectionMode range: Ark presets ("last7Days" …) below the calendar */
-    presets?: string[];
+    presets?: readonly string[];
     locale?: string;
     disabled?: boolean;
     /** "Today" and "Clear" below the calendar */
@@ -45,7 +45,7 @@ export interface CalendarProps<T extends DateLike[] = string[]> {
     /** First day of the week: 0 = Sunday … 6 = Saturday; default from the locale */
     firstDayOfWeek?: number;
     /** Weekend days (0 = Sunday … 6) marked with data-weekend; default from the locale */
-    weekendDays?: number[];
+    weekendDays?: readonly number[];
     /** With selectionMode single: choosing the selected day again clears it */
     allowDeselect?: boolean;
     /** IANA zone that decides which day is today */

@@ -23,13 +23,13 @@ export interface SearchFieldProps {
     /** Search is running: spinner in the field, aria-busy */
     loading?: boolean;
     /** Areas to search in – a select before the field (v-model:scope) */
-    scopes?: NativeSelectOption[];
+    scopes?: readonly NativeSelectOption[];
     /** Chosen area – use with v-model:scope */
     scope?: string;
     /** Accessible name of the area select (default "Search in") */
     scopeLabel?: string;
     /** Suggestions while typing (combobox pattern) – any other text can still be searched */
-    suggestions?: string[];
+    suggestions?: readonly string[];
     /** Accessible name of the clear button (default "Clear search") */
     clearLabel?: string;
     size?: Size;

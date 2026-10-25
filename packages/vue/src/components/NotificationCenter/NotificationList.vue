@@ -15,7 +15,7 @@ import { useLocale, useTranslations } from '../../locale.js';
 import { useRecipe } from '../../recipes.js';
 
 const props = defineProps<{
-    items: NotificationItem[];
+    items: readonly NotificationItem[];
     unread: number;
     hasMore?: boolean;
     loading?: boolean;

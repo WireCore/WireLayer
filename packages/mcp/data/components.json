@@ -340,7 +340,7 @@
                 },
                 {
                     "name": "marks",
-                    "type": "number[]",
+                    "type": "readonly number[]",
                     "optional": true,
                     "description": "Tick marks at these angles, e.g. [0, 90, 180, 270]"
                 },
@@ -470,7 +470,7 @@
                 },
                 {
                     "name": "skipLinks",
-                    "type": "SkipLink[]",
+                    "type": "readonly SkipLink[]",
                     "optional": true,
                     "description": "Further skip links after the one to the main area, e.g. [{ href: '#search', label: 'Skip to search' }] – then rendered as a named list (SkipLinks)"
                 },
@@ -634,7 +634,7 @@
                 },
                 {
                     "name": "modes",
-                    "type": "AuthMode[]",
+                    "type": "readonly AuthMode[]",
                     "optional": true,
                     "description": "Modes the links switch between (default sign in, sign up and reset)"
                 },
@@ -965,7 +965,7 @@
         {
             "name": "Avatar",
             "subpath": "",
-            "description": "With a name the avatar is one image for assistive tech; without it is decorative",
+            "description": "With a name the avatar is one image for assistive tech, without it is decorative; as a button it is named",
             "category": "Data",
             "story": "data-avatar--playground",
             "extends": "Omit<ComponentProps<'div'>, 'children'>",
@@ -1017,6 +1017,12 @@
                     "type": "RecipeClasses<typeof avatarRecipe>",
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
+                },
+                {
+                    "name": "as",
+                    "type": "'div' | 'button'",
+                    "optional": true,
+                    "description": "`button`: a button with the avatar as its content, e.g. the trigger of a user menu (name: `name` or aria-label)"
                 }
             ]
         },
@@ -1214,7 +1220,7 @@
             "props": [
                 {
                     "name": "items",
-                    "type": "BarsListItem[]",
+                    "type": "readonly BarsListItem[]",
                     "optional": false,
                     "description": ""
                 },
@@ -1324,7 +1330,7 @@
             "props": [
                 {
                     "name": "items",
-                    "type": "BottomNavigationItem[]",
+                    "type": "readonly BottomNavigationItem[]",
                     "optional": false,
                     "description": "3 to 5 destinations"
                 },
@@ -1350,7 +1356,7 @@
                     "name": "linkAs",
                     "type": "ElementType",
                     "optional": true,
-                    "description": "Component for the links, e.g. a router link (gets `href`); default <a>"
+                    "description": "Component for the links, e.g. a router link (gets `to` for links with `to`, else `href`); default <a>"
                 },
                 {
                     "name": "onNavigate",
@@ -1388,7 +1394,7 @@
                 },
                 {
                     "name": "items",
-                    "type": "BreadcrumbEntry[]",
+                    "type": "readonly BreadcrumbEntry[]",
                     "optional": true,
                     "description": "The path as data instead of BreadcrumbItem children (needed for maxItems)"
                 },
@@ -1522,7 +1528,7 @@
                 },
                 {
                     "name": "ranges",
-                    "type": "number[]",
+                    "type": "readonly number[]",
                     "optional": true,
                     "description": "Upper limits of the qualitative bands (e.g. poor, fair, good), shown as shades behind the bar"
                 },
@@ -1720,13 +1726,13 @@
                 },
                 {
                     "name": "excludeDates",
-                    "type": "DateLike[]",
+                    "type": "readonly DateLike[]",
                     "optional": true,
                     "description": "Single days that cannot be chosen (holidays, booked days)"
                 },
                 {
                     "name": "presets",
-                    "type": "string[]",
+                    "type": "readonly string[]",
                     "optional": true,
                     "description": "With selectionMode range: Ark presets (\"last7Days\" …) below the calendar"
                 },
@@ -1780,7 +1786,7 @@
                 },
                 {
                     "name": "weekendDays",
-                    "type": "number[]",
+                    "type": "readonly number[]",
                     "optional": true,
                     "description": "Weekend days (0 = Sunday … 6) marked with data-weekend; default from the locale"
                 },
@@ -1902,7 +1908,7 @@
             "props": [
                 {
                     "name": "items",
-                    "type": "T[]",
+                    "type": "readonly T[]",
                     "optional": false,
                     "description": ""
                 },
@@ -1944,7 +1950,7 @@
                 },
                 {
                     "name": "breakpoints",
-                    "type": "CarouselBreakpoint[]",
+                    "type": "readonly CarouselBreakpoint[]",
                     "optional": true,
                     "description": "Settings from a width of the carousel on (a container query), e.g. [{ minWidth: 640, slidesPerPage: 2 }]"
                 },
@@ -2026,7 +2032,7 @@
             "props": [
                 {
                     "name": "items",
-                    "type": "CascadeOption<V>[]",
+                    "type": "readonly CascadeOption<V>[]",
                     "optional": false,
                     "description": ""
                 },
@@ -2302,7 +2308,7 @@
                 },
                 {
                     "name": "attachments",
-                    "type": "ChatAttachment[]",
+                    "type": "readonly ChatAttachment[]",
                     "optional": true,
                     "description": ""
                 },
@@ -2372,7 +2378,7 @@
             "props": [
                 {
                     "name": "messages",
-                    "type": "T[]",
+                    "type": "readonly T[]",
                     "optional": false,
                     "description": "The messages, oldest first"
                 },
@@ -2572,7 +2578,7 @@
             "props": [
                 {
                     "name": "sources",
-                    "type": "ChatSource[]",
+                    "type": "readonly ChatSource[]",
                     "optional": false,
                     "description": ""
                 },
@@ -3000,7 +3006,7 @@
                 },
                 {
                     "name": "highlightLines",
-                    "type": "number[]",
+                    "type": "readonly number[]",
                     "optional": true,
                     "description": "Lines to mark (1-based)"
                 },
@@ -3054,19 +3060,19 @@
                 },
                 {
                     "name": "addedLines",
-                    "type": "number[]",
+                    "type": "readonly number[]",
                     "optional": true,
                     "description": "Added lines (1-based) – shown with \"+\" in front"
                 },
                 {
                     "name": "removedLines",
-                    "type": "number[]",
+                    "type": "readonly number[]",
                     "optional": true,
                     "description": "Removed lines (1-based) – shown with \"−\" in front"
                 },
                 {
                     "name": "languages",
-                    "type": "CodeLanguageInput[]",
+                    "type": "readonly CodeLanguageInput[]",
                     "optional": true,
                     "description": "More grammars than the built-in ones (Shiki registrations or loaders, e.g. `() => import('shiki/langs/ruby.mjs')`) – their licence is the responsibility of the app"
                 },
@@ -3088,7 +3094,7 @@
             "props": [
                 {
                     "name": "files",
-                    "type": "CodeFile[]",
+                    "type": "readonly CodeFile[]",
                     "optional": false,
                     "description": ""
                 },
@@ -3148,7 +3154,7 @@
                 },
                 {
                     "name": "languages",
-                    "type": "CodeLanguageInput[]",
+                    "type": "readonly CodeLanguageInput[]",
                     "optional": true,
                     "description": "More grammars than the built-in ones (see CodeHighlight)"
                 },
@@ -3228,7 +3234,7 @@
                 },
                 {
                     "name": "swatches",
-                    "type": "string[]",
+                    "type": "readonly string[]",
                     "optional": true,
                     "description": "Preset colours in the popup"
                 },
@@ -3304,7 +3310,7 @@
                 },
                 {
                     "name": "swatches",
-                    "type": "string[]",
+                    "type": "readonly string[]",
                     "optional": true,
                     "description": "Preset colours shown below the picker"
                 },
@@ -3392,7 +3398,7 @@
             "props": [
                 {
                     "name": "items",
-                    "type": "ColorSwatch[]",
+                    "type": "readonly ColorSwatch[]",
                     "optional": false,
                     "description": "The colours to choose from"
                 },
@@ -3658,7 +3664,7 @@
             "props": [
                 {
                     "name": "items",
-                    "type": "CommandItem[]",
+                    "type": "readonly CommandItem[]",
                     "optional": false,
                     "description": ""
                 },
@@ -3868,7 +3874,7 @@
             "props": [
                 {
                     "name": "fields",
-                    "type": "ConditionField[]",
+                    "type": "readonly ConditionField[]",
                     "optional": false,
                     "description": "Fields the rules can test: id, label, type (text, number, date, select, boolean), options of a select"
                 },
@@ -4111,7 +4117,7 @@
             "props": [
                 {
                     "name": "items",
-                    "type": "MenuEntry[]",
+                    "type": "readonly MenuEntry[]",
                     "optional": false,
                     "description": "Items, groups, separators, checkbox items, radio groups and submenus – as in Menu"
                 },
@@ -4215,7 +4221,7 @@
                 },
                 {
                     "name": "units",
-                    "type": "CountdownUnit[]",
+                    "type": "readonly CountdownUnit[]",
                     "optional": true,
                     "description": "Shown units, largest first – the largest takes everything above it (e.g. 49 hours without days)"
                 },
@@ -4352,7 +4358,7 @@
             "props": [
                 {
                     "name": "data",
-                    "type": "TData[]",
+                    "type": "readonly TData[]",
                     "optional": true,
                     "description": "The rows (with `dataSource` the table loads them itself)"
                 },
@@ -4382,7 +4388,7 @@
                 },
                 {
                     "name": "columns",
-                    "type": "DataTableColumn<TData>[]",
+                    "type": "readonly DataTableColumn<TData>[]",
                     "optional": false,
                     "description": ""
                 },
@@ -4412,7 +4418,7 @@
                 },
                 {
                     "name": "pageSizeOptions",
-                    "type": "number[]",
+                    "type": "readonly number[]",
                     "optional": true,
                     "description": "Choices for the rows per page, shown next to the pagination"
                 },
@@ -4808,7 +4814,7 @@
                 },
                 {
                     "name": "frozenRows",
-                    "type": "string[]",
+                    "type": "readonly string[]",
                     "optional": true,
                     "description": "Rows (ids) that stay at the top, also while scrolling and paging"
                 },
@@ -4982,7 +4988,7 @@
                 },
                 {
                     "name": "features",
-                    "type": "DataTableFeature[]",
+                    "type": "readonly DataTableFeature[]",
                     "optional": true,
                     "description": "Feature modules, imported on their own so apps only bundle what they use (fixed for the life of the table): `virtualRows` from `/virtual` for `virtual`, `dateInput` and `numberInput` for date and number filters and editors (without them the browser's inputs)"
                 },
@@ -5082,7 +5088,7 @@
             "props": [
                 {
                     "name": "items",
-                    "type": "T[]",
+                    "type": "readonly T[]",
                     "optional": true,
                     "description": ""
                 },
@@ -5130,7 +5136,7 @@
                 },
                 {
                     "name": "pageSizes",
-                    "type": "number[]",
+                    "type": "readonly number[]",
                     "optional": true,
                     "description": "Page sizes to choose from below the items"
                 },
@@ -5350,7 +5356,7 @@
                 },
                 {
                     "name": "excludeDates",
-                    "type": "DateLike[]",
+                    "type": "readonly DateLike[]",
                     "optional": true,
                     "description": "Single dates that cannot be chosen (holidays, booked days)"
                 },
@@ -5440,7 +5446,7 @@
                 },
                 {
                     "name": "weekendDays",
-                    "type": "number[]",
+                    "type": "readonly number[]",
                     "optional": true,
                     "description": "Weekend days (0 = Sunday … 6) marked with data-weekend; default from the locale"
                 },
@@ -5558,7 +5564,7 @@
                 },
                 {
                     "name": "excludeDates",
-                    "type": "DateLike[]",
+                    "type": "readonly DateLike[]",
                     "optional": true,
                     "description": "Single dates that cannot be chosen (holidays, booked days)"
                 },
@@ -5654,7 +5660,7 @@
                 },
                 {
                     "name": "weekendDays",
-                    "type": "number[]",
+                    "type": "readonly number[]",
                     "optional": true,
                     "description": "Weekend days (0 = Sunday … 6) marked with data-weekend; default from the locale"
                 },
@@ -5718,7 +5724,7 @@
             "props": [
                 {
                     "name": "items",
-                    "type": "DescriptionsItem[]",
+                    "type": "readonly DescriptionsItem[]",
                     "optional": false,
                     "description": ""
                 },
@@ -6502,7 +6508,7 @@
             "props": [
                 {
                     "name": "emojis",
-                    "type": "EmojiData[]",
+                    "type": "readonly EmojiData[]",
                     "optional": true,
                     "description": "The emojis to offer (default: about 500 common ones with names and search words in the language)"
                 },
@@ -6945,7 +6951,7 @@
             "props": [
                 {
                     "name": "filters",
-                    "type": "FilterChip[]",
+                    "type": "readonly FilterChip[]",
                     "optional": false,
                     "description": "The active filters"
                 },
@@ -6991,7 +6997,7 @@
             "props": [
                 {
                     "name": "filters",
-                    "type": "FilterChip[]",
+                    "type": "readonly FilterChip[]",
                     "optional": true,
                     "description": "The active filters – shown as chips and counted on the button"
                 },
@@ -7340,7 +7346,7 @@
             "props": [
                 {
                     "name": "errors",
-                    "type": "FormErrorSummaryItem[]",
+                    "type": "readonly FormErrorSummaryItem[]",
                     "optional": false,
                     "description": "The current errors; nothing is rendered without any"
                 },
@@ -7520,7 +7526,7 @@
             "props": [
                 {
                     "name": "stages",
-                    "type": "FunnelStage[]",
+                    "type": "readonly FunnelStage[]",
                     "optional": false,
                     "description": "The stages, widest first"
                 },
@@ -7578,7 +7584,7 @@
             "props": [
                 {
                     "name": "images",
-                    "type": "GalleryImage[]",
+                    "type": "readonly GalleryImage[]",
                     "optional": false,
                     "description": ""
                 },
@@ -7678,7 +7684,7 @@
             "props": [
                 {
                     "name": "tasks",
-                    "type": "GanttTask[]",
+                    "type": "readonly GanttTask[]",
                     "optional": false,
                     "description": ""
                 },
@@ -7702,7 +7708,7 @@
                 },
                 {
                     "name": "zooms",
-                    "type": "GanttZoom[]",
+                    "type": "readonly GanttZoom[]",
                     "optional": true,
                     "description": "Zoom levels offered in the toolbar"
                 },
@@ -7960,7 +7966,7 @@
                 },
                 {
                     "name": "columns",
-                    "type": "string[]",
+                    "type": "readonly string[]",
                     "optional": false,
                     "description": "Column names"
                 },
@@ -8060,7 +8066,7 @@
                 },
                 {
                     "name": "colors",
-                    "type": "HighlightColor[]",
+                    "type": "readonly HighlightColor[]",
                     "optional": true,
                     "description": "Colour per search term, in the order of `query` (default: all warn)"
                 },
@@ -8408,7 +8414,7 @@
                 },
                 {
                     "name": "languages",
-                    "type": "CodeLanguageInput[]",
+                    "type": "readonly CodeLanguageInput[]",
                     "optional": true,
                     "description": "More grammars than the built-in ones (see CodeHighlight)"
                 },
@@ -9821,7 +9827,7 @@
             "props": [
                 {
                     "name": "items",
-                    "type": "MegaMenuItem[]",
+                    "type": "readonly MegaMenuItem[]",
                     "optional": false,
                     "description": ""
                 },
@@ -9889,7 +9895,7 @@
                     "name": "linkAs",
                     "type": "ElementType",
                     "optional": true,
-                    "description": "Component for the links, e.g. a router link (gets `href`); default <a>"
+                    "description": "Component for the links, e.g. a router link (gets `to` for links with `to`, else `href`); default <a>"
                 },
                 {
                     "name": "value",
@@ -9999,7 +10005,7 @@
                 },
                 {
                     "name": "triggers",
-                    "type": "MentionTrigger<T>[]",
+                    "type": "readonly MentionTrigger<T>[]",
                     "optional": true,
                     "description": "Several trigger characters with their own entries (replaces items/dataSource)"
                 },
@@ -10051,9 +10057,9 @@
             "props": [
                 {
                     "name": "items",
-                    "type": "MenuEntry[]",
+                    "type": "readonly MenuEntry[]",
                     "optional": false,
-                    "description": "Items, groups ({ type: 'group' }), separators ({ type: 'separator' }), checkbox items ({ type: 'checkbox' }) and radio groups ({ type: 'radio' }); items with children open a submenu, items with href are links"
+                    "description": "Items, groups ({ type: 'group' }), separators ({ type: 'separator' }), checkbox items ({ type: 'checkbox' }) and radio groups ({ type: 'radio' }); items with children open a submenu, items with href or to are links"
                 },
                 {
                     "name": "open",
@@ -10092,6 +10098,18 @@
                     "description": "Placeholder and accessible name of the filter field"
                 },
                 {
+                    "name": "placement",
+                    "type": "PopoverPlacement",
+                    "optional": true,
+                    "description": "Side of the trigger the menu opens on, e.g. `bottom-end` for a menu at the right edge (default bottom-start)"
+                },
+                {
+                    "name": "arrow",
+                    "type": "boolean",
+                    "optional": true,
+                    "description": "Arrow pointing at the trigger, as on the Popover"
+                },
+                {
                     "name": "ref",
                     "type": "Ref<OverlayHandle>",
                     "optional": true,
@@ -10121,7 +10139,7 @@
             "props": [
                 {
                     "name": "menus",
-                    "type": "MenubarMenu[]",
+                    "type": "readonly MenubarMenu[]",
                     "optional": false,
                     "description": ""
                 },
@@ -10173,7 +10191,7 @@
             "props": [
                 {
                     "name": "items",
-                    "type": "MeterGroupItem[]",
+                    "type": "readonly MeterGroupItem[]",
                     "optional": false,
                     "description": ""
                 },
@@ -10740,7 +10758,7 @@
             "props": [
                 {
                     "name": "items",
-                    "type": "NativeSelectOption[]",
+                    "type": "readonly NativeSelectOption[]",
                     "optional": false,
                     "description": ""
                 },
@@ -10786,7 +10804,7 @@
             "props": [
                 {
                     "name": "items",
-                    "type": "NavigationMenuEntry[]",
+                    "type": "readonly NavigationMenuEntry[]",
                     "optional": false,
                     "description": ""
                 },
@@ -10848,7 +10866,7 @@
             "props": [
                 {
                     "name": "items",
-                    "type": "NotificationItem[]",
+                    "type": "readonly NotificationItem[]",
                     "optional": true,
                     "description": "The notifications (with `dataSource`: new ones pushed by the app, before the loaded pages)"
                 },
@@ -11648,7 +11666,7 @@
                 },
                 {
                     "name": "pageSizes",
-                    "type": "number[]",
+                    "type": "readonly number[]",
                     "optional": true,
                     "description": "Choice of rows per page, e.g. [10, 25, 50]; the current page keeps its first item in view"
                 },
@@ -11830,7 +11848,7 @@
                 },
                 {
                     "name": "requirements",
-                    "type": "PasswordRequirement[]",
+                    "type": "readonly PasswordRequirement[]",
                     "optional": true,
                     "description": "Checklist below the field, updated while typing: each rule with its state (icon and text), linked to the input as its description"
                 },
@@ -12130,7 +12148,7 @@
                 },
                 {
                     "name": "countries",
-                    "type": "PhoneCountry[]",
+                    "type": "readonly PhoneCountry[]",
                     "optional": true,
                     "description": "Countries to offer (default: about 60 common ones; extend with your own entries)"
                 },
@@ -12312,7 +12330,7 @@
             "props": [
                 {
                     "name": "slices",
-                    "type": "PieSlice[]",
+                    "type": "readonly PieSlice[]",
                     "optional": false,
                     "description": "The slices: label, value, colour"
                 },
@@ -12584,10 +12602,22 @@
                     "description": "Accessible name of the panel (role=\"dialog\")"
                 },
                 {
+                    "name": "hideTitle",
+                    "type": "boolean",
+                    "optional": true,
+                    "description": "The title only for screen readers, e.g. when the content speaks for itself"
+                },
+                {
                     "name": "description",
                     "type": "string",
                     "optional": true,
                     "description": ""
+                },
+                {
+                    "name": "closable",
+                    "type": "boolean",
+                    "optional": true,
+                    "description": "Shows the close button (default true); without it the panel closes with Escape, outside clicks or PopoverClose"
                 },
                 {
                     "name": "closeLabel",
@@ -12652,7 +12682,7 @@
                 },
                 {
                     "name": "segments",
-                    "type": "ProgressSegment[]",
+                    "type": "readonly ProgressSegment[]",
                     "optional": true,
                     "description": "Several parts in one bar (their sum is the value); a legend names them"
                 },
@@ -12950,7 +12980,7 @@
             "props": [
                 {
                     "name": "items",
-                    "type": "RadialBarItem[]",
+                    "type": "readonly RadialBarItem[]",
                     "optional": false,
                     "description": "One ring per item, the first outermost"
                 },
@@ -13314,7 +13344,7 @@
                 },
                 {
                     "name": "segments",
-                    "type": "RingProgressSegment[]",
+                    "type": "readonly RingProgressSegment[]",
                     "optional": true,
                     "description": "Several parts one after another (a group with a legend)"
                 },
@@ -13384,13 +13414,13 @@
             "props": [
                 {
                     "name": "nodes",
-                    "type": "SankeyNodeInput[]",
+                    "type": "readonly SankeyNodeInput[]",
                     "optional": false,
                     "description": ""
                 },
                 {
                     "name": "links",
-                    "type": "SankeyLinkInput[]",
+                    "type": "readonly SankeyLinkInput[]",
                     "optional": false,
                     "description": "Flows from node to node (ids)"
                 },
@@ -13470,7 +13500,7 @@
             "props": [
                 {
                     "name": "events",
-                    "type": "SchedulerEvent[]",
+                    "type": "readonly SchedulerEvent[]",
                     "optional": true,
                     "description": "Events; with `dataSource` they are shown together with the loaded ones"
                 },
@@ -13512,7 +13542,7 @@
                 },
                 {
                     "name": "views",
-                    "type": "SchedulerView[]",
+                    "type": "readonly SchedulerView[]",
                     "optional": true,
                     "description": "Views offered in the toolbar ('timeline' and 'year' as well)"
                 },
@@ -13578,7 +13608,7 @@
                 },
                 {
                     "name": "resources",
-                    "type": "SchedulerResource[]",
+                    "type": "readonly SchedulerResource[]",
                     "optional": true,
                     "description": "People, rooms or machines: columns in the day and week view, rows in the timeline, a filter in the toolbar"
                 },
@@ -13650,7 +13680,7 @@
                 },
                 {
                     "name": "businessHours",
-                    "type": "SchedulerBusinessHours[]",
+                    "type": "readonly SchedulerBusinessHours[]",
                     "optional": true,
                     "description": "Opening hours by weekday – times outside are hatched (resources can have their own)"
                 },
@@ -13990,7 +14020,7 @@
                 },
                 {
                     "name": "scopes",
-                    "type": "NativeSelectOption[]",
+                    "type": "readonly NativeSelectOption[]",
                     "optional": true,
                     "description": "Areas to search in – a select before the field"
                 },
@@ -14014,7 +14044,7 @@
                 },
                 {
                     "name": "suggestions",
-                    "type": "string[]",
+                    "type": "readonly string[]",
                     "optional": true,
                     "description": "Suggestions while typing (combobox pattern) – any other text can still be searched"
                 },
@@ -14400,7 +14430,7 @@
             "props": [
                 {
                     "name": "items",
-                    "type": "SidebarNavItem[]",
+                    "type": "readonly SidebarNavItem[]",
                     "optional": false,
                     "description": ""
                 },
@@ -14652,7 +14682,7 @@
                 },
                 {
                     "name": "items",
-                    "type": "NavItem[]",
+                    "type": "readonly NavItem[]",
                     "optional": true,
                     "description": ""
                 },
@@ -14739,7 +14769,7 @@
             "props": [
                 {
                     "name": "links",
-                    "type": "SkipLink[]",
+                    "type": "readonly SkipLink[]",
                     "optional": false,
                     "description": ""
                 },
@@ -14815,7 +14845,7 @@
                 },
                 {
                     "name": "thumbLabels",
-                    "type": "string[]",
+                    "type": "readonly string[]",
                     "optional": true,
                     "description": "Names of the thumbs of a range slider, read after the label"
                 },
@@ -15015,7 +15045,7 @@
             "props": [
                 {
                     "name": "data",
-                    "type": "number[]",
+                    "type": "readonly number[]",
                     "optional": false,
                     "description": ""
                 },
@@ -15079,7 +15109,7 @@
             "props": [
                 {
                     "name": "items",
-                    "type": "SpeedDialItem[]",
+                    "type": "readonly SpeedDialItem[]",
                     "optional": false,
                     "description": ""
                 },
@@ -15183,7 +15213,7 @@
                 },
                 {
                     "name": "items",
-                    "type": "MenuEntry[]",
+                    "type": "readonly MenuEntry[]",
                     "optional": false,
                     "description": "The other actions in the menu"
                 },
@@ -15271,7 +15301,7 @@
             "props": [
                 {
                     "name": "panels",
-                    "type": "SplitterPanel[]",
+                    "type": "readonly SplitterPanel[]",
                     "optional": false,
                     "description": ""
                 },
@@ -15621,7 +15651,7 @@
             "props": [
                 {
                     "name": "items",
-                    "type": "StepperItem[]",
+                    "type": "readonly StepperItem[]",
                     "optional": false,
                     "description": ""
                 },
@@ -15709,7 +15739,7 @@
             "props": [
                 {
                     "name": "items",
-                    "type": "StepItem[]",
+                    "type": "readonly StepItem[]",
                     "optional": false,
                     "description": ""
                 },
@@ -15965,7 +15995,7 @@
             "props": [
                 {
                     "name": "items",
-                    "type": "TocEntry[]",
+                    "type": "readonly TocEntry[]",
                     "optional": false,
                     "description": ""
                 },
@@ -16419,7 +16449,7 @@
                 },
                 {
                     "name": "disabledTimes",
-                    "type": "string[]",
+                    "type": "readonly string[]",
                     "optional": true,
                     "description": "Times that are taken"
                 },
@@ -16507,7 +16537,7 @@
             "props": [
                 {
                     "name": "items",
-                    "type": "TimelineItem[]",
+                    "type": "readonly TimelineItem[]",
                     "optional": false,
                     "description": ""
                 },
@@ -16667,7 +16697,7 @@
                 },
                 {
                     "name": "options",
-                    "type": "TimeOption[]",
+                    "type": "readonly TimeOption[]",
                     "optional": true,
                     "description": "Own times for the list instead of every `step` minutes, optionally named"
                 },
@@ -17194,6 +17224,34 @@
             ]
         },
         {
+            "name": "TopBar",
+            "subpath": "",
+            "description": "Slim header of an app outside AppShell: `start`, the middle (children, takes the free space) and `end` – no menus and no toolbar keyboard navigation, the content keeps its own",
+            "category": "Layout",
+            "story": "layout-topbar--playground",
+            "extends": "ComponentProps<'header'>",
+            "props": [
+                {
+                    "name": "start",
+                    "type": "ReactNode",
+                    "optional": true,
+                    "description": "Start, e.g. the logo or the app name"
+                },
+                {
+                    "name": "end",
+                    "type": "ReactNode",
+                    "optional": true,
+                    "description": "End, e.g. an app switcher and the user menu"
+                },
+                {
+                    "name": "classes",
+                    "type": "RecipeClasses<typeof topBarRecipe>",
+                    "optional": true,
+                    "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
+                }
+            ]
+        },
+        {
             "name": "Tour",
             "subpath": "",
             "description": "Step-by-step introduction: each step is a dialog next to its element (focus moves in, Escape ends the tour, arrow keys move between steps).",
@@ -17203,7 +17261,7 @@
             "props": [
                 {
                     "name": "steps",
-                    "type": "TourStep[]",
+                    "type": "readonly TourStep[]",
                     "optional": false,
                     "description": ""
                 },
@@ -17243,7 +17301,7 @@
             "props": [
                 {
                     "name": "items",
-                    "type": "TreeNode[]",
+                    "type": "readonly TreeNode[]",
                     "optional": false,
                     "description": ""
                 },
@@ -17481,7 +17539,7 @@
             "props": [
                 {
                     "name": "items",
-                    "type": "TreemapItem[]",
+                    "type": "readonly TreemapItem[]",
                     "optional": false,
                     "description": ""
                 },
@@ -17539,7 +17597,7 @@
             "props": [
                 {
                     "name": "items",
-                    "type": "TreeNode[]",
+                    "type": "readonly TreeNode[]",
                     "optional": false,
                     "description": ""
                 },
@@ -17769,7 +17827,7 @@
             "props": [
                 {
                     "name": "items",
-                    "type": "T[]",
+                    "type": "readonly T[]",
                     "optional": true,
                     "description": ""
                 },
@@ -18103,7 +18161,7 @@
             "props": [
                 {
                     "name": "steps",
-                    "type": "WaterfallStep[]",
+                    "type": "readonly WaterfallStep[]",
                     "optional": false,
                     "description": "Changes and totals in order (`total: true` shows the running sum)"
                 },
@@ -18249,7 +18307,7 @@
             "props": [
                 {
                     "name": "steps",
-                    "type": "WizardStep[]",
+                    "type": "readonly WizardStep[]",
                     "optional": false,
                     "description": ""
                 },
@@ -18459,12 +18517,12 @@
         {
             "name": "bindInput",
             "subpath": "/form",
-            "description": "Props for Input and Textarea: `<Input {...bindInput(field)} />`"
+            "description": "Props for the text fields with a change event: Input, Textarea and PasswordInput – `<Input {...bindInput(field)} />`. SearchField, MaskInput, PhoneInput, ColorInput, JsonInput, PinInput, Mentions and Autocomplete report their text with `onValueChange`: use bindValue"
         },
         {
             "name": "bindValue",
             "subpath": "/form",
-            "description": "Props for Select, RadioGroup, ChipGroup and SegmentedControl"
+            "description": "Props for Select, RadioGroup, ChipGroup, SegmentedControl and the other components with `value`/`onValueChange`"
         },
         {
             "name": "closeAllDialogs",

@@ -94,7 +94,11 @@ export function PopoverClose({ children }: { children: ReactElement }) {
 export interface PopoverContentProps extends Omit<ComponentProps<'div'>, 'title'> {
     /** Accessible name of the panel (role="dialog") */
     title: string;
+    /** The title only for screen readers, e.g. when the content speaks for itself */
+    hideTitle?: boolean;
     description?: string;
+    /** Shows the close button (default true); without it the panel closes with Escape, outside clicks or PopoverClose */
+    closable?: boolean;
     /** Accessible name of the close button */
     closeLabel?: string;
     /** Extra classes per part of the component, e.g. { base: "…" } (see the recipe) */
@@ -105,7 +109,9 @@ export interface PopoverContentProps extends Omit<ComponentProps<'div'>, 'title'
 export function PopoverContent({
     classes,
     title,
+    hideTitle,
     description,
+    closable = true,
     closeLabel,
     className,
     children,
@@ -114,7 +120,7 @@ export function PopoverContent({
     const popover = useRecipe('popover', popoverRecipe, classes);
     const root = useContext(PopoverRootContext);
     const context = usePopoverContext();
-    const styles = popover({ width: root.width });
+    const styles = popover({ width: root.width, hideTitle });
     const translations = useTranslations();
     // Ark only links title/description that exist when the popover is created – with lazy mounting they don't
     const titleId = useId();
@@ -126,7 +132,8 @@ export function PopoverContent({
             <ArkPopover.Positioner>
                 <ArkPopover.Content
                     aria-labelledby={titleId}
-                    aria-describedby={description ? descriptionId : undefined}
+                    // Without a description: null removes Ark's link to its (missing) one – undefined would keep it
+                    aria-describedby={description ? descriptionId : (null as unknown as undefined)}
                     {...props}
                     className={styles.content({ class: className })}
                 >
@@ -142,12 +149,14 @@ export function PopoverContent({
                         </ArkPopover.Description>
                     )}
                     {children && <div className={styles.body()}>{children}</div>}
-                    <ArkPopover.CloseTrigger
-                        className={styles.close()}
-                        aria-label={closeLabel ?? translations.common.close}
-                    >
-                        <X className={styles.closeIcon()} aria-hidden="true" />
-                    </ArkPopover.CloseTrigger>
+                    {closable && (
+                        <ArkPopover.CloseTrigger
+                            className={styles.close()}
+                            aria-label={closeLabel ?? translations.common.close}
+                        >
+                            <X className={styles.closeIcon()} aria-hidden="true" />
+                        </ArkPopover.CloseTrigger>
+                    )}
                 </ArkPopover.Content>
             </ArkPopover.Positioner>
         </Portal>

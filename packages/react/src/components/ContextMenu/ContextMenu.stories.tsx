@@ -12,7 +12,7 @@ const items: MenuEntry[] = [
     { value: 'select-all', label: 'Select all' },
 ];
 
-function Demo({ items }: { items: MenuEntry[] }) {
+function Demo({ items }: { items: readonly MenuEntry[] }) {
     const [selected, setSelected] = useState('');
     return (
         <div className="flex flex-col items-center gap-3">

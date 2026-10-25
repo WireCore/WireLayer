@@ -33,6 +33,8 @@ export interface AvatarProps extends Omit<ComponentProps<'div'>, 'children'> {
     color?: AvatarColor | 'auto';
     /** Extra classes per part of the component, e.g. { base: "…" } (see the recipe) */
     classes?: RecipeClasses<typeof avatarRecipe>;
+    /** `button`: a button with the avatar as its content, e.g. the trigger of a user menu (name: `name` or aria-label) */
+    as?: 'div' | 'button';
 }
 
 export function Avatar({
@@ -44,6 +46,7 @@ export function Avatar({
     size,
     shape,
     color,
+    as: Tag = 'div',
     className,
     ...props
 }: AvatarProps) {
@@ -55,22 +58,26 @@ export function Avatar({
         shape,
         color: color === 'auto' ? (name ? avatarColor(name) : undefined) : color,
         grouped: groupSize !== null,
+        interactive: Tag === 'button',
     });
     const initials = name ? getInitials(name) : '';
 
-    // With a name the avatar is one image for assistive tech; without it is decorative
+    // With a name the avatar is one image for assistive tech, without it is decorative; as a button it is named
     return (
         <ArkAvatar.Root
             {...props}
+            asChild
             className={styles.base({ class: className })}
-            role={name ? 'img' : undefined}
-            aria-label={name || undefined}
-            aria-hidden={name ? undefined : true}
+            role={Tag === 'div' && name ? 'img' : undefined}
+            aria-label={props['aria-label'] ?? (name || undefined)}
+            aria-hidden={Tag === 'div' && !name ? true : undefined}
         >
-            <ArkAvatar.Fallback className={styles.fallback()}>
-                {initials || <Icon className={styles.icon()} aria-hidden="true" />}
-            </ArkAvatar.Fallback>
-            {src && <ArkAvatar.Image src={src} alt="" className={styles.image()} />}
+            <Tag type={Tag === 'button' ? 'button' : undefined}>
+                <ArkAvatar.Fallback className={styles.fallback()}>
+                    {initials || <Icon className={styles.icon()} aria-hidden="true" />}
+                </ArkAvatar.Fallback>
+                {src && <ArkAvatar.Image src={src} alt="" className={styles.image()} />}
+            </Tag>
         </ArkAvatar.Root>
     );
 }

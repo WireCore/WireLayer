@@ -20,7 +20,7 @@ export interface HighlightProps {
     /** Ignores accents: "Muller" finds "Müller" */
     ignoreAccents?: boolean;
     /** Colour per search term, in the order of `query` (default: all warn) */
-    colors?: HighlightColor[];
+    colors?: readonly HighlightColor[];
     /** Extra classes per part of the component, e.g. { base: "…" } (see the recipe) */
     classes?: RecipeClasses<typeof highlightRecipe>;
 }

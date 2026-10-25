@@ -20,7 +20,7 @@ export interface RadialBarItem {
 
 export interface RadialBarProps extends Omit<ComponentProps<'div'>, 'children'> {
     /** One ring per item, the first outermost */
-    items: RadialBarItem[];
+    items: readonly RadialBarItem[];
     /** Accessible name (visible with `showTitle`) */
     label: string;
     showTitle?: boolean;
