@@ -19,6 +19,12 @@ export interface EmptyStateProps {
 
 defineOptions({ inheritAttrs: false });
 const props = defineProps<EmptyStateProps>();
+defineSlots<{
+    /** Own description, e.g. with a link (instead of `description`) */
+    description?(): unknown;
+    /** Buttons below the text, e.g. "Create the first entry" */
+    actions?(): unknown;
+}>();
 const emptyState = useRecipe('emptyState', emptyStateRecipe, () => props.classes);
 const attrs = useAttrs();
 const styles = computed(() => emptyState({ variant: props.variant, size: props.size }));

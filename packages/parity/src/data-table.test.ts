@@ -1,5 +1,10 @@
 import { fireEvent, screen, waitFor, within } from '@testing-library/dom';
+import { act, render as renderReact } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { render as renderVue } from '@testing-library/vue';
+import { DataTable as ReactDataTable } from '@wirecore/wirelayer-react/data-table';
+import { DataTable as VueDataTable } from '@wirecore/wirelayer-vue/data-table';
+import { createElement, useState } from 'react';
 import {
     applyPending,
     changesByRow,
@@ -47,6 +52,7 @@ import {
     zipStore,
 } from '@wirecore/wirelayer-recipes';
 import { describe, expect, it, vi } from 'vitest';
+import { defineComponent, h, nextTick, ref, type Component } from 'vue';
 import { el, feature, frameworks, render, toReact, type El } from './harness.js';
 import { de as german } from '@wirecore/wirelayer-recipes/locales/de';
 
@@ -2012,5 +2018,267 @@ describe.each(frameworks)('%s DataTable spreadsheet, server and layout', (framew
             ])
         );
         expect(screen.getByRole('menuitem', { name: 'Move Usage forward' })).toHaveAttribute('data-disabled');
+    });
+});
+
+// Gaps found when moving an app from PrimeVue: resetting, what the state keeps, column settings, the search, props
+// that are equal copies
+describe.each(frameworks)('%s DataTable: reset, saved state, column settings', (framework) => {
+    const on = (vue: string, react: string) => (framework === 'vue' ? vue : react);
+    const table = (props: Record<string, unknown> = {}) =>
+        el('DataTable', { data: fleet, columns, caption: 'Server', getRowId, rowLabel, ...props });
+    const base = { data: fleet, columns, caption: 'Server', getRowId, rowLabel };
+    /** Renders a parent that re-renders on "Rerender" – the props come anew from `props()` each time */
+    async function renderParent(props: (state: { page: number; setPage: (page: number) => void }) => object) {
+        if (framework === 'vue') {
+            const Parent = defineComponent({
+                setup() {
+                    const tick = ref(0);
+                    const page = ref(1);
+                    const setPage = (next: number) => (page.value = next);
+                    return () =>
+                        h('div', { 'data-tick': tick.value }, [
+                            h('button', { onClick: () => tick.value++ }, 'Rerender'),
+                            h(VueDataTable as Component, { ...base, ...props({ page: page.value, setPage }) }),
+                        ]);
+                },
+            });
+            renderVue(Parent);
+            await nextTick();
+            return;
+        }
+        function Parent() {
+            const [tick, setTick] = useState(0);
+            const [page, setPage] = useState(1);
+            return createElement(
+                'div',
+                { 'data-tick': tick },
+                createElement('button', { onClick: () => setTick(tick + 1) }, 'Rerender'),
+                createElement(ReactDataTable as never, { ...base, ...props({ page, setPage }) })
+            );
+        }
+        renderReact(createElement(Parent));
+        await act(() => new Promise((done) => setTimeout(done)));
+    }
+    const run = async (call: () => void) => {
+        if (framework === 'react') await act(async () => call());
+        else {
+            call();
+            await nextTick();
+        }
+    };
+
+    it('filterReset: a toolbar button clears the filters and the search; disabled while nothing is set', async () => {
+        const onFilters = vi.fn();
+        const onSearch = vi.fn();
+        await render(
+            framework,
+            table({
+                filterReset: true,
+                search: true,
+                [on('onUpdate:filters', 'onFiltersChange')]: onFilters,
+                [on('onUpdate:globalFilter', 'onGlobalFilterChange')]: onSearch,
+            })
+        );
+        const reset = screen.getByRole('button', { name: 'Reset filters' });
+        expect(reset).toBeDisabled();
+        await userEvent.type(screen.getByRole('textbox', { name: 'Filter Name' }), 'web');
+        await userEvent.type(screen.getByRole('searchbox', { name: 'Search Server' }), 'frank');
+        expect(names()).toEqual(['web-01']);
+        expect(reset).toBeEnabled();
+        await userEvent.click(reset);
+        expect(onFilters).toHaveBeenLastCalledWith({});
+        expect(onSearch).toHaveBeenLastCalledWith('');
+        expect(names()).toEqual(['web-01', 'db-primary', 'k8s-node-3']);
+        expect(screen.getByRole('textbox', { name: 'Filter Name' })).toHaveValue('');
+        expect(screen.getByRole('searchbox', { name: 'Search Server' })).toHaveValue('');
+        expect(reset).toBeDisabled();
+    });
+
+    it('resetState(): filters, search and sorting back (defaultSorting), the saved state is gone', async () => {
+        let handle: { resetState: () => void } | undefined;
+        await render(
+            framework,
+            table({
+                ref: (value: typeof handle | null) => (handle = value ?? handle),
+                stateKey: 'reset-test',
+                defaultSorting: { id: 'name', desc: false },
+            })
+        );
+        const load = screen.getByRole('columnheader', { name: /Load/ });
+        await userEvent.click(within(load).getByRole('button'));
+        await userEvent.type(screen.getByRole('textbox', { name: 'Filter Name' }), 'o');
+        await waitFor(() => expect(sessionStorage.getItem('wirecore-table:reset-test')).toContain('"load"'));
+        await run(() => handle!.resetState());
+        expect(screen.getByRole('columnheader', { name: /Name/ })).toHaveAttribute('aria-sort', 'ascending');
+        expect(load).toHaveAttribute('aria-sort', 'none');
+        expect(names()).toEqual(['db-primary', 'k8s-node-3', 'web-01']);
+        await waitFor(() => expect(sessionStorage.getItem('wirecore-table:reset-test')).toBeNull());
+        sessionStorage.clear();
+    });
+
+    it('the saved state leaves out the selection (stateExclude) and keeps whether the filters show', async () => {
+        sessionStorage.setItem(
+            'wirecore-table:keep-test',
+            JSON.stringify({ selection: ['web-01'], showFilters: false, sorting: [{ id: 'load', desc: true }] })
+        );
+        await render(framework, table({ stateKey: 'keep-test', selectable: true, filterToggle: true }));
+        await waitFor(() =>
+            expect(screen.getByRole('columnheader', { name: /Load/ })).toHaveAttribute('aria-sort', 'descending')
+        );
+        expect(screen.getByRole('checkbox', { name: 'Select web-01' })).not.toBeChecked();
+        expect(screen.queryByRole('textbox', { name: 'Filter Name' })).not.toBeInTheDocument();
+        await userEvent.click(screen.getByRole('checkbox', { name: 'Select db-primary' }));
+        await userEvent.click(screen.getByRole('button', { name: 'Show filters' }));
+        await waitFor(() => {
+            const saved = JSON.parse(sessionStorage.getItem('wirecore-table:keep-test')!);
+            expect(saved.showFilters).toBe(true);
+            expect(saved).not.toHaveProperty('selection');
+        });
+        sessionStorage.clear();
+    });
+
+    it('stateExclude=[] keeps the selection as before', async () => {
+        sessionStorage.setItem('wirecore-table:all-test', JSON.stringify({ selection: ['web-01'] }));
+        await render(framework, table({ stateKey: 'all-test', stateExclude: [], selectable: true }));
+        await waitFor(() => expect(screen.getByRole('checkbox', { name: 'Select web-01' })).toBeChecked());
+        sessionStorage.clear();
+    });
+
+    it('selectedRows: the selection as row objects, both ways', async () => {
+        const onRows = vi.fn();
+        await render(
+            framework,
+            table({
+                selectable: true,
+                selectedRows: [fleet[1]],
+                [on('onUpdate:selectedRows', 'onSelectedRowsChange')]: onRows,
+            })
+        );
+        expect(screen.getByRole('checkbox', { name: 'Select db-primary' })).toBeChecked();
+        expect(screen.getByRole('checkbox', { name: 'Select web-01' })).not.toBeChecked();
+        await userEvent.click(screen.getByRole('checkbox', { name: 'Select web-01' }));
+        expect(onRows).toHaveBeenLastCalledWith([fleet[1], fleet[0]]);
+    });
+
+    it('column classes and a header for screen readers only', async () => {
+        await render(
+            framework,
+            table({
+                columns: [
+                    { id: 'name', header: 'Name', headerClass: 'w-40', cellClass: 'font-semibold' },
+                    {
+                        id: 'load',
+                        header: 'Load',
+                        align: 'end',
+                        cellClass: (row: { load: number }) => (row.load > 50 ? 'text-danger' : undefined),
+                    },
+                    { id: 'actions', header: 'Actions', headerHidden: true, accessor: () => '' },
+                ],
+            })
+        );
+        expect(screen.getByRole('columnheader', { name: 'Name' })).toHaveClass('w-40');
+        expect(screen.getByRole('cell', { name: 'web-01' })).toHaveClass('font-semibold');
+        expect(screen.getByRole('cell', { name: '71' })).toHaveClass('text-danger');
+        expect(screen.getByRole('cell', { name: '42' })).not.toHaveClass('text-danger');
+        const actions = screen.getByRole('columnheader', { name: 'Actions' });
+        expect(within(actions).getByText('Actions')).toHaveClass('sr-only');
+    });
+
+    it('rowKeywords: the search also finds rows by text without a column – even with no searchable column', async () => {
+        await render(
+            framework,
+            table({
+                search: true,
+                columns: columns.map((column) => ({ ...column, searchable: false })),
+                rowKeywords: (row: { id: string }) => (row.id === 'k8s-node-3' ? ['kubernetes', 'cluster'] : null),
+            })
+        );
+        await userEvent.type(screen.getByRole('searchbox', { name: 'Search Server' }), 'kubern');
+        expect(names()).toEqual(['k8s-node-3']);
+        await userEvent.clear(screen.getByRole('searchbox', { name: 'Search Server' }));
+        await userEvent.type(screen.getByRole('searchbox', { name: 'Search Server' }), 'web');
+        expect(screen.queryByRole('cell', { name: 'web-01' })).not.toBeInTheDocument();
+    });
+
+    it('filterInputProps and an own option template reach the built-in filter inputs', async () => {
+        const optionView = (item: { label: string }) => el('em', {}, `At ${item.label}`);
+        await render(
+            framework,
+            table({
+                columns: [
+                    { id: 'name', header: 'Name', filter: 'text', filterInputProps: { placeholder: 'Hostname …' } },
+                    {
+                        id: 'location',
+                        header: 'Location',
+                        filter: 'multiSelect',
+                        filterOptions: [
+                            { value: 'Frankfurt', label: 'Frankfurt', keywords: ['Hesse'] },
+                            { value: 'Nuremberg', label: 'Nuremberg', keywords: ['Bavaria'] },
+                        ],
+                        filterInputProps: { filter: true, placeholder: 'Any location' },
+                        ...(framework === 'react'
+                            ? { renderOption: (item: { label: string }) => toReact(optionView(item)) }
+                            : {}),
+                    },
+                ],
+                ...(framework === 'vue'
+                    ? {
+                          $scoped: {
+                              'option-location': {
+                                  react: '',
+                                  args: (props: Record<string, unknown>) => props,
+                                  render: ({ item }: { item: { label: string } }) => optionView(item),
+                              },
+                          },
+                      }
+                    : {}),
+            })
+        );
+        expect(screen.getByRole('textbox', { name: 'Filter Name' })).toHaveAttribute('placeholder', 'Hostname …');
+        const location = screen.getByRole('combobox', { name: 'Filter Location' });
+        expect(location).toHaveTextContent('Any location');
+        await userEvent.click(location);
+        await userEvent.type(screen.getByRole('combobox', { name: 'Filter options' }), 'bavar');
+        const options = await screen.findAllByRole('option');
+        expect(options.map((option) => option.textContent?.trim())).toEqual(['At Nuremberg']);
+    });
+
+    it('a new page keeps the rows per page the user chose (page-size one way, page two way)', async () => {
+        await renderParent(({ page, setPage }) => ({
+            pageSize: 1,
+            pageSizeOptions: [1, 2],
+            page,
+            [on('onUpdate:page', 'onPageChange')]: setPage,
+        }));
+        await userEvent.click(screen.getByRole('combobox', { name: 'Rows per page' }));
+        await userEvent.click(await screen.findByRole('option', { name: '2' }));
+        expect(names()).toEqual(['web-01', 'db-primary']);
+        await userEvent.click(screen.getByRole('button', { name: 'Next page' }));
+        expect(names()).toEqual(['k8s-node-3']);
+    });
+
+    it('an equal copy of a prop (inline in the parent) is no change: the page and the sorting stay', async () => {
+        await renderParent(() => ({
+            pageSize: 1,
+            sorting: { id: 'name', desc: false },
+            [on('onUpdate:sorting', 'onSortingChange')]: () => {},
+        }));
+        expect(names()).toEqual(['db-primary']);
+        await userEvent.click(screen.getByRole('button', { name: 'Next page' }));
+        expect(names()).toEqual(['k8s-node-3']);
+        await userEvent.click(screen.getByRole('button', { name: 'Rerender' }));
+        expect(names()).toEqual(['k8s-node-3']);
+    });
+
+    // Vue: the sorting prop is the start, the user sorts on – a parent re-render must not undo that
+    it.runIf(framework === 'vue')('Vue: a one-way sorting prop does not undo the sorting of the user', async () => {
+        await renderParent(() => ({ sorting: { id: 'name', desc: false } }));
+        const load = screen.getByRole('columnheader', { name: /Load/ });
+        await userEvent.click(within(load).getByRole('button'));
+        expect(load).toHaveAttribute('aria-sort', 'ascending');
+        await userEvent.click(screen.getByRole('button', { name: 'Rerender' }));
+        expect(load).toHaveAttribute('aria-sort', 'ascending');
+        expect(names()).toEqual(['k8s-node-3', 'web-01', 'db-primary']);
     });
 });

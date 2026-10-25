@@ -14,6 +14,7 @@ import {
     Download,
     EllipsisVertical,
     Filter,
+    FilterX,
     GripVertical,
     ListFilter,
     Maximize2,
@@ -70,6 +71,7 @@ import {
     dataTableMatchModes,
     type DataTableSort,
     type DataTableState,
+    type DataTableStateKey,
     downloadBytes,
     downloadText,
     EditHistory,
@@ -88,12 +90,14 @@ import {
     loadTableState,
     locateTreeNode,
     matchesColumnFilter,
+    matchesRowKeywords,
     matchesSearch,
     matchModeDefinition,
     menu as menuRecipe,
     moveColumnBlock,
     nextSorting,
     numberSummary,
+    omitTableState,
     parseCellText,
     parseTsv,
     pasteTargets,
@@ -111,6 +115,7 @@ import {
     rowColumnSpans,
     rowsToDataSource,
     sameCellValue,
+    sameTableValue,
     saveTableState,
     syncGrid,
     treeGridKeyAction,
@@ -228,6 +233,11 @@ export interface DataTableProps<T> {
     /** `multiple` (checkboxes, default) or `single` (radio buttons) */
     selectionMode?: 'multiple' | 'single';
     selection?: string[];
+    /**
+     * The selected rows as objects – use with v-model:selected-rows (instead of or next to `selection`); rows are
+     * found by `getRowId`
+     */
+    selectedRows?: readonly T[];
     /** A click on the row (not on its controls) selects it; Shift+click selects a range */
     selectOnRowClick?: boolean;
     /** Rows that cannot be selected get a disabled checkbox */
@@ -270,6 +280,11 @@ export interface DataTableProps<T> {
     /** Search field above the table: filters over all columns (v-model:global-filter) */
     search?: boolean;
     globalFilter?: string;
+    /**
+     * More text the search finds a row by, besides its columns – e.g. fields without a column of their own (not in
+     * server mode: there the server searches)
+     */
+    rowKeywords?: (row: T) => string | readonly string[] | null | undefined;
     /** Marks the search hits in the cells */
     highlightSearch?: boolean;
     /** Column filters by column id – use with v-model:filters */
@@ -280,6 +295,8 @@ export interface DataTableProps<T> {
     showFilters?: boolean;
     /** Button in the toolbar that shows and hides the filters */
     filterToggle?: boolean;
+    /** Button in the toolbar that clears the column filters, the search and the advanced filter (`resetFilters()`) */
+    filterReset?: boolean;
     /** Conditions per column in the filter menu */
     maxConstraints?: number;
     /** Column widths can be changed by dragging the header edge or with the arrow keys */
@@ -369,6 +386,8 @@ export interface DataTableProps<T> {
     /** Keeps sorting, filters, page, widths, order and the other settings in the browser under this key */
     stateKey?: string;
     stateStorage?: 'local' | 'session';
+    /** Parts of the state that `stateKey` does not keep – default: the selection (`[]` keeps it, too) */
+    stateExclude?: readonly DataTableStateKey[];
     /** Extra classes per part of the component, e.g. { base: "…" } (see the recipe) */
     classes?: RecipeClasses<typeof dataTableRecipe>;
 }
@@ -387,6 +406,9 @@ const props = withDefaults(defineProps<DataTableProps<TData>>(), {
     defaultSorting: undefined,
     first: undefined,
     selection: undefined,
+    selectedRows: undefined,
+    rowKeywords: undefined,
+    stateExclude: () => ['selection'],
     allSelection: undefined,
     showFilters: undefined,
     rowHref: undefined,
@@ -428,6 +450,7 @@ const emit = defineEmits<{
     'update:allSelection': [selection: DataTableAllSelection | null];
     /** The selected rows as objects (with `selection`; rows of other pages are remembered) */
     selectedRowsChange: [rows: TData[]];
+    'update:selectedRows': [rows: TData[]];
     /** A click on a row (not on its controls) – with `rowHref`, `event.preventDefault()` stops the navigation */
     rowClick: [click: DataTableRowClick<TData>];
     'update:pageSize': [pageSize: number];
@@ -467,6 +490,14 @@ defineSlots<
     } & {
         /** Own editor of a column, by column id */
         [editor: `editor-${string}`]: (props: DataTableEditorProps<TData>) => unknown;
+    } & {
+        /** An option in the select filter and editor lists of a column, by column id – e.g. a status as a badge */
+        [option: `option-${string}`]: (props: {
+            item: unknown;
+            selected: boolean;
+            highlighted: boolean;
+            disabled: boolean;
+        }) => unknown;
     } & {
         /** Details below an expanded row – adds the expand column */
         expansion?: (props: { row: TData; rowId: string }) => unknown;
@@ -522,6 +553,14 @@ const fromFilters = (filters: Record<string, DataTableFilterValue>): ColumnFilte
 const toIds = (ids: string[], value = true) => Object.fromEntries(ids.map((key) => [key, value]));
 /** Selection state: TanStack keeps selected ids only (value true) */
 const toSelection = (ids: string[]): RowSelectionState => Object.fromEntries(ids.map((key) => [key, true as const]));
+/**
+ * Watches a controlled prop: a new value counts when its content changed – an equal copy (inline in the template,
+ * from a computed) keeps what the user did
+ */
+const watchProp = <V,>(source: () => V, apply: (value: V) => unknown) =>
+    watch(source, (value, old) => {
+        if (!sameTableValue(value, old)) apply(value);
+    });
 const withSelected = (state: RowSelectionState, ids: string[], checked: boolean): RowSelectionState => {
     const next = { ...state };
     for (const key of ids) {
@@ -584,7 +623,7 @@ const pivotModel = computed(() => {
 });
 // Advanced filter: the condition tree filters `data` before the table sees it
 const advancedTree = ref<ConditionGroup>(props.advancedFilterValue ?? emptyConditionGroup('and', 'root'));
-watch(
+watchProp(
     () => props.advancedFilterValue,
     (value) => value && (advancedTree.value = value)
 );
@@ -666,7 +705,7 @@ const textFilter = (column: DataTableColumn<TData>) =>
 
 // Controlled when the prop is set, internal otherwise
 const sorting = ref<SortingState>(toSorting(props.sorting !== undefined ? props.sorting : props.defaultSorting));
-watch(
+watchProp(
     () => props.sorting,
     (value) => value !== undefined && (sorting.value = toSorting(value))
 );
@@ -677,31 +716,52 @@ const pagination = ref<PaginationState>({
     pageIndex: pageIndexOf(props.page, props.first, props.pageSize ?? 10) ?? 0,
     pageSize: props.pageSize ?? 10,
 });
-watch(
-    () => [props.page, props.pageSize, props.first] as const,
-    ([page, pageSize, first]) => {
-        const size = pageSize ?? pagination.value.pageSize;
-        pagination.value = { pageIndex: pageIndexOf(page, first, size) ?? pagination.value.pageIndex, pageSize: size };
+// Each of its own: a new page must not reset the rows per page the user chose (one-way `page-size`)
+watchProp(
+    () => props.pageSize,
+    (pageSize) => pageSize !== undefined && (pagination.value = { ...pagination.value, pageSize })
+);
+watchProp(
+    () => [props.page, props.first] as const,
+    ([page, first]) => {
+        const pageIndex = pageIndexOf(page, first, pagination.value.pageSize);
+        if (pageIndex !== undefined) pagination.value = { ...pagination.value, pageIndex };
     }
 );
-const rowSelection = ref<RowSelectionState>(toSelection(props.selection ?? []));
-watch(
+/** The id of a row object (`selectedRows`): `getRowId`, otherwise its position in `data` */
+function rowIdOf(row: TData) {
+    const index = (props.data ?? []).indexOf(row);
+    return props.getRowId ? props.getRowId(row, index) : index >= 0 ? String(index) : undefined;
+}
+const idsOfRows = (rows: readonly TData[]) => rows.map(rowIdOf).filter((rowId) => rowId !== undefined);
+const rowSelection = ref<RowSelectionState>(
+    toSelection(props.selection ?? (props.selectedRows ? idsOfRows(props.selectedRows) : []))
+);
+watchProp(
     () => props.selection,
     (ids) => ids && (rowSelection.value = toSelection(ids))
 );
+watchProp(
+    () => props.selectedRows,
+    (rows) => {
+        if (!rows) return;
+        rememberRows(rows);
+        rowSelection.value = toSelection(idsOfRows(rows));
+    }
+);
 // "Select all" across the pages of a server table
 const allSelection = ref<DataTableAllSelection | null>(props.allSelection ?? null);
-watch(
+watchProp(
     () => props.allSelection,
     (value) => value !== undefined && (allSelection.value = value)
 );
 const showFilters = ref(props.showFilters ?? true);
-watch(
+watchProp(
     () => props.showFilters,
     (value) => value !== undefined && (showFilters.value = value)
 );
 const grouping = ref<string[]>(toArray(props.groupBy));
-watch(
+watchProp(
     () => props.groupBy,
     (value) => (grouping.value = toArray(value))
 );
@@ -713,27 +773,27 @@ const expanded = ref<ExpandedState>(
           ? true
           : {}
 );
-watch(
+watchProp(
     () => props.expanded,
     (ids) => ids && (expanded.value = toIds(ids))
 );
 const globalFilter = ref(props.globalFilter ?? '');
-watch(
+watchProp(
     () => props.globalFilter,
     (value) => value !== undefined && (globalFilter.value = value)
 );
 const columnFilters = ref<ColumnFiltersState>(fromFilters(props.filters ?? {}));
-watch(
+watchProp(
     () => props.filters,
     (value) => value && (columnFilters.value = fromFilters(value))
 );
 const columnVisibility = ref<ColumnVisibilityState>(toIds(props.hiddenColumns ?? [], false));
-watch(
+watchProp(
     () => props.hiddenColumns,
     (ids) => ids && (columnVisibility.value = toIds(ids, false))
 );
 const columnOrder = ref<ColumnOrderState>(props.columnOrder ?? []);
-watch(
+watchProp(
     () => props.columnOrder,
     (ids) => ids && (columnOrder.value = ids)
 );
@@ -742,13 +802,13 @@ const pinnedFromColumns = () => ({
     end: leafDefs.value.filter((column) => column.pinned === 'end').map((column) => column.id),
 });
 const columnPinning = ref<ColumnPinningState>(props.pinnedColumns ?? pinnedFromColumns());
-watch(
+watchProp(
     () => props.pinnedColumns,
     (value) => value && (columnPinning.value = value)
 );
 const columnSizing = ref<ColumnSizingState>({});
 const density = ref<Density>(props.size ?? 'md');
-watch(
+watchProp(
     () => props.size,
     (value) => value && (density.value = value)
 );
@@ -783,7 +843,8 @@ function toDef(column: DataTableColumn<TData>): ColumnDef<Features, TData> {
                 },
                 value
             ),
-        enableGlobalFilter: column.searchable !== false,
+        // With rowKeywords every column takes part (globalFilterFn tests the keywords, then the searchable columns)
+        enableGlobalFilter: !!props.rowKeywords || column.searchable !== false,
         enableHiding: column.hideable !== false,
         enableGrouping: true,
         ...(column.width ? { size: column.width } : {}),
@@ -855,13 +916,19 @@ const table = useTable({
     },
     globalFilterFn: (row: TableRow, columnId: string, value: string) => {
         const column = columnById.value.get(columnId);
-        return matchesSearch(
-            [display(column, row.getValue(columnId), row.original)],
-            value,
-            localeContext.value.locale
+        const locale = localeContext.value.locale;
+        if (
+            props.rowKeywords &&
+            !pivotModel.value &&
+            matchesRowKeywords(props.rowKeywords(row.original), value, locale)
+        )
+            return true;
+        return (
+            column?.searchable !== false &&
+            matchesSearch([display(column, row.getValue(columnId), row.original)], value, locale)
         );
     },
-    getColumnCanGlobalFilter: (column) => columnById.value.get(column.id)?.searchable !== false,
+    getColumnCanGlobalFilter: (column) => !!props.rowKeywords || columnById.value.get(column.id)?.searchable !== false,
     enableColumnResizing: computed(() => !!props.resizable),
     columnResizeMode: 'onChange',
     groupedColumnMode: false,
@@ -889,6 +956,13 @@ function setPagination(next: PaginationState) {
 }
 // Rows of other pages (server mode) stay known for selectedRowsChange
 const remembered = new Map<string, TData>();
+function rememberRows(rows: readonly TData[]) {
+    for (const row of rows) {
+        const rowId = rowIdOf(row);
+        if (rowId !== undefined) remembered.set(rowId, row);
+    }
+}
+rememberRows(props.selectedRows ?? []);
 function setSelection(next: RowSelectionState) {
     rowSelection.value = next;
     const ids = Object.keys(next).filter((key) => next[key]);
@@ -896,19 +970,19 @@ function setSelection(next: RowSelectionState) {
     const known = table.getCoreRowModel().rowsById;
     for (const key of [...remembered.keys()]) if (!next[key]) remembered.delete(key);
     for (const key of ids) if (known[key]) remembered.set(key, known[key].original);
-    emit(
-        'selectedRowsChange',
-        ids.flatMap((key) => (remembered.has(key) ? [remembered.get(key)!] : []))
-    );
+    const rows = ids.flatMap((key) => (remembered.has(key) ? [remembered.get(key)!] : []));
+    emit('selectedRowsChange', rows);
+    emit('update:selectedRows', rows);
 }
 function setAllSelection(next: DataTableAllSelection | null) {
     allSelection.value = next;
     emit('update:allSelection', next);
 }
-function toggleFilters() {
-    showFilters.value = !showFilters.value;
-    emit('update:showFilters', showFilters.value);
+function setShowFilters(next: boolean) {
+    showFilters.value = next;
+    emit('update:showFilters', next);
 }
+const toggleFilters = () => setShowFilters(!showFilters.value);
 function setExpanded(next: ExpandedState) {
     expanded.value = next;
     emit('update:expanded', next === true ? [] : Object.keys(next).filter((key) => next[key]));
@@ -941,6 +1015,12 @@ const styleFor = (columnId: string) => {
         hideBelow: column?.hideBelow ? (`hide-${column.hideBelow}` as const) : undefined,
     });
 };
+/** Own classes of a column's cells (`cellClass`): a function gets the row – not group rows and the footer */
+function cellClassOf(columnId: string, row?: TableRow) {
+    const cellClass = columnById.value.get(columnId)?.cellClass;
+    if (typeof cellClass !== 'function') return cellClass;
+    return row && !row.getIsGrouped() ? cellClass(row.original) : undefined;
+}
 
 // Utility columns before and after the data columns
 const editable = computed(() => leafDefs.value.some((column) => column.editable));
@@ -1044,6 +1124,9 @@ const headerRows = computed(() => {
     );
 });
 const label = (column: TableColumn) => columnById.value.get(column.id)?.header ?? column.id;
+/** `headerHidden`: the header text for screen readers only */
+const headLabelClass = (column: TableColumn) =>
+    columnById.value.get(column.id)?.headerHidden ? styles.value.srOnly() : styles.value.headLabel();
 
 // Sorting
 const ariaSort = (columnId: string) => {
@@ -2776,10 +2859,12 @@ const tableState = computed<DataTableState>(() => ({
             : Object.keys(expanded.value).filter((key) => (expanded.value as Record<string, boolean>)[key]),
     selection: Object.keys(rowSelection.value).filter((key) => rowSelection.value[key]),
     density: density.value,
+    showFilters: showFilters.value,
 }));
 onMounted(() => {
     if (!props.stateKey) return;
-    const saved = loadTableState(props.stateKey, props.stateStorage);
+    const loaded = loadTableState(props.stateKey, props.stateStorage);
+    const saved = loaded && omitTableState(loaded, props.stateExclude);
     if (saved) {
         if (saved.sorting) setSorting(saved.sorting);
         if (saved.filters) table.setColumnFilters(fromFilters(saved.filters));
@@ -2791,14 +2876,36 @@ onMounted(() => {
         if (saved.expanded && saved.expanded.length) setExpanded(toIds(saved.expanded));
         if (saved.selection) setSelection(toSelection(saved.selection));
         if (saved.density) setDensity(saved.density);
+        if (saved.showFilters !== undefined && saved.showFilters !== showFilters.value)
+            setShowFilters(saved.showFilters);
         if (saved.page || saved.pageSize)
             setPagination({ pageIndex: (saved.page ?? 1) - 1, pageSize: saved.pageSize ?? pagination.value.pageSize });
     }
-    watch(tableState, (state) => saveTableState(props.stateKey!, state, props.stateStorage), { deep: true });
+    watch(
+        tableState,
+        (state) => saveTableState(props.stateKey!, omitTableState(state, props.stateExclude), props.stateStorage),
+        { deep: true }
+    );
 });
 /** Forgets the saved state (`stateKey`) */
 function clearState() {
     if (props.stateKey) clearTableState(props.stateKey, props.stateStorage);
+}
+/** Clears the column filters, the search and the advanced filter – back to page 1 */
+function resetFilters() {
+    if (columnFilters.value.length) table.setColumnFilters([]);
+    if (globalFilter.value) table.setGlobalFilter('');
+    if (advancedActive.value) setAdvancedTree(emptyConditionGroup('and', 'root'));
+    if (pagination.value.pageIndex) setPagination({ ...pagination.value, pageIndex: 0 });
+}
+/** `resetFilters()`, the sorting back to `defaultSorting`, no selection – and forgets the saved state */
+function resetState() {
+    resetFilters();
+    setSorting(toSorting(props.defaultSorting));
+    if (Object.keys(rowSelection.value).length) setSelection({});
+    if (allSelection.value) setAllSelection(null);
+    // After the save of the reset state above
+    void nextTick(clearState);
 }
 
 const paged = computed(() => !!props.pageSize);
@@ -2817,6 +2924,7 @@ const showToolbar = computed(
         !!props.densityToggle ||
         !!props.fullscreenToggle ||
         !!props.filterToggle ||
+        !!props.filterReset ||
         advancedEditor.value ||
         !!slots.toolbar ||
         !!slots.toolbarStart ||
@@ -2903,6 +3011,10 @@ defineExpose({
     exportCsv,
     generateCsv,
     clearState,
+    /** Clears the column filters, the search and the advanced filter – back to page 1 */
+    resetFilters,
+    /** `resetFilters()`, the sorting back to `defaultSorting`, no selection – and forgets the saved state */
+    resetState,
     /** Downloads the rows as an Excel file (.xlsx) */
     exportXlsx,
     /** The Excel file (.xlsx) of the rows as bytes */
@@ -2975,6 +3087,15 @@ const bottomEndPositioning = { placement: 'bottom-end', gutter: 4 } as const;
                         size="sm"
                         :aria-pressed="showFilters"
                         @click="toggleFilters"
+                    />
+                    <IconButton
+                        v-if="filterReset"
+                        :icon="FilterX"
+                        :label="t.resetFilters"
+                        variant="outline"
+                        size="sm"
+                        :disabled="!filtering"
+                        @click="resetFilters"
                     />
                     <Menu.Root v-if="densityToggle" :positioning="bottomEndPositioning" lazy-mount unmount-on-exit>
                         <Menu.Trigger as-child>
@@ -3276,6 +3397,7 @@ const bottomEndPositioning = { placement: 'bottom-end', gutter: 4 } as const;
                                             class: [
                                                 pinClass(cell.header.column.id, true),
                                                 reorderableColumns ? styles.dropTargetColumn() : '',
+                                                columnById.get(cell.header.column.id)?.headerClass,
                                             ],
                                         })
                                     "
@@ -3301,7 +3423,9 @@ const bottomEndPositioning = { placement: 'bottom-end', gutter: 4 } as const;
                                             :class="styles.sortButton()"
                                             @click="onSort(cell.header.column.id, $event)"
                                         >
-                                            <span :class="styles.headLabel()">{{ label(cell.header.column) }}</span>
+                                            <span :class="headLabelClass(cell.header.column)">{{
+                                                label(cell.header.column)
+                                            }}</span>
                                             <ArrowUp
                                                 v-if="cell.header.column.getIsSorted() === 'asc'"
                                                 :class="styles.sortIcon()"
@@ -3325,7 +3449,9 @@ const bottomEndPositioning = { placement: 'bottom-end', gutter: 4 } as const;
                                                 }}</span>
                                             </template>
                                         </button>
-                                        <span v-else :class="styles.headLabel()">{{ label(cell.header.column) }}</span>
+                                        <span v-else :class="headLabelClass(cell.header.column)">{{
+                                            label(cell.header.column)
+                                        }}</span>
                                         <FilterMenu
                                             v-if="menuFilters && filterable(columnById.get(cell.header.column.id))"
                                             :header="label(cell.header.column)"
@@ -3333,9 +3459,13 @@ const bottomEndPositioning = { placement: 'bottom-end', gutter: 4 } as const;
                                             :model-value="filterValue(cell.header.column.id)"
                                             :options="filterOptions(columnById.get(cell.header.column.id)!)"
                                             :match-modes="columnById.get(cell.header.column.id)!.matchModes"
+                                            :input-props="columnById.get(cell.header.column.id)!.filterInputProps"
                                             :max-constraints="maxConstraints"
                                             @update:model-value="setFilter(cell.header.column.id, $event)"
                                         >
+                                            <template v-if="slots[`option-${cell.header.column.id}`]" #option="scope">
+                                                <slot :name="`option-${cell.header.column.id}`" v-bind="scope" />
+                                            </template>
                                             <template v-if="hasFilterSlot(cell.header.column.id)" #value="input">
                                                 <slot
                                                     :name="`filter-${cell.header.column.id}`"
@@ -3423,6 +3553,7 @@ const bottomEndPositioning = { placement: 'bottom-end', gutter: 4 } as const;
                                             :type="rowInput(columnById.get(column.id)!)"
                                             :label="`${t.filter(label(column))}, ${part ? t.to : t.from}`"
                                             :options="filterOptions(columnById.get(column.id)!)"
+                                            :input-props="columnById.get(column.id)!.filterInputProps"
                                             :model-value="rangePart(columnById.get(column.id)!, part)"
                                             @update:model-value="setRowRange(columnById.get(column.id)!, part, $event)"
                                         />
@@ -3432,10 +3563,15 @@ const bottomEndPositioning = { placement: 'bottom-end', gutter: 4 } as const;
                                         :type="rowInput(columnById.get(column.id)!)"
                                         :label="t.filter(label(column))"
                                         :options="filterOptions(columnById.get(column.id)!)"
+                                        :input-props="columnById.get(column.id)!.filterInputProps"
                                         any
                                         :model-value="rowFilterValue(columnById.get(column.id)!)"
                                         @update:model-value="setRowFilter(columnById.get(column.id)!, $event)"
-                                    />
+                                    >
+                                        <template v-if="slots[`option-${column.id}`]" #option="scope">
+                                            <slot :name="`option-${column.id}`" v-bind="scope" />
+                                        </template>
+                                    </ValueInput>
                                 </template>
                             </td>
                             <td
@@ -3467,7 +3603,11 @@ const bottomEndPositioning = { placement: 'bottom-end', gutter: 4 } as const;
                             <td
                                 v-for="cell in row.getVisibleCells()"
                                 :key="cell.id"
-                                :class="styleFor(cell.column.id).td({ class: pinClass(cell.column.id, false) })"
+                                :class="
+                                    styleFor(cell.column.id).td({
+                                        class: [pinClass(cell.column.id, false), cellClassOf(cell.column.id, row)],
+                                    })
+                                "
                                 :style="cellStyle(cell.column.id, false)"
                             >
                                 <!-- Editable like the other rows: editor, edit button -->
@@ -3504,7 +3644,11 @@ const bottomEndPositioning = { placement: 'bottom-end', gutter: 4 } as const;
                                         :invalid="!!errors[cell.column.id]"
                                         :model-value="draft[cell.column.id]"
                                         @update:model-value="onDraft(row, columnById.get(cell.column.id)!, $event)"
-                                    />
+                                    >
+                                        <template v-if="slots[`option-${cell.column.id}`]" #option="scope">
+                                            <slot :name="`option-${cell.column.id}`" v-bind="scope" />
+                                        </template>
+                                    </ValueInput>
                                     <span
                                         v-if="errors[cell.column.id]"
                                         :id="errorId(row.id, cell.column.id)"
@@ -3853,6 +3997,7 @@ const bottomEndPositioning = { placement: 'bottom-end', gutter: 4 } as const;
                                                 styleFor(cell.column.id).td({
                                                     class: [
                                                         pinClass(cell.column.id, false),
+                                                        cellClassOf(cell.column.id, item.row),
                                                         ...cellExtras(item.row, cell.column.id, item.index, cellIndex)
                                                             .className,
                                                     ],
@@ -3929,7 +4074,14 @@ const bottomEndPositioning = { placement: 'bottom-end', gutter: 4 } as const;
                                                         @update:model-value="
                                                             onDraft(item.row, columnById.get(cell.column.id)!, $event)
                                                         "
-                                                    />
+                                                    >
+                                                        <template
+                                                            v-if="slots[`option-${cell.column.id}`]"
+                                                            #option="scope"
+                                                        >
+                                                            <slot :name="`option-${cell.column.id}`" v-bind="scope" />
+                                                        </template>
+                                                    </ValueInput>
                                                     <span
                                                         v-if="errors[cell.column.id]"
                                                         :id="errorId(item.row.id, cell.column.id)"
@@ -4117,7 +4269,11 @@ const bottomEndPositioning = { placement: 'bottom-end', gutter: 4 } as const;
                             <td
                                 v-for="column in leafColumns"
                                 :key="column.id"
-                                :class="styleFor(column.id).footCell({ class: pinClass(column.id, false) })"
+                                :class="
+                                    styleFor(column.id).footCell({
+                                        class: [pinClass(column.id, false), cellClassOf(column.id)],
+                                    })
+                                "
                                 :style="cellStyle(column.id, false)"
                             >
                                 {{ footerText(columnById.get(column.id)!) }}

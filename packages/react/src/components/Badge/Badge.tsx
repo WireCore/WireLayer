@@ -7,6 +7,8 @@ export interface BadgeProps extends ComponentProps<'span'> {
     variant?: BadgeVariant;
     /** Icon component rendered before the text */
     icon?: IconComponent;
+    /** Props passed on to the icon component, e.g. { fill: 'currentColor' } for a filled icon or { strokeWidth: 1.5 } */
+    iconProps?: Record<string, unknown>;
     /** Round shape for a count or a single character (grows into a pill for longer content) */
     circle?: boolean;
     /** Extra classes per part of the component, e.g. { base: "…" } (see the recipe) */
@@ -14,13 +16,13 @@ export interface BadgeProps extends ComponentProps<'span'> {
 }
 
 /** Short label or status (solid, soft, outline or a status colour) */
-export function Badge({ classes, variant, icon: Icon, circle, className, children, ...props }: BadgeProps) {
+export function Badge({ classes, variant, icon: Icon, iconProps, circle, className, children, ...props }: BadgeProps) {
     const badge = useRecipe('badge', badgeRecipe, classes);
     const styles = badge({ variant, circle });
 
     return (
         <span {...props} className={styles.base({ class: className })}>
-            {Icon && <Icon className={styles.icon()} aria-hidden="true" />}
+            {Icon && <Icon {...iconProps} className={styles.icon()} aria-hidden="true" />}
             {children}
         </span>
     );

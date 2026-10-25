@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { Filter } from 'lucide-react';
+import { Filter, Flag } from 'lucide-react';
 import { useState } from 'react';
 import { ToggleButton, type ToggleButtonProps } from './ToggleButton.js';
 
@@ -27,3 +27,16 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Playground: Story = {};
+
+/**
+ * An icon per state: `pressedIconProps` (here a filled flag) or a `pressedIcon` of its own. The label stays the
+ * same – aria-pressed tells the state
+ */
+export const PressedIcon: Story = {
+    name: 'Icon per state',
+    render: () => (
+        <ToggleButton defaultPressed icon={Flag} pressedIconProps={{ fill: 'currentColor' }}>
+            Flagged only
+        </ToggleButton>
+    ),
+};

@@ -31,6 +31,11 @@ export interface ButtonProps {
     leadingIcon?: Component;
     /** Icon component rendered after the label */
     trailingIcon?: Component;
+    /**
+     * Props passed on to the leading and trailing icon, e.g. { fill: 'currentColor' } for a filled icon or
+     * { strokeWidth: 1.5 }
+     */
+    iconProps?: Record<string, unknown>;
     /** Shows a spinner and ignores clicks; stays focusable (aria-disabled + aria-busy) so focus is not lost */
     loading?: boolean;
     disabled?: boolean;
@@ -91,9 +96,21 @@ function onClick(event: MouseEvent) {
         <slot v-if="asChild" />
         <template v-else>
             <LoaderCircle v-if="loading" :class="spinner().icon({ class: styles.icon() })" aria-hidden="true" />
-            <component :is="leadingIcon" v-else-if="leadingIcon" :class="styles.icon()" aria-hidden="true" />
+            <component
+                :is="leadingIcon"
+                v-else-if="leadingIcon"
+                v-bind="iconProps"
+                :class="styles.icon()"
+                aria-hidden="true"
+            />
             <slot />
-            <component :is="trailingIcon" v-if="trailingIcon" :class="styles.icon()" aria-hidden="true" />
+            <component
+                :is="trailingIcon"
+                v-if="trailingIcon"
+                v-bind="iconProps"
+                :class="styles.icon()"
+                aria-hidden="true"
+            />
             <template v-if="count">
                 <span :class="styles.badge()" aria-hidden="true">{{ formatCount(count) }}</span>
                 <span :class="styles.badgeLabel()">{{ ` ${badgeLabel(formatCount(count))}` }}</span>

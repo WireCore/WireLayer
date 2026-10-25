@@ -41,10 +41,10 @@ export type SelectSize = 'sm' | 'md' | 'lg';
 export function useListOptions<T>(items: readonly T[], accessors: ListItemAccessors<T>, query = '') {
     // Accent-blind ("nu" finds "Nürnberg"): German search collation would tell u and ü apart
     const { contains } = useFilter({ sensitivity: 'base', usage: 'sort' });
-    const { itemValue, itemLabel, itemDisabled, itemGroup, valueKey } = accessors;
+    const { itemValue, itemLabel, itemDisabled, itemGroup, itemKeywords, valueKey } = accessors;
     const options = useMemo(
-        () => toListOptions(items, { itemValue, itemLabel, itemDisabled, itemGroup, valueKey }),
-        [items, itemValue, itemLabel, itemDisabled, itemGroup, valueKey]
+        () => toListOptions(items, { itemValue, itemLabel, itemDisabled, itemGroup, itemKeywords, valueKey }),
+        [items, itemValue, itemLabel, itemDisabled, itemGroup, itemKeywords, valueKey]
     );
     const visible = useMemo(() => filterListOptions(options, query, contains), [options, query, contains]);
     const groups = useMemo(() => groupListOptions(visible), [visible]);
@@ -82,7 +82,7 @@ export function useListSelection<T>({
     const [picked, setPicked] = useState<ListOption<T>[]>([]);
     const current = value !== undefined ? value : internal;
     const selected = listOptionsForValues(
-        multiple ? ((current as unknown[] | null) ?? []) : listValues(current),
+        multiple ? ((current as unknown[] | null) ?? []) : listValues(current, items),
         indexListOptions(items, picked),
         accessors
     );

@@ -35,6 +35,12 @@ export interface DrawerContentProps {
 
 defineOptions({ inheritAttrs: false });
 const props = withDefaults(defineProps<DrawerContentProps>(), { closable: true });
+defineSlots<{
+    /** The content below the title (scrolls) */
+    default?(): unknown;
+    /** Buttons at the bottom, e.g. Cancel and Save */
+    footer?(): unknown;
+}>();
 const drawer = useRecipe('drawer', drawerRecipe, () => props.classes);
 const attrs = useAttrs();
 const root = inject(dialogRootKey, null);

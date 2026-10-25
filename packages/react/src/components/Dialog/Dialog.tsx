@@ -156,7 +156,11 @@ export interface DialogContentProps extends Omit<ComponentProps<'div'>, 'title'>
     /** Icon component in the coloured box at the top */
     icon?: IconComponent;
     status?: DialogStatus;
-    /** Maximum width: sm 320px, md 400px (default), lg 560px, xl 800px, full (screen width minus the margin) */
+    /**
+     * Maximum width: sm 320px (20rem), md 400px (25rem, default), lg 560px (35rem), xl 800px (50rem), full (screen
+     * width minus the margin). Another width: leave out `size` and set the CSS variable, e.g.
+     * style="--wc-dialog-w: 36rem"
+     */
     size?: OverlaySize;
     /** Where the dialog sits: centred (default), at the top/bottom or the start/end edge */
     position?: DialogPosition;

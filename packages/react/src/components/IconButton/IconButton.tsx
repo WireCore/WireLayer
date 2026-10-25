@@ -15,6 +15,8 @@ import { useRecipe } from '../RecipesProvider/RecipesProvider.js';
 export interface IconButtonProps extends Omit<ComponentProps<'button'>, 'children'> {
     /** Icon component */
     icon: IconComponent;
+    /** Props passed on to the icon component, e.g. { fill: 'currentColor' } for a filled icon or { strokeWidth: 1.5 } */
+    iconProps?: Record<string, unknown>;
     /** Accessible name – icon buttons have no visible text */
     label: string;
     variant?: IconButtonVariant;
@@ -40,6 +42,7 @@ export interface IconButtonProps extends Omit<ComponentProps<'button'>, 'childre
 export function IconButton({
     classes,
     icon: Icon,
+    iconProps,
     label,
     variant,
     color,
@@ -69,7 +72,7 @@ export function IconButton({
             disabled={disabled}
             aria-label={accessibleName}
         >
-            <Icon className={styles.icon()} aria-hidden="true" />
+            <Icon {...iconProps} className={styles.icon()} aria-hidden="true" />
             {count ? (
                 <span className={styles.badge()} aria-hidden="true">
                     {formatCount(count)}

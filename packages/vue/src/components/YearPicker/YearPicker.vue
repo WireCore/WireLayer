@@ -32,6 +32,8 @@ export interface YearPickerProps<T extends string | PeriodRange | null = string 
     required?: boolean;
     /** With range sent as name[0] and name[1] */
     name?: string;
+    /** Text of the empty field, shown until it gets the focus – no replacement for a label */
+    placeholder?: string;
     size?: 'sm' | 'md' | 'lg';
     /** Clear button in the field while it has a value */
     clearable?: boolean;
@@ -112,6 +114,7 @@ const calendarPresets = computed<CalendarPreset[] | undefined>(() =>
         :name="name"
         :presets="calendarPresets"
         :label="ariaLabel"
+        :placeholder="placeholder"
         :classes="classes"
         :class-name="split.className"
         :style="split.style"

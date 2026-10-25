@@ -280,6 +280,37 @@ describe.each(frameworks)('%s', (framework) => {
             );
         });
 
+        it('showFileList false: the files are reported, the list is left to the app', async () => {
+            const onFiles = vi.fn();
+            await render(
+                framework,
+                el('FileUpload', { label: 'Attachment', showFileList: false, onFilesChange: onFiles })
+            );
+            const report = new File(['abc'], 'report.pdf', { type: 'application/pdf' });
+            await userEvent.upload(document.querySelector<HTMLInputElement>('input[type=file]')!, report);
+            await waitFor(() => expect(onFiles).toHaveBeenLastCalledWith([report]));
+            expect(screen.queryByText('report.pdf')).not.toBeInTheDocument();
+        });
+
+        it('files: the chosen files come from outside – removing one reports the rest', async () => {
+            const onFiles = vi.fn();
+            const report = new File(['abc'], 'report.pdf', { type: 'application/pdf' });
+            const offer = new File(['abc'], 'offer.pdf', { type: 'application/pdf' });
+            await render(
+                framework,
+                el('FileUpload', {
+                    label: 'Attachments',
+                    maxFiles: 3,
+                    files: [report, offer],
+                    [framework === 'vue' ? 'onUpdate:files' : 'onFilesChange']: onFiles,
+                })
+            );
+            expect(screen.getByText('report.pdf')).toBeInTheDocument();
+            expect(screen.getByText('offer.pdf')).toBeInTheDocument();
+            await userEvent.click(screen.getByRole('button', { name: 'Remove report.pdf' }));
+            await waitFor(() => expect(onFiles).toHaveBeenLastCalledWith([offer]));
+        });
+
         it('variant "button": only the button; it opens the file dialog', async () => {
             await render(framework, el('FileUpload', { variant: 'button', triggerLabel: 'Choose file' }));
             expect(screen.queryByRole('group')).toBeNull();

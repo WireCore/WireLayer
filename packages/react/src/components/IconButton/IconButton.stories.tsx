@@ -58,3 +58,17 @@ export const ColorsAndShapes: Story = {
         </div>
     ),
 };
+
+/**
+ * `iconProps` go to the icon component – e.g. `{ fill: 'currentColor' }` for a filled Lucide icon (Button: both
+ * icons, Badge and ToggleButton the same)
+ */
+export const FilledIcon: Story = {
+    name: 'Filled icon',
+    render: () => (
+        <div className="flex items-center gap-3.5">
+            <IconButton icon={Bell} label="Notifications on" iconProps={{ fill: 'currentColor' }} />
+            <IconButton icon={Bell} label="Notifications off" />
+        </div>
+    ),
+};

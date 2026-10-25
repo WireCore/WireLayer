@@ -14,6 +14,8 @@ export type {
     SeriesChartBaseProps,
     WaterfallChartProps,
 } from './types.js';
+/** Chart.js types for options and data kept in variables, e.g. `computed<ChartOptions<'bar'>>(…)` */
+export type { ChartData, ChartOptions, ChartType, Plugin as ChartPlugin } from 'chart.js/auto';
 export type {
     ChartReference,
     ChartRow,

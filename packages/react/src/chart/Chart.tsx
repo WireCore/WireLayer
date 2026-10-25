@@ -6,16 +6,22 @@ import {
     themeChartData,
     themeChartOptions,
 } from '@wirecore/wirelayer-recipes';
-import { Chart as ChartJs, type ChartData, type ChartOptions, type ChartType } from 'chart.js/auto';
-import { useEffect, useId, useRef, type CSSProperties } from 'react';
+import { Chart as ChartJs, type ChartData, type ChartOptions, type ChartType, type Plugin } from 'chart.js/auto';
+import { useEffect, useId, useRef, useState, type CSSProperties } from 'react';
 import { useLocale } from '../components/LocaleProvider/LocaleProvider.js';
 import { useRecipe } from '../components/RecipesProvider/RecipesProvider.js';
 
 export interface ChartProps<TType extends ChartType> {
+    /** Chart.js chart type – it alone decides the types of `data`, `options` and `plugins` */
     type: TType;
-    data: ChartData<TType>;
-    /** Chart.js options – merged over the WireLayer defaults (colours, font, no fixed aspect ratio) */
-    options?: ChartOptions<TType>;
+    data: ChartData<NoInfer<TType>>;
+    /**
+     * Chart.js options – merged over the WireLayer defaults (colours, font, no fixed aspect ratio). Options kept in
+     * a variable need their type, e.g. `computed<ChartOptions<'bar'>>(…)`, or `indexAxis: 'y'` becomes a string
+     */
+    options?: ChartOptions<NoInfer<TType>>;
+    /** Inline Chart.js plugins of this chart (global ones: `Chart.register`) – changing them re-creates the chart */
+    plugins?: Plugin<NoInfer<TType>>[];
     /** Title of the chart, also its accessible name */
     title: string;
     /** Keep the title for screen readers only, e.g. inside a card that already has a heading */
@@ -37,6 +43,7 @@ export function Chart<TType extends ChartType>({
     type,
     data,
     options,
+    plugins,
     title,
     hideTitle = false,
     height = '18rem',
@@ -53,6 +60,13 @@ export function Chart<TType extends ChartType>({
     const latest = useRef({ data, options });
     const refresh = useRef<(() => void) | undefined>(undefined);
     const rows = chartTable(data, formatValue ?? ((value) => value.toLocaleString(locale)), translations.chart);
+    // A new list with the same plugins (inline) is no change – other plugins re-create the chart
+    const [ownPlugins, setOwnPlugins] = useState(plugins);
+    const samePlugins =
+        ownPlugins === plugins ||
+        (ownPlugins?.length === plugins?.length && !!plugins?.every((plugin, index) => plugin === ownPlugins![index]));
+    if (!samePlugins) setOwnPlugins(plugins);
+    const chartPlugins = samePlugins ? ownPlugins : plugins;
 
     // (Re)create the chart when the type changes; recolour on theme/mode/motion changes
     useEffect(() => {
@@ -74,7 +88,9 @@ export function Chart<TType extends ChartType>({
         };
         // No 2D context outside a real browser (e.g. jsdom) – the table still renders
         const context = canvas.current?.getContext('2d');
-        const instance = context ? new ChartJs(context, { type, ...config() }) : undefined;
+        const instance = context
+            ? new ChartJs(context, { type, ...config(), plugins: chartPlugins ? [...chartPlugins] : [] })
+            : undefined;
         const update = () => {
             if (!instance) return;
             Object.assign(instance, config());
@@ -92,7 +108,7 @@ export function Chart<TType extends ChartType>({
             scheme.removeEventListener('change', update);
             instance?.destroy();
         };
-    }, [type, locale]);
+    }, [type, locale, chartPlugins]);
 
     useEffect(() => {
         latest.current = { data, options };

@@ -272,3 +272,47 @@ function DataSourceDemo() {
  * after a typing pause; the preselected customer gets its label by key (getItemsByKeys)
  */
 export const WithDataSource: Story = { name: 'Data source', render: () => <DataSourceDemo /> };
+
+const statusItems = [
+    { value: null, label: 'All' },
+    { value: true, label: 'Active' },
+    { value: false, label: 'Archived' },
+];
+
+function NullValueDemo() {
+    const [value, setValue] = useState<boolean | null>(null);
+    return (
+        <div className="flex w-72 flex-col gap-3">
+            <Field label="Status">
+                <Select items={statusItems} value={value} onValueChange={setValue} />
+            </Field>
+            <span className="text-xs text-muted">Value: {value === null ? 'null' : String(value)}</span>
+        </div>
+    );
+}
+
+/**
+ * An item with the value `null` – e.g. "All" – is a choice of its own: the value `null` shows it. Without such an
+ * item `null` means nothing chosen (the placeholder)
+ */
+export const NullValue: Story = { name: 'Null as a value', render: () => <NullValueDemo /> };
+
+const categories = [
+    { value: 'rent', label: 'Rent', parent: 'Housing' },
+    { value: 'power', label: 'Electricity', parent: 'Housing' },
+    { value: 'fuel', label: 'Fuel', parent: 'Car' },
+    { value: 'insurance', label: 'Insurance', parent: 'Car' },
+];
+
+/**
+ * The search finds items by more than their label: `itemKeywords` names a field or a function (one text or a list)
+ * – here the main category: "car" finds Fuel and Insurance. Items can also bring their own `keywords`
+ */
+export const Keywords: Story = {
+    name: 'Search by keywords',
+    render: () => (
+        <Field label="Category" className="w-72">
+            <Select items={categories} itemGroup="parent" itemKeywords="parent" filter />
+        </Field>
+    ),
+};

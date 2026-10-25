@@ -293,6 +293,20 @@ export function matchesColumnFilter(cell: DataTableCellFilterInput, filter: Data
 export const matchesSearch = (values: unknown[], search: string, locale?: string) =>
     !search || values.some((value) => fold(value, locale).includes(fold(search, locale)));
 
+/** Whether the extra search text of a row (`rowKeywords`) contains the search – an empty search finds nothing here */
+export const matchesRowKeywords = (
+    keywords: string | readonly string[] | null | undefined,
+    search: string,
+    locale?: string
+) =>
+    !!search &&
+    keywords !== null &&
+    keywords !== undefined &&
+    matchesSearch(typeof keywords === 'string' ? [keywords] : [...keywords], search, locale);
+
+/** Whether two values of a controlled prop (sorting, filters, ids …) have the same content */
+export const sameTableValue = (a: unknown, b: unknown) => a === b || listValueKey(a) === listValueKey(b);
+
 /**
  * The sorting after a click on a column header: ascending → descending → unsorted. With `add` (Shift+click in
  * the multiple mode) the column is added to the existing sorting instead of replacing it.
@@ -381,6 +395,19 @@ export interface DataTableState {
     expanded?: string[];
     selection?: string[];
     density?: 'sm' | 'md' | 'lg';
+    /** Whether the filter row is shown (`filterToggle`) */
+    showFilters?: boolean;
+}
+
+/** A part of the saved state, e.g. for `stateExclude` */
+export type DataTableStateKey = keyof DataTableState;
+
+/** The state without the excluded parts */
+export function omitTableState(state: DataTableState, exclude: readonly DataTableStateKey[] = []): DataTableState {
+    if (!exclude.length) return state;
+    const kept = { ...state };
+    for (const key of exclude) delete kept[key];
+    return kept;
 }
 
 const storageOf = (kind: 'local' | 'session') => {

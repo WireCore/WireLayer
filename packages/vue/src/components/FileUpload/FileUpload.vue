@@ -45,6 +45,13 @@ export interface FileUploadProps {
     fullscreenDrop?: boolean;
     /** Ctrl+V inside the component adds files from the clipboard */
     paste?: boolean;
+    /**
+     * The chosen files – use with v-model:files to remove or replace files from outside (otherwise the component
+     * keeps them itself; `clear()` empties it)
+     */
+    files?: File[];
+    /** The list of the chosen files below the drop zone – false when the app shows the files itself */
+    showFileList?: boolean;
     disabled?: boolean;
     invalid?: boolean;
     required?: boolean;
@@ -57,13 +64,17 @@ defineOptions({ inheritAttrs: false });
 const props = withDefaults(defineProps<FileUploadProps>(), {
     maxFiles: 1,
     variant: 'dropzone',
+    files: undefined,
+    showFileList: true,
     disabled: undefined,
     invalid: undefined,
     required: undefined,
 });
 const fileUpload = useRecipe('fileUpload', fileUploadRecipe, () => props.classes);
 const emit = defineEmits<{
+    /** The chosen files changed (rejected files: `filesReject`) */
     filesChange: [files: File[]];
+    'update:files': [files: File[]];
     /** Files that were not taken, with the reasons as codes (FILE_INVALID_TYPE, FILE_TOO_LARGE, TOO_MANY_FILES …) */
     filesReject: [rejections: { file: File; errors: string[] }[]];
     /** A file finished uploading (or failed) */
@@ -104,9 +115,11 @@ const api = useFileUpload(
         invalid: props.invalid,
         required: props.required,
         name: props.name,
+        acceptedFiles: props.files,
         translations: translations.fileUpload,
         onFileChange: (details: { acceptedFiles: File[] }) => {
             emit('filesChange', details.acceptedFiles);
+            emit('update:files', details.acceptedFiles);
             if (!props.upload) return;
             const known = new Set(states.value.keys());
             for (const file of known) if (!details.acceptedFiles.includes(file)) queue.remove(file);
@@ -238,7 +251,7 @@ defineExpose({
             <span v-if="hint" :class="styles.hint()">{{ hint }}</span>
         </FileUpload.Dropzone>
         <span v-if="variant === 'button' && hint" :class="styles.hint()">{{ hint }}</span>
-        <FileUpload.ItemGroup v-if="api.acceptedFiles.length" :class="styles.list()">
+        <FileUpload.ItemGroup v-if="showFileList && api.acceptedFiles.length" :class="styles.list()">
             <FileUpload.Item
                 v-for="file in api.acceptedFiles"
                 :key="file.name"

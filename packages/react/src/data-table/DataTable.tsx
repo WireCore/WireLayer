@@ -57,12 +57,14 @@ import {
     loadTableState,
     locateTreeNode,
     matchesColumnFilter,
+    matchesRowKeywords,
     matchesSearch,
     matchModeDefinition,
     menu as menuRecipe,
     moveColumnBlock,
     nextSorting,
     numberSummary,
+    omitTableState,
     parseCellText,
     parseTsv,
     pasteTargets,
@@ -77,6 +79,7 @@ import {
     rowColumnSpans,
     rowsToDataSource,
     sameCellValue,
+    sameTableValue,
     saveTableState,
     syncGrid,
     treeGridKeyAction,
@@ -91,6 +94,7 @@ import {
     type DataTableFilterValue,
     type DataTableSort,
     type DataTableState,
+    type DataTableStateKey,
     type PendingChanges,
     type PrintCell,
     type RecipeClasses,
@@ -113,6 +117,7 @@ import {
     Download,
     EllipsisVertical,
     Filter,
+    FilterX,
     GripVertical,
     ListFilter,
     Maximize2,
@@ -194,6 +199,10 @@ export interface DataTableHandle {
     generateCsv: (options?: DataTableCsvOptions) => string;
     /** Forgets the saved state (`stateKey`) */
     clearState: () => void;
+    /** Clears the column filters, the search and the advanced filter – back to page 1 */
+    resetFilters: () => void;
+    /** `resetFilters()`, the sorting back to `defaultSorting`, no selection – and forgets the saved state */
+    resetState: () => void;
     /** Downloads the rows as an Excel file (.xlsx): numbers as numbers, dates as dates, bold header and totals */
     exportXlsx: (options?: DataTableXlsxOptions) => void;
     /** The Excel file (.xlsx) of the rows as bytes */
@@ -264,6 +273,11 @@ export interface DataTableProps<TData> extends Omit<
     selectionMode?: 'multiple' | 'single';
     selection?: string[];
     onSelectionChange?: (selection: string[]) => void;
+    /**
+     * The selected rows as objects – controlled with onSelectedRowsChange (instead of or next to `selection`); rows
+     * are found by `getRowId`
+     */
+    selectedRows?: readonly TData[];
     /** The selected rows as objects (rows of other pages are remembered) */
     onSelectedRowsChange?: (rows: TData[]) => void;
     /** A click on the row (not on its controls) selects it; Shift+click selects a range */
@@ -319,6 +333,11 @@ export interface DataTableProps<TData> extends Omit<
     search?: boolean;
     globalFilter?: string;
     onGlobalFilterChange?: (value: string) => void;
+    /**
+     * More text the search finds a row by, besides its columns – e.g. fields without a column of their own (not in
+     * server mode: there the server searches)
+     */
+    rowKeywords?: (row: TData) => string | readonly string[] | null | undefined;
     /** Marks the search hits in the cells */
     highlightSearch?: boolean;
     /** Column filters by column id; controlled together with onFiltersChange */
@@ -331,6 +350,8 @@ export interface DataTableProps<TData> extends Omit<
     onShowFiltersChange?: (show: boolean) => void;
     /** Button in the toolbar that shows and hides the filters */
     filterToggle?: boolean;
+    /** Button in the toolbar that clears the column filters, the search and the advanced filter (`resetFilters()`) */
+    filterReset?: boolean;
     /** Conditions per column in the filter menu */
     maxConstraints?: number;
     /** Column widths can be changed by dragging the header edge or with the arrow keys */
@@ -443,6 +464,8 @@ export interface DataTableProps<TData> extends Omit<
     /** Keeps sorting, filters, page, widths, order and the other settings in the browser under this key */
     stateKey?: string;
     stateStorage?: 'local' | 'session';
+    /** Parts of the state that `stateKey` does not keep – default: the selection (`[]` keeps it, too) */
+    stateExclude?: readonly DataTableStateKey[];
     /** Own controls in the toolbar, after the search */
     toolbar?: ReactNode;
     /** Own controls at the start of the toolbar, before the search */
@@ -498,6 +521,16 @@ const INSTANT = new Set(['select', 'date', 'checkbox']);
 const MIN_WIDTH = 60;
 const RESIZE_STEP = 16;
 const NO_ROWS: never[] = [];
+/** Default of `stateExclude`: the selection is not kept */
+const SELECTION_ONLY: readonly DataTableStateKey[] = ['selection'];
+
+/** The value kept while its content stays the same – a new but equal prop (inline object, a copy) is no change */
+function useSameValue<T>(value: T): T {
+    const [kept, setKept] = useState(value);
+    if (kept === value || sameTableValue(kept, value)) return kept;
+    setKept(value);
+    return value;
+}
 /** A row source (`getRows`) or a general data source (`getItems`) as a data source */
 const toDataSource = <T,>(source: DataTableDataSource<T>): DataSource<T> =>
     'getRows' in source ? rowsToDataSource(source.getRows) : source;
@@ -538,6 +571,7 @@ export function DataTable<TData extends object>({
     selectionMode = 'multiple',
     selection,
     onSelectionChange,
+    selectedRows,
     onSelectedRowsChange,
     selectOnRowClick = false,
     isRowSelectable,
@@ -565,6 +599,7 @@ export function DataTable<TData extends object>({
     search = false,
     globalFilter: globalFilterProp,
     onGlobalFilterChange,
+    rowKeywords,
     highlightSearch = false,
     filters,
     onFiltersChange,
@@ -572,6 +607,7 @@ export function DataTable<TData extends object>({
     showFilters: showFiltersProp,
     onShowFiltersChange,
     filterToggle = false,
+    filterReset = false,
     maxConstraints = 2,
     resizable = false,
     columnToggle = false,
@@ -624,6 +660,7 @@ export function DataTable<TData extends object>({
     onScrollEnd,
     stateKey,
     stateStorage = 'session',
+    stateExclude = SELECTION_ONLY,
     toolbar,
     toolbarStart,
     toolbarEnd,
@@ -762,11 +799,12 @@ export function DataTable<TData extends object>({
     const display = (column: DataTableColumn<TData> | undefined, value: unknown, row: TData) =>
         column?.format ? column.format(value, row) : text(value);
 
-    // Controlled when the prop is set, internal otherwise
+    // Controlled when the prop is set, internal otherwise. An equal copy of a prop (inline object) is no change
+    const sortingValue = useSameValue(sortingProp);
     const [internalSorting, setInternalSorting] = useState<SortingState>(() => toSorting(defaultSorting));
     const sorting = useMemo(
-        () => (sortingProp === undefined ? internalSorting : toSorting(sortingProp)),
-        [sortingProp, internalSorting]
+        () => (sortingValue === undefined ? internalSorting : toSorting(sortingValue)),
+        [sortingValue, internalSorting]
     );
     const [internalPageIndex, setInternalPageIndex] = useState(0);
     // Page size, groups and row height follow their props and change inside the table, too
@@ -784,14 +822,33 @@ export function DataTable<TData extends object>({
         () => ({ pageIndex, pageSize: currentPageSize }),
         [pageIndex, currentPageSize]
     );
+    /** The id of a row object (`selectedRows`): `getRowId`, otherwise its position in `data` */
+    const rowIdOf = (row: TData) => {
+        const index = (dataProp ?? NO_ROWS).indexOf(row as never);
+        return getRowId ? getRowId(row, index) : index >= 0 ? String(index) : undefined;
+    };
+    const selectionValue = useSameValue(selection);
+    const selectedRowsValue = useSameValue(selectedRows);
+    const selectedIds = useMemo(
+        () => selectedRowsValue?.map(rowIdOf).filter((rowId) => rowId !== undefined),
+        // rowIdOf reads data and getRowId – the selected rows decide
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        [selectedRowsValue]
+    );
     const [internalSelection, setInternalSelection] = useState<RowSelectionState>({});
     const rowSelection = useMemo(
-        () => (selection === undefined ? internalSelection : toSelection(selection)),
-        [selection, internalSelection]
+        () =>
+            selectionValue !== undefined
+                ? toSelection(selectionValue)
+                : selectedIds !== undefined
+                  ? toSelection(selectedIds)
+                  : internalSelection,
+        [selectionValue, selectedIds, internalSelection]
     );
     // "Select all" across the pages of a server table
     const [internalAllSelection, setInternalAllSelection] = useState<DataTableAllSelection | null>(null);
-    const allSelection = allSelectionProp === undefined ? internalAllSelection : allSelectionProp;
+    const allSelectionValue = useSameValue(allSelectionProp);
+    const allSelection = allSelectionValue === undefined ? internalAllSelection : allSelectionValue;
     const [internalShowFilters, setInternalShowFilters] = useState(true);
     const showFilters = showFiltersProp ?? internalShowFilters;
     const [grouping, setInternalGrouping] = useState<string[]>(() => toArray(groupBy));
@@ -805,34 +862,38 @@ export function DataTable<TData extends object>({
     const [internalExpanded, setInternalExpanded] = useState<ExpandedState>(() =>
         defaultExpanded ? toIds(defaultExpanded) : groupBy && !expansion ? true : {}
     );
+    const expandedValue = useSameValue(expandedProp);
     const expanded = useMemo(
-        () => (expandedProp === undefined ? internalExpanded : toIds(expandedProp)),
-        [expandedProp, internalExpanded]
+        () => (expandedValue === undefined ? internalExpanded : toIds(expandedValue)),
+        [expandedValue, internalExpanded]
     );
     const [internalGlobalFilter, setInternalGlobalFilter] = useState('');
     const globalFilter = globalFilterProp ?? internalGlobalFilter;
     const [internalFilters, setInternalFilters] = useState<ColumnFiltersState>([]);
     // Derived states keep their identity between renders – TanStack treats a new array as a change
+    const filtersValue = useSameValue(filters);
     const columnFilters = useMemo(
-        () => (filters === undefined ? internalFilters : fromFilters(filters)),
-        [filters, internalFilters]
+        () => (filtersValue === undefined ? internalFilters : fromFilters(filtersValue)),
+        [filtersValue, internalFilters]
     );
     const [internalHidden, setInternalHidden] = useState<ColumnVisibilityState>({});
+    const hiddenValue = useSameValue(hiddenColumns);
     const columnVisibility = useMemo(
-        () => (hiddenColumns === undefined ? internalHidden : toIds(hiddenColumns, false)),
-        [hiddenColumns, internalHidden]
+        () => (hiddenValue === undefined ? internalHidden : toIds(hiddenValue, false)),
+        [hiddenValue, internalHidden]
     );
     const [internalOrder, setInternalOrder] = useState<ColumnOrderState>([]);
-    const columnOrder = columnOrderProp ?? internalOrder;
+    const columnOrder = useSameValue(columnOrderProp) ?? internalOrder;
     const [internalPinning, setInternalPinning] = useState<ColumnPinningState | null>(null);
+    const pinnedValue = useSameValue(pinnedColumns);
     const columnPinning = useMemo<ColumnPinningState>(
         () =>
-            pinnedColumns ??
+            pinnedValue ??
             internalPinning ?? {
                 start: leafDefs.filter((column) => column.pinned === 'start').map((column) => column.id),
                 end: leafDefs.filter((column) => column.pinned === 'end').map((column) => column.id),
             },
-        [pinnedColumns, internalPinning, leafDefs]
+        [pinnedValue, internalPinning, leafDefs]
     );
     const [columnSizing, setColumnSizing] = useState<ColumnSizingState>({});
     const [density, setInternalDensity] = useState<Density>(size ?? 'md');
@@ -865,6 +926,12 @@ export function DataTable<TData extends object>({
         const known = table.getCoreRowModel().rowsById;
         for (const key of [...remembered.current.keys()]) if (!next[key]) remembered.current.delete(key);
         for (const key of ids) if (known[key]) remembered.current.set(key, known[key].original);
+        // Rows chosen by the parent (`selectedRows`) are known, too – also from other pages
+        for (const row of selectedRows ?? []) {
+            const rowId = rowIdOf(row);
+            if (rowId !== undefined && next[rowId] && !remembered.current.has(rowId))
+                remembered.current.set(rowId, row);
+        }
         onSelectedRowsChange?.(
             ids.flatMap((key) => (remembered.current.has(key) ? [remembered.current.get(key)!] : []))
         );
@@ -873,10 +940,11 @@ export function DataTable<TData extends object>({
         setInternalAllSelection(next);
         onAllSelectionChange?.(next);
     };
-    const toggleFilters = () => {
-        setInternalShowFilters(!showFilters);
-        onShowFiltersChange?.(!showFilters);
+    const setShowFilters = (next: boolean) => {
+        setInternalShowFilters(next);
+        onShowFiltersChange?.(next);
     };
+    const toggleFilters = () => setShowFilters(!showFilters);
     const setExpanded = (next: ExpandedState) => {
         setInternalExpanded(next);
         onExpandedChange?.(next === true ? [] : Object.keys(next).filter((key) => next[key]));
@@ -886,6 +954,8 @@ export function DataTable<TData extends object>({
         onSizeChange?.(next);
     };
 
+    // rowKeywords: more text for the search (not in the pivot, whose rows are not the data)
+    const keywordSearch = !!rowKeywords && !pivotModel;
     const columns = useMemo(() => {
         // Text filters compare the shown text, numbers and dates the value
         const textFilter = (column: DataTableColumn<TData>) =>
@@ -921,7 +991,8 @@ export function DataTable<TData extends object>({
                         },
                         value
                     ),
-                enableGlobalFilter: column.searchable !== false,
+                // With rowKeywords every column takes part (globalFilterFn tests the keywords, then the searchable columns)
+                enableGlobalFilter: keywordSearch || column.searchable !== false,
                 enableHiding: column.hideable !== false,
                 enableGrouping: true,
                 ...(column.width ? { size: column.width } : {}),
@@ -929,7 +1000,7 @@ export function DataTable<TData extends object>({
             };
         };
         return columnDefs.map(toDef);
-    }, [columnDefs, locale]);
+    }, [columnDefs, locale, keywordSearch]);
 
     const table = useTable({
         features: tableFeatures,
@@ -993,9 +1064,15 @@ export function DataTable<TData extends object>({
             setInternalGrouping(next);
             onGroupByChange?.(next);
         },
-        globalFilterFn: (row: TableRow, columnId: string, value: string) =>
-            matchesSearch([display(columnById.get(columnId), row.getValue(columnId), row.original)], value, locale),
-        getColumnCanGlobalFilter: (column) => columnById.get(column.id)?.searchable !== false,
+        globalFilterFn: (row: TableRow, columnId: string, value: string) => {
+            if (keywordSearch && matchesRowKeywords(rowKeywords!(row.original), value, locale)) return true;
+            const column = columnById.get(columnId);
+            return (
+                column?.searchable !== false &&
+                matchesSearch([display(column, row.getValue(columnId), row.original)], value, locale)
+            );
+        },
+        getColumnCanGlobalFilter: (column) => keywordSearch || columnById.get(column.id)?.searchable !== false,
         enableColumnResizing: resizable,
         columnResizeMode: 'onChange',
         groupedColumnMode: false,
@@ -1026,6 +1103,12 @@ export function DataTable<TData extends object>({
             align: column?.align,
             hideBelow: column?.hideBelow ? (`hide-${column.hideBelow}` as const) : undefined,
         });
+    };
+    /** Own classes of a column's cells (`cellClass`): a function gets the row – not group rows and the footer */
+    const cellClassOf = (columnId: string, row?: TableRow) => {
+        const cellClass = columnById.get(columnId)?.cellClass;
+        if (typeof cellClass !== 'function') return cellClass;
+        return row && !row.getIsGrouped() ? cellClass(row.original) : undefined;
     };
 
     // Utility columns before and after the data columns
@@ -1119,6 +1202,9 @@ export function DataTable<TData extends object>({
         );
     })();
     const label = (column: TableColumn) => columnById.get(column.id)?.header ?? column.id;
+    /** `headerHidden`: the header text for screen readers only */
+    const headLabelClass = (column: TableColumn) =>
+        columnById.get(column.id)?.headerHidden ? styles.srOnly() : styles.headLabel();
 
     // Sorting
     const ariaSort = (columnId: string) => {
@@ -2532,6 +2618,19 @@ export function DataTable<TData extends object>({
     const clearState = () => {
         if (stateKey) clearTableState(stateKey, stateStorage);
     };
+    const resetFilters = () => {
+        if (columnFilters.length) table.setColumnFilters([]);
+        if (globalFilter) table.setGlobalFilter('');
+        if (advancedActive) setAdvancedTree(emptyConditionGroup('and', 'root'));
+        if (pagination.pageIndex) setPagination({ ...pagination, pageIndex: 0 });
+    };
+    const resetState = () => {
+        resetFilters();
+        setSorting(toSorting(defaultSorting));
+        if (Object.keys(rowSelection).length) setSelection({});
+        if (allSelection) setAllSelection(null);
+        setForgotten((count) => count + 1);
+    };
     const refresh = async () => {
         if (dataSource) await controller.refresh();
     };
@@ -2539,6 +2638,8 @@ export function DataTable<TData extends object>({
         exportCsv,
         generateCsv,
         clearState,
+        resetFilters,
+        resetState,
         exportXlsx,
         generateXlsx,
         print,
@@ -2685,7 +2786,8 @@ export function DataTable<TData extends object>({
     const restored = useRef(false);
     useEffect(() => {
         if (!stateKey) return;
-        const saved = loadTableState(stateKey, stateStorage);
+        const loaded = loadTableState(stateKey, stateStorage);
+        const saved = loaded && omitTableState(loaded, stateExclude);
         restored.current = true;
         if (!saved) return;
         // Restoring browser storage after hydration: the first render must match the server
@@ -2699,6 +2801,7 @@ export function DataTable<TData extends object>({
         if (saved.expanded && saved.expanded.length) setExpanded(toIds(saved.expanded));
         if (saved.selection) setSelection(toSelection(saved.selection));
         if (saved.density) setDensity(saved.density);
+        if (saved.showFilters !== undefined && saved.showFilters !== showFilters) setShowFilters(saved.showFilters);
         if (saved.page || saved.pageSize)
             setPagination({ pageIndex: (saved.page ?? 1) - 1, pageSize: saved.pageSize ?? pagination.pageSize });
         // Once after mounting
@@ -2717,11 +2820,19 @@ export function DataTable<TData extends object>({
         expanded: expanded === true ? [] : Object.keys(expanded).filter((key) => expanded[key]),
         selection: Object.keys(rowSelection).filter((key) => rowSelection[key]),
         density,
+        showFilters,
     };
-    const serialized = JSON.stringify(tableState);
+    const serialized = JSON.stringify(omitTableState(tableState, stateExclude));
+    // resetState(): the saved state is removed after the reset, instead of saving the reset state
+    const [forgotten, setForgotten] = useState(0);
+    const cleared = useRef(0);
     useEffect(() => {
-        if (stateKey && restored.current) saveTableState(stateKey, JSON.parse(serialized), stateStorage);
-    }, [stateKey, stateStorage, serialized]);
+        if (!stateKey || !restored.current) return;
+        if (forgotten !== cleared.current) {
+            cleared.current = forgotten;
+            clearTableState(stateKey, stateStorage);
+        } else saveTableState(stateKey, JSON.parse(serialized), stateStorage);
+    }, [stateKey, stateStorage, serialized, forgotten]);
 
     // Data source: asks for the page whenever page, sorting, filters, search or grouping change; back to page 1
     // when the sorting, the filters or the search change; the search waits for a pause in typing
@@ -2763,6 +2874,7 @@ export function DataTable<TData extends object>({
         densityToggle ||
         fullscreenToggle ||
         filterToggle ||
+        filterReset ||
         advancedEditor ||
         !!toolbar ||
         !!toolbarStart ||
@@ -2978,6 +3090,7 @@ export function DataTable<TData extends object>({
                             type={editorType(def)}
                             label={label(column)}
                             options={def.editOptions}
+                            renderOption={def.renderOption}
                             invalid={!!errors[column.id]}
                             value={draft[column.id]}
                             onChange={(next) => onDraft(row, def, next)}
@@ -3260,7 +3373,11 @@ export function DataTable<TData extends object>({
                                 <td
                                     key={cell.id}
                                     className={styleFor(cell.column.id).td({
-                                        class: [pinClass(cell.column.id, false), ...extras.className],
+                                        class: [
+                                            pinClass(cell.column.id, false),
+                                            cellClassOf(cell.column.id, row),
+                                            ...extras.className,
+                                        ],
                                     })}
                                     style={cellStyle(cell.column.id, false)}
                                     {...extras.attributes}
@@ -3386,6 +3503,16 @@ export function DataTable<TData extends object>({
                                 size="sm"
                                 aria-pressed={showFilters}
                                 onClick={toggleFilters}
+                            />
+                        )}
+                        {filterReset && (
+                            <IconButton
+                                icon={FilterX}
+                                label={t.resetFilters}
+                                variant="outline"
+                                size="sm"
+                                disabled={!filtering}
+                                onClick={resetFilters}
                             />
                         )}
                         {densityToggle && (
@@ -3733,6 +3860,7 @@ export function DataTable<TData extends object>({
                                                 class: [
                                                     pinClass(column.id, true),
                                                     reorderableColumns ? styles.dropTargetColumn() : '',
+                                                    columnById.get(column.id)?.headerClass,
                                                 ],
                                             })}
                                             style={cellStyle(column.id, true)}
@@ -3761,7 +3889,7 @@ export function DataTable<TData extends object>({
                                                             )
                                                         }
                                                     >
-                                                        <span className={styles.headLabel()}>{label(column)}</span>
+                                                        <span className={headLabelClass(column)}>{label(column)}</span>
                                                         {sorted === 'asc' ? (
                                                             <ArrowUp className={styles.sortIcon()} aria-hidden="true" />
                                                         ) : sorted === 'desc' ? (
@@ -3787,7 +3915,7 @@ export function DataTable<TData extends object>({
                                                         )}
                                                     </button>
                                                 ) : (
-                                                    <span className={styles.headLabel()}>{label(column)}</span>
+                                                    <span className={headLabelClass(column)}>{label(column)}</span>
                                                 )}
                                                 {menuFilters && def && filterable(def) && (
                                                     <FilterMenu
@@ -3796,6 +3924,8 @@ export function DataTable<TData extends object>({
                                                         value={filterValue(column.id)}
                                                         onChange={(next) => setFilter(column.id, next)}
                                                         options={filterOptions(def)}
+                                                        inputProps={def.filterInputProps}
+                                                        renderOption={def.renderOption}
                                                         matchModes={def.matchModes}
                                                         maxConstraints={maxConstraints}
                                                         renderValue={
@@ -3891,6 +4021,7 @@ export function DataTable<TData extends object>({
                                                                 type={rowInput(def)}
                                                                 label={`${t.filter(label(column))}, ${part ? t.to : t.from}`}
                                                                 options={filterOptions(def)}
+                                                                inputProps={def.filterInputProps}
                                                                 value={rangePart(def, part)}
                                                                 onChange={(next) => setRowRange(def, part, next)}
                                                             />
@@ -3901,6 +4032,8 @@ export function DataTable<TData extends object>({
                                                         type={rowInput(def)}
                                                         label={t.filter(label(column))}
                                                         options={filterOptions(def)}
+                                                        inputProps={def.filterInputProps}
+                                                        renderOption={def.renderOption}
                                                         any
                                                         value={rowFilterValue(def)}
                                                         onChange={(next) => setRowFilter(def, next)}
@@ -3939,7 +4072,10 @@ export function DataTable<TData extends object>({
                                             <td
                                                 key={cell.id}
                                                 className={styleFor(cell.column.id).td({
-                                                    class: pinClass(cell.column.id, false),
+                                                    class: [
+                                                        pinClass(cell.column.id, false),
+                                                        cellClassOf(cell.column.id, row),
+                                                    ],
                                                 })}
                                                 style={cellStyle(cell.column.id, false)}
                                             >
@@ -4009,7 +4145,9 @@ export function DataTable<TData extends object>({
                                 {leafColumns.map((column) => (
                                     <td
                                         key={column.id}
-                                        className={styleFor(column.id).footCell({ class: pinClass(column.id, false) })}
+                                        className={styleFor(column.id).footCell({
+                                            class: [pinClass(column.id, false), cellClassOf(column.id)],
+                                        })}
                                         style={cellStyle(column.id, false)}
                                     >
                                         {footerText(columnById.get(column.id)!)}

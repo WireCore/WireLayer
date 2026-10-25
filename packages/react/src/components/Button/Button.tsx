@@ -31,6 +31,11 @@ export interface ButtonProps extends Omit<ComponentProps<'button'>, 'color'> {
     leadingIcon?: IconComponent;
     /** Icon component rendered after the label */
     trailingIcon?: IconComponent;
+    /**
+     * Props passed on to the leading and trailing icon, e.g. { fill: 'currentColor' } for a filled icon or
+     * { strokeWidth: 1.5 }
+     */
+    iconProps?: Record<string, unknown>;
     /** Shows a spinner and ignores clicks; stays focusable (aria-disabled + aria-busy) so focus is not lost */
     loading?: boolean;
     /** Counter (number > 0) or dot (true) after the label */
@@ -56,6 +61,7 @@ export function Button({
     block,
     leadingIcon: LeadingIcon,
     trailingIcon: TrailingIcon,
+    iconProps,
     loading = false,
     disabled = false,
     type = 'button',
@@ -96,10 +102,10 @@ export function Button({
                     {loading ? (
                         <LoaderCircle className={spinner().icon({ class: styles.icon() })} aria-hidden="true" />
                     ) : (
-                        LeadingIcon && <LeadingIcon className={styles.icon()} aria-hidden="true" />
+                        LeadingIcon && <LeadingIcon {...iconProps} className={styles.icon()} aria-hidden="true" />
                     )}
                     {children}
-                    {TrailingIcon && <TrailingIcon className={styles.icon()} aria-hidden="true" />}
+                    {TrailingIcon && <TrailingIcon {...iconProps} className={styles.icon()} aria-hidden="true" />}
                     {count ? (
                         <>
                             <span className={styles.badge()} aria-hidden="true">

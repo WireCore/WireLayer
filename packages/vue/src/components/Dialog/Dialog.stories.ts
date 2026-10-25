@@ -40,7 +40,19 @@ type Story = StoryObj<typeof meta>;
 
 export const Playground: Story = {};
 
-/** Widths sm (320px), md (400px, default), lg, xl and full; on small screens every dialog takes the full width */
+/**
+ * Maximum width per `size`; on small screens every dialog takes the full width (`responsive`).
+ *
+ * | size | Width |
+ * | --- | --- |
+ * | sm | 320px (20rem) |
+ * | md | 400px (25rem) – default |
+ * | lg | 560px (35rem) |
+ * | xl | 800px (50rem) |
+ * | full | screen width minus the margin |
+ *
+ * Another width: leave out `size` and set the CSS variable `--wc-dialog-w` (see "Own width")
+ */
 export const Sizes: Story = {
     render: () => ({
         components: { Button, Dialog, DialogClose, DialogContent, DialogTrigger },
@@ -56,6 +68,23 @@ export const Sizes: Story = {
                     </DialogContent>
                 </Dialog>
             </div>`,
+    }),
+};
+
+/** Own width: without `size`, the CSS variable `--wc-dialog-w` sets the maximum width – no Tailwind class needed */
+export const OwnWidth: Story = {
+    name: 'Own width',
+    render: () => ({
+        components: { Button, Dialog, DialogClose, DialogContent, DialogTrigger },
+        template: `
+            <Dialog>
+                <DialogTrigger><Button variant="outline">36rem</Button></DialogTrigger>
+                <DialogContent title="Edit booking" description="36rem wide – between md and xl." style="--wc-dialog-w: 36rem">
+                    <template #footer>
+                        <DialogClose><Button size="sm">OK</Button></DialogClose>
+                    </template>
+                </DialogContent>
+            </Dialog>`,
     }),
 };
 

@@ -605,6 +605,7 @@ export const hu: Translations = {
         exportAll: 'Összes sor',
         exportSelection: 'Kiválasztott sorok',
         filterToggle: 'Szűrők megjelenítése',
+        resetFilters: 'Szűrők törlése',
         rowCount: (count) => rows(count),
         filteredCount: (count) => plural(count, { one: '{count} szűrve', other: '{count} szűrve' }),
         copy: (header, value) => `${value}, ${header} másolása`,

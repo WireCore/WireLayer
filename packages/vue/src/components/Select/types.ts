@@ -11,6 +11,8 @@ export interface SelectItem<V = string> {
     description?: string;
     /** Items with the same group are listed under this heading */
     group?: string;
+    /** More text the search finds the item by, besides its label */
+    keywords?: readonly string[];
 }
 
 /** State of an option, passed to the `item` slot */

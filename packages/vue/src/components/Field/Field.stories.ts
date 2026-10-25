@@ -1,7 +1,13 @@
 import { Mail, Search } from '@lucide/vue';
 import type { Meta, StoryObj } from '@storybook/vue3-vite';
 import { ref } from 'vue';
+import ChipGroup from '../ChipGroup/ChipGroup.vue';
+import Chip from '../ChipGroup/Chip.vue';
 import Input from '../Input/Input.vue';
+import RadioGroup from '../RadioGroup/RadioGroup.vue';
+import RadioGroupItem from '../RadioGroup/RadioGroupItem.vue';
+import SegmentedControl from '../SegmentedControl/SegmentedControl.vue';
+import SegmentedControlItem from '../SegmentedControl/SegmentedControlItem.vue';
 import Textarea from '../Textarea/Textarea.vue';
 import Field from './Field.vue';
 
@@ -85,6 +91,57 @@ export const States: Story = {
                 </Field>
                 <Field label="Company" optional>
                     <Input placeholder="Acme Inc." />
+                </Field>
+            </div>`,
+    }),
+};
+
+/**
+ * Own content instead of a text: the slots `#helper-text`, `#success`, `#error` (and `#label`) – e.g. a hint with a
+ * link. It stays part of the control's description (aria-describedby)
+ */
+export const RichTexts: Story = {
+    name: 'Helper text with a link',
+    render: () => ({
+        components: { Field, Input },
+        setup: () => ({ iban: ref('') }),
+        template: `
+            <Field label="IBAN" class="w-[380px]">
+                <Input v-model="iban" />
+                <template #helper-text>
+                    On your bank card or in online banking – <a href="#help" class="underline">where to find it</a>
+                </template>
+            </Field>`,
+    }),
+};
+
+/**
+ * SegmentedControl, RadioGroup and ChipGroup inside a Field: the Field's label names the group (visible), its helper
+ * and error texts describe it – no `label` of their own needed
+ */
+export const Groups: Story = {
+    name: 'Groups in a Field',
+    render: () => ({
+        components: { Field, SegmentedControl, SegmentedControlItem, RadioGroup, RadioGroupItem, ChipGroup, Chip },
+        template: `
+            <div class="flex w-[380px] flex-col gap-4">
+                <Field label="View" helper-text="How the list is shown">
+                    <SegmentedControl default-value="list">
+                        <SegmentedControlItem value="list">List</SegmentedControlItem>
+                        <SegmentedControlItem value="grid">Grid</SegmentedControlItem>
+                    </SegmentedControl>
+                </Field>
+                <Field label="Plan" error="Choose a plan" required>
+                    <RadioGroup name="plan">
+                        <RadioGroupItem value="basic">Basic</RadioGroupItem>
+                        <RadioGroupItem value="pro">Pro</RadioGroupItem>
+                    </RadioGroup>
+                </Field>
+                <Field label="Services" helper-text="Any number">
+                    <ChipGroup :default-value="['web']">
+                        <Chip value="web">Web</Chip>
+                        <Chip value="ai">AI</Chip>
+                    </ChipGroup>
                 </Field>
             </div>`,
     }),

@@ -38,6 +38,8 @@ export interface DatePickerProps<T extends DatePickerValue = string | null> {
     invalid?: boolean;
     required?: boolean;
     name?: string;
+    /** Text of the empty field, shown until it gets the focus – no replacement for a label */
+    placeholder?: string;
     size?: 'sm' | 'md' | 'lg';
     /** Clear button in the field while it has a value */
     clearable?: boolean;
@@ -130,6 +132,7 @@ const unavailable = computed(() => unavailableDates(props.isDateUnavailable, pro
         :required="required"
         :name="name"
         :label="ariaLabel"
+        :placeholder="placeholder"
         :classes="classes"
         :class-name="split.className"
         :style="split.style"

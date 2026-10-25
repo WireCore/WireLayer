@@ -51,8 +51,8 @@ export interface ComponentInfo {
     props: PropInfo[];
     /** "blocks": from @wirecore/wirelayer-blocks-react / @wirecore/wirelayer-blocks-vue (page sections, ConditionBuilder …) */
     package?: 'blocks';
-    /** Slots and events of the Vue component (defineSlots/defineEmits), when it declares any */
-    vue?: { slots: SlotInfo[]; events: EventInfo[] };
+    /** Props, slots and events of the Vue component (defineProps/defineSlots/defineEmits), when it declares any */
+    vue?: { props?: PropInfo[]; slots: SlotInfo[]; events: EventInfo[] };
 }
 
 export interface Guide {
@@ -116,9 +116,31 @@ const docOf = (node: ts.Node) =>
         .trim();
 
 function resolveModule(from: string, specifier: string) {
+    if (specifier.endsWith('.vue')) {
+        const file = join(dirname(from), specifier);
+        return existsSync(file) ? file : undefined;
+    }
     const base = join(dirname(from), specifier.replace(/\.js$/, ''));
     return ['.tsx', '.ts', '.vue'].map((extension) => base + extension).find((file) => existsSync(file));
 }
+
+/** The scripts of a .vue file (<script setup> and a plain <script>) as one TypeScript source */
+const parseVueScript = (path: string) => {
+    if (!files.has(path)) {
+        const scripts = [...readFileSync(path, 'utf8').matchAll(/<script[^>]*>([\s\S]*?)<\/script>/g)];
+        files.set(
+            path,
+            ts.createSourceFile(
+                path,
+                scripts.map((match) => match[1]).join('\n'),
+                ts.ScriptTarget.Latest,
+                true,
+                ts.ScriptKind.TS
+            )
+        );
+    }
+    return files.get(path)!;
+};
 
 /** The .vue file of a component next to its React counterpart (blocks-react → blocks-vue) */
 const vueFileOf = (reactFile: string, component: string) =>
@@ -144,24 +166,44 @@ function vueComment(reactFile: string, component: string) {
 
 const oneLine = (text: string) => text.replace(/\s+/g, ' ').trim();
 
-/** Slots and events the Vue component declares with defineSlots<{…}> and defineEmits<{…}> */
-function vueApi(reactFile: string, component: string): ComponentInfo['vue'] {
+// The members of `{ … }` or `{ … } & { … }`
+const members = (type: ts.TypeNode): ts.TypeElement[] =>
+    ts.isTypeLiteralNode(type)
+        ? [...type.members]
+        : ts.isIntersectionTypeNode(type)
+          ? type.types.flatMap(members)
+          : ts.isParenthesizedTypeNode(type)
+            ? members(type.type)
+            : [];
+
+/** The props of a `defineProps<…>()` type: an interface (own, imported or extending another), a literal, both joined */
+function typeProps(file: ts.SourceFile, type: ts.TypeNode): PropInfo[] {
+    if (ts.isIntersectionTypeNode(type)) return type.types.flatMap((part) => typeProps(file, part));
+    if (ts.isParenthesizedTypeNode(type)) return typeProps(file, type.type);
+    if (ts.isTypeLiteralNode(type))
+        return members(type)
+            .filter(ts.isPropertySignature)
+            .map((member) => propOf(file, member));
+    if (!ts.isTypeReferenceNode(type)) return [];
+    const found = findInterface(file, type.typeName.getText(file));
+    if (!found) return [];
+    const own = memberProps(found.file, found.node);
+    const names = new Set(own.map((prop) => prop.name));
+    return [...inheritedProps(found.file, found.node).props.filter((prop) => !names.has(prop.name)), ...own];
+}
+
+/**
+ * Props, slots and events the Vue component declares with defineProps<…>, defineSlots<{…}> and defineEmits<{…}>.
+ * A prop without a doc comment takes the one of the React prop of the same name.
+ */
+function vueApi(reactFile: string, component: string, reactProps: PropInfo[] = []): ComponentInfo['vue'] {
     const vueFile = vueFileOf(reactFile, component);
     if (!existsSync(vueFile)) return undefined;
-    const script = readFileSync(vueFile, 'utf8').match(/<script setup[^>]*>([\s\S]*?)<\/script>/)?.[1];
-    if (!script) return undefined;
-    const file = ts.createSourceFile(vueFile, script, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS);
+    const file = parseVueScript(vueFile);
+    let props: PropInfo[] | undefined;
+    const models: PropInfo[] = [];
     const slots: SlotInfo[] = [];
     const events: EventInfo[] = [];
-    // The members of `{ … }` or `{ … } & { … }`
-    const members = (type: ts.TypeNode): ts.TypeElement[] =>
-        ts.isTypeLiteralNode(type)
-            ? [...type.members]
-            : ts.isIntersectionTypeNode(type)
-              ? type.types.flatMap(members)
-              : ts.isParenthesizedTypeNode(type)
-                ? members(type.type)
-                : [];
     const nameOf = (member: ts.TypeElement) => {
         // [cell: `cell-${string}`] → cell-<id>
         if (ts.isIndexSignatureDeclaration(member))
@@ -189,6 +231,7 @@ function vueApi(reactFile: string, component: string): ComponentInfo['vue'] {
     const visit = (node: ts.Node) => {
         if (ts.isCallExpression(node) && ts.isIdentifier(node.expression) && node.typeArguments?.[0]) {
             const kind = node.expression.text;
+            if (kind === 'defineProps') props = typeProps(file, node.typeArguments[0]);
             if (kind === 'defineSlots')
                 for (const member of members(node.typeArguments[0]))
                     slots.push({ name: nameOf(member), props: slotProps(member), description: docOf(member) });
@@ -204,21 +247,39 @@ function vueApi(reactFile: string, component: string): ComponentInfo['vue'] {
                     payload: `value: ${oneLine(node.typeArguments[0].getText(file))}`,
                     description: '',
                 });
+                models.push({
+                    name: model,
+                    type: oneLine(node.typeArguments[0].getText(file)),
+                    optional: true,
+                    // React calls the model `value`
+                    description:
+                        reactProps.find((prop) => prop.name === (model === 'modelValue' ? 'value' : model))
+                            ?.description ?? '',
+                });
             }
         }
         node.forEachChild(visit);
     };
     visit(file);
-    return slots.length || events.length ? { slots, events } : undefined;
+    if (models.length) props = [...models, ...(props ?? [])];
+    const described = props?.map((prop) => ({
+        ...prop,
+        description: prop.description || (reactProps.find((other) => other.name === prop.name)?.description ?? ''),
+    }));
+    return described?.length || slots.length || events.length
+        ? { ...(described?.length ? { props: described } : {}), slots, events }
+        : undefined;
 }
 
+const propOf = (file: ts.SourceFile, member: ts.PropertySignature): PropInfo => ({
+    name: member.name.getText(file).replace(/^'|'$/g, ''),
+    type: member.type?.getText(file).replace(/\s+/g, ' ') ?? 'unknown',
+    optional: !!member.questionToken,
+    description: docOf(member),
+});
+
 const memberProps = (file: ts.SourceFile, node: ts.InterfaceDeclaration): PropInfo[] =>
-    node.members.filter(ts.isPropertySignature).map((member) => ({
-        name: member.name.getText(file).replace(/^'|'$/g, ''),
-        type: member.type?.getText(file).replace(/\s+/g, ' ') ?? 'unknown',
-        optional: !!member.questionToken,
-        description: docOf(member),
-    }));
+    node.members.filter(ts.isPropertySignature).map((member) => propOf(file, member));
 
 /** The interface `name` declared in `file` or imported into it from a relative module (own sources only) */
 function findInterface(
@@ -237,7 +298,7 @@ function findInterface(
             node.importClause.namedBindings.elements.some((element) => element.name.text === name)
         ) {
             const path = resolveModule(file.fileName, (node.moduleSpecifier as ts.StringLiteral).text);
-            if (path && !path.endsWith('.vue')) found = findInterface(parse(path), name);
+            if (path) found = findInterface(path.endsWith('.vue') ? parseVueScript(path) : parse(path), name);
         }
     });
     return found;
@@ -327,7 +388,7 @@ function collectComponents(base = react, list = entries, inline = false) {
                             story: null,
                             extends: heritage,
                             props,
-                            ...(inline ? {} : { vue: vueApi(source.fileName, name) }),
+                            ...(inline ? {} : { vue: vueApi(source.fileName, name, props) }),
                         });
                     } else functions.push({ name, subpath, description: docOf(node) });
                 }
@@ -364,7 +425,7 @@ function collectComponents(base = react, list = entries, inline = false) {
                         story: null,
                         extends: heritage,
                         props,
-                        ...(inline ? {} : { vue: vueApi(module.fileName, name) }),
+                        ...(inline ? {} : { vue: vueApi(module.fileName, name, props) }),
                     });
                 }
             });

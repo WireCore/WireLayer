@@ -660,6 +660,7 @@ export const pl: Translations = {
         exportAll: 'Wszystkie wiersze',
         exportSelection: 'Zaznaczone wiersze',
         filterToggle: 'Pokaż filtry',
+        resetFilters: 'Wyczyść filtry',
         rowCount: (count) => rows(count),
         filteredCount: (count) => `Po filtrowaniu: ${count}`,
         copy: (header, value) => `Kopiuj: ${value}, ${header}`,

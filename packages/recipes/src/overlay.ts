@@ -101,7 +101,8 @@ export const dialog = tv({
         ],
         positioner: 'fixed inset-0 z-50 flex items-center justify-center overflow-y-auto p-4',
         content: [
-            'flex w-full max-w-[400px] flex-col rounded-[14px] border border-line-2 bg-card text-fg outline-none',
+            // Width from --wc-dialog-w: set by `size`, or your own, e.g. style="--wc-dialog-w: 36rem"
+            'flex w-full max-w-[var(--wc-dialog-w,400px)] flex-col rounded-[14px] border border-line-2 bg-card text-fg outline-none',
             'shadow-[0_24px_48px_-20px_rgba(0,0,0,.55)]',
             'motion-safe:data-[state=open]:animate-dialog-in motion-safe:data-[state=closed]:animate-dialog-out',
         ],
@@ -132,12 +133,12 @@ export const dialog = tv({
             warn: { iconBox: 'bg-warn/14 text-warn' },
             danger: { iconBox: 'bg-danger/14 text-danger' },
         },
-        /** Maximum width; without it 400px (md) */
+        /** Maximum width: sm 320px (20rem), md 400px (25rem, default), lg 560px (35rem), xl 800px (50rem) */
         size: {
-            sm: { content: 'max-w-[320px]' },
-            md: { content: 'max-w-[400px]' },
-            lg: { content: 'max-w-[560px]' },
-            xl: { content: 'max-w-[800px]' },
+            sm: { content: '[--wc-dialog-w:320px]' },
+            md: { content: '[--wc-dialog-w:400px]' },
+            lg: { content: '[--wc-dialog-w:560px]' },
+            xl: { content: '[--wc-dialog-w:800px]' },
             full: { content: 'max-w-none' },
         },
         /** Where the dialog sits on the screen; without it centred */

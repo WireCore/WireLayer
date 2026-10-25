@@ -1,6 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useState } from 'react';
+import { DateRangePicker } from '../DateRangePicker/DateRangePicker.js';
 import { Field } from '../Field/Field.js';
+import { MonthPicker } from '../MonthPicker/MonthPicker.js';
 import { DatePicker, type DatePickerProps } from './DatePicker.js';
 
 const weekend = (date: string) => [0, 6].includes(new Date(date).getDay());
@@ -151,6 +153,27 @@ export const Responsive: Story = {
         <div className="flex w-64 flex-col gap-3">
             <Field label="Arrival">
                 <DatePicker defaultValue="2026-11-10" responsive />
+            </Field>
+        </div>
+    ),
+};
+
+/**
+ * `placeholder`: a short text in the empty field until it gets the focus – then the date parts show. It describes
+ * the field (aria-describedby) but does not replace its label. DateRangePicker, MonthPicker and YearPicker the same
+ */
+export const Placeholder: Story = {
+    name: 'Placeholder',
+    render: () => (
+        <div className="flex w-72 flex-col gap-3">
+            <Field label="Due date">
+                <DatePicker placeholder="When it has to be paid" />
+            </Field>
+            <Field label="Period">
+                <DateRangePicker placeholder="Any period" />
+            </Field>
+            <Field label="Billing month">
+                <MonthPicker placeholder="Choose a month" />
             </Field>
         </div>
     ),

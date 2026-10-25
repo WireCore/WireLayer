@@ -15,6 +15,12 @@ export interface ToggleButtonProps extends Omit<ComponentProps<'button'>, 'onCha
     onPressedChange?: (pressed: boolean) => void;
     size?: Size;
     icon?: IconComponent;
+    /** Icon while pressed (default: `icon`) – the label stays the same */
+    pressedIcon?: IconComponent;
+    /** Props passed on to the icon component, e.g. { fill: 'currentColor' } for a filled icon or { strokeWidth: 1.5 } */
+    iconProps?: Record<string, unknown>;
+    /** Props of the icon while pressed, added to `iconProps` – e.g. { fill: 'currentColor' }: a filled icon when on */
+    pressedIconProps?: Record<string, unknown>;
     /** Extra classes per part of the component, e.g. { base: "…" } (see the recipe) */
     classes?: RecipeClasses<typeof toggleButtonRecipe>;
 }
@@ -26,7 +32,10 @@ export function ToggleButton({
     defaultPressed = false,
     onPressedChange,
     size = 'md',
-    icon: Icon,
+    icon,
+    pressedIcon,
+    iconProps,
+    pressedIconProps,
     disabled = false,
     className,
     children,
@@ -44,7 +53,22 @@ export function ToggleButton({
             onPressedChange={onPressedChange}
             disabled={disabled}
         >
-            {Icon && <Icon className={look.icon()} aria-hidden="true" />}
+            {(icon || pressedIcon) && (
+                <Toggle.Context>
+                    {(api) => {
+                        const Icon = api.pressed ? (pressedIcon ?? icon) : icon;
+                        return (
+                            Icon && (
+                                <Icon
+                                    {...(api.pressed ? { ...iconProps, ...pressedIconProps } : iconProps)}
+                                    className={look.icon()}
+                                    aria-hidden="true"
+                                />
+                            )
+                        );
+                    }}
+                </Toggle.Context>
+            )}
             {children}
         </Toggle.Root>
     );

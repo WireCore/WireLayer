@@ -589,6 +589,7 @@ export const de = {
         exportAll: 'Alle Zeilen',
         exportSelection: 'Ausgewählte Zeilen',
         filterToggle: 'Filter anzeigen',
+        resetFilters: 'Filter zurücksetzen',
         rowCount: (count: number) => (count === 1 ? '1 Zeile' : `${count} Zeilen`),
         filteredCount: (count: number) => `${count} gefiltert`,
         copy: (header: string, value: string) => `${value}, ${header} kopieren`,

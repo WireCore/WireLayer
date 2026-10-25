@@ -15,6 +15,8 @@ import { useRecipe } from '../../recipes.js';
 export interface IconButtonProps {
     /** Icon component */
     icon: Component;
+    /** Props passed on to the icon component, e.g. { fill: 'currentColor' } for a filled icon or { strokeWidth: 1.5 } */
+    iconProps?: Record<string, unknown>;
     /** Accessible name – icon buttons have no visible text */
     label: string;
     variant?: IconButtonVariant;
@@ -64,7 +66,7 @@ const accessibleName = computed(() => {
         :disabled="disabled"
         :aria-label="accessibleName"
     >
-        <component :is="icon" :class="styles.icon()" aria-hidden="true" />
+        <component :is="icon" v-bind="iconProps" :class="styles.icon()" aria-hidden="true" />
         <span v-if="count" :class="styles.badge()" aria-hidden="true">{{ formatCount(count) }}</span>
         <span v-else-if="badge === true" :class="styles.dot()" aria-hidden="true" />
     </button>

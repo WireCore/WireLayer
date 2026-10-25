@@ -120,6 +120,7 @@ export const ptBR: Translations = {
         sortAscending: 'Classificar em ordem crescente',
         sortDescending: 'Classificar em ordem decrescente',
         clearSort: 'Remover classificação',
+        resetFilters: 'Redefinir filtros',
         sortPriority: (position, desc) => `nível de classificação ${position}, ${desc ? 'decrescente' : 'crescente'}`,
         pinEnd: 'Fixar no final',
         columnMoved: (header, position, count) => `${header} agora é a coluna ${position} de ${count}`,

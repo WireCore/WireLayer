@@ -1,12 +1,12 @@
 import { screen, waitFor, within } from '@testing-library/dom';
-import { act, cleanup as cleanupReact } from '@testing-library/react';
-import { cleanup as cleanupVue } from '@testing-library/vue';
+import { act, cleanup as cleanupReact, render as renderReact } from '@testing-library/react';
+import { cleanup as cleanupVue, render as renderVue } from '@testing-library/vue';
 import userEvent from '@testing-library/user-event';
 import * as React from '@wirecore/wirelayer-react';
 import * as Vue from '@wirecore/wirelayer-vue';
 import { createElement } from 'react';
 import { describe, expect, it, vi } from 'vitest';
-import { defineComponent, h } from 'vue';
+import { defineComponent, h, nextTick, type Component } from 'vue';
 import { el, frameworks, icon, normalize, render, type El, type Framework } from './harness.js';
 
 // Overlays, menus and notifications: open states (portals) in both frameworks, services and imperative opening
@@ -397,6 +397,42 @@ describe.each(frameworks)('%s', (framework) => {
                 status.querySelector('[data-part=root] > span[aria-hidden=true], span[aria-hidden=true]')
             ).not.toBeNull();
             await act(async () => own.toaster.remove());
+        });
+    });
+
+    describe('Toaster options', () => {
+        it('placement and max on <Toaster /> – for its own toaster and the app-wide one of toast()', async () => {
+            const own = lib(framework).createToaster();
+            // Rendered directly: the harness copies plain objects such as the toaster store
+            const props = { toaster: own.toaster, label: 'Own', placement: 'top-start', max: 1, overlap: true };
+            if (framework === 'vue') {
+                renderVue(h(Vue.Toaster as Component, props));
+                await nextTick();
+            } else renderReact(createElement(React.Toaster, props as never));
+            const region = screen.getByRole('region', { name: /Own/ });
+            expect(region).toHaveAttribute('data-placement', 'top-start');
+            await act(async () => {
+                own.toast({ title: 'One' });
+                own.toast({ title: 'Two' });
+            });
+            const shown = await within(region).findAllByRole('status');
+            expect(shown).toHaveLength(1);
+            expect(shown[0]).toHaveAttribute('data-overlap');
+            await act(async () => own.toaster.remove());
+        });
+
+        it('the app-wide toaster takes placement, too', async () => {
+            const { toaster } = lib(framework);
+            const before = { ...toaster.attrs };
+            try {
+                await render(framework, el('Toaster', { placement: 'top-end' }));
+                expect(screen.getByRole('region', { name: /Notifications/ })).toHaveAttribute(
+                    'data-placement',
+                    'top-end'
+                );
+            } finally {
+                Object.assign(toaster.attrs, before);
+            }
         });
     });
 

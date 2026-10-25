@@ -48,7 +48,9 @@ export function useListSelection<T>(options: {
     const current = computed(() => (options.model() !== undefined ? options.model() : internal.value));
     const selected = computed(() =>
         listOptionsForValues(
-            options.multiple ? ((current.value as unknown[] | null) ?? []) : listValues(current.value),
+            options.multiple
+                ? ((current.value as unknown[] | null) ?? [])
+                : listValues(current.value, options.items.value),
             indexListOptions(options.items.value, picked.value),
             options.accessors()
         )

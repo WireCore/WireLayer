@@ -1,4 +1,4 @@
-import { DateInput as ArkDateInput } from '@ark-ui/react/date-input';
+import { DateInput as ArkDateInput, type UseDateInputContext } from '@ark-ui/react/date-input';
 import {
     DatePicker as ArkDatePicker,
     useDatePickerContext,
@@ -75,6 +75,8 @@ export interface DatePickerBaseProps extends CalendarViewOptions {
     required?: boolean;
     name?: string;
     label?: string;
+    /** Text of the empty field, shown until it gets the focus */
+    placeholder?: string;
     className?: string;
     style?: CSSProperties;
     classes?: RecipeClasses<typeof datePickerRecipe>;
@@ -111,6 +113,7 @@ export function DatePickerBase({
     required,
     name,
     label,
+    placeholder,
     className,
     style,
     period,
@@ -166,6 +169,15 @@ export function DatePickerBase({
         };
     }
     const describedby = [field?.ariaDescribedby, zone ? `${id}tz` : undefined].filter(Boolean).join(' ') || undefined;
+    // Own placeholder: while no part is typed (a part alone is no value yet) and the field has no focus. It describes
+    // the parts – also while they show, for the screen reader reads the description on focus
+    const empty = (api: UseDateInputContext) =>
+        groups.every((index) =>
+            api.getSegments({ index }).every((segment) => segment.type === 'literal' || segment.isPlaceholder)
+        );
+    const placeholderShown = (api: UseDateInputContext) => !!placeholder && empty(api) && !api.focused;
+    const describedbyOf = (api: UseDateInputContext) =>
+        placeholder && empty(api) ? [describedby, `${id}ph`].filter(Boolean).join(' ') : describedby;
     // A day picked in the calendar keeps the time already typed
     const fromCalendar = (next: DateValue[]) =>
         onChange(withTime ? next.map((day, index) => withTimeOf(day, dates[index])) : next);
@@ -188,7 +200,7 @@ export function DatePickerBase({
     };
     // Several dates (selectionMode multiple): the field shows them as text
     const multipleText = !dates.length
-        ? translations.calendar.noDates
+        ? (placeholder ?? translations.calendar.noDates)
         : dates.length > 3
           ? pluralText(translations.calendar.datesSelected, dates.length, locale)
           : dates
@@ -262,29 +274,49 @@ export function DatePickerBase({
                         {...state}
                         translations={translations.dateInput}
                     >
-                        <ArkDateInput.Control className={styles.dateControl()}>
-                            {groups.map((index) => (
-                                <Fragment key={index}>
-                                    {index === 1 && (
-                                        <span className={styles.rangeSeparator()} aria-hidden="true">
-                                            –
+                        <ArkDateInput.Context>
+                            {(api) => (
+                                <>
+                                    <ArkDateInput.Control
+                                        className={styles.dateControl()}
+                                        data-placeholder-shown={placeholderShown(api) || undefined}
+                                    >
+                                        {groups.map((index) => (
+                                            <Fragment key={index}>
+                                                {index === 1 && (
+                                                    <span className={styles.rangeSeparator()} aria-hidden="true">
+                                                        –
+                                                    </span>
+                                                )}
+                                                {range && field && (
+                                                    <span id={`${id}r${index}`} className={styles.rangeLabel()}>
+                                                        {rangeNames[index]}
+                                                    </span>
+                                                )}
+                                                <DateSegments
+                                                    index={index}
+                                                    label={groupLabel(index)}
+                                                    describedby={describedbyOf(api)}
+                                                    paste={period ? undefined : pasteText}
+                                                    size={size}
+                                                />
+                                            </Fragment>
+                                        ))}
+                                    </ArkDateInput.Control>
+                                    {/* Stays while focused (hidden): the parts keep their description */}
+                                    {placeholder && empty(api) && (
+                                        <span
+                                            id={`${id}ph`}
+                                            className={styles.placeholder()}
+                                            data-hidden={placeholderShown(api) ? undefined : ''}
+                                            onClick={() => api.focus()}
+                                        >
+                                            {placeholder}
                                         </span>
                                     )}
-                                    {range && field && (
-                                        <span id={`${id}r${index}`} className={styles.rangeLabel()}>
-                                            {rangeNames[index]}
-                                        </span>
-                                    )}
-                                    <DateSegments
-                                        index={index}
-                                        label={groupLabel(index)}
-                                        describedby={describedby}
-                                        paste={period ? undefined : pasteText}
-                                        size={size}
-                                    />
-                                </Fragment>
-                            ))}
-                        </ArkDateInput.Control>
+                                </>
+                            )}
+                        </ArkDateInput.Context>
                         {groups.map((index) => (
                             <ArkDateInput.HiddenInput key={index} index={index} />
                         ))}

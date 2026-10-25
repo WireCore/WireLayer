@@ -23,7 +23,11 @@ export interface DialogContentProps {
     /** Icon component in the coloured box at the top */
     icon?: Component;
     status?: DialogStatus;
-    /** Maximum width: sm 320px, md 400px (default), lg 560px, xl 800px, full (screen width minus the margin) */
+    /**
+     * Maximum width: sm 320px (20rem), md 400px (25rem, default), lg 560px (35rem), xl 800px (50rem), full (screen
+     * width minus the margin). Another width: leave out `size` and set the CSS variable, e.g.
+     * style="--wc-dialog-w: 36rem"
+     */
     size?: OverlaySize;
     /** Where the dialog sits: centred (default), at the top/bottom or the start/end edge */
     position?: DialogPosition;
@@ -60,6 +64,12 @@ const props = withDefaults(defineProps<DialogContentProps>(), {
     responsive: true,
 });
 const emit = defineEmits<{ 'update:maximized': [maximized: boolean] }>();
+defineSlots<{
+    /** The content below the title */
+    default?(): unknown;
+    /** Buttons at the bottom, e.g. Cancel and Save (right-aligned) */
+    footer?(): unknown;
+}>();
 const dialog = useRecipe('dialog', dialogRecipe, () => props.classes);
 const attrs = useAttrs();
 const root = inject(dialogRootKey, null);

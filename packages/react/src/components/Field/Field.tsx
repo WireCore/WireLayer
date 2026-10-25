@@ -68,7 +68,7 @@ export function Field({
         </ArkField.Label>
     );
     return (
-        <FieldStatusContext.Provider value={{ success: showSuccess }}>
+        <FieldStatusContext.Provider value={{ success: showSuccess, labelled: !!label }}>
             <ArkField.Root
                 {...props}
                 className={styles.base({ class: className })}

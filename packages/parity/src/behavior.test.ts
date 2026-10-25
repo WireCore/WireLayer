@@ -384,6 +384,51 @@ describe.each(frameworks)('%s', (framework) => {
             await render(framework, el('IconButton', { icon: icon('Plus'), label: 'Add' }));
             expect(screen.getByRole('button', { name: 'Add' })).toBeInTheDocument();
         });
+
+        it('iconProps reach the icon of IconButton, Button and Badge – e.g. a filled icon', async () => {
+            const filled = { fill: 'currentColor' };
+            await render(
+                framework,
+                el(
+                    'div',
+                    {},
+                    el('IconButton', { icon: icon('Bell'), label: 'Favourite', iconProps: filled }),
+                    el('Button', { leadingIcon: icon('Plus'), trailingIcon: icon('Check'), iconProps: filled }, 'Add'),
+                    el('Badge', { icon: icon('Check'), iconProps: filled }, 'Done')
+                )
+            );
+            const icons = [
+                ...screen.getByRole('button', { name: 'Favourite' }).querySelectorAll('svg'),
+                ...screen.getByRole('button', { name: 'Add' }).querySelectorAll('svg'),
+                ...screen.getByText('Done').querySelectorAll('svg'),
+            ];
+            expect(icons).toHaveLength(4);
+            for (const svg of icons) {
+                expect(svg).toHaveAttribute('fill', 'currentColor');
+                expect(svg).toHaveAttribute('aria-hidden', 'true');
+            }
+        });
+    });
+
+    describe('ToggleButton', () => {
+        it('pressedIcon and pressedIconProps while pressed – the name stays the same', async () => {
+            await render(
+                framework,
+                el(
+                    'ToggleButton',
+                    { icon: icon('Bell'), pressedIcon: icon('Check'), pressedIconProps: { fill: 'currentColor' } },
+                    'Flagged only'
+                )
+            );
+            const button = screen.getByRole('button', { name: 'Flagged only' });
+            expect(button.querySelector('svg')).toHaveClass('lucide-bell');
+            expect(button.querySelector('svg')).not.toHaveAttribute('fill', 'currentColor');
+            await userEvent.click(button);
+            expect(button).toHaveAttribute('aria-pressed', 'true');
+            expect(screen.getByRole('button', { name: 'Flagged only' })).toBe(button);
+            expect(button.querySelector('svg')).toHaveClass('lucide-check');
+            expect(button.querySelector('svg')).toHaveAttribute('fill', 'currentColor');
+        });
     });
 
     describe('IconButton badge', () => {
@@ -715,6 +760,71 @@ describe.each(frameworks)('%s option lists', (framework) => {
         expect(onFilter).toHaveBeenLastCalledWith('NU');
         await userEvent.type(search, 'x');
         expect(screen.getByRole('option', { name: 'No results' })).toHaveAttribute('aria-disabled', 'true');
+    });
+
+    it('Select: an item with the value null ("All") is a choice of its own', async () => {
+        const onChange = vi.fn();
+        const choices = [
+            { value: null, label: 'All' },
+            { value: true, label: 'Active' },
+            { value: false, label: 'Archived' },
+        ];
+        await render(
+            framework,
+            el('Select', { items: choices, defaultValue: null, 'aria-label': 'Status', [onValue]: onChange })
+        );
+        const trigger = screen.getByRole('combobox', { name: 'Status' });
+        expect(trigger).toHaveTextContent('All');
+        await open('Status');
+        expect(screen.getByRole('option', { name: 'All' })).toHaveAttribute('aria-selected', 'true');
+        await userEvent.click(screen.getByRole('option', { name: 'Archived' }));
+        expect(onChange).toHaveBeenLastCalledWith(false);
+        await open('Status');
+        await userEvent.click(screen.getByRole('option', { name: 'All' }));
+        expect(onChange).toHaveBeenLastCalledWith(null);
+        expect(trigger).toHaveTextContent('All');
+    });
+
+    it('Select, MultiSelect and Combobox also find items by itemKeywords', async () => {
+        const categories = [
+            { value: 'rent', label: 'Rent', parent: 'Housing' },
+            { value: 'power', label: 'Electricity', parent: 'Housing' },
+            { value: 'fuel', label: 'Fuel', parent: 'Car' },
+        ];
+        await render(
+            framework,
+            el(
+                'div',
+                {},
+                el('Select', { items: categories, itemKeywords: 'parent', filter: true, 'aria-label': 'Category' }),
+                el('MultiSelect', {
+                    items: categories,
+                    itemKeywords: (item: { parent: string }) => [item.parent],
+                    filter: true,
+                    'aria-label': 'Categories',
+                })
+            )
+        );
+        await open('Category');
+        await userEvent.type(screen.getByRole('combobox', { name: 'Filter options' }), 'hous');
+        expect(names(screen.getAllByRole('option'))).toEqual(['Rent', 'Electricity']);
+        await userEvent.keyboard('{Escape}');
+        await open('Categories');
+        await userEvent.type(screen.getByRole('combobox', { name: 'Filter options' }), 'car');
+        expect(names(screen.getAllByRole('option'))).toEqual(['Fuel']);
+    });
+
+    it('Combobox finds items by itemKeywords', async () => {
+        const categories = [
+            { value: 'rent', label: 'Rent', parent: 'Housing' },
+            { value: 'fuel', label: 'Fuel', parent: 'Car' },
+        ];
+        await render(
+            framework,
+            el('Combobox', { items: categories, itemKeywords: 'parent', 'aria-label': 'Category' })
+        );
+        await userEvent.type(screen.getByRole('combobox', { name: 'Category' }), 'car');
+        expect(names(await screen.findAllByRole('option'))).toEqual(['Fuel']);
     });
 
     it('MultiSelect with manualFilter reports the text and leaves the items alone', async () => {

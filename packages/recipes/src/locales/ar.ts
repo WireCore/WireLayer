@@ -790,6 +790,7 @@ export const ar: Translations = {
         exportAll: 'كل الصفوف',
         exportSelection: 'الصفوف المحددة',
         filterToggle: 'عرض الفلاتر',
+        resetFilters: 'إعادة تعيين الفلاتر',
         rowCount: (count) => plural(count, { ...rows, zero: 'لا توجد صفوف' }),
         filteredCount: (count) => `${count} بعد التصفية`,
         copy: (header, value) => `نسخ ${value}، ${header}`,

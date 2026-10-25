@@ -10,6 +10,7 @@ export type {
     DataTableMatchMode,
     DataTableMatchModeDefinition,
     DataTableSort,
+    DataTableStateKey,
 } from '@wirecore/wirelayer-recipes';
 export type {
     DataQuery,
@@ -40,7 +41,29 @@ export type DataTableEditor =
  * label and optionally a group heading
  */
 export type DataTableOption =
-    string | number | boolean | { value: unknown; label: string; group?: string; disabled?: boolean };
+    | string
+    | number
+    | boolean
+    | {
+          value: unknown;
+          label: string;
+          group?: string;
+          disabled?: boolean;
+          /** More text the search of the list (`filterInputProps.filter`) finds the choice by */
+          keywords?: readonly string[];
+      };
+
+/** Settings of the built-in filter input of a column (`filterInputProps`) */
+export interface DataTableFilterInputOptions {
+    /** Text of the empty input (select filters: instead of "All") */
+    placeholder?: string;
+    /** select, multiSelect: search field at the top of the list */
+    filter?: boolean;
+    /** multiSelect: how many chosen values the field names before "n selected" (default 2) */
+    maxShown?: number;
+    /** select, multiSelect: button that clears the choice */
+    clearable?: boolean;
+}
 
 /** What an own filter input gets (`#filter-<id>` / `renderFilter`) */
 export interface DataTableFilterInputProps<TData> {
@@ -79,7 +102,14 @@ export interface DataTableEditorProps<TData> {
 
 export interface DataTableColumn<TData> {
     id: string;
+    /** Column name – also the accessible name of the column, of its filter and of its menus */
     header: string;
+    /** The header text is only read by screen readers, e.g. for a column of buttons */
+    headerHidden?: boolean;
+    /** Extra classes of the header cell */
+    headerClass?: string;
+    /** Extra classes of the cells, e.g. "tabular-nums" – or per row; a text also applies to the footer cell */
+    cellClass?: string | ((row: TData) => string | undefined);
     /** Columns below this header – the column becomes a group header spanning them */
     columns?: DataTableColumn<TData>[];
     /** Property name or getter for the cell value (default: the column id) */
@@ -100,6 +130,8 @@ export interface DataTableColumn<TData> {
      * (`{ value, label, group }`) or numbers compare the cell value instead of the shown text.
      */
     filterOptions?: readonly DataTableOption[];
+    /** Settings of the built-in filter input: placeholder; for select filters search, clear button, shown values */
+    filterInputProps?: DataTableFilterInputOptions;
     /** Match modes offered in the filter menu (default: all of the filter type and own ones for the type) */
     matchModes?: readonly DataTableMatchMode[];
     /** Match mode of the filter row (default: the first of the type) – `between` shows a from and a to input */
@@ -154,6 +186,8 @@ export interface DataTableColumn<TData> {
     cell?: (row: TData, value: unknown) => ReactNode;
     /** Own filter input for the filter row and the filter menu (instead of the input of the filter type) */
     renderFilter?: (props: DataTableFilterInputProps<TData>) => ReactNode;
+    /** An option in the select filter and editor lists – e.g. a status as a badge */
+    renderOption?: (item: unknown, state: { selected: boolean; highlighted: boolean; disabled: boolean }) => ReactNode;
     /** Own editor (instead of the input of `editor`) */
     renderEditor?: (props: DataTableEditorProps<TData>) => ReactNode;
 }

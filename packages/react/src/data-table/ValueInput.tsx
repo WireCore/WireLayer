@@ -1,11 +1,13 @@
-import { useContext } from 'react';
+import { useContext, type ReactNode } from 'react';
 import { Checkbox } from '../components/Checkbox/Checkbox.js';
 import { Input } from '../components/Input/Input.js';
 import { MultiSelect } from '../components/MultiSelect/MultiSelect.js';
+import type { ListItemState } from '../components/Select/list.js';
 import { Select } from '../components/Select/Select.js';
 import { Textarea } from '../components/Textarea/Textarea.js';
 import { useTranslations } from '../components/LocaleProvider/LocaleProvider.js';
 import { FeatureContext } from './features.js';
+import type { DataTableFilterInputOptions } from './types.js';
 
 export interface ValueInputProps {
     type: 'text' | 'textarea' | 'number' | 'select' | 'multiSelect' | 'date' | 'datetime' | 'boolean' | 'checkbox';
@@ -17,10 +19,24 @@ export interface ValueInputProps {
     /** Select: an "All" choice (empty value) first – for filters */
     any?: boolean;
     invalid?: boolean;
+    /** Settings of the input (the column's `filterInputProps`) */
+    inputProps?: DataTableFilterInputOptions;
+    /** An option of select and multiSelect (the column's `renderOption`) */
+    renderOption?: (item: unknown, state: ListItemState) => ReactNode;
 }
 
 /** One value of a filter condition or an edited cell – the matching input for the type */
-export function ValueInput({ type, value, onChange, label, options, any = false, invalid }: ValueInputProps) {
+export function ValueInput({
+    type,
+    value,
+    onChange,
+    label,
+    options,
+    any = false,
+    invalid,
+    inputProps,
+    renderOption,
+}: ValueInputProps) {
     const translations = useTranslations();
     const t = translations.dataTable;
     // DatePicker and NumberInput come from the features dateInput and numberInput – without them the browser's inputs
@@ -46,6 +62,7 @@ export function ValueInput({ type, value, onChange, label, options, any = false,
                 size="sm"
                 aria-label={label}
                 invalid={invalid}
+                placeholder={inputProps?.placeholder}
                 value={text}
                 onChange={(event) => onChange(event.target.value)}
             />
@@ -67,6 +84,7 @@ export function ValueInput({ type, value, onChange, label, options, any = false,
                 size="sm"
                 aria-label={label}
                 invalid={invalid}
+                placeholder={inputProps?.placeholder}
                 value={typeof value === 'number' ? value : null}
                 onValueChange={onChange}
             />
@@ -78,6 +96,7 @@ export function ValueInput({ type, value, onChange, label, options, any = false,
                 size="sm"
                 aria-label={label}
                 invalid={invalid}
+                placeholder={inputProps?.placeholder}
                 value={typeof value === 'number' ? String(value) : ''}
                 // The browser's number input: an empty or invalid entry is no number
                 onChange={({ target }) =>
@@ -90,6 +109,7 @@ export function ValueInput({ type, value, onChange, label, options, any = false,
             <DatePicker
                 aria-label={label}
                 invalid={invalid}
+                placeholder={inputProps?.placeholder}
                 withTime={type === 'datetime'}
                 value={text || null}
                 onValueChange={onChange}
@@ -112,7 +132,11 @@ export function ValueInput({ type, value, onChange, label, options, any = false,
                 aria-label={label}
                 items={items}
                 invalid={invalid}
-                placeholder={t.filterAll}
+                placeholder={inputProps?.placeholder ?? t.filterAll}
+                filter={inputProps?.filter}
+                maxShown={inputProps?.maxShown}
+                clearable={inputProps?.clearable}
+                renderItem={renderOption}
                 value={Array.isArray(value) ? (value as unknown[]) : []}
                 onValueChange={onChange}
             />
@@ -131,7 +155,10 @@ export function ValueInput({ type, value, onChange, label, options, any = false,
             aria-label={label}
             items={items}
             invalid={invalid}
-            placeholder={translations.common.placeholder}
+            placeholder={inputProps?.placeholder ?? translations.common.placeholder}
+            filter={inputProps?.filter}
+            clearable={inputProps?.clearable}
+            renderItem={renderOption}
             value={byValue ? (value ?? (any ? '' : null)) : text}
             onValueChange={(next) => onChange(next ?? '')}
         />

@@ -563,6 +563,7 @@ const en: Translations = {
         exportAll: 'All rows',
         exportSelection: 'Selected rows',
         filterToggle: 'Show filters',
+        resetFilters: 'Reset filters',
         rowCount: (count) => (count === 1 ? '1 row' : `${count} rows`),
         filteredCount: (count) => `${count} filtered`,
         copy: (header, value) => `Copy ${value}, ${header}`,

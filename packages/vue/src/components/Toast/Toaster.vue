@@ -2,8 +2,8 @@
 import { Toast, Toaster } from '@ark-ui/vue/toast';
 import { CircleCheck, Info, LoaderCircle, OctagonX, TriangleAlert, X } from '@lucide/vue';
 import { isSwipeDismiss, type RecipeClasses, toast as toastRecipe } from '@wirecore/wirelayer-recipes';
-import { computed, reactive } from 'vue';
-import { toaster as appToaster } from './toaster.js';
+import { computed, reactive, watch } from 'vue';
+import { toaster as appToaster, type ToasterOptions } from './toaster.js';
 import { useTranslations } from '../../locale.js';
 import { useRecipe } from '../../recipes.js';
 
@@ -12,6 +12,14 @@ const translations = useTranslations();
 export interface ToasterProps {
     /** A toaster from createToaster() – without it the app-wide one of toast() */
     toaster?: typeof appToaster;
+    /** Where the toasts appear (default bottom-end) – also for the app-wide toaster of toast() */
+    placement?: ToasterOptions['placement'];
+    /** Toasts shown at once (default 5); more wait in a queue */
+    max?: number;
+    /** Toasts lie on top of each other and fan out on hover or focus (instead of a list) */
+    overlap?: boolean;
+    /** Space between the toasts in px (default 12) */
+    gap?: number;
     /** Accessible name of the notification region */
     label?: string;
     /** Accessible name of each toast's close button */
@@ -24,11 +32,21 @@ export interface ToasterProps {
     classes?: RecipeClasses<typeof toastRecipe>;
 }
 
-const props = defineProps<ToasterProps>();
+const props = withDefaults(defineProps<ToasterProps>(), { overlap: undefined });
 const toast = useRecipe('toast', toastRecipe, () => props.classes);
 const styles = computed(() => toast({ showProgress: props.showProgress, swipeable: props.swipeToDismiss }));
 const icons = { success: CircleCheck, info: Info, warning: TriangleAlert, error: OctagonX };
 const store = computed(() => props.toaster ?? appToaster);
+// Placement, max, overlap and gap go into the toaster before its region is created; a change creates it anew (the
+// toasts stay)
+function configure() {
+    const options = { placement: props.placement, max: props.max, overlap: props.overlap, gap: props.gap };
+    for (const [key, value] of Object.entries(options))
+        if (value !== undefined) Object.assign(store.value.attrs, { [key]: value });
+}
+configure();
+watch(() => [store.value, props.placement, props.max, props.overlap, props.gap], configure, { flush: 'sync' });
+const regionKey = computed(() => `${props.placement}|${props.overlap}|${props.gap}`);
 
 // Swiping: the toast follows the pointer sideways and closes when let go far enough
 const swipes = reactive<Record<string, { start: number; distance: number; active: boolean }>>({});
@@ -68,7 +86,7 @@ function swipeProps(id: string | undefined) {
 
 <template>
     <!-- Place once in the app; show toasts with toast({ title, description, type, action }) -->
-    <Toaster v-slot="item" :toaster="store" :label="label ?? translations.toast.label">
+    <Toaster :key="regionKey" v-slot="item" :toaster="store" :label="label ?? translations.toast.label">
         <Toast.Root :class="styles.root()" v-bind="swipeProps(item.id)">
             <LoaderCircle v-if="item.type === 'loading'" :class="styles.spinner()" aria-hidden="true" />
             <component

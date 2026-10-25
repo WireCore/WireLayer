@@ -225,3 +225,49 @@ export const WithDataSource: Story = {
             </div>`,
     }),
 };
+
+const statusItems = [
+    { value: null, label: 'All' },
+    { value: true, label: 'Active' },
+    { value: false, label: 'Archived' },
+];
+
+/**
+ * An item with the value `null` – e.g. "All" – is a choice of its own: v-model `null` shows it. Without such an
+ * item `null` means nothing chosen (the placeholder)
+ */
+export const NullValue: Story = {
+    name: 'Null as a value',
+    render: () => ({
+        components: { Select, Field },
+        setup: () => ({ statusItems, value: ref<boolean | null>(null) }),
+        template: `
+            <div class="flex w-72 flex-col gap-3">
+                <Field label="Status"><Select v-model="value" :items="statusItems" /></Field>
+                <span class="text-xs text-muted">Value: {{ value === null ? 'null' : value }}</span>
+            </div>`,
+    }),
+};
+
+const categories = [
+    { value: 'rent', label: 'Rent', parent: 'Housing' },
+    { value: 'power', label: 'Electricity', parent: 'Housing' },
+    { value: 'fuel', label: 'Fuel', parent: 'Car' },
+    { value: 'insurance', label: 'Insurance', parent: 'Car' },
+];
+
+/**
+ * The search finds items by more than their label: `item-keywords` names a field or a function (one text or a list)
+ * – here the main category: "car" finds Fuel and Insurance. Items can also bring their own `keywords`
+ */
+export const Keywords: Story = {
+    name: 'Search by keywords',
+    render: () => ({
+        components: { Select, Field },
+        setup: () => ({ categories, value: ref<string | null>(null) }),
+        template: `
+            <Field label="Category" class="w-72">
+                <Select v-model="value" :items="categories" item-group="parent" item-keywords="parent" filter />
+            </Field>`,
+    }),
+};

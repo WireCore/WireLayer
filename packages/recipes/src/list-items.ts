@@ -13,6 +13,8 @@ export interface ListItemAccessors<T = unknown> {
     itemLabel?: ItemAccessor<T, string>;
     itemDisabled?: ItemAccessor<T, boolean>;
     itemGroup?: ItemAccessor<T, string | null | undefined>;
+    /** More text the search finds an item by, besides its label (e.g. the name of its category) */
+    itemKeywords?: ItemAccessor<T, string | readonly string[] | null | undefined>;
     // The value type is unknown here – any accessor of the component's value type fits
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     valueKey?: ItemAccessor<any, string | number>;
@@ -27,6 +29,8 @@ export interface ListOption<T = unknown> {
     group?: string;
     description?: string;
     icon?: unknown;
+    /** More text the search finds the option by (`itemKeywords`, otherwise the item's `keywords`) */
+    keywords?: string[];
     /** The original item (for slots and render functions) */
     item: T;
 }
@@ -78,6 +82,7 @@ export function toListOption<T>(item: T, accessors: ListItemAccessors<T> = {}): 
         accessors.itemLabel !== undefined ? read(item, accessors.itemLabel, 'label') : read(item, 'label', '');
     const group = read(item, accessors.itemGroup, 'group');
     const description = read(item, undefined, 'description');
+    const keywords = read(item, accessors.itemKeywords, 'keywords');
     return {
         key: listValueKey(value, accessors.valueKey),
         value,
@@ -86,6 +91,10 @@ export function toListOption<T>(item: T, accessors: ListItemAccessors<T> = {}): 
         group: group === null || group === undefined || group === '' ? undefined : String(group),
         description: typeof description === 'string' ? description : undefined,
         icon: read(item, undefined, 'icon'),
+        keywords:
+            keywords === null || keywords === undefined || keywords === ''
+                ? undefined
+                : (Array.isArray(keywords) ? keywords : [keywords]).map(String),
         item,
     };
 }
@@ -119,14 +128,21 @@ export function groupListOptions<T>(options: readonly ListOption<T>[]): ListGrou
     return groups;
 }
 
-/** Options whose label contains the query; `contains` decides about case and accents (Ark's useFilter) */
+/**
+ * Options whose label or one of their keywords contains the query; `contains` decides about case and accents (Ark's
+ * useFilter)
+ */
 export function filterListOptions<T>(
     options: readonly ListOption<T>[],
     query: string,
     contains: (text: string, query: string) => boolean
 ): ListOption<T>[] {
     const text = query.trim();
-    return text ? options.filter((option) => contains(option.label, text)) : [...options];
+    return text
+        ? options.filter(
+              (option) => contains(option.label, text) || !!option.keywords?.some((keyword) => contains(keyword, text))
+          )
+        : [...options];
 }
 
 /** Looks options up by key; earlier lists win (e.g. the current items before remembered ones) */
@@ -161,8 +177,12 @@ export function listOptionsForValues<T>(
     });
 }
 
-/** The value of a single choice as a list: null/undefined → [] */
-export const listValues = (value: unknown): unknown[] => (value === null || value === undefined ? [] : [value]);
+/**
+ * The value of a single choice as a list: undefined → [], null → [] – unless one of the options has the value null
+ * (e.g. "All"): then null chooses it.
+ */
+export const listValues = (value: unknown, options: readonly ListOption[] = []): unknown[] =>
+    value === undefined || (value === null && !options.some((option) => option.value === null)) ? [] : [value];
 
 /**
  * "Select all": the selectable options in view (filtered, enabled) are added – or removed when all of them are

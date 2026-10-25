@@ -38,6 +38,11 @@ export interface SelectProps<T = SelectItem, V = ItemValueOf<T>> {
     itemDisabled?: ItemAccessor<T, boolean>;
     /** Group heading of an item: property name or function (default: `group`); items are listed per group */
     itemGroup?: ItemAccessor<T, string | null | undefined>;
+    /**
+     * More text the search finds an item by, besides its label: property name or function, one text or a list
+     * (default: `keywords`), e.g. the name of the item's category
+     */
+    itemKeywords?: ItemAccessor<T, string | readonly string[] | null | undefined>;
     /** Identifies object values (property name or function), e.g. "id" – without it objects are compared by content */
     valueKey?: ItemAccessor<V, string | number>;
     /** Button that clears the value (also Backspace/Delete on the closed field) */
@@ -48,7 +53,7 @@ export interface SelectProps<T = SelectItem, V = ItemValueOf<T>> {
     loadingText?: string;
     /** Height of the field: 32, 40 (default) or 48 px */
     size?: SelectSize;
-    /** Search field at the top of the list; filters by label, ignoring case and accents */
+    /** Search field at the top of the list; filters by label and itemKeywords, ignoring case and accents */
     filter?: boolean;
     /** The items are filtered elsewhere (server): no local filtering, listen to filterChange */
     manualFilter?: boolean;
@@ -104,6 +109,7 @@ const accessors = computed(() => ({
     itemLabel: props.itemLabel,
     itemDisabled: props.itemDisabled,
     itemGroup: props.itemGroup,
+    itemKeywords: props.itemKeywords,
     valueKey: props.valueKey,
 }));
 const query = ref('');
