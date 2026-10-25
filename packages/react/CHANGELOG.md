@@ -1,5 +1,58 @@
 # @wirecore/wirelayer-react
 
+## 0.4.0
+
+### Minor Changes
+
+- b46176b: Avatar `as="button"`: the avatar as a button, e.g. the trigger of a user menu (`<Menu><Avatar as="button" name="…" />
+  </Menu>`), with the focus ring of the other buttons and a ring on hover and while its menu is open (avatar recipe:
+  variant `interactive` and slot `content`, `.wc-avatar-interactive`). The button is named by an image inside it that
+  carries `name`, so the visible initials do not have to be part of an aria-label (WCAG 2.5.3 label in name). An explicit
+  `aria-label` on an avatar that is not a button now wins over `name`.
+- b46176b: Menu: `placement` (the values of Popover, default `bottom-start` as before), e.g. `bottom-end` for a user menu at the
+  right edge, and `arrow` for an arrow at the trigger, styled like the Popover's (menu recipe: slots `arrow` and
+  `arrowTip`).
+- b46176b: Fix: `linkAs` works with routers that need `to` – vue-router's `RouterLink`, React Router and TanStack Router `Link`.
+  Menu, ContextMenu and Menubar items, BottomNavigation items and the MegaMenu links take `to` (a path or a route object);
+  the link component then gets `to` instead of `href`. Without `to` nothing changes (`href` for NuxtLink, Next.js Link
+  or `<a>`). MegaMenu also has `moreTo` and `allTo` for its "Show all" links; `href` still identifies a link for
+  `currentHref`. Recipes: `linkTarget(href, to)` and the type `LinkTo`.
+- b46176b: PopoverContent: `hideTitle` keeps the title for screen readers only (it still names the panel) and `closable={false}`
+  drops the close button, e.g. for an app switcher. Popover recipe: variant `hideTitle`. Fix (React): a PopoverContent
+  without `description` no longer points `aria-describedby` at a description that does not exist.
+- b46176b: One corner radius for all floating surfaces: the new token `--radius-popup` (12px, class `rounded-popup`) is used by
+  Menu, ContextMenu, Menubar menus, the option lists of Select, MultiSelect, Combobox, Autocomplete, TagsInput, Mentions,
+  CascadeSelect and TreeSelect, Popover, HoverCard, ConfirmPopup, Tour, DatePicker, ColorPicker, the DataTable filter
+  panel, NavigationMenu, MegaMenu, FloatingPanel and the editor's bubble menu and mention list. Visible change: menus and
+  option lists go from 10px to 12px (their items from 6px to 8px, so the corners stay concentric), the editor's menus
+  from 8px to 12px; the panels already had 12px. Tooltip, Toast and Dialog keep their radius. A theme can set
+  `--radius-popup` to change all of them at once.
+- b46176b: Collection props take read-only arrays (`readonly T[]`), like Select already did: DataTable `data` and `columns`, the
+  `items` of Menu, Tree, Steps, Breadcrumb, Timeline, Carousel and the other list components, chart `data` and `series`,
+  Menubar `menus`, Scheduler `events` and many more – data from an API client no longer has to be copied. Props that are
+  written back (`v-model:*` / `on…Change`, e.g. `modelValue`, `selectedValue`, Kanban `columns`) and the nested
+  `children` of trees and column groups stay mutable. The recipe helpers that read such lists (Gantt, scheduler,
+  notifications, `rankItems`, `filterMenuEntries`, `withLoadedChildren`, …) take read-only arrays as well.
+- b46176b: New TopBar: a slim app header outside AppShell (`<header>`) with `start`, the middle (default slot / children, takes
+  the free space) and `end` – without menus and without the toolbar's arrow-key navigation (recipe `topBar`,
+  `.wc-top-bar`).
+
+### Patch Changes
+
+- b46176b: Docs: `bindInput` lists every component it fits – in Vue all components with a string `v-model` (Input, Textarea,
+  PasswordInput, SearchField, MaskInput, PhoneInput, ColorInput, JsonInput, PinInput, Mentions, Autocomplete), in React
+  Input, Textarea and PasswordInput (the others report their text with `onValueChange` and take `bindValue`). The READMEs
+  point to the MCP server `@wirecore/wirelayer-mcp` and llms.txt; the component packages ship no llms.txt.
+- Updated dependencies [b46176b]
+- Updated dependencies [b46176b]
+- Updated dependencies [b46176b]
+- Updated dependencies [b46176b]
+- Updated dependencies [b46176b]
+- Updated dependencies [b46176b]
+- Updated dependencies [b46176b]
+    - @wirecore/wirelayer-recipes@0.4.0
+    - @wirecore/wirelayer-tokens@0.3.0
+
 ## 0.3.1
 
 ### Patch Changes

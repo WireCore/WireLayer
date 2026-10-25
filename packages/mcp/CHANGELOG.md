@@ -1,5 +1,14 @@
 # @wirecore/wirelayer-mcp
 
+## 0.1.5
+
+### Patch Changes
+
+- b46176b: Docs: `bindInput` lists every component it fits – in Vue all components with a string `v-model` (Input, Textarea,
+  PasswordInput, SearchField, MaskInput, PhoneInput, ColorInput, JsonInput, PinInput, Mentions, Autocomplete), in React
+  Input, Textarea and PasswordInput (the others report their text with `onValueChange` and take `bindValue`). The READMEs
+  point to the MCP server `@wirecore/wirelayer-mcp` and llms.txt; the component packages ship no llms.txt.
+
 ## 0.1.4
 
 ### Patch Changes

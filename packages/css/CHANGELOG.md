@@ -1,5 +1,25 @@
 # @wirecore/wirelayer-css
 
+## 0.3.0
+
+### Minor Changes
+
+- b46176b: Avatar `as="button"`: the avatar as a button, e.g. the trigger of a user menu (`<Menu><Avatar as="button" name="…" />
+  </Menu>`), with the focus ring of the other buttons and a ring on hover and while its menu is open (avatar recipe:
+  variant `interactive` and slot `content`, `.wc-avatar-interactive`). The button is named by an image inside it that
+  carries `name`, so the visible initials do not have to be part of an aria-label (WCAG 2.5.3 label in name). An explicit
+  `aria-label` on an avatar that is not a button now wins over `name`.
+- b46176b: One corner radius for all floating surfaces: the new token `--radius-popup` (12px, class `rounded-popup`) is used by
+  Menu, ContextMenu, Menubar menus, the option lists of Select, MultiSelect, Combobox, Autocomplete, TagsInput, Mentions,
+  CascadeSelect and TreeSelect, Popover, HoverCard, ConfirmPopup, Tour, DatePicker, ColorPicker, the DataTable filter
+  panel, NavigationMenu, MegaMenu, FloatingPanel and the editor's bubble menu and mention list. Visible change: menus and
+  option lists go from 10px to 12px (their items from 6px to 8px, so the corners stay concentric), the editor's menus
+  from 8px to 12px; the panels already had 12px. Tooltip, Toast and Dialog keep their radius. A theme can set
+  `--radius-popup` to change all of them at once.
+- b46176b: New TopBar: a slim app header outside AppShell (`<header>`) with `start`, the middle (default slot / children, takes
+  the free space) and `end` – without menus and without the toolbar's arrow-key navigation (recipe `topBar`,
+  `.wc-top-bar`).
+
 ## 0.2.0
 
 ### Minor Changes

@@ -1,5 +1,19 @@
 # @wirecore/wirelayer-native
 
+## 0.2.2
+
+### Patch Changes
+
+- Updated dependencies [b46176b]
+- Updated dependencies [b46176b]
+- Updated dependencies [b46176b]
+- Updated dependencies [b46176b]
+- Updated dependencies [b46176b]
+- Updated dependencies [b46176b]
+- Updated dependencies [b46176b]
+    - @wirecore/wirelayer-recipes@0.4.0
+    - @wirecore/wirelayer-tokens@0.3.0
+
 ## 0.2.1
 
 ### Patch Changes
