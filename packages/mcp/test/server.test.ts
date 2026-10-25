@@ -3,6 +3,7 @@ import { InMemoryTransport } from '@modelcontextprotocol/sdk/inMemory.js';
 import { describe, expect, it } from 'vitest';
 import { createServer } from '../src/server.js';
 import { collect, stripMdx } from '../scripts/collect.ts';
+import { cssLlms, packageLlms } from '../scripts/render.ts';
 import { vueName } from '../src/tools.js';
 
 async function connect() {
@@ -130,5 +131,87 @@ describe('stripMdx', () => {
         expect(stripMdx(page)).toBe(
             ['## Vue', '```ts', "import { Button } from '@wirecore/wirelayer-vue';", '```'].join('\n')
         );
+    });
+});
+
+describe('Vue slots and events', () => {
+    const data = collect();
+    const vueOf = (name: string) => data.components.find((component) => component.name === name)?.vue;
+
+    it('are read from defineSlots and defineEmits, with their doc comments', () => {
+        const multiSelect = vueOf('MultiSelect')!;
+        expect(multiSelect.slots.find((slot) => slot.name === 'item')?.props).toBe('{ item: T } & ListItemState');
+        expect(multiSelect.events.find((event) => event.name === 'filterChange')).toMatchObject({
+            payload: 'text: string',
+            description: expect.stringContaining('search field'),
+        });
+        // Slots by column id (index signatures) and v-model from defineModel
+        expect(vueOf('DataTable')!.slots.map((slot) => slot.name)).toContain('cell-<id>');
+        expect(vueOf('Input')!.events).toEqual([
+            { name: 'update:modelValue', payload: 'value: string', description: '' },
+        ]);
+    });
+
+    it('get_component lists them in the Vue terms', async () => {
+        const result = text(await (await connect()).callTool({ name: 'get_component', arguments: { name: 'Menu' } }));
+        expect(result).toContain('- v-model:open: open: boolean');
+        expect(result).toContain('- #item: { item: MenuItem | MenuCheckboxItem | MenuRadioItem }');
+    });
+});
+
+describe('llms.txt of the packages', () => {
+    const data = collect();
+    // The guides at the end are shared and show both frameworks
+    const api = (full: string) => full.slice(0, full.indexOf('\n## Guides'));
+
+    it('Vue: imports, props, events and slots in Vue syntax, no React', () => {
+        const { index, full } = packageLlms(data, 'vue');
+        expect(index).toContain('# WireLayer for Vue 3 (@wirecore/wirelayer-vue)');
+        expect(full).toContain("- Import: `import { MultiSelect } from '@wirecore/wirelayer-vue'`");
+        expect(full).toContain('| v-model? (modelValue) | `V[]` |');
+        expect(full).toContain('| @filter-change | `text: string` |');
+        expect(full).toContain('| #item | `{ item: T } & ListItemState` |');
+        expect(full).toContain('https://wirecore.github.io/WireLayer/?path=/story/vue_');
+        expect(full).toContain('`bindInput` (`@wirecore/wirelayer-vue/form`)');
+        expect(api(full)).not.toContain('@wirecore/wirelayer-react');
+        // Callbacks and content props are events and slots in Vue
+        expect(full).not.toMatch(/\| on[A-Z]\w*\?? \|/);
+    });
+
+    it('React and React Native: their own imports only', () => {
+        const react = packageLlms(data, 'react');
+        expect(react.full).toContain("- Import: `import { MultiSelect } from '@wirecore/wirelayer-react'`");
+        expect(react.full).toContain('| onFilterChange? |');
+        expect(api(react.full)).not.toContain('@wirecore/wirelayer-vue');
+        const native = packageLlms(data, 'native');
+        expect(native.index).toContain('# WireLayer for React Native (@wirecore/wirelayer-native)');
+        expect(native.full).toContain("Import: `import { Select } from '@wirecore/wirelayer-native'`");
+        expect(api(native.full)).not.toContain('@wirecore/wirelayer-vue');
+    });
+
+    it('HTML: the class reference with defaults and the guide', () => {
+        const { index, full } = cssLlms(
+            [
+                {
+                    name: 'button',
+                    base: 'wc-button',
+                    slots: [{ slot: 'icon', class: 'wc-button-icon' }],
+                    variants: [
+                        {
+                            variant: 'size',
+                            values: [
+                                { value: 'sm', class: 'wc-button-sm', default: false },
+                                { value: 'md', class: 'wc-button-md', default: true },
+                            ],
+                        },
+                    ],
+                },
+            ],
+            '# Guide\n\nUse the classes.',
+            data
+        );
+        expect(index).toContain('- `.wc-button` (parts: .wc-button-icon)');
+        expect(full).toContain('- size: `.wc-button-sm`, `.wc-button-md` (default, no class needed)');
+        expect(full).toContain('Use the classes.');
     });
 });

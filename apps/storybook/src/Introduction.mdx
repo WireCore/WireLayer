@@ -251,6 +251,9 @@ So that Claude, Cursor and others use the components correctly, the API is avail
 
 - **`/llms.txt`** and **`/llms-full.txt`** in this Storybook: an overview and all props (React and Vue names),
   hooks and these guides in one file.
+- **In every package** (`@wirecore/wirelayer-vue`, `-react`, `-native`, `-css`): `llms.txt` and `llms-full.txt` in that
+  package's own syntax – Vue with events and slots, HTML as a class reference. Point the assistant at
+  `node_modules/@wirecore/wirelayer-vue/llms.txt` (e.g. in CLAUDE.md); they match the installed version.
 - **MCP server** `@wirecore/wirelayer-mcp` with the tools `list_components`, `get_component`, `search_components` and
   `get_guide`:
 

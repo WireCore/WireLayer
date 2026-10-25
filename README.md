@@ -68,7 +68,7 @@ recipes.
 ModeToggle, AuthForm, AuthLayout and ConditionBuilder (nested AND/OR rules, also as the editor of the advanced
 DataTable filter: `renderAdvancedFilter` or the slot `#advancedFilter`).
 
-All components and props: Storybook and `llms.txt`, or the MCP server `@wirecore/wirelayer-mcp` for AI assistants
+All components and props: Storybook and `llms.txt` (also inside each package: `node_modules/@wirecore/wirelayer-vue/llms.txt` …), or the MCP server `@wirecore/wirelayer-mcp` for AI assistants
 (`claude mcp add wirelayer -- npx -y -p @wirecore/wirelayer-mcp wirelayer-mcp`).
 
 ### Subpaths with optional peer dependencies

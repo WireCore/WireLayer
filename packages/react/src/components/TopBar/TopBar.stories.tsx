@@ -59,3 +59,30 @@ export const Playground: Story = {
         </TopBar>
     ),
 };
+
+const appMenu: MenuEntry[] = [
+    { value: 'mail', label: 'Mail' },
+    { value: 'files', label: 'Files' },
+];
+
+/**
+ * Triggers side by side: the app switcher (IconButton, outline) and the user menu (Avatar as a button, outline) – both
+ * 40 px with the same hover, so they read as one set
+ */
+export const AppSwitcherAndUserMenu: Story = {
+    render: () => (
+        <TopBar
+            start={<span className="text-sm font-semibold">Console</span>}
+            end={
+                <>
+                    <Menu items={appMenu} placement="bottom-end">
+                        <IconButton icon={LayoutGrid} label="Apps" />
+                    </Menu>
+                    <Menu items={account} placement="bottom-end" arrow>
+                        <Avatar as="button" variant="outline" name="Julia Klein" />
+                    </Menu>
+                </>
+            }
+        />
+    ),
+};

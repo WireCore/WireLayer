@@ -57,6 +57,8 @@ jobs:
             - uses: actions/checkout@v7
             - uses: ./.github/actions/setup
             - run: pnpm build
+            # The packages carry their llms.txt and llms-full.txt (written by the build)
+            - run: pnpm pack:check
             - run: pnpm build-storybook
             - uses: actions/upload-artifact@v7
               with:

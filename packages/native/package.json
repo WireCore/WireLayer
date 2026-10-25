@@ -76,10 +76,12 @@
     },
     "files": [
         "dist",
-        "styles.css"
+        "styles.css",
+        "llms.txt",
+        "llms-full.txt"
     ],
     "scripts": {
-        "build": "tsc -p tsconfig.build.json",
+        "build": "tsc -p tsconfig.build.json && node ../../scripts/llms.ts native",
         "typecheck": "tsc --noEmit",
         "storybook": "storybook dev -p 6009 --host 0.0.0.0 --no-open",
         "build-storybook": "storybook build"

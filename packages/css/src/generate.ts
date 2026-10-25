@@ -47,11 +47,23 @@ const groupStates: Record<string, string> = {
     'focus-within': ':focus-within',
 };
 
-export function recipeRules(name: string, recipe: Recipe, merge: (classes: string) => string): Rule[] {
+const isBoolean = (values: Record<string, unknown>) => Object.keys(values).every((v) => v === 'true' || v === 'false');
+
+/** Class names of a recipe: a slot's class and the modifier of a variant value (the scheme at the top) */
+function classNames(name: string, recipe: Recipe) {
     const prefix = `wc-${name}`;
+    const variants = recipe.variants ?? {};
+    return {
+        slotClass: (slot: string) => (slot === 'base' ? prefix : `${prefix}-${kebab(slot)}`),
+        modifier: (variant: string, value: string) =>
+            isBoolean(variants[variant] ?? {}) ? `${prefix}-${kebab(variant)}` : `${prefix}-${kebab(value)}`,
+    };
+}
+
+export function recipeRules(name: string, recipe: Recipe, merge: (classes: string) => string): Rule[] {
     const slots: SlotClasses = { ...recipe.slots };
     slots.base = [recipe.base, slots.base];
-    const slotClass = (slot: string) => (slot === 'base' ? prefix : `${prefix}-${kebab(slot)}`);
+    const { slotClass, modifier } = classNames(name, recipe);
     if (recipe.compoundSlots?.length) throw new Error(`${name}: compoundSlots are not supported`);
 
     // Marker classes (group/item) cannot be applied – their group-*/item: variants are rewritten to
@@ -87,10 +99,6 @@ export function recipeRules(name: string, recipe: Recipe, merge: (classes: strin
         );
 
     const variants = recipe.variants ?? {};
-    const isBoolean = (values: Record<string, unknown>) =>
-        Object.keys(values).every((v) => v === 'true' || v === 'false');
-    const modifier = (variant: string, value: string) =>
-        isBoolean(variants[variant] ?? {}) ? `${prefix}-${kebab(variant)}` : `${prefix}-${kebab(value)}`;
     const within = (cls: string) => `.${cls}, .${cls} *`;
 
     // Condition (a pseudo-class) under which the classes of variant=value apply
@@ -150,13 +158,39 @@ const cssNames: Record<string, string> = { switchControl: 'switch' };
 const isRecipe = (value: unknown): value is Recipe =>
     typeof value === 'function' && 'variantKeys' in value && 'slots' in value;
 
+const recipesOf = (module: Record<string, unknown>) =>
+    Object.entries(module).filter(
+        (entry): entry is [string, Recipe] => isRecipe(entry[1]) && !skipped.includes(entry[0])
+    );
+
+/** The classes of every recipe for the docs (llms.txt): root class, parts and the modifier of each variant value */
+export function classReference(module: Record<string, unknown>) {
+    return recipesOf(module).map(([exportName, recipe]) => {
+        const name = cssNames[exportName] ?? kebab(exportName);
+        const { slotClass, modifier } = classNames(name, recipe);
+        return {
+            name,
+            base: slotClass('base'),
+            slots: Object.keys(recipe.slots ?? {})
+                .filter((slot) => slot !== 'base')
+                .map((slot) => ({ slot, class: slotClass(slot) })),
+            variants: Object.entries(recipe.variants ?? {}).map(([variant, values]) => ({
+                variant,
+                // An on/off variant has one class (for `true`)
+                values: (isBoolean(values) ? ['true'] : Object.keys(values)).map((value) => ({
+                    value,
+                    class: modifier(variant, value),
+                    default: String(recipe.defaultVariants?.[variant]) === value,
+                })),
+            })),
+        };
+    });
+}
+
 /** All recipes of a module (e.g. `import * as recipes from '@wirecore/wirelayer-recipes'`) as CSS with @apply. */
 export function generate(module: Record<string, unknown>, mergeConfig: Parameters<typeof extendTailwindMerge>[0]) {
     const merge = extendTailwindMerge(mergeConfig);
-    const recipes = Object.entries(module).filter(
-        (entry): entry is [string, Recipe] => isRecipe(entry[1]) && !skipped.includes(entry[0])
-    );
-    const blocks = recipes.map(([exportName, recipe]) => {
+    const blocks = recipesOf(module).map(([exportName, recipe]) => {
         const name = cssNames[exportName] ?? kebab(exportName);
         const rules = recipeRules(name, recipe, merge);
         return { name, rules };

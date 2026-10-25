@@ -8,6 +8,18 @@ export type AvatarColor = 'primary' | 'success' | 'info' | 'warn' | 'danger';
 
 const avatarColors: AvatarColor[] = ['primary', 'info', 'success', 'warn', 'danger'];
 
+/**
+ * Hover of a tinted avatar button: the tint goes from 14 % to 18 %, like soft buttons from /10 to /14 – more would miss
+ * 4.5:1 in some themes (token contrast test)
+ */
+const tintHover: Record<AvatarColor, string> = {
+    primary: 'hover:bg-[color-mix(in_srgb,var(--color-primary)_18%,var(--color-card))]',
+    success: 'hover:bg-[color-mix(in_srgb,var(--color-success)_18%,var(--color-card))]',
+    info: 'hover:bg-[color-mix(in_srgb,var(--color-info)_18%,var(--color-card))]',
+    warn: 'hover:bg-[color-mix(in_srgb,var(--color-warn)_18%,var(--color-card))]',
+    danger: 'hover:bg-[color-mix(in_srgb,var(--color-danger)_18%,var(--color-card))]',
+};
+
 /** The same name always gets the same colour: "Julia Klein" → "info" */
 export function avatarColor(name: string): AvatarColor {
     let hash = 0;
@@ -56,14 +68,12 @@ export const avatar = tv({
         grouped: {
             true: { base: 'border-2 border-card' },
         },
-        /** A button (`as="button"`), e.g. the trigger of a user menu: focus ring, a ring on hover and while open */
+        /**
+         * A button (`as="button"`), e.g. the trigger of a user menu: focus ring and hover of the IconButton with the
+         * same look (see the compound variants), so triggers side by side in a bar behave alike
+         */
         interactive: {
-            true: {
-                base: [
-                    ...pressable,
-                    'hover:ring-2 hover:ring-line-2 data-[state=open]:ring-2 data-[state=open]:ring-line-2',
-                ],
-            },
+            true: { base: pressable },
         },
     },
     compoundVariants: [
@@ -73,6 +83,18 @@ export const avatar = tv({
         { shape: 'square', size: 'xl', class: { base: 'rounded-2xl' } },
         { shape: 'square', size: '2xl', class: { base: 'rounded-3xl' } },
         { grouped: true, variant: 'soft', class: { base: 'bg-bg-2 shadow-[inset_0_0_0_1px_var(--color-line-2)]' } },
+        // Hover like IconButton: outline darkens its border, soft (bg-line) the background like `secondary`, solid
+        // fades like the filled variants
+        { interactive: true, variant: 'outline', class: { base: 'hover:border-fg' } },
+        { interactive: true, variant: 'soft', class: { base: 'hover:bg-line-2' } },
+        { interactive: true, variant: 'solid', class: { base: 'hover:opacity-85' } },
+        ...avatarColors.map((color) => ({ interactive: true, color, class: { base: tintHover[color] } })),
+        // A loaded image covers the background, and without a border nothing would change: a ring on hover instead
+        {
+            interactive: true,
+            variant: ['soft', 'solid'] as AvatarVariant[],
+            class: { base: 'hover:has-[img:not([hidden])]:ring-2 hover:has-[img:not([hidden])]:ring-line-2' },
+        },
     ],
     defaultVariants: {
         variant: 'soft',
