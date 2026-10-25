@@ -1,5 +1,23 @@
 # @wirecore/wirelayer-css
 
+## 0.4.0
+
+### Minor Changes
+
+- 9fbee02: The packages ship `llms.txt` (overview with links) and `llms-full.txt` (every component with props, examples as
+  Storybook links, the functions and the guides) for AI assistants, written by the build from the same data as the MCP
+  server and matching the installed version – in each package's own syntax: Vue with `v-model`, events and slots, React
+  with props and render props, React Native, and for `@wirecore/wirelayer-css` a reference of all `.wc-*` classes with
+  parts, modifiers and defaults. Point an assistant at `node_modules/@wirecore/wirelayer-vue/llms.txt`.
+
+### Patch Changes
+
+- 9fbee02: Avatar `as="button"` hovers like the IconButton with the same look, so triggers side by side in a bar (app switcher,
+  user menu) behave alike: `outline` darkens its border, `soft` its background (like `secondary`), `solid` fades like the
+  filled variants, a `color` tint gets stronger (14 % → 18 %). The ring on hover and while the menu is open is gone –
+  only an avatar showing an image without a border (soft, solid) keeps a ring on hover, where the background change
+  would be hidden. New TopBar story with both triggers.
+
 ## 0.3.0
 
 ### Minor Changes
