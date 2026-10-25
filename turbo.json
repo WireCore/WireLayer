@@ -6,6 +6,51 @@
             "inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/scripts/sources.ts"],
             "outputs": ["dist/**"]
         },
+        "@wirecore/wirelayer-vue#build": {
+            "dependsOn": ["^build"],
+            "inputs": [
+                "$TURBO_DEFAULT$",
+                "$TURBO_ROOT$/scripts/sources.ts",
+                "$TURBO_ROOT$/scripts/llms.ts",
+                "$TURBO_ROOT$/packages/mcp/scripts/render.ts",
+                "$TURBO_ROOT$/packages/mcp/src/tools.ts",
+                "$TURBO_ROOT$/packages/mcp/data/components.json"
+            ],
+            "outputs": ["dist/**", "llms.txt", "llms-full.txt"]
+        },
+        "@wirecore/wirelayer-react#build": {
+            "dependsOn": ["^build"],
+            "inputs": [
+                "$TURBO_DEFAULT$",
+                "$TURBO_ROOT$/scripts/sources.ts",
+                "$TURBO_ROOT$/scripts/llms.ts",
+                "$TURBO_ROOT$/packages/mcp/scripts/render.ts",
+                "$TURBO_ROOT$/packages/mcp/src/tools.ts",
+                "$TURBO_ROOT$/packages/mcp/data/components.json"
+            ],
+            "outputs": ["dist/**", "llms.txt", "llms-full.txt"]
+        },
+        "@wirecore/wirelayer-native#build": {
+            "dependsOn": ["^build"],
+            "inputs": [
+                "$TURBO_DEFAULT$",
+                "$TURBO_ROOT$/scripts/llms.ts",
+                "$TURBO_ROOT$/packages/mcp/scripts/render.ts",
+                "$TURBO_ROOT$/packages/mcp/src/tools.ts",
+                "$TURBO_ROOT$/packages/mcp/data/components.json"
+            ],
+            "outputs": ["dist/**", "llms.txt", "llms-full.txt"]
+        },
+        "@wirecore/wirelayer-css#build": {
+            "dependsOn": ["^build"],
+            "inputs": [
+                "$TURBO_DEFAULT$",
+                "$TURBO_ROOT$/packages/mcp/scripts/render.ts",
+                "$TURBO_ROOT$/packages/mcp/src/tools.ts",
+                "$TURBO_ROOT$/packages/mcp/data/components.json"
+            ],
+            "outputs": ["dist/**", "llms.txt", "llms-full.txt"]
+        },
         "build-storybook": {
             "dependsOn": ["^build"],
             "outputs": ["storybook-static/**"]

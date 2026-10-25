@@ -69,10 +69,12 @@
     "files": [
         "dist",
         "styles.css",
-        "styles-core.css"
+        "styles-core.css",
+        "llms.txt",
+        "llms-full.txt"
     ],
     "scripts": {
-        "build": "vite build && vue-tsc -p tsconfig.build.json && node ../../scripts/sources.ts components",
+        "build": "vite build && vue-tsc -p tsconfig.build.json && node ../../scripts/sources.ts components && node ../../scripts/llms.ts vue",
         "typecheck": "vue-tsc --noEmit",
         "storybook": "storybook dev -p 6007 --host 0.0.0.0 --no-open",
         "build-storybook": "storybook build"

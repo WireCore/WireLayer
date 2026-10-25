@@ -37,6 +37,7 @@ export interface AvatarProps extends Omit<ComponentProps<'div'>, 'children'> {
     as?: 'div' | 'button';
 }
 
+/** Image, initials or icon of a person or organisation; `as="button"` makes it a trigger, e.g. of a user menu */
 export function Avatar({
     classes,
     name,

@@ -17,6 +17,7 @@
         "format": "prettier --write .",
         "format:check": "prettier --check .",
         "licenses:check": "node scripts/check-licenses.ts",
+        "pack:check": "node scripts/check-pack.ts",
         "changeset": "changeset",
         "release": "pnpm build && changeset publish"
     },

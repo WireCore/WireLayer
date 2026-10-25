@@ -2,6 +2,7 @@
 //   dist/components.css  the .wc-* classes as @apply rules – for projects with their own Tailwind v4 build
 //   dist/wirecore.css    standalone: Tailwind preflight, WireLayer theme, fonts and all .wc-* classes, minified
 //   dist/fonts/          the self-hosted font files (no CDN) and their licence (OFL.txt, SIL Open Font License 1.1)
+//   llms.txt, llms-full.txt  the class reference and the HTML guide for AI assistants (packages/mcp/scripts/render.ts)
 // src/native-elements.css (native <dialog>) is added to both.
 import { copyFileSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
@@ -9,7 +10,8 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { compile, optimize } from '@tailwindcss/node';
 import * as recipes from '@wirecore/wirelayer-recipes';
-import { generate } from '../src/generate.ts';
+import { cssLlms, stripMdx } from '../../mcp/scripts/render.ts';
+import { classReference, generate } from '../src/generate.ts';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
 const dist = join(root, 'dist');
@@ -63,6 +65,18 @@ const banner = [
     '/*! Schibsted Grotesk, JetBrains Mono | SIL Open Font License 1.1 | fonts/OFL.txt */',
 ].join('\n');
 writeFileSync(join(dist, 'wirecore.css'), `${banner}\n${code}`);
+
+// The guides come from the collected docs (packages/mcp/data/components.json, checked against the sources in its test)
+const collected = JSON.parse(readFileSync(join(root, '../mcp/data/components.json'), 'utf8')) as Parameters<
+    typeof cssLlms
+>[2];
+const llms = cssLlms(
+    classReference(recipes),
+    stripMdx(readFileSync(join(root, 'src/Introduction.mdx'), 'utf8')),
+    collected
+);
+writeFileSync(join(root, 'llms.txt'), llms.index);
+writeFileSync(join(root, 'llms-full.txt'), llms.full);
 
 const rules = blocks.reduce((sum, block) => sum + block.rules.length, 0);
 console.log(`${blocks.length} components, ${rules} rules → dist/wirecore.css (${Math.round(code.length / 1024)} kB)`);

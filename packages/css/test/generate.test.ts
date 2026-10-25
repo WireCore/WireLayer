@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import * as recipes from '@wirecore/wirelayer-recipes';
 import { describe, expect, it } from 'vitest';
-import { generate, skipped, type Recipe } from '../src/generate.ts';
+import { classReference, generate, skipped, type Recipe } from '../src/generate.ts';
 
 const { css, blocks } = generate(recipes, recipes.twMergeConfig);
 const compiled = readFileSync(new URL('../dist/wirecore.css', import.meta.url), 'utf8');
@@ -74,5 +74,35 @@ describe('@wirecore/wirelayer-css', () => {
         expect(ofl).toContain('SIL OPEN FONT LICENSE Version 1.1');
         expect(compiled).toMatch(/^\/\*! @wirecore\/wirelayer-css .*\n\/\*! tailwindcss v4\.\S+ \| MIT License/);
         expect(compiled).toContain('SIL Open Font License 1.1 | fonts/OFL.txt');
+    });
+});
+
+describe('class reference (llms.txt)', () => {
+    const reference = classReference(recipes);
+
+    it('lists every class of the generated CSS', () => {
+        const listed = new Set(
+            reference.flatMap((recipe) => [
+                recipe.base,
+                ...recipe.slots.map((slot) => slot.class),
+                ...recipe.variants.flatMap((variant) => variant.values.map((value) => value.class)),
+            ])
+        );
+        const generated = new Set(
+            blocks.flatMap((block) => block.rules.flatMap((rule) => rule.selector.match(/wc-[\w-]+/g) ?? []))
+        );
+        expect([...generated].filter((name) => !listed.has(name))).toEqual([]);
+    });
+
+    it('marks default values and gives on/off variants one class', () => {
+        const avatar = reference.find((recipe) => recipe.name === 'avatar')!;
+        expect(avatar.variants.find((variant) => variant.variant === 'size')?.values).toContainEqual({
+            value: 'md',
+            class: 'wc-avatar-md',
+            default: true,
+        });
+        expect(avatar.variants.find((variant) => variant.variant === 'interactive')?.values).toEqual([
+            { value: 'true', class: 'wc-avatar-interactive', default: false },
+        ]);
     });
 });

@@ -44,7 +44,17 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [],
+                "events": [
+                    {
+                        "name": "update:modelValue",
+                        "payload": "value: string[]",
+                        "description": ""
+                    }
+                ]
+            }
         },
         {
             "name": "AccordionItem",
@@ -96,7 +106,27 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [
+                    {
+                        "name": "default",
+                        "props": "",
+                        "description": ""
+                    },
+                    {
+                        "name": "title",
+                        "props": "",
+                        "description": ""
+                    },
+                    {
+                        "name": "actions",
+                        "props": "",
+                        "description": "Own controls next to the heading (e.g. an IconButton) – beside the trigger, not inside it"
+                    }
+                ],
+                "events": []
+            }
         },
         {
             "name": "ActionBar",
@@ -166,7 +196,17 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [],
+                "events": [
+                    {
+                        "name": "clear",
+                        "payload": "",
+                        "description": ""
+                    }
+                ]
+            }
         },
         {
             "name": "Affix",
@@ -228,7 +268,17 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [
+                    {
+                        "name": "default",
+                        "props": "",
+                        "description": ""
+                    }
+                ],
+                "events": []
+            }
         },
         {
             "name": "Alert",
@@ -292,7 +342,17 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [],
+                "events": [
+                    {
+                        "name": "dismiss",
+                        "payload": "",
+                        "description": ""
+                    }
+                ]
+            }
         },
         {
             "name": "AngleSlider",
@@ -404,7 +464,22 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [],
+                "events": [
+                    {
+                        "name": "update:modelValue",
+                        "payload": "value: number",
+                        "description": ""
+                    },
+                    {
+                        "name": "valueChangeEnd",
+                        "payload": "value: number",
+                        "description": "The user let go (pointer released)"
+                    }
+                ]
+            }
         },
         {
             "name": "AppShell",
@@ -582,7 +657,58 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [
+                    {
+                        "name": "header",
+                        "props": "",
+                        "description": ""
+                    },
+                    {
+                        "name": "navbar",
+                        "props": "",
+                        "description": ""
+                    },
+                    {
+                        "name": "aside",
+                        "props": "",
+                        "description": ""
+                    },
+                    {
+                        "name": "footer",
+                        "props": "",
+                        "description": "Page footer (contentinfo) below the main area"
+                    },
+                    {
+                        "name": "default",
+                        "props": "",
+                        "description": ""
+                    }
+                ],
+                "events": [
+                    {
+                        "name": "update:navbarOpen",
+                        "payload": "open: boolean",
+                        "description": ""
+                    },
+                    {
+                        "name": "update:navbarCollapsed",
+                        "payload": "collapsed: boolean",
+                        "description": ""
+                    },
+                    {
+                        "name": "update:navbarWidth",
+                        "payload": "width: number",
+                        "description": ""
+                    },
+                    {
+                        "name": "update:asideWidth",
+                        "payload": "width: number",
+                        "description": ""
+                    }
+                ]
+            }
         },
         {
             "name": "AspectRatio",
@@ -729,6 +855,32 @@
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
             ],
+            "vue": {
+                "slots": [
+                    {
+                        "name": "providers",
+                        "props": "",
+                        "description": "Buttons of sign-in providers (neutral buttons with text, no brand logos)"
+                    },
+                    {
+                        "name": "footer",
+                        "props": "",
+                        "description": "Below the form, e.g. terms or a help link"
+                    }
+                ],
+                "events": [
+                    {
+                        "name": "update:mode",
+                        "payload": "mode: AuthMode",
+                        "description": ""
+                    },
+                    {
+                        "name": "submit",
+                        "payload": "payload: { mode: AuthMode } & AuthValues",
+                        "description": "The fields are valid: the mode and the values (handle the request, then set `error` or move on)"
+                    }
+                ]
+            },
             "package": "blocks"
         },
         {
@@ -776,6 +928,31 @@
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
             ],
+            "vue": {
+                "slots": [
+                    {
+                        "name": "default",
+                        "props": "",
+                        "description": "The form (e.g. AuthForm)"
+                    },
+                    {
+                        "name": "brand",
+                        "props": "",
+                        "description": "Logo or product name above the form"
+                    },
+                    {
+                        "name": "teaser",
+                        "props": "",
+                        "description": "Text over the image: quote, product promise …"
+                    },
+                    {
+                        "name": "footer",
+                        "props": "",
+                        "description": "Below the form: imprint, privacy"
+                    }
+                ],
+                "events": []
+            },
             "package": "blocks"
         },
         {
@@ -960,12 +1137,43 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [
+                    {
+                        "name": "item",
+                        "props": "{ item: T } & ListItemState",
+                        "description": "Content of a suggestion (instead of its text)"
+                    }
+                ],
+                "events": [
+                    {
+                        "name": "update:modelValue",
+                        "payload": "value: string",
+                        "description": ""
+                    },
+                    {
+                        "name": "update:values",
+                        "payload": "values: string[]",
+                        "description": "The entries with `multiple`"
+                    },
+                    {
+                        "name": "filterChange",
+                        "payload": "text: string",
+                        "description": "Typed text – e.g. to load matching suggestions from a server (manualFilter)"
+                    },
+                    {
+                        "name": "loadMore",
+                        "payload": "",
+                        "description": "The end of the list was scrolled into view (hasMore)"
+                    }
+                ]
+            }
         },
         {
             "name": "Avatar",
             "subpath": "",
-            "description": "With a name the avatar is one image for assistive tech, without it is decorative. As a button an image inside carries the name: the button is named by its content, so the visible initials need not be part of an aria-label (WCAG 2.5.3 label in name)",
+            "description": "Image, initials or icon of a person or organisation; `as=\"button\"` makes it a trigger, e.g. of a user menu",
             "category": "Data",
             "story": "data-avatar--playground",
             "extends": "Omit<ComponentProps<'div'>, 'children'>",
@@ -1186,7 +1394,33 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [
+                    {
+                        "name": "default",
+                        "props": "",
+                        "description": ""
+                    },
+                    {
+                        "name": "actions",
+                        "props": "",
+                        "description": ""
+                    }
+                ],
+                "events": [
+                    {
+                        "name": "update:open",
+                        "payload": "open: boolean",
+                        "description": ""
+                    },
+                    {
+                        "name": "dismiss",
+                        "payload": "",
+                        "description": ""
+                    }
+                ]
+            }
         },
         {
             "name": "BarChart",
@@ -1208,7 +1442,17 @@
                     "optional": true,
                     "description": "Stack all series"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [],
+                "events": [
+                    {
+                        "name": "update:range",
+                        "payload": "range: [number, number]",
+                        "description": ""
+                    }
+                ]
+            }
         },
         {
             "name": "BarsList",
@@ -1376,7 +1620,17 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [],
+                "events": [
+                    {
+                        "name": "navigate",
+                        "payload": "item: BottomNavigationItem, event: MouseEvent",
+                        "description": ""
+                    }
+                ]
+            }
         },
         {
             "name": "Breadcrumb",
@@ -1434,7 +1688,17 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [],
+                "events": [
+                    {
+                        "name": "navigate",
+                        "payload": "item: BreadcrumbEntry",
+                        "description": "A hidden step was chosen from the \"…\" menu – without a listener the browser opens its href"
+                    }
+                ]
+            }
         },
         {
             "name": "BreadcrumbItem",
@@ -1826,7 +2090,23 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [
+                    {
+                        "name": "day",
+                        "props": "{ date: string } & CalendarDayState",
+                        "description": "Content of a day instead of its number, e.g. a dot for appointments"
+                    }
+                ],
+                "events": [
+                    {
+                        "name": "update:modelValue",
+                        "payload": "value: T",
+                        "description": ""
+                    }
+                ]
+            }
         },
         {
             "name": "Card",
@@ -1896,7 +2176,42 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\", title: \"…\" } (see the recipes card and cardParts)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [
+                    {
+                        "name": "default",
+                        "props": "",
+                        "description": ""
+                    },
+                    {
+                        "name": "media",
+                        "props": "",
+                        "description": "Image or video above the content (beside it when horizontal)"
+                    },
+                    {
+                        "name": "title",
+                        "props": "",
+                        "description": ""
+                    },
+                    {
+                        "name": "subtitle",
+                        "props": "",
+                        "description": ""
+                    },
+                    {
+                        "name": "header",
+                        "props": "",
+                        "description": "Extra content in the header, after the title (e.g. a badge or a menu)"
+                    },
+                    {
+                        "name": "footer",
+                        "props": "",
+                        "description": "Actions at the end of the card"
+                    }
+                ],
+                "events": []
+            }
         },
         {
             "name": "Carousel",
@@ -2020,7 +2335,23 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [
+                    {
+                        "name": "default",
+                        "props": "{ item: T; index: number }",
+                        "description": ""
+                    }
+                ],
+                "events": [
+                    {
+                        "name": "update:page",
+                        "payload": "page: number",
+                        "description": ""
+                    }
+                ]
+            }
         },
         {
             "name": "CascadeSelect",
@@ -2162,7 +2493,22 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [],
+                "events": [
+                    {
+                        "name": "update:modelValue",
+                        "payload": "value: V | null",
+                        "description": ""
+                    },
+                    {
+                        "name": "loadChildren",
+                        "payload": "option: CascadeOption<V>",
+                        "description": "A lazy level opened and there is no loadChildren/dataSource: add its options to the items"
+                    }
+                ]
+            }
         },
         {
             "name": "Center",
@@ -2366,7 +2712,32 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [
+                    {
+                        "name": "default",
+                        "props": "",
+                        "description": "Own content instead of the text"
+                    },
+                    {
+                        "name": "before",
+                        "props": "",
+                        "description": "Above the bubble, e.g. ChatThinking or ChatToolCall"
+                    },
+                    {
+                        "name": "after",
+                        "props": "",
+                        "description": "Below the bubble, e.g. ChatSources"
+                    },
+                    {
+                        "name": "actions",
+                        "props": "",
+                        "description": "Buttons next to the status (copy, retry …)"
+                    }
+                ],
+                "events": []
+            }
         },
         {
             "name": "ChatMessages",
@@ -2454,7 +2825,23 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [
+                    {
+                        "name": "message",
+                        "props": "{ message: T; grouped: boolean }",
+                        "description": "A message (default: ChatMessage)"
+                    }
+                ],
+                "events": [
+                    {
+                        "name": "loadMore",
+                        "payload": "",
+                        "description": "Load older messages (they are added at the top, the view stays where it is)"
+                    }
+                ]
+            }
         },
         {
             "name": "ChatPrompt",
@@ -2566,7 +2953,32 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [],
+                "events": [
+                    {
+                        "name": "update:modelValue",
+                        "payload": "text: string",
+                        "description": ""
+                    },
+                    {
+                        "name": "update:files",
+                        "payload": "files: File[]",
+                        "description": ""
+                    },
+                    {
+                        "name": "submit",
+                        "payload": "message: { text: string; files: File[] }",
+                        "description": "Send: the text (trimmed) and the attached files; the field is cleared afterwards"
+                    },
+                    {
+                        "name": "stop",
+                        "payload": "",
+                        "description": "Stop the reply that is being written"
+                    }
+                ]
+            }
         },
         {
             "name": "ChatSources",
@@ -2756,7 +3168,17 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [],
+                "events": [
+                    {
+                        "name": "update:checked",
+                        "payload": "checked: CheckedState",
+                        "description": ""
+                    }
+                ]
+            }
         },
         {
             "name": "CheckboxCard",
@@ -2796,7 +3218,17 @@
                     "optional": true,
                     "description": ""
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [],
+                "events": [
+                    {
+                        "name": "update:checked",
+                        "payload": "checked: CheckedState",
+                        "description": ""
+                    }
+                ]
+            }
         },
         {
             "name": "CheckboxGroup",
@@ -2848,7 +3280,17 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [],
+                "events": [
+                    {
+                        "name": "update:modelValue",
+                        "payload": "value: string[]",
+                        "description": ""
+                    }
+                ]
+            }
         },
         {
             "name": "Chip",
@@ -2912,7 +3354,17 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipes chipGroup and chip)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [],
+                "events": [
+                    {
+                        "name": "remove",
+                        "payload": "",
+                        "description": ""
+                    }
+                ]
+            }
         },
         {
             "name": "ChipGroup",
@@ -2964,7 +3416,17 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [],
+                "events": [
+                    {
+                        "name": "update:modelValue",
+                        "payload": "value: string[]",
+                        "description": ""
+                    }
+                ]
+            }
         },
         {
             "name": "CodeHighlight",
@@ -3082,7 +3544,17 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [],
+                "events": [
+                    {
+                        "name": "update:wrap",
+                        "payload": "wrap: boolean",
+                        "description": ""
+                    }
+                ]
+            }
         },
         {
             "name": "CodeHighlightTabs",
@@ -3164,7 +3636,17 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [],
+                "events": [
+                    {
+                        "name": "update:modelValue",
+                        "payload": "name: string",
+                        "description": ""
+                    }
+                ]
+            }
         },
         {
             "name": "Collapse",
@@ -3268,7 +3750,17 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [],
+                "events": [
+                    {
+                        "name": "update:modelValue",
+                        "payload": "value: string",
+                        "description": ""
+                    }
+                ]
+            }
         },
         {
             "name": "ColorPicker",
@@ -3386,7 +3878,22 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [],
+                "events": [
+                    {
+                        "name": "update:modelValue",
+                        "payload": "value: string",
+                        "description": ""
+                    },
+                    {
+                        "name": "valueChangeEnd",
+                        "payload": "value: string",
+                        "description": ""
+                    }
+                ]
+            }
         },
         {
             "name": "ColorSwatchPicker",
@@ -3468,7 +3975,17 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [],
+                "events": [
+                    {
+                        "name": "update:modelValue",
+                        "payload": "value: string | null",
+                        "description": ""
+                    }
+                ]
+            }
         },
         {
             "name": "Combobox",
@@ -3652,7 +4169,38 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [
+                    {
+                        "name": "item",
+                        "props": "{ item: T } & ListItemState",
+                        "description": "Content of an option (instead of icon and label)"
+                    }
+                ],
+                "events": [
+                    {
+                        "name": "update:modelValue",
+                        "payload": "value: V | null",
+                        "description": ""
+                    },
+                    {
+                        "name": "inputValueChange",
+                        "payload": "inputValue: string",
+                        "description": "Every change of the text (typing, choosing, clearing)"
+                    },
+                    {
+                        "name": "filterChange",
+                        "payload": "text: string",
+                        "description": "Typed text – e.g. to load matching items from a server (manualFilter)"
+                    },
+                    {
+                        "name": "loadMore",
+                        "payload": "",
+                        "description": "The end of the list was scrolled into view (hasMore)"
+                    }
+                ]
+            }
         },
         {
             "name": "CommandPalette",
@@ -3770,7 +4318,32 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [],
+                "events": [
+                    {
+                        "name": "update:open",
+                        "payload": "open: boolean",
+                        "description": ""
+                    },
+                    {
+                        "name": "select",
+                        "payload": "value: string",
+                        "description": ""
+                    },
+                    {
+                        "name": "filterChange",
+                        "payload": "query: string",
+                        "description": "The search text changed – for results from the server (`:filter=\"false\"`, `loading`)"
+                    },
+                    {
+                        "name": "search",
+                        "payload": "query: string",
+                        "description": ""
+                    }
+                ]
+            }
         },
         {
             "name": "Compare",
@@ -3840,7 +4413,17 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [],
+                "events": [
+                    {
+                        "name": "update:modelValue",
+                        "payload": "value: number",
+                        "description": ""
+                    }
+                ]
+            }
         },
         {
             "name": "CompositeChart",
@@ -3862,7 +4445,17 @@
                     "optional": true,
                     "description": "Stack the bars"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [],
+                "events": [
+                    {
+                        "name": "update:range",
+                        "payload": "range: [number, number]",
+                        "description": ""
+                    }
+                ]
+            }
         },
         {
             "name": "ConditionBuilder",
@@ -3927,6 +4520,16 @@
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
             ],
+            "vue": {
+                "slots": [],
+                "events": [
+                    {
+                        "name": "update:modelValue",
+                        "payload": "value: ConditionGroup",
+                        "description": ""
+                    }
+                ]
+            },
             "package": "blocks"
         },
         {
@@ -4071,7 +4674,22 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [],
+                "events": [
+                    {
+                        "name": "confirm",
+                        "payload": "",
+                        "description": ""
+                    },
+                    {
+                        "name": "cancel",
+                        "payload": "",
+                        "description": ""
+                    }
+                ]
+            }
         },
         {
             "name": "Container",
@@ -4145,7 +4763,38 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [
+                    {
+                        "name": "default",
+                        "props": "",
+                        "description": "The area that opens the menu"
+                    },
+                    {
+                        "name": "item",
+                        "props": "{ item: MenuItem | MenuCheckboxItem | MenuRadioItem }",
+                        "description": "Own content of an item (instead of icon, label and shortcut)"
+                    }
+                ],
+                "events": [
+                    {
+                        "name": "select",
+                        "payload": "value: string",
+                        "description": ""
+                    },
+                    {
+                        "name": "checked-change",
+                        "payload": "value: string, checked: boolean",
+                        "description": "A checkbox item was switched"
+                    },
+                    {
+                        "name": "value-change",
+                        "payload": "name: string, value: string",
+                        "description": "A radio group got a new value"
+                    }
+                ]
+            }
         },
         {
             "name": "CopyButton",
@@ -4249,7 +4898,17 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [],
+                "events": [
+                    {
+                        "name": "complete",
+                        "payload": "",
+                        "description": ""
+                    }
+                ]
+            }
         },
         {
             "name": "CtaSection",
@@ -5076,7 +5735,203 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [
+                    {
+                        "name": "cell-<id>",
+                        "props": "{ row: TData; value: unknown }",
+                        "description": "Content of a cell, by column id"
+                    },
+                    {
+                        "name": "filter-<id>",
+                        "props": "DataTableFilterInputProps<TData>",
+                        "description": "Own filter input of a column (filter row and filter menu), by column id"
+                    },
+                    {
+                        "name": "editor-<id>",
+                        "props": "DataTableEditorProps<TData>",
+                        "description": "Own editor of a column, by column id"
+                    },
+                    {
+                        "name": "expansion",
+                        "props": "{ row: TData; rowId: string }",
+                        "description": "Details below an expanded row – adds the expand column"
+                    },
+                    {
+                        "name": "advancedFilter",
+                        "props": "DataTableAdvancedFilterProps",
+                        "description": "The editor of the advanced filter, e.g. ConditionBuilder from `@wirecore/wirelayer-blocks-vue`: `<template #advancedFilter=\"{ fields, value, setValue, label }\">`"
+                    },
+                    {
+                        "name": "toolbar",
+                        "props": "",
+                        "description": "Own controls in the toolbar, after the search"
+                    },
+                    {
+                        "name": "toolbarStart",
+                        "props": "",
+                        "description": "Own controls at the start of the toolbar, before the search"
+                    },
+                    {
+                        "name": "toolbarEnd",
+                        "props": "",
+                        "description": "Own controls at the end of the toolbar, before the built-in buttons"
+                    },
+                    {
+                        "name": "empty",
+                        "props": "",
+                        "description": "Shown when there are no rows"
+                    },
+                    {
+                        "name": "noResults",
+                        "props": "",
+                        "description": "Shown when the filters or the search leave no row (default: `empty`)"
+                    },
+                    {
+                        "name": "loadingContent",
+                        "props": "",
+                        "description": "Shown while loading without rows (default: spinner and \"Loading\")"
+                    }
+                ],
+                "events": [
+                    {
+                        "name": "update:page",
+                        "payload": "page: number",
+                        "description": ""
+                    },
+                    {
+                        "name": "update:first",
+                        "payload": "first: number",
+                        "description": ""
+                    },
+                    {
+                        "name": "update:showFilters",
+                        "payload": "show: boolean",
+                        "description": ""
+                    },
+                    {
+                        "name": "update:allSelection",
+                        "payload": "selection: DataTableAllSelection | null",
+                        "description": ""
+                    },
+                    {
+                        "name": "selectedRowsChange",
+                        "payload": "rows: TData[]",
+                        "description": "The selected rows as objects (with `selection`; rows of other pages are remembered)"
+                    },
+                    {
+                        "name": "rowClick",
+                        "payload": "click: DataTableRowClick<TData>",
+                        "description": "A click on a row (not on its controls) – with `rowHref`, `event.preventDefault()` stops the navigation"
+                    },
+                    {
+                        "name": "update:pageSize",
+                        "payload": "pageSize: number",
+                        "description": ""
+                    },
+                    {
+                        "name": "update:sorting",
+                        "payload": "sorting: DataTableSort | DataTableSort[] | null",
+                        "description": ""
+                    },
+                    {
+                        "name": "update:selection",
+                        "payload": "selection: string[]",
+                        "description": ""
+                    },
+                    {
+                        "name": "update:expanded",
+                        "payload": "expanded: string[]",
+                        "description": ""
+                    },
+                    {
+                        "name": "update:globalFilter",
+                        "payload": "value: string",
+                        "description": ""
+                    },
+                    {
+                        "name": "update:advancedFilterValue",
+                        "payload": "value: ConditionGroup",
+                        "description": ""
+                    },
+                    {
+                        "name": "update:filters",
+                        "payload": "filters: Record<string, DataTableFilterValue>",
+                        "description": ""
+                    },
+                    {
+                        "name": "update:hiddenColumns",
+                        "payload": "ids: string[]",
+                        "description": ""
+                    },
+                    {
+                        "name": "update:columnOrder",
+                        "payload": "ids: string[]",
+                        "description": ""
+                    },
+                    {
+                        "name": "update:pinnedColumns",
+                        "payload": "pinned: { start: string[]; end: string[] }",
+                        "description": ""
+                    },
+                    {
+                        "name": "update:groupBy",
+                        "payload": "ids: string[]",
+                        "description": ""
+                    },
+                    {
+                        "name": "update:size",
+                        "payload": "size: 'sm' | 'md' | 'lg'",
+                        "description": ""
+                    },
+                    {
+                        "name": "cellEdit",
+                        "payload": "edit: DataTableCellEdit<TData>",
+                        "description": ""
+                    },
+                    {
+                        "name": "rowEdit",
+                        "payload": "edit: DataTableRowEdit<TData>",
+                        "description": ""
+                    },
+                    {
+                        "name": "rowReorder",
+                        "payload": "move: DataTableRowReorder<TData>",
+                        "description": ""
+                    },
+                    {
+                        "name": "rowAction",
+                        "payload": "action: DataTableRowAction<TData>",
+                        "description": ""
+                    },
+                    {
+                        "name": "loadMore",
+                        "payload": "",
+                        "description": "Scrolled near the end (`scrollHeight`) – load more rows (infinite scrolling)"
+                    },
+                    {
+                        "name": "scrollEnd",
+                        "payload": "",
+                        "description": ""
+                    },
+                    {
+                        "name": "cellSelectionChange",
+                        "payload": "selection: DataTableCellSelection<TData> | null",
+                        "description": "The selected range of cells changed (`cellSelection`; null: none)"
+                    },
+                    {
+                        "name": "cellPaste",
+                        "payload": "paste: DataTableCellPaste<TData>",
+                        "description": "Cells were pasted – call `preventDefault()` to keep them out of the table (cell-edit events follow otherwise)"
+                    },
+                    {
+                        "name": "save",
+                        "payload": "save: DataTableBatchSave<TData>",
+                        "description": "\"Save\" in the batch mode (`editMode=\"batch\"`): the collected changes"
+                    }
+                ]
+            }
         },
         {
             "name": "DataView",
@@ -5290,7 +6145,63 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [
+                    {
+                        "name": "item",
+                        "props": "{ item: T; layout: 'list' | 'grid' }",
+                        "description": ""
+                    },
+                    {
+                        "name": "header",
+                        "props": "",
+                        "description": ""
+                    },
+                    {
+                        "name": "toolbar",
+                        "props": "",
+                        "description": "Sorting and filters above the items"
+                    },
+                    {
+                        "name": "empty",
+                        "props": "",
+                        "description": "Shown without items"
+                    },
+                    {
+                        "name": "noResults",
+                        "props": "",
+                        "description": "Shown without items while filtered"
+                    },
+                    {
+                        "name": "error",
+                        "props": "{ error: unknown; retry: () => void }",
+                        "description": "Shown instead of the items after an error"
+                    }
+                ],
+                "events": [
+                    {
+                        "name": "update:layout",
+                        "payload": "layout: 'list' | 'grid'",
+                        "description": ""
+                    },
+                    {
+                        "name": "update:page",
+                        "payload": "page: number",
+                        "description": ""
+                    },
+                    {
+                        "name": "update:pageSize",
+                        "payload": "pageSize: number",
+                        "description": ""
+                    },
+                    {
+                        "name": "loadMore",
+                        "payload": "",
+                        "description": "\"Load more\" (`infinite` without a data source)"
+                    }
+                ]
+            }
         },
         {
             "name": "DatePicker",
@@ -5504,7 +6415,23 @@
                     "optional": true,
                     "description": "Extra classes per part of the date field, e.g. { control: \"…\" } (the calendar: RecipesProvider)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [
+                    {
+                        "name": "day",
+                        "props": "{ date: string } & CalendarDayState",
+                        "description": "Content of a day in the calendar instead of its number, e.g. a dot for appointments"
+                    }
+                ],
+                "events": [
+                    {
+                        "name": "update:modelValue",
+                        "payload": "value: T",
+                        "description": ""
+                    }
+                ]
+            }
         },
         {
             "name": "DateRangePicker",
@@ -5712,7 +6639,23 @@
                     "optional": true,
                     "description": "Extra classes per part of the date field, e.g. { control: \"…\" } (the calendar: RecipesProvider)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [
+                    {
+                        "name": "day",
+                        "props": "{ date: string } & CalendarDayState",
+                        "description": "Content of a day in the calendar instead of its number"
+                    }
+                ],
+                "events": [
+                    {
+                        "name": "update:modelValue",
+                        "payload": "value: T | null",
+                        "description": ""
+                    }
+                ]
+            }
         },
         {
             "name": "Descriptions",
@@ -5788,7 +6731,17 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [
+                    {
+                        "name": "actions",
+                        "props": "",
+                        "description": "Buttons next to the title, e.g. \"Edit\""
+                    }
+                ],
+                "events": []
+            }
         },
         {
             "name": "Dialog",
@@ -5846,7 +6799,17 @@
                     "optional": false,
                     "description": ""
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [],
+                "events": [
+                    {
+                        "name": "update:open",
+                        "payload": "open: boolean",
+                        "description": ""
+                    }
+                ]
+            }
         },
         {
             "name": "DialogClose",
@@ -5991,7 +6954,17 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [],
+                "events": [
+                    {
+                        "name": "update:maximized",
+                        "payload": "maximized: boolean",
+                        "description": ""
+                    }
+                ]
+            }
         },
         {
             "name": "DialogHost",
@@ -6062,7 +7035,17 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [
+                    {
+                        "name": "label",
+                        "props": "",
+                        "description": ""
+                    }
+                ],
+                "events": []
+            }
         },
         {
             "name": "DownloadTrigger",
@@ -6108,7 +7091,28 @@
                     "optional": true,
                     "description": "Getting the data failed"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [
+                    {
+                        "name": "default",
+                        "props": "",
+                        "description": "Label of the button (default \"Download\")"
+                    }
+                ],
+                "events": [
+                    {
+                        "name": "download",
+                        "payload": "",
+                        "description": "The file was handed to the browser"
+                    },
+                    {
+                        "name": "error",
+                        "payload": "error: unknown",
+                        "description": "Getting the data failed"
+                    }
+                ]
+            }
         },
         {
             "name": "Drawer",
@@ -6160,7 +7164,17 @@
                     "optional": false,
                     "description": ""
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [],
+                "events": [
+                    {
+                        "name": "update:open",
+                        "payload": "open: boolean",
+                        "description": ""
+                    }
+                ]
+            }
         },
         {
             "name": "DrawerClose",
@@ -6366,7 +7380,17 @@
                     "optional": true,
                     "description": "Extra classes per part of the field (see the datePicker recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [],
+                "events": [
+                    {
+                        "name": "update:modelValue",
+                        "payload": "value: number | string | null",
+                        "description": ""
+                    }
+                ]
+            }
         },
         {
             "name": "Editor",
@@ -6496,7 +7520,17 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [],
+                "events": [
+                    {
+                        "name": "update:modelValue",
+                        "payload": "html: string",
+                        "description": ""
+                    }
+                ]
+            }
         },
         {
             "name": "EmojiPicker",
@@ -6560,7 +7594,17 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [],
+                "events": [
+                    {
+                        "name": "select",
+                        "payload": "emoji: EmojiData",
+                        "description": "An emoji was chosen (click, Enter or Space)"
+                    }
+                ]
+            }
         },
         {
             "name": "EmptyState",
@@ -6700,7 +7744,22 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [
+                    {
+                        "name": "default",
+                        "props": "",
+                        "description": ""
+                    },
+                    {
+                        "name": "label-help",
+                        "props": "",
+                        "description": ""
+                    }
+                ],
+                "events": []
+            }
         },
         {
             "name": "FieldArray",
@@ -6797,7 +7856,17 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [],
+                "events": [
+                    {
+                        "name": "update:open",
+                        "payload": "open: boolean",
+                        "description": ""
+                    }
+                ]
+            }
         },
         {
             "name": "FileUpload",
@@ -6939,7 +8008,27 @@
                     "optional": true,
                     "description": "Methods: open, clear, uploadAll"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [],
+                "events": [
+                    {
+                        "name": "filesChange",
+                        "payload": "files: File[]",
+                        "description": ""
+                    },
+                    {
+                        "name": "filesReject",
+                        "payload": "rejections: { file: File; errors: string[] }[]",
+                        "description": "Files that were not taken, with the reasons as codes (FILE_INVALID_TYPE, FILE_TOO_LARGE, TOO_MANY_FILES …)"
+                    },
+                    {
+                        "name": "uploadComplete",
+                        "payload": "file: File, state: UploadState",
+                        "description": "A file finished uploading (or failed)"
+                    }
+                ]
+            }
         },
         {
             "name": "FilterChips",
@@ -6985,7 +8074,22 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [],
+                "events": [
+                    {
+                        "name": "remove",
+                        "payload": "id: string",
+                        "description": ""
+                    },
+                    {
+                        "name": "clear",
+                        "payload": "",
+                        "description": ""
+                    }
+                ]
+            }
         },
         {
             "name": "FilterPanel",
@@ -7067,7 +8171,38 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [
+                    {
+                        "name": "default",
+                        "props": "",
+                        "description": ""
+                    },
+                    {
+                        "name": "actions",
+                        "props": "",
+                        "description": ""
+                    }
+                ],
+                "events": [
+                    {
+                        "name": "update:open",
+                        "payload": "open: boolean",
+                        "description": ""
+                    },
+                    {
+                        "name": "remove",
+                        "payload": "id: string",
+                        "description": "A chip's remove button"
+                    },
+                    {
+                        "name": "clear",
+                        "payload": "",
+                        "description": "\"Reset all\""
+                    }
+                ]
+            }
         },
         {
             "name": "FloatingPanel",
@@ -7173,7 +8308,28 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [
+                    {
+                        "name": "trigger",
+                        "props": "",
+                        "description": "Button that opens the window (its position is the anchor)"
+                    },
+                    {
+                        "name": "default",
+                        "props": "",
+                        "description": "Content of the window"
+                    }
+                ],
+                "events": [
+                    {
+                        "name": "update:open",
+                        "payload": "open: boolean",
+                        "description": ""
+                    }
+                ]
+            }
         },
         {
             "name": "FormatBytes",
@@ -7514,7 +8670,17 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [
+                    {
+                        "name": "item",
+                        "props": "{ index: number; /** Name of the entry, e.g. \"Contact 2\" */ itemLabel: string; remove: () => void; moveUp: () => void; moveDown: () => void; }",
+                        "description": "One entry: its fields (e.g. `<form.Field :name=\"`contacts[${index}].name`\">`)"
+                    }
+                ],
+                "events": []
+            }
         },
         {
             "name": "Funnel",
@@ -7672,7 +8838,22 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [],
+                "events": [
+                    {
+                        "name": "update:page",
+                        "payload": "page: number",
+                        "description": ""
+                    },
+                    {
+                        "name": "loadMore",
+                        "payload": "",
+                        "description": "Load the next pictures (hasMore)"
+                    }
+                ]
+            }
         },
         {
             "name": "Gantt",
@@ -7820,7 +9001,42 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [],
+                "events": [
+                    {
+                        "name": "update:zoom",
+                        "payload": "zoom: GanttZoom",
+                        "description": ""
+                    },
+                    {
+                        "name": "update:expanded",
+                        "payload": "ids: string[]",
+                        "description": ""
+                    },
+                    {
+                        "name": "taskClick",
+                        "payload": "task: GanttTask",
+                        "description": "A task was chosen (Enter in the list, click on its bar)"
+                    },
+                    {
+                        "name": "taskChange",
+                        "payload": "change: GanttChange",
+                        "description": "A task was moved or resized – apply start and end to your data"
+                    },
+                    {
+                        "name": "progressChange",
+                        "payload": "change: GanttProgress",
+                        "description": "The progress of a task was changed"
+                    },
+                    {
+                        "name": "dependencyCreate",
+                        "payload": "link: GanttLink",
+                        "description": "A dependency was drawn (linkable) – add `from.id` to the dependencies of `to`"
+                    }
+                ]
+            }
         },
         {
             "name": "Gauge",
@@ -8122,7 +9338,17 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [],
+                "events": [
+                    {
+                        "name": "update:open",
+                        "payload": "open: boolean",
+                        "description": ""
+                    }
+                ]
+            }
         },
         {
             "name": "HoverCard",
@@ -8192,7 +9418,28 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [
+                    {
+                        "name": "default",
+                        "props": "",
+                        "description": ""
+                    },
+                    {
+                        "name": "content",
+                        "props": "",
+                        "description": ""
+                    }
+                ],
+                "events": [
+                    {
+                        "name": "update:open",
+                        "payload": "open: boolean",
+                        "description": ""
+                    }
+                ]
+            }
         },
         {
             "name": "IconButton",
@@ -8390,7 +9637,27 @@
                     "optional": true,
                     "description": "Methods: getCroppedImage, getCanvas, reset"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [],
+                "events": [
+                    {
+                        "name": "update:zoom",
+                        "payload": "zoom: number",
+                        "description": ""
+                    },
+                    {
+                        "name": "update:rotation",
+                        "payload": "rotation: number",
+                        "description": ""
+                    },
+                    {
+                        "name": "cropChange",
+                        "payload": "crop: { x: number; y: number; width: number; height: number }",
+                        "description": "The crop area changed (in px of the shown image)"
+                    }
+                ]
+            }
         },
         {
             "name": "InlineCode",
@@ -8542,7 +9809,43 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [
+                    {
+                        "name": "editor",
+                        "props": "{ value: T | undefined; setValue: (value: T | undefined) => void; save: () => void; cancel: () => void; invalid: boolean; /** Id of the error text – for aria-describedby of the editor */ errorId: string | undefined; label: string; }",
+                        "description": "The editor: Input (default), Textarea, Select, NumberInput, DatePicker … bound to `value`/`setValue`"
+                    },
+                    {
+                        "name": "display",
+                        "props": "{ value: T | undefined }",
+                        "description": "Own rendering of the value"
+                    }
+                ],
+                "events": [
+                    {
+                        "name": "update:modelValue",
+                        "payload": "value: T | undefined",
+                        "description": ""
+                    },
+                    {
+                        "name": "update:editing",
+                        "payload": "editing: boolean",
+                        "description": ""
+                    },
+                    {
+                        "name": "save",
+                        "payload": "value: T | undefined",
+                        "description": "A valid edit was saved"
+                    },
+                    {
+                        "name": "cancel",
+                        "payload": "",
+                        "description": ""
+                    }
+                ]
+            }
         },
         {
             "name": "Inplace",
@@ -8588,7 +9891,28 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [
+                    {
+                        "name": "display",
+                        "props": "",
+                        "description": ""
+                    },
+                    {
+                        "name": "default",
+                        "props": "{ close: () => void }",
+                        "description": ""
+                    }
+                ],
+                "events": [
+                    {
+                        "name": "update:active",
+                        "payload": "active: boolean",
+                        "description": ""
+                    }
+                ]
+            }
         },
         {
             "name": "Input",
@@ -8658,7 +9982,17 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [],
+                "events": [
+                    {
+                        "name": "update:modelValue",
+                        "payload": "value: string",
+                        "description": ""
+                    }
+                ]
+            }
         },
         {
             "name": "InputGroup",
@@ -8753,7 +10087,22 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [],
+                "events": [
+                    {
+                        "name": "update:modelValue",
+                        "payload": "value: string",
+                        "description": ""
+                    },
+                    {
+                        "name": "valueParse",
+                        "payload": "value: unknown",
+                        "description": "The parsed value whenever the text is valid JSON"
+                    }
+                ]
+            }
         },
         {
             "name": "JsonViewer",
@@ -8829,7 +10178,17 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [],
+                "events": [
+                    {
+                        "name": "copy",
+                        "payload": "path: string, text: string",
+                        "description": "A value was copied: its path and the copied text"
+                    }
+                ]
+            }
         },
         {
             "name": "Kanban",
@@ -8929,7 +10288,43 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [
+                    {
+                        "name": "card",
+                        "props": "{ item: T; column: KanbanColumn<T>; index: number; grabbed: boolean }",
+                        "description": "Content of a card (default: its text)"
+                    },
+                    {
+                        "name": "add",
+                        "props": "{ column: KanbanColumn<T> }",
+                        "description": "Below the cards of a column, e.g. a button to add a card"
+                    }
+                ],
+                "events": [
+                    {
+                        "name": "update:columns",
+                        "payload": "columns: KanbanColumn<T>[]",
+                        "description": ""
+                    },
+                    {
+                        "name": "move",
+                        "payload": "move: KanbanMove<T>",
+                        "description": "A card was dropped at another place: from/to column id and index"
+                    },
+                    {
+                        "name": "loadMore",
+                        "payload": "columnId: string",
+                        "description": "The column's \"Load more\" button"
+                    },
+                    {
+                        "name": "collapse",
+                        "payload": "columnId: string, collapsed: boolean",
+                        "description": "A column was collapsed or expanded"
+                    }
+                ]
+            }
         },
         {
             "name": "Kbd",
@@ -9151,7 +10546,17 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [],
+                "events": [
+                    {
+                        "name": "update:modelValue",
+                        "payload": "value: number",
+                        "description": ""
+                    }
+                ]
+            }
         },
         {
             "name": "LandmarkNavigation",
@@ -9213,7 +10618,17 @@
                     "optional": true,
                     "description": "Stack all series (with `area`: stacked areas)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [],
+                "events": [
+                    {
+                        "name": "update:range",
+                        "payload": "range: [number, number]",
+                        "description": ""
+                    }
+                ]
+            }
         },
         {
             "name": "Listbox",
@@ -9409,7 +10824,33 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [
+                    {
+                        "name": "item",
+                        "props": "{ item: T } & ListItemState",
+                        "description": "Content of an option (instead of icon and label)"
+                    }
+                ],
+                "events": [
+                    {
+                        "name": "update:modelValue",
+                        "payload": "value: V[]",
+                        "description": ""
+                    },
+                    {
+                        "name": "filterChange",
+                        "payload": "text: string",
+                        "description": "Text of the search field (filter) – e.g. to load matching items from a server (manualFilter)"
+                    },
+                    {
+                        "name": "loadMore",
+                        "payload": "",
+                        "description": "The end of the list was scrolled into view (hasMore)"
+                    }
+                ]
+            }
         },
         {
             "name": "LiveAnnouncer",
@@ -9583,7 +11024,27 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [],
+                "events": [
+                    {
+                        "name": "update:levels",
+                        "payload": "levels: LogLevel[]",
+                        "description": ""
+                    },
+                    {
+                        "name": "update:autoScroll",
+                        "payload": "autoScroll: boolean",
+                        "description": ""
+                    },
+                    {
+                        "name": "loadMore",
+                        "payload": "",
+                        "description": "Load older lines (they are added at the top, the view stays where it is)"
+                    }
+                ]
+            }
         },
         {
             "name": "Markdown",
@@ -9635,7 +11096,17 @@
                     "optional": true,
                     "description": "Extra classes of the prose recipe (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [
+                    {
+                        "name": "code",
+                        "props": "{ language?: string; code: string }",
+                        "description": "A code block, e.g. with CodeHighlight (default: pre/code)"
+                    }
+                ],
+                "events": []
+            }
         },
         {
             "name": "Marquee",
@@ -9717,7 +11188,23 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [
+                    {
+                        "name": "default",
+                        "props": "",
+                        "description": "The items; they are repeated (copies hidden from screen readers) – no links or buttons in them"
+                    }
+                ],
+                "events": [
+                    {
+                        "name": "update:paused",
+                        "payload": "paused: boolean",
+                        "description": ""
+                    }
+                ]
+            }
         },
         {
             "name": "MaskInput",
@@ -9781,7 +11268,27 @@
                     "optional": true,
                     "description": "Own tokens, e.g. { h: /[0-9a-f]/i } – they extend 9, a and *"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [],
+                "events": [
+                    {
+                        "name": "update:modelValue",
+                        "payload": "value: string",
+                        "description": ""
+                    },
+                    {
+                        "name": "rawChange",
+                        "payload": "raw: string",
+                        "description": "Only the typed characters"
+                    },
+                    {
+                        "name": "complete",
+                        "payload": "value: string",
+                        "description": "Every required slot is filled"
+                    }
+                ]
+            }
         },
         {
             "name": "Masonry",
@@ -9945,7 +11452,33 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [
+                    {
+                        "name": "featured",
+                        "props": "{ item: MegaMenuItem }",
+                        "description": "Own content of the featured area of an entry"
+                    },
+                    {
+                        "name": "item",
+                        "props": "{ link: MegaMenuLink }",
+                        "description": "Own content of a panel link (instead of icon, label, badge and description)"
+                    }
+                ],
+                "events": [
+                    {
+                        "name": "update:value",
+                        "payload": "value: string",
+                        "description": ""
+                    },
+                    {
+                        "name": "navigate",
+                        "payload": "link: MegaMenuLink | MegaMenuItem | MegaMenuFeatured, event: MouseEvent",
+                        "description": "A link was clicked – call event.preventDefault() and route yourself in a single-page app"
+                    }
+                ]
+            }
         },
         {
             "name": "Mentions",
@@ -10045,7 +11578,33 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [
+                    {
+                        "name": "item",
+                        "props": "{ item: T; highlighted: boolean }",
+                        "description": "Content of a suggestion (instead of its text)"
+                    }
+                ],
+                "events": [
+                    {
+                        "name": "update:modelValue",
+                        "payload": "value: string",
+                        "description": ""
+                    },
+                    {
+                        "name": "mentionsChange",
+                        "payload": "mentions: Mention[]",
+                        "description": "The mentions in the text after every change"
+                    },
+                    {
+                        "name": "search",
+                        "payload": "trigger: string, query: string",
+                        "description": "Text typed after a trigger (e.g. to load entries yourself)"
+                    }
+                ]
+            }
         },
         {
             "name": "Menu",
@@ -10127,7 +11686,43 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [
+                    {
+                        "name": "default",
+                        "props": "",
+                        "description": "The trigger (e.g. a Button or IconButton) – optional with `anchor` or `open(anchor)`"
+                    },
+                    {
+                        "name": "item",
+                        "props": "{ item: MenuItem | MenuCheckboxItem | MenuRadioItem }",
+                        "description": "Own content of an item (instead of icon, label and shortcut)"
+                    }
+                ],
+                "events": [
+                    {
+                        "name": "select",
+                        "payload": "value: string",
+                        "description": ""
+                    },
+                    {
+                        "name": "checked-change",
+                        "payload": "value: string, checked: boolean",
+                        "description": "A checkbox item was switched"
+                    },
+                    {
+                        "name": "value-change",
+                        "payload": "name: string, value: string",
+                        "description": "A radio group got a new value"
+                    },
+                    {
+                        "name": "update:open",
+                        "payload": "open: boolean",
+                        "description": ""
+                    }
+                ]
+            }
         },
         {
             "name": "Menubar",
@@ -10179,7 +11774,43 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [
+                    {
+                        "name": "start",
+                        "props": "",
+                        "description": "Content before the bar, e.g. a logo"
+                    },
+                    {
+                        "name": "end",
+                        "props": "",
+                        "description": "Content after the bar, e.g. a search or an avatar"
+                    },
+                    {
+                        "name": "item",
+                        "props": "{ item: MenuItem | MenuCheckboxItem | MenuRadioItem }",
+                        "description": "Own content of an item (instead of icon, label and shortcut)"
+                    }
+                ],
+                "events": [
+                    {
+                        "name": "select",
+                        "payload": "value: string",
+                        "description": ""
+                    },
+                    {
+                        "name": "checked-change",
+                        "payload": "value: string, checked: boolean",
+                        "description": "A checkbox item was switched"
+                    },
+                    {
+                        "name": "value-change",
+                        "payload": "name: string, value: string",
+                        "description": "A radio group got a new value"
+                    }
+                ]
+            }
         },
         {
             "name": "MeterGroup",
@@ -10361,7 +11992,17 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { day: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [],
+                "events": [
+                    {
+                        "name": "update:modelValue",
+                        "payload": "value: T",
+                        "description": ""
+                    }
+                ]
+            }
         },
         {
             "name": "ModeToggle",
@@ -10526,7 +12167,17 @@
                     "optional": true,
                     "description": "Extra classes per part of the date field, e.g. { control: \"…\" } (the calendar: RecipesProvider)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [],
+                "events": [
+                    {
+                        "name": "update:modelValue",
+                        "payload": "value: T",
+                        "description": ""
+                    }
+                ]
+            }
         },
         {
             "name": "MultiSelect",
@@ -10746,7 +12397,38 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [
+                    {
+                        "name": "item",
+                        "props": "{ item: T } & ListItemState",
+                        "description": "Content of an option (instead of icon and label)"
+                    },
+                    {
+                        "name": "value",
+                        "props": "{ items: T[] }",
+                        "description": "Content of the field for the selected items (display \"text\")"
+                    }
+                ],
+                "events": [
+                    {
+                        "name": "update:modelValue",
+                        "payload": "value: V[]",
+                        "description": ""
+                    },
+                    {
+                        "name": "filterChange",
+                        "payload": "text: string",
+                        "description": "Text of the search field (filter) – e.g. to load matching items from a server (manualFilter)"
+                    },
+                    {
+                        "name": "loadMore",
+                        "payload": "",
+                        "description": "The end of the list was scrolled into view (hasMore)"
+                    }
+                ]
+            }
         },
         {
             "name": "NativeSelect",
@@ -10792,7 +12474,17 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [],
+                "events": [
+                    {
+                        "name": "update:modelValue",
+                        "payload": "value: string",
+                        "description": ""
+                    }
+                ]
+            }
         },
         {
             "name": "NavigationMenu",
@@ -10972,7 +12664,43 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [
+                    {
+                        "name": "item-actions",
+                        "props": "{ item: NotificationItem }",
+                        "description": ""
+                    }
+                ],
+                "events": [
+                    {
+                        "name": "update:open",
+                        "payload": "open: boolean",
+                        "description": ""
+                    },
+                    {
+                        "name": "markRead",
+                        "payload": "id: string",
+                        "description": "Mark one item as read"
+                    },
+                    {
+                        "name": "markAllRead",
+                        "payload": "",
+                        "description": ""
+                    },
+                    {
+                        "name": "loadMore",
+                        "payload": "",
+                        "description": "Load the next page (hasMore)"
+                    },
+                    {
+                        "name": "select",
+                        "payload": "item: NotificationItem, event: MouseEvent",
+                        "description": "The title link of an item was clicked"
+                    }
+                ]
+            }
         },
         {
             "name": "NumberFormatter",
@@ -11184,7 +12912,17 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [],
+                "events": [
+                    {
+                        "name": "update:modelValue",
+                        "payload": "value: number | null",
+                        "description": ""
+                    }
+                ]
+            }
         },
         {
             "name": "OrderList",
@@ -11278,7 +13016,23 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [
+                    {
+                        "name": "item",
+                        "props": "{ item: T } & ListItemState",
+                        "description": "Content of an item (instead of icon and label)"
+                    }
+                ],
+                "events": [
+                    {
+                        "name": "update:modelValue",
+                        "payload": "items: T[]",
+                        "description": ""
+                    }
+                ]
+            }
         },
         {
             "name": "OrgChart",
@@ -11390,7 +13144,33 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [
+                    {
+                        "name": "content",
+                        "props": "{ node: OrgChartNode } & OrgChartNodeState",
+                        "description": "Content of a node box (instead of label and title)"
+                    }
+                ],
+                "events": [
+                    {
+                        "name": "update:collapsedKeys",
+                        "payload": "keys: string[]",
+                        "description": ""
+                    },
+                    {
+                        "name": "update:selectedKeys",
+                        "payload": "keys: string[]",
+                        "description": ""
+                    },
+                    {
+                        "name": "loadChildren",
+                        "payload": "node: OrgChartNode",
+                        "description": "A lazy node opened and there is no loadChildren/dataSource: add its team to the node"
+                    }
+                ]
+            }
         },
         {
             "name": "OverflowList",
@@ -11454,7 +13234,22 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [
+                    {
+                        "name": "item",
+                        "props": "{ item: T; index: number }",
+                        "description": "One item – in the row and in the popover"
+                    },
+                    {
+                        "name": "overflow",
+                        "props": "{ items: T[] }",
+                        "description": "Own content of the popover (default: the hidden items)"
+                    }
+                ],
+                "events": []
+            }
         },
         {
             "name": "OverlayBadge",
@@ -11594,7 +13389,38 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [
+                    {
+                        "name": "breadcrumb",
+                        "props": "",
+                        "description": "Breadcrumb above everything"
+                    },
+                    {
+                        "name": "meta",
+                        "props": "",
+                        "description": "Meta information below the title (dates, owner …)"
+                    },
+                    {
+                        "name": "actions",
+                        "props": "",
+                        "description": "Buttons at the end; they wrap below the title on narrow screens"
+                    },
+                    {
+                        "name": "tabs",
+                        "props": "",
+                        "description": "Tabs below the header"
+                    }
+                ],
+                "events": [
+                    {
+                        "name": "back",
+                        "payload": "event: MouseEvent",
+                        "description": ""
+                    }
+                ]
+            }
         },
         {
             "name": "Pagination",
@@ -11712,7 +13538,22 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [],
+                "events": [
+                    {
+                        "name": "update:page",
+                        "payload": "page: number",
+                        "description": ""
+                    },
+                    {
+                        "name": "update:pageSize",
+                        "payload": "pageSize: number",
+                        "description": ""
+                    }
+                ]
+            }
         },
         {
             "name": "Panel",
@@ -11794,7 +13635,33 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [
+                    {
+                        "name": "default",
+                        "props": "",
+                        "description": ""
+                    },
+                    {
+                        "name": "actions",
+                        "props": "",
+                        "description": ""
+                    },
+                    {
+                        "name": "footer",
+                        "props": "",
+                        "description": ""
+                    }
+                ],
+                "events": [
+                    {
+                        "name": "update:open",
+                        "payload": "open: boolean",
+                        "description": ""
+                    }
+                ]
+            }
         },
         {
             "name": "PasswordInput",
@@ -11876,7 +13743,22 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [],
+                "events": [
+                    {
+                        "name": "update:visible",
+                        "payload": "visible: boolean",
+                        "description": ""
+                    },
+                    {
+                        "name": "update:modelValue",
+                        "payload": "value: string",
+                        "description": ""
+                    }
+                ]
+            }
         },
         {
             "name": "PdfViewer",
@@ -12018,7 +13900,42 @@
                     "optional": true,
                     "description": ""
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [],
+                "events": [
+                    {
+                        "name": "update:page",
+                        "payload": "page: number",
+                        "description": ""
+                    },
+                    {
+                        "name": "update:zoom",
+                        "payload": "zoom: PdfZoom",
+                        "description": ""
+                    },
+                    {
+                        "name": "update:rotation",
+                        "payload": "rotation: number",
+                        "description": ""
+                    },
+                    {
+                        "name": "update:sidebar",
+                        "payload": "open: boolean",
+                        "description": ""
+                    },
+                    {
+                        "name": "loaded",
+                        "payload": "details: { numPages: number }",
+                        "description": "The document is shown"
+                    },
+                    {
+                        "name": "error",
+                        "payload": "error: unknown",
+                        "description": "The document could not be loaded (invalid, not found, password refused …)"
+                    }
+                ]
+            }
         },
         {
             "name": "Persona",
@@ -12176,7 +14093,27 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [],
+                "events": [
+                    {
+                        "name": "update:modelValue",
+                        "payload": "value: string",
+                        "description": ""
+                    },
+                    {
+                        "name": "update:country",
+                        "payload": "country: string",
+                        "description": ""
+                    },
+                    {
+                        "name": "validChange",
+                        "payload": "valid: boolean",
+                        "description": "Whether the number has a valid length for its country (after every change)"
+                    }
+                ]
+            }
         },
         {
             "name": "PickList",
@@ -12318,7 +14255,33 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [
+                    {
+                        "name": "item",
+                        "props": "{ item: T } & ListItemState",
+                        "description": "Content of an item in both lists (instead of icon and label)"
+                    }
+                ],
+                "events": [
+                    {
+                        "name": "update:modelValue",
+                        "payload": "values: V[]",
+                        "description": ""
+                    },
+                    {
+                        "name": "filterChange",
+                        "payload": "text: string",
+                        "description": "Text of the search field of the source list – e.g. to load matching items from a server (manualFilter)"
+                    },
+                    {
+                        "name": "loadMore",
+                        "payload": "",
+                        "description": "The end of the source list was scrolled into view (hasMore)"
+                    }
+                ]
+            }
         },
         {
             "name": "PieChart",
@@ -12506,7 +14469,22 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [],
+                "events": [
+                    {
+                        "name": "update:modelValue",
+                        "payload": "value: string",
+                        "description": ""
+                    },
+                    {
+                        "name": "valueComplete",
+                        "payload": "value: string",
+                        "description": ""
+                    }
+                ]
+            }
         },
         {
             "name": "Popover",
@@ -12576,7 +14554,17 @@
                     "optional": false,
                     "description": ""
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [],
+                "events": [
+                    {
+                        "name": "update:open",
+                        "payload": "open: boolean",
+                        "description": ""
+                    }
+                ]
+            }
         },
         {
             "name": "PopoverClose",
@@ -12968,7 +14956,17 @@
                     "optional": true,
                     "description": "Extra classes per part of the field, e.g. { control: \"…\" } (see the datePicker recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [],
+                "events": [
+                    {
+                        "name": "update:modelValue",
+                        "payload": "value: T",
+                        "description": ""
+                    }
+                ]
+            }
         },
         {
             "name": "RadialBar",
@@ -13118,7 +15116,17 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [],
+                "events": [
+                    {
+                        "name": "update:modelValue",
+                        "payload": "value: string | null",
+                        "description": ""
+                    }
+                ]
+            }
         },
         {
             "name": "RadioGroupItem",
@@ -13252,7 +15260,17 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [],
+                "events": [
+                    {
+                        "name": "update:modelValue",
+                        "payload": "value: number",
+                        "description": ""
+                    }
+                ]
+            }
         },
         {
             "name": "RecipesProvider",
@@ -13326,7 +15344,22 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [
+                    {
+                        "name": "default",
+                        "props": "",
+                        "description": ""
+                    },
+                    {
+                        "name": "actions",
+                        "props": "",
+                        "description": ""
+                    }
+                ],
+                "events": []
+            }
         },
         {
             "name": "RingProgress",
@@ -13402,7 +15435,17 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [
+                    {
+                        "name": "center",
+                        "props": "",
+                        "description": "Content in the middle of the ring (default: the value)"
+                    }
+                ],
+                "events": []
+            }
         },
         {
             "name": "Sankey",
@@ -13834,7 +15877,72 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [],
+                "events": [
+                    {
+                        "name": "update:view",
+                        "payload": "view: SchedulerView",
+                        "description": ""
+                    },
+                    {
+                        "name": "update:date",
+                        "payload": "date: string",
+                        "description": ""
+                    },
+                    {
+                        "name": "update:resourceFilter",
+                        "payload": "resourceId: string",
+                        "description": ""
+                    },
+                    {
+                        "name": "update:timelineRange",
+                        "payload": "range: SchedulerTimelineRange",
+                        "description": ""
+                    },
+                    {
+                        "name": "update:zoom",
+                        "payload": "zoom: number",
+                        "description": ""
+                    },
+                    {
+                        "name": "eventClick",
+                        "payload": "event: SchedulerEvent",
+                        "description": "An event was clicked (or chosen with Enter/Space)"
+                    },
+                    {
+                        "name": "slotSelect",
+                        "payload": "slot: SchedulerSlot",
+                        "description": "An empty time or day was chosen – e.g. to create an event there"
+                    },
+                    {
+                        "name": "eventChange",
+                        "payload": "change: SchedulerChange",
+                        "description": "An event was moved or resized – apply start and end to your data (series: applyEventChange)"
+                    },
+                    {
+                        "name": "dropRejected",
+                        "payload": "rejection: SchedulerDropRejection",
+                        "description": "A move or resize was refused by canDrop, canResize or preventOverlap"
+                    },
+                    {
+                        "name": "rangeChange",
+                        "payload": "range: SchedulerRange",
+                        "description": "The shown range changed (also at the start) – load its events"
+                    },
+                    {
+                        "name": "externalDrop",
+                        "payload": "drop: SchedulerExternalDrop",
+                        "description": "Something from outside was dropped on a time (droppable)"
+                    },
+                    {
+                        "name": "eventDropOutside",
+                        "payload": "drop: SchedulerDropOutside",
+                        "description": "An event was dragged out of the calendar"
+                    }
+                ]
+            }
         },
         {
             "name": "Scroller",
@@ -13926,7 +16034,22 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [],
+                "events": [
+                    {
+                        "name": "reachStart",
+                        "payload": "",
+                        "description": "Scrolled back to the top"
+                    },
+                    {
+                        "name": "reachEnd",
+                        "payload": "",
+                        "description": "Scrolled to the bottom, e.g. to load more"
+                    }
+                ]
+            }
         },
         {
             "name": "ScrollTop",
@@ -14078,7 +16201,32 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [],
+                "events": [
+                    {
+                        "name": "update:modelValue",
+                        "payload": "value: string",
+                        "description": ""
+                    },
+                    {
+                        "name": "update:scope",
+                        "payload": "scope: string",
+                        "description": ""
+                    },
+                    {
+                        "name": "submit",
+                        "payload": "value: string, scope: string | undefined",
+                        "description": "Enter (or the form's submit): the text and the area"
+                    },
+                    {
+                        "name": "clear",
+                        "payload": "",
+                        "description": "Escape emptied the field"
+                    }
+                ]
+            }
         },
         {
             "name": "SegmentedControl",
@@ -14136,7 +16284,17 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [],
+                "events": [
+                    {
+                        "name": "update:modelValue",
+                        "payload": "value: string | null",
+                        "description": ""
+                    }
+                ]
+            }
         },
         {
             "name": "SegmentedControlItem",
@@ -14360,7 +16518,38 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [
+                    {
+                        "name": "item",
+                        "props": "{ item: T } & ListItemState",
+                        "description": "Content of an option (instead of icon and label)"
+                    },
+                    {
+                        "name": "value",
+                        "props": "{ item: T }",
+                        "description": "Content of the field for the selected item"
+                    }
+                ],
+                "events": [
+                    {
+                        "name": "update:modelValue",
+                        "payload": "value: V | null",
+                        "description": ""
+                    },
+                    {
+                        "name": "filterChange",
+                        "payload": "text: string",
+                        "description": "Text of the search field (filter) – e.g. to load matching items from a server (manualFilter)"
+                    },
+                    {
+                        "name": "loadMore",
+                        "payload": "",
+                        "description": "The end of the list was scrolled into view (hasMore)"
+                    }
+                ]
+            }
         },
         {
             "name": "SessionTimeout",
@@ -14418,7 +16607,27 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [],
+                "events": [
+                    {
+                        "name": "extend",
+                        "payload": "",
+                        "description": "\"Stay signed in\": extend the session and pass the new expiresAt"
+                    },
+                    {
+                        "name": "signOut",
+                        "payload": "",
+                        "description": "\"Sign out\" in the warning"
+                    },
+                    {
+                        "name": "expire",
+                        "payload": "",
+                        "description": "The time ran out"
+                    }
+                ]
+            }
         },
         {
             "name": "SidebarNav",
@@ -14488,7 +16697,28 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [
+                    {
+                        "name": "header",
+                        "props": "",
+                        "description": "Above the links, e.g. a logo or a switcher"
+                    },
+                    {
+                        "name": "footer",
+                        "props": "",
+                        "description": "Below the links, e.g. account or settings"
+                    }
+                ],
+                "events": [
+                    {
+                        "name": "navigate",
+                        "payload": "item: SidebarNavItem, event: MouseEvent",
+                        "description": ""
+                    }
+                ]
+            }
         },
         {
             "name": "SignaturePad",
@@ -14618,7 +16848,27 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [],
+                "events": [
+                    {
+                        "name": "update:modelValue",
+                        "payload": "value: string",
+                        "description": ""
+                    },
+                    {
+                        "name": "update:paths",
+                        "payload": "paths: string[]",
+                        "description": ""
+                    },
+                    {
+                        "name": "update:typedName",
+                        "payload": "name: string",
+                        "description": ""
+                    }
+                ]
+            }
         },
         {
             "name": "SimpleGrid",
@@ -14723,6 +16973,26 @@
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
             ],
+            "vue": {
+                "slots": [
+                    {
+                        "name": "logo",
+                        "props": "",
+                        "description": "Logo before the brand name (decorative – the name is the link text)"
+                    },
+                    {
+                        "name": "actions",
+                        "props": "",
+                        "description": "Actions on the right, e.g. a CTA button and the ModeToggle – repeated in the mobile menu"
+                    },
+                    {
+                        "name": "link",
+                        "props": "{ item: NavItem; attrs: Record<string, unknown> }",
+                        "description": "Custom link, e.g. RouterLink/NuxtLink: bind `attrs` to it"
+                    }
+                ],
+                "events": []
+            },
             "package": "blocks"
         },
         {
@@ -14903,7 +17173,22 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [],
+                "events": [
+                    {
+                        "name": "update:modelValue",
+                        "payload": "value: number[]",
+                        "description": ""
+                    },
+                    {
+                        "name": "valueChangeEnd",
+                        "payload": "value: number[]",
+                        "description": ""
+                    }
+                ]
+            }
         },
         {
             "name": "Sortable",
@@ -15033,7 +17318,28 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [
+                    {
+                        "name": "item",
+                        "props": "{ item: T; index: number; grabbed: boolean }",
+                        "description": "Content of an item (default: its text)"
+                    }
+                ],
+                "events": [
+                    {
+                        "name": "update:modelValue",
+                        "payload": "items: T[]",
+                        "description": ""
+                    },
+                    {
+                        "name": "move",
+                        "payload": "move: SortableMove<T>",
+                        "description": "An item was dropped at another place (also in another list of the group)"
+                    }
+                ]
+            }
         },
         {
             "name": "Sparkline",
@@ -15161,7 +17467,17 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [],
+                "events": [
+                    {
+                        "name": "select",
+                        "payload": "value: string",
+                        "description": ""
+                    }
+                ]
+            }
         },
         {
             "name": "Spinner",
@@ -15289,7 +17605,22 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [],
+                "events": [
+                    {
+                        "name": "click",
+                        "payload": "event: MouseEvent",
+                        "description": ""
+                    },
+                    {
+                        "name": "select",
+                        "payload": "value: string",
+                        "description": ""
+                    }
+                ]
+            }
         },
         {
             "name": "Splitter",
@@ -15377,7 +17708,38 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [
+                    {
+                        "name": "panel",
+                        "props": "{ id: string }",
+                        "description": ""
+                    }
+                ],
+                "events": [
+                    {
+                        "name": "resize",
+                        "payload": "sizes: number[]",
+                        "description": "Sizes in percent while resizing"
+                    },
+                    {
+                        "name": "resizeEnd",
+                        "payload": "sizes: number[]",
+                        "description": "Sizes in percent after a drag or key press"
+                    },
+                    {
+                        "name": "collapse",
+                        "payload": "panelId: string",
+                        "description": ""
+                    },
+                    {
+                        "name": "expand",
+                        "payload": "panelId: string",
+                        "description": ""
+                    }
+                ]
+            }
         },
         {
             "name": "Spoiler",
@@ -15441,7 +17803,17 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [],
+                "events": [
+                    {
+                        "name": "update:open",
+                        "payload": "open: boolean",
+                        "description": ""
+                    }
+                ]
+            }
         },
         {
             "name": "Stack",
@@ -15605,7 +17977,17 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [
+                    {
+                        "name": "chart",
+                        "props": "",
+                        "description": ""
+                    }
+                ],
+                "events": []
+            }
         },
         {
             "name": "StatusDot",
@@ -15727,7 +18109,28 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [
+                    {
+                        "name": "step",
+                        "props": "{ index: number }",
+                        "description": ""
+                    },
+                    {
+                        "name": "completed",
+                        "props": "",
+                        "description": ""
+                    }
+                ],
+                "events": [
+                    {
+                        "name": "update:step",
+                        "payload": "step: number",
+                        "description": ""
+                    }
+                ]
+            }
         },
         {
             "name": "Steps",
@@ -15895,7 +18298,17 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [],
+                "events": [
+                    {
+                        "name": "update:checked",
+                        "payload": "checked: boolean",
+                        "description": ""
+                    }
+                ]
+            }
         },
         {
             "name": "SwitchGroup",
@@ -15983,7 +18396,17 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [],
+                "events": [
+                    {
+                        "name": "update:modelValue",
+                        "payload": "value: string[]",
+                        "description": ""
+                    }
+                ]
+            }
         },
         {
             "name": "TableOfContents",
@@ -16087,7 +18510,17 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [],
+                "events": [
+                    {
+                        "name": "update:modelValue",
+                        "payload": "value: string | null",
+                        "description": ""
+                    }
+                ]
+            }
         },
         {
             "name": "TabsContent",
@@ -16165,7 +18598,17 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [],
+                "events": [
+                    {
+                        "name": "close",
+                        "payload": "value: string",
+                        "description": ""
+                    }
+                ]
+            }
         },
         {
             "name": "TagsInput",
@@ -16319,7 +18762,27 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [],
+                "events": [
+                    {
+                        "name": "update:modelValue",
+                        "payload": "value: string[]",
+                        "description": ""
+                    },
+                    {
+                        "name": "filterChange",
+                        "payload": "text: string",
+                        "description": "Typed text – e.g. to load matching suggestions from a server (manualFilter)"
+                    },
+                    {
+                        "name": "loadMore",
+                        "payload": "",
+                        "description": "The end of the suggestions was scrolled into view (hasMore)"
+                    }
+                ]
+            }
         },
         {
             "name": "Textarea",
@@ -16395,7 +18858,17 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipes textarea and textareaParts)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [],
+                "events": [
+                    {
+                        "name": "update:modelValue",
+                        "payload": "value: string",
+                        "description": ""
+                    }
+                ]
+            }
         },
         {
             "name": "TimeGrid",
@@ -16525,7 +18998,17 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { slot: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [],
+                "events": [
+                    {
+                        "name": "update:modelValue",
+                        "payload": "value: T",
+                        "description": ""
+                    }
+                ]
+            }
         },
         {
             "name": "Timeline",
@@ -16637,7 +19120,33 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [
+                    {
+                        "name": "content",
+                        "props": "{ item: TimelineItem; index: number }",
+                        "description": "Replaces time, title and description of an event"
+                    },
+                    {
+                        "name": "opposite",
+                        "props": "{ item: TimelineItem; index: number }",
+                        "description": "Content on the other side of the marker"
+                    },
+                    {
+                        "name": "marker",
+                        "props": "{ item: TimelineItem; index: number }",
+                        "description": "Content of the marker (instead of the icon)"
+                    }
+                ],
+                "events": [
+                    {
+                        "name": "loadMore",
+                        "payload": "",
+                        "description": "The feed wants older events (hasMore)"
+                    }
+                ]
+            }
         },
         {
             "name": "TimePicker",
@@ -16791,7 +19300,17 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [],
+                "events": [
+                    {
+                        "name": "update:modelValue",
+                        "payload": "value: string | null",
+                        "description": ""
+                    }
+                ]
+            }
         },
         {
             "name": "TimeRangePicker",
@@ -16915,7 +19434,17 @@
                     "optional": true,
                     "description": "Extra classes per part of the component (see the datePicker recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [],
+                "events": [
+                    {
+                        "name": "update:modelValue",
+                        "payload": "value: TimeRange | null",
+                        "description": ""
+                    }
+                ]
+            }
         },
         {
             "name": "Toaster",
@@ -17007,7 +19536,17 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [],
+                "events": [
+                    {
+                        "name": "update:pressed",
+                        "payload": "pressed: boolean",
+                        "description": ""
+                    }
+                ]
+            }
         },
         {
             "name": "Toggletip",
@@ -17059,7 +19598,17 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [],
+                "events": [
+                    {
+                        "name": "update:open",
+                        "payload": "open: boolean",
+                        "description": ""
+                    }
+                ]
+            }
         },
         {
             "name": "Toolbar",
@@ -17123,7 +19672,32 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [
+                    {
+                        "name": "default",
+                        "props": "",
+                        "description": ""
+                    },
+                    {
+                        "name": "start",
+                        "props": "",
+                        "description": "Start area (before the default content) – with start, center or end the toolbar has three areas"
+                    },
+                    {
+                        "name": "center",
+                        "props": "",
+                        "description": "Centre area, stays in the middle"
+                    },
+                    {
+                        "name": "end",
+                        "props": "",
+                        "description": "End area"
+                    }
+                ],
+                "events": []
+            }
         },
         {
             "name": "Tooltip",
@@ -17249,7 +19823,27 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [
+                    {
+                        "name": "start",
+                        "props": "",
+                        "description": "Start, e.g. the logo or the app name"
+                    },
+                    {
+                        "name": "default",
+                        "props": "",
+                        "description": "Middle, takes the free space, e.g. a search field"
+                    },
+                    {
+                        "name": "end",
+                        "props": "",
+                        "description": "End, e.g. an app switcher and the user menu"
+                    }
+                ],
+                "events": []
+            }
         },
         {
             "name": "Tour",
@@ -17289,7 +19883,22 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [],
+                "events": [
+                    {
+                        "name": "update:open",
+                        "payload": "open: boolean",
+                        "description": ""
+                    },
+                    {
+                        "name": "complete",
+                        "payload": "",
+                        "description": ""
+                    }
+                ]
+            }
         },
         {
             "name": "Tree",
@@ -17527,7 +20136,58 @@
                     "optional": true,
                     "description": "Methods: expandAll, collapseAll, invalidate, focusNode"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [
+                    {
+                        "name": "node",
+                        "props": "{ node: TreeNode } & TreeNodeState",
+                        "description": "Content of a node (instead of icon and label); chevron and check box stay"
+                    },
+                    {
+                        "name": "empty",
+                        "props": "",
+                        "description": "Shown without nodes or hits"
+                    }
+                ],
+                "events": [
+                    {
+                        "name": "update:selectedValue",
+                        "payload": "ids: string[]",
+                        "description": ""
+                    },
+                    {
+                        "name": "update:expandedValue",
+                        "payload": "ids: string[]",
+                        "description": ""
+                    },
+                    {
+                        "name": "update:checkedValue",
+                        "payload": "ids: string[]",
+                        "description": ""
+                    },
+                    {
+                        "name": "update:filterValue",
+                        "payload": "text: string",
+                        "description": ""
+                    },
+                    {
+                        "name": "move",
+                        "payload": "move: TreeMove",
+                        "description": "A node was moved – apply it with moveTreeNode(items, move)"
+                    },
+                    {
+                        "name": "transfer",
+                        "payload": "transfer: TreeTransfer",
+                        "description": "A node of another tree (same group) was dropped or pasted here – move it between the items"
+                    },
+                    {
+                        "name": "loadChildren",
+                        "payload": "node: TreeNode",
+                        "description": "A lazy node opened and there is no loadChildren/dataSource: add its children to the items"
+                    }
+                ]
+            }
         },
         {
             "name": "Treemap",
@@ -17739,7 +20399,22 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [],
+                "events": [
+                    {
+                        "name": "update:modelValue",
+                        "payload": "value: T",
+                        "description": ""
+                    },
+                    {
+                        "name": "loadChildren",
+                        "payload": "node: TreeNode",
+                        "description": "A lazy node opened and there is no loadChildren/dataSource: add its children to the items"
+                    }
+                ]
+            }
         },
         {
             "name": "Truncate",
@@ -17815,7 +20490,17 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [],
+                "events": [
+                    {
+                        "name": "update:expanded",
+                        "payload": "expanded: boolean",
+                        "description": ""
+                    }
+                ]
+            }
         },
         {
             "name": "VirtualList",
@@ -17939,7 +20624,28 @@
                     "optional": true,
                     "description": "Methods: scrollToIndex, refresh"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [
+                    {
+                        "name": "default",
+                        "props": "{ item: T; index: number }",
+                        "description": ""
+                    }
+                ],
+                "events": [
+                    {
+                        "name": "loadMore",
+                        "payload": "",
+                        "description": "The end of the list scrolled near (hasMore) – load the next items"
+                    },
+                    {
+                        "name": "endReached",
+                        "payload": "",
+                        "description": ""
+                    }
+                ]
+            }
         },
         {
             "name": "VirtualSelect",
@@ -18099,7 +20805,27 @@
                     "optional": true,
                     "description": "Fewest characters the search needs before the data source is asked"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [],
+                "events": [
+                    {
+                        "name": "update:modelValue",
+                        "payload": "value: V | null",
+                        "description": ""
+                    },
+                    {
+                        "name": "filterChange",
+                        "payload": "text: string",
+                        "description": "Text of the search field (filter) – e.g. to load matching items from a server (manualFilter)"
+                    },
+                    {
+                        "name": "loadMore",
+                        "payload": "",
+                        "description": "The end of the list was reached (hasMore)"
+                    }
+                ]
+            }
         },
         {
             "name": "VirtualTree",
@@ -18121,7 +20847,58 @@
                     "optional": true,
                     "description": "Estimated row height in px (rows are measured when shown)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [
+                    {
+                        "name": "node",
+                        "props": "{ node: TreeNode } & TreeNodeState",
+                        "description": "Content of a node (instead of icon and label); chevron and check box stay"
+                    },
+                    {
+                        "name": "empty",
+                        "props": "",
+                        "description": "Shown without nodes or hits"
+                    }
+                ],
+                "events": [
+                    {
+                        "name": "update:selectedValue",
+                        "payload": "ids: string[]",
+                        "description": ""
+                    },
+                    {
+                        "name": "update:expandedValue",
+                        "payload": "ids: string[]",
+                        "description": ""
+                    },
+                    {
+                        "name": "update:checkedValue",
+                        "payload": "ids: string[]",
+                        "description": ""
+                    },
+                    {
+                        "name": "update:filterValue",
+                        "payload": "text: string",
+                        "description": ""
+                    },
+                    {
+                        "name": "move",
+                        "payload": "move: TreeMove",
+                        "description": "A node was moved – apply it with moveTreeNode(items, move)"
+                    },
+                    {
+                        "name": "transfer",
+                        "payload": "transfer: TreeTransfer",
+                        "description": "A node of another tree (same group) was dropped or pasted here – move it between the items"
+                    },
+                    {
+                        "name": "loadChildren",
+                        "payload": "node: TreeNode",
+                        "description": "A lazy node opened and there is no loadChildren/dataSource: add its children to the items"
+                    }
+                ]
+            }
         },
         {
             "name": "VisuallyHidden",
@@ -18371,7 +21148,38 @@
                     "optional": true,
                     "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [
+                    {
+                        "name": "step",
+                        "props": "{ index: number; step: WizardStep }",
+                        "description": "Content of a step – its fields stay in the form state, so going back loses nothing"
+                    },
+                    {
+                        "name": "summary",
+                        "props": "",
+                        "description": "A last step with this summary before finishing"
+                    },
+                    {
+                        "name": "completed",
+                        "props": "",
+                        "description": "Shown after finishing"
+                    }
+                ],
+                "events": [
+                    {
+                        "name": "update:step",
+                        "payload": "step: number",
+                        "description": ""
+                    },
+                    {
+                        "name": "complete",
+                        "payload": "",
+                        "description": "The last step was finished (after its check)"
+                    }
+                ]
+            }
         },
         {
             "name": "YearPicker",
@@ -18495,7 +21303,17 @@
                     "optional": true,
                     "description": "Extra classes per part of the date field, e.g. { control: \"…\" } (the calendar: RecipesProvider)"
                 }
-            ]
+            ],
+            "vue": {
+                "slots": [],
+                "events": [
+                    {
+                        "name": "update:modelValue",
+                        "payload": "value: T",
+                        "description": ""
+                    }
+                ]
+            }
         }
     ],
     "functions": [
@@ -19079,7 +21897,7 @@
         {
             "id": "introduction-ai-assistants-mcp-llms-txt",
             "title": "AI assistants (MCP, llms.txt)",
-            "text": "So that Claude, Cursor and others use the components correctly, the API is available as text and as an MCP server:\n\n- **`/llms.txt`** and **`/llms-full.txt`** in this Storybook: an overview and all props (React and Vue names),\n  hooks and these guides in one file.\n- **MCP server** `@wirecore/wirelayer-mcp` with the tools `list_components`, `get_component`, `search_components` and\n  `get_guide`:\n\n```sh\nclaude mcp add wirelayer -- npx -y -p @wirecore/wirelayer-mcp wirelayer-mcp\n```\n\nThe package is called `@wirecore/wirelayer-mcp`, the command `wirelayer-mcp` (the former name `wirecore-mcp` still works).\n\nBoth are generated from the source code (`pnpm --filter @wirecore/wirelayer-mcp collect`); a test checks that they are\nup to date."
+            "text": "So that Claude, Cursor and others use the components correctly, the API is available as text and as an MCP server:\n\n- **`/llms.txt`** and **`/llms-full.txt`** in this Storybook: an overview and all props (React and Vue names),\n  hooks and these guides in one file.\n- **In every package** (`@wirecore/wirelayer-vue`, `-react`, `-native`, `-css`): `llms.txt` and `llms-full.txt` in that\n  package's own syntax – Vue with events and slots, HTML as a class reference. Point the assistant at\n  `node_modules/@wirecore/wirelayer-vue/llms.txt` (e.g. in CLAUDE.md); they match the installed version.\n- **MCP server** `@wirecore/wirelayer-mcp` with the tools `list_components`, `get_component`, `search_components` and\n  `get_guide`:\n\n```sh\nclaude mcp add wirelayer -- npx -y -p @wirecore/wirelayer-mcp wirelayer-mcp\n```\n\nThe package is called `@wirecore/wirelayer-mcp`, the command `wirelayer-mcp` (the former name `wirecore-mcp` still works).\n\nBoth are generated from the source code (`pnpm --filter @wirecore/wirelayer-mcp collect`); a test checks that they are\nup to date."
         },
         {
             "id": "introduction-language-and-writing-direction",
@@ -32885,6 +35703,525 @@
                 "name": "validateFields",
                 "subpath": "/form",
                 "description": "Validates some fields of a TanStack form (e.g. one Wizard step) and marks them touched, so their errors show. Resolves with true when none has an error."
+            }
+        ]
+    },
+    "vue": {
+        "functions": [
+            {
+                "name": "announce",
+                "subpath": "",
+                "description": ""
+            },
+            {
+                "name": "applyEventChange",
+                "subpath": "",
+                "description": ""
+            },
+            {
+                "name": "bindCheckbox",
+                "subpath": "/form",
+                "description": "v-bind for Checkbox and Switch"
+            },
+            {
+                "name": "bindInput",
+                "subpath": "/form",
+                "description": "v-bind for the components with a string v-model: Input, Textarea, PasswordInput, SearchField, MaskInput, PhoneInput, ColorInput, JsonInput, PinInput, Mentions and Autocomplete – `<Input v-bind=\"bindInput(field)\" />`"
+            },
+            {
+                "name": "bindValue",
+                "subpath": "/form",
+                "description": "v-bind for Select, RadioGroup, ChipGroup and SegmentedControl"
+            },
+            {
+                "name": "closeAllDialogs",
+                "subpath": "",
+                "description": "Closes all dialogs of the <DialogHost />; their promises resolve with undefined"
+            },
+            {
+                "name": "codeLanguages",
+                "subpath": "/code",
+                "description": ""
+            },
+            {
+                "name": "combineValidators",
+                "subpath": "/form",
+                "description": ""
+            },
+            {
+                "name": "confirm",
+                "subpath": "",
+                "description": "Asks for confirmation in the app-wide <ConfirmDialog />. Resolves with true (confirmed) or false (cancelled, Escape, a newer confirm())."
+            },
+            {
+                "name": "createDataController",
+                "subpath": "/data-table",
+                "description": ""
+            },
+            {
+                "name": "createToaster",
+                "subpath": "",
+                "description": "A toaster of its own, e.g. for a second position on the screen: `const { toaster, toast } = createToaster({ placement: 'top' })`, rendered by `<Toaster :toaster=\"toaster\" />`."
+            },
+            {
+                "name": "createValidator",
+                "subpath": "/form",
+                "description": ""
+            },
+            {
+                "name": "dataSourceToRows",
+                "subpath": "/data-table",
+                "description": ""
+            },
+            {
+                "name": "dateInput",
+                "subpath": "/data-table",
+                "description": "DataTable feature: the DatePicker for `date` and `datetime` filters and editors (without: the browser's date input)"
+            },
+            {
+                "name": "defaultBubbleTools",
+                "subpath": "/editor",
+                "description": "Tools of the bubble menu (text selected) by default"
+            },
+            {
+                "name": "defaultEmojis",
+                "subpath": "",
+                "description": ""
+            },
+            {
+                "name": "defaultFloatingTools",
+                "subpath": "/editor",
+                "description": "Tools of the floating menu (empty line) by default"
+            },
+            {
+                "name": "defaultTools",
+                "subpath": "/editor",
+                "description": "Tools in order; '|' draws a separator"
+            },
+            {
+                "name": "defineMatchMode",
+                "subpath": "/data-table",
+                "description": ""
+            },
+            {
+                "name": "describeRecurrence",
+                "subpath": "",
+                "description": ""
+            },
+            {
+                "name": "emptyConditionGroup",
+                "subpath": "",
+                "description": ""
+            },
+            {
+                "name": "expandRecurrence",
+                "subpath": "",
+                "description": ""
+            },
+            {
+                "name": "firstError",
+                "subpath": "/form",
+                "description": "First readable message of TanStack Form errors (strings or Standard Schema issues)."
+            },
+            {
+                "name": "formatColor",
+                "subpath": "",
+                "description": ""
+            },
+            {
+                "name": "formatHotkey",
+                "subpath": "",
+                "description": ""
+            },
+            {
+                "name": "formatHotkeyText",
+                "subpath": "",
+                "description": ""
+            },
+            {
+                "name": "hasLength",
+                "subpath": "/form",
+                "description": ""
+            },
+            {
+                "name": "hotkeyRegistry",
+                "subpath": "",
+                "description": ""
+            },
+            {
+                "name": "insertTreeNode",
+                "subpath": "",
+                "description": ""
+            },
+            {
+                "name": "isEmail",
+                "subpath": "/form",
+                "description": ""
+            },
+            {
+                "name": "isIban",
+                "subpath": "/form",
+                "description": ""
+            },
+            {
+                "name": "isInRange",
+                "subpath": "/form",
+                "description": ""
+            },
+            {
+                "name": "isInteger",
+                "subpath": "/form",
+                "description": ""
+            },
+            {
+                "name": "isPhone",
+                "subpath": "/form",
+                "description": ""
+            },
+            {
+                "name": "isRequired",
+                "subpath": "/form",
+                "description": ""
+            },
+            {
+                "name": "isUrl",
+                "subpath": "/form",
+                "description": ""
+            },
+            {
+                "name": "matchesCondition",
+                "subpath": "",
+                "description": ""
+            },
+            {
+                "name": "matchesField",
+                "subpath": "/form",
+                "description": ""
+            },
+            {
+                "name": "matchesPattern",
+                "subpath": "/form",
+                "description": ""
+            },
+            {
+                "name": "moveItem",
+                "subpath": "/data-table",
+                "description": ""
+            },
+            {
+                "name": "moveTreeNode",
+                "subpath": "",
+                "description": ""
+            },
+            {
+                "name": "moveTreeRow",
+                "subpath": "/data-table",
+                "description": ""
+            },
+            {
+                "name": "navigationProgress",
+                "subpath": "",
+                "description": "Controls the app-wide <NavigationProgress />, e.g. from router hooks"
+            },
+            {
+                "name": "numberInput",
+                "subpath": "/data-table",
+                "description": "DataTable feature: the NumberInput for `number` filters and editors (without: the browser's number input)"
+            },
+            {
+                "name": "openDialog",
+                "subpath": "",
+                "description": "Opens a component in a dialog of the app-wide <DialogHost />. Resolves with what the component passes to `close(result)`, or undefined when closed with Escape or the close button. The returned promise also has `close(result)` and `update(changes)`; dialogs opened from a dialog stack on top of it."
+            },
+            {
+                "name": "parseColorText",
+                "subpath": "",
+                "description": ""
+            },
+            {
+                "name": "parseICalendar",
+                "subpath": "",
+                "description": ""
+            },
+            {
+                "name": "parseMentionMarkup",
+                "subpath": "",
+                "description": ""
+            },
+            {
+                "name": "pdfTools",
+                "subpath": "/pdf",
+                "description": ""
+            },
+            {
+                "name": "pdfZoomSteps",
+                "subpath": "/pdf",
+                "description": ""
+            },
+            {
+                "name": "phoneCountries",
+                "subpath": "",
+                "description": ""
+            },
+            {
+                "name": "prompt",
+                "subpath": "",
+                "description": "Asks for a text in the app-wide <ConfirmDialog />. Resolves with the (valid) text, or null when cancelled."
+            },
+            {
+                "name": "provideRecipes",
+                "subpath": "",
+                "description": "Adds overrides for the components below (inner ones win) – used by RecipesProvider"
+            },
+            {
+                "name": "registerLocale",
+                "subpath": "",
+                "description": ""
+            },
+            {
+                "name": "removeTreeNode",
+                "subpath": "",
+                "description": ""
+            },
+            {
+                "name": "rowsToDataSource",
+                "subpath": "/data-table",
+                "description": ""
+            },
+            {
+                "name": "toast",
+                "subpath": "",
+                "description": ""
+            },
+            {
+                "name": "toaster",
+                "subpath": "",
+                "description": ""
+            },
+            {
+                "name": "toICalendar",
+                "subpath": "",
+                "description": ""
+            },
+            {
+                "name": "toMentionMarkup",
+                "subpath": "",
+                "description": ""
+            },
+            {
+                "name": "useClipboard",
+                "subpath": "",
+                "description": "Copies text; `copied` is true for `timeout` ms afterwards (for a \"Copied\" state), `error` holds a failure"
+            },
+            {
+                "name": "useColorScheme",
+                "subpath": "",
+                "description": "The colour scheme of the system: 'light' or 'dark' ('light' on the server)"
+            },
+            {
+                "name": "useDebouncedCallback",
+                "subpath": "",
+                "description": "A function that runs `fn` once `wait` ms passed without another call – with `cancel`, `flush` and `pending`. Cancelled when the component unmounts."
+            },
+            {
+                "name": "useDebouncedValue",
+                "subpath": "",
+                "description": "A copy of `value` that follows only after `wait` ms without changes (search fields, resizing)"
+            },
+            {
+                "name": "useDisclosure",
+                "subpath": "",
+                "description": "Open/closed state of a dialog, drawer, menu …: `const { opened, open, close, toggle } = useDisclosure()`"
+            },
+            {
+                "name": "useDocumentTitle",
+                "subpath": "",
+                "description": "Sets the document title while mounted and whenever it changes (restores the previous one with `restore`)"
+            },
+            {
+                "name": "useDocumentVisibility",
+                "subpath": "",
+                "description": "'visible' or 'hidden' (another tab, minimised) – 'visible' on the server"
+            },
+            {
+                "name": "useElementSize",
+                "subpath": "",
+                "description": "Width and height of an element (content box, px; 0 until measured)"
+            },
+            {
+                "name": "useEyeDropper",
+                "subpath": "",
+                "description": "The EyeDropper API (Chromium): pick a colour anywhere on the screen; `open` resolves with the hex colour or null"
+            },
+            {
+                "name": "useFileDialog",
+                "subpath": "",
+                "description": "Opens the system's file dialog; `files` holds the last choice"
+            },
+            {
+                "name": "useFocusReturn",
+                "subpath": "",
+                "description": "Brings the focus back after a panel closes: remembers the focused element when `opened` turns true, focuses it again when it turns false. Returns the function that does it by hand."
+            },
+            {
+                "name": "useFocusTrap",
+                "subpath": "",
+                "description": "Keeps Tab inside an element while `active` (bind `ref` to it) and focuses its first control"
+            },
+            {
+                "name": "useFormErrors",
+                "subpath": "/form",
+                "description": "The errors of a TanStack form for FormErrorSummary: one entry per touched field with an error, linked to the field; `attempts` (submit attempts) refocuses the summary on every submit: `<FormErrorSummary :errors=\"summary.errors.value\" :focus-key=\"summary.attempts.value\" />`"
+            },
+            {
+                "name": "useFullscreen",
+                "subpath": "",
+                "description": "Fullscreen for an element (bind `ref` to it; without one the whole page): `fullscreen` says whether it is shown in fullscreen, `toggle` switches"
+            },
+            {
+                "name": "useHeadroom",
+                "subpath": "",
+                "description": "Headroom: true while a header should hide (scrolling down past `offset`), false when scrolling up"
+            },
+            {
+                "name": "useHotkey",
+                "subpath": "",
+                "description": "One shortcut while mounted: `useHotkey('?', openHelp, { description: 'Help' })`"
+            },
+            {
+                "name": "useHotkeys",
+                "subpath": "",
+                "description": "Shortcuts while the component is mounted: `useHotkeys([['mod+k', openSearch, { description: 'Open search' }], ['g i', goToInbox]])`. \"mod\" is Strg or ⌘; space separates the steps of a sequence. Plain keys do not fire while typing in a field (see `enableInInputs`); every entry shows up in the HotkeysDialog when it has a description. `options` apply to all entries (an entry's own options win)."
+            },
+            {
+                "name": "useIdle",
+                "subpath": "",
+                "description": "Whether the user did nothing (mouse, keyboard, touch, scroll) for `timeout` ms"
+            },
+            {
+                "name": "useIntersection",
+                "subpath": "",
+                "description": "The IntersectionObserver entry of an element (bind `ref` to it)"
+            },
+            {
+                "name": "useInterval",
+                "subpath": "",
+                "description": "Runs `fn` every `interval` ms while active (starts on mount unless `autoStart: false`)"
+            },
+            {
+                "name": "useInViewport",
+                "subpath": "",
+                "description": "Whether an element is (partly) in the viewport (bind `ref` to it)"
+            },
+            {
+                "name": "useIsApple",
+                "subpath": "",
+                "description": "Whether the device is an Apple one (⌘ instead of Strg) – false on the server and until mounted"
+            },
+            {
+                "name": "useLandmarks",
+                "subpath": "",
+                "description": "F6 / Shift+F6 jump between the landmarks of the page while mounted (header, navigation, main, aside, toasts …)"
+            },
+            {
+                "name": "useLocale",
+                "subpath": "",
+                "description": "Locale, writing direction and texts of the nearest LocaleProvider – English (en-US) without one"
+            },
+            {
+                "name": "useLocalStorage",
+                "subpath": "",
+                "description": "A JSON value in localStorage under `key`, as a ref: assigning stores it (undefined removes it), changes from other tabs and other components arrive. The default on the server and until mounted."
+            },
+            {
+                "name": "useLongPress",
+                "subpath": "",
+                "description": "Pressing and holding (`delay` ms, default 500) calls `onLongPress` – with mouse, touch and pen. Bind the returned handlers to the element: `v-bind=\"longPress\"`; the click that ends a long press is swallowed."
+            },
+            {
+                "name": "useMediaQuery",
+                "subpath": "",
+                "description": "Whether a media query matches, e.g. `useMediaQuery('(min-width: 768px)')` – updates when it changes"
+            },
+            {
+                "name": "useNetwork",
+                "subpath": "",
+                "description": "Online state and connection quality (where the browser tells) – online on the server"
+            },
+            {
+                "name": "useRecipe",
+                "subpath": "",
+                "description": "The recipe with the defaults and classes of the nearest RecipesProvider and the component's `classes` prop. Call it in setup; it reads both on every call, so a computed or render that calls it follows changes."
+            },
+            {
+                "name": "useReducedMotion",
+                "subpath": "",
+                "description": "Whether the user asked for less motion (prefers-reduced-motion: reduce)"
+            },
+            {
+                "name": "useRegisteredHotkeys",
+                "subpath": "",
+                "description": "The registered shortcuts (enabled, with a description), updated as components register them"
+            },
+            {
+                "name": "useResizeObserver",
+                "subpath": "",
+                "description": "The content box of an element as it changes (bind `ref` to it)"
+            },
+            {
+                "name": "useScrollSpy",
+                "subpath": "",
+                "description": "The id of the section being read: the last of `ids` whose top passed `offset` px (e.g. a sticky header) – for a table of contents"
+            },
+            {
+                "name": "useSelection",
+                "subpath": "",
+                "description": "Selected items of a list: toggle, select all, clear – with \"all\"/\"some\" for a header checkbox"
+            },
+            {
+                "name": "useSessionStorage",
+                "subpath": "",
+                "description": "Like useLocalStorage, in sessionStorage (this tab only, gone when it closes)"
+            },
+            {
+                "name": "useStateHistory",
+                "subpath": "",
+                "description": "A value with undo and redo: `set` adds a step, `undo`/`redo` move through them"
+            },
+            {
+                "name": "useThrottledCallback",
+                "subpath": "",
+                "description": "A function that runs `fn` at most once per `wait` ms (scroll, pointer move)"
+            },
+            {
+                "name": "useTimeout",
+                "subpath": "",
+                "description": "Runs `fn` once after `delay` ms when started (on mount with `autoStart`)"
+            },
+            {
+                "name": "useTranslations",
+                "subpath": "",
+                "description": "Texts of the nearest LocaleProvider; `const t = translations.dataTable` stays current, too"
+            },
+            {
+                "name": "useValidators",
+                "subpath": "/form",
+                "description": "The validators with the texts and number format of the nearest LocaleProvider: `const v = useValidators()`, then `validators: { onChange: v.combine(v.isRequired(), v.isEmail()) }`. Each validator is a Standard Schema, so TanStack Form takes it directly."
+            },
+            {
+                "name": "useWindowScroll",
+                "subpath": "",
+                "description": "Scroll position of the window and `scrollTo` (0 on the server)"
+            },
+            {
+                "name": "validateFields",
+                "subpath": "/form",
+                "description": "Validates some fields of a TanStack form (e.g. one Wizard step) and marks them touched, so their errors show. Resolves with true when none has an error."
+            },
+            {
+                "name": "virtualRows",
+                "subpath": "/virtual",
+                "description": "DataTable feature: only the visible rows are rendered with `virtual` – `<DataTable :features=\"[virtualRows]\" virtual>`"
             }
         ]
     }

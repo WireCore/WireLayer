@@ -31,6 +31,10 @@ With your own Tailwind build:
 
 The bundled fonts are licensed under the SIL Open Font License 1.1 (`dist/fonts/OFL.txt`), see [THIRD_PARTY_NOTICES.md](./THIRD_PARTY_NOTICES.md).
 
+## AI assistants
+
+`llms.txt` (overview) and `llms-full.txt` (the class reference: every component with its parts and modifiers and the guides) ship with the package – point your assistant at `node_modules/@wirecore/wirelayer-css/llms.txt`, e.g. in your CLAUDE.md or AGENTS.md. Or the MCP server [`@wirecore/wirelayer-mcp`](https://www.npmjs.com/package/@wirecore/wirelayer-mcp): `claude mcp add wirelayer -- npx -y -p @wirecore/wirelayer-mcp wirelayer-mcp`.
+
 Part of [WireLayer](https://github.com/WireCore/WireLayer) – one look and one API for Vue, React, React Native and HTML, accessible according to WCAG 2.2 AA.
 
 ## License

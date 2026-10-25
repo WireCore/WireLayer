@@ -13,6 +13,8 @@ const HOVER_OPACITY = 0.85;
 const HOVER_OPACITY_LIGHT_FILL = 0.9;
 /** Tinted ("soft") buttons: `bg-<colour>/10`, on hover `/14` (the tint of badges and alert icons). */
 const SOFT_HOVER_TINT = 0.14;
+/** Tinted avatar as a button (`color`, `as="button"`): 14 % of the colour on the card, on hover 18 % */
+const AVATAR_HOVER_TINT = 0.18;
 /**
  * Editor colours – must match `editorColorTokens`/`editorColorValue` in @wirecore/wirelayer-recipes: text moved 25 % towards
  * `fg` (`color-mix(in srgb …)`), backgrounds as a 20 % tint.
@@ -125,6 +127,15 @@ export function contrastPairs(colors: ColorSet): ContrastResult[] {
                     on(tone, surface, SOFT_HOVER_TINT),
                     TEXT
                 )
+            )
+        ),
+        // Tinted avatar buttons on hover (the avatar mixes its tint with the card)
+        ...(['primary', ...statuses] as const).map((tone) =>
+            pair(
+                `avatar ${tone} hover: text-${tone} on ${tone}/18 (card)`,
+                color(tone),
+                on(tone, 'card', AVATAR_HOVER_TINT),
+                TEXT
             )
         ),
         // Outline/text buttons in a colour: hover tint /8 on every surface

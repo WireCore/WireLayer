@@ -68,3 +68,34 @@ export const Playground: Story = {
             </TopBar>`,
     }),
 };
+
+/**
+ * Triggers side by side: the app switcher (IconButton, outline) and the user menu (Avatar as a button, outline) – both
+ * 40 px with the same hover, so they read as one set
+ */
+export const AppSwitcherAndUserMenu: Story = {
+    render: () => ({
+        components: { Avatar, IconButton, Menu, TopBar },
+        setup: () => ({
+            LayoutGrid,
+            appMenu: [
+                { value: 'mail', label: 'Mail' },
+                { value: 'files', label: 'Files' },
+            ],
+            account: [
+                { value: 'settings', label: 'Settings', icon: Settings },
+                { value: 'logout', label: 'Sign out', icon: LogOut },
+            ],
+        }),
+        template: `
+            <TopBar>
+                <template #start><span class="text-sm font-semibold">Console</span></template>
+                <template #end>
+                    <Menu :items="appMenu" placement="bottom-end"><IconButton :icon="LayoutGrid" label="Apps" /></Menu>
+                    <Menu :items="account" placement="bottom-end" arrow>
+                        <Avatar as="button" variant="outline" name="Julia Klein" />
+                    </Menu>
+                </template>
+            </TopBar>`,
+    }),
+};

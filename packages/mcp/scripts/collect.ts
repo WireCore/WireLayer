@@ -1,7 +1,7 @@
 // Collects the component API for AI tools: exported components of @wirecore/wirelayer-react (and of @wirecore/wirelayer-native, the
-// React Native components) with their props and doc comments, the Storybook category of each, and the guide sections
-// of the docs. Writes
-//   packages/mcp/data/components.json        – read by the MCP server
+// React Native components) with their props and doc comments, the slots and events of the Vue components, the Storybook
+// category of each, and the guide sections of the docs. Writes
+//   packages/mcp/data/components.json        – read by the MCP server and by the llms.txt of the component packages
 //   apps/storybook/public/llms.txt           – index (llmstxt.org), served with the docs Storybook
 //   apps/storybook/public/llms-full.txt      – everything in one file
 // `node scripts/collect.ts --check` only compares (test and CI): the files must be up to date.
@@ -9,10 +9,11 @@ import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import ts from 'typescript';
-import { importPath, vueName } from '../src/tools.ts';
+import { llmsFull, llmsIndex, stripMdx } from './render.ts';
 
 const root = fileURLToPath(new URL('../../..', import.meta.url));
 const react = join(root, 'packages/react/src');
+const vue = join(root, 'packages/vue/src');
 const native = join(root, 'packages/native/src');
 const blocks = join(root, 'packages/blocks-react/src');
 
@@ -20,6 +21,20 @@ export interface PropInfo {
     name: string;
     type: string;
     optional: boolean;
+    description: string;
+}
+
+/** A slot of a Vue component (`#name`), with the type of its slot props */
+export interface SlotInfo {
+    name: string;
+    props: string;
+    description: string;
+}
+
+/** An event of a Vue component (`@name`), with its payload */
+export interface EventInfo {
+    name: string;
+    payload: string;
     description: string;
 }
 
@@ -36,6 +51,8 @@ export interface ComponentInfo {
     props: PropInfo[];
     /** "blocks": from @wirecore/wirelayer-blocks-react / @wirecore/wirelayer-blocks-vue (page sections, ConditionBuilder …) */
     package?: 'blocks';
+    /** Slots and events of the Vue component (defineSlots/defineEmits), when it declares any */
+    vue?: { slots: SlotInfo[]; events: EventInfo[] };
 }
 
 export interface Guide {
@@ -50,6 +67,8 @@ export interface Collected {
     guides: Guide[];
     /** React Native (@wirecore/wirelayer-native): subpaths relative to "@wirecore/wirelayer-native", stories in the native Storybook */
     native: { components: ComponentInfo[]; functions: { name: string; subpath: string; description: string }[] };
+    /** Functions and composables of @wirecore/wirelayer-vue (the components are the ones above) */
+    vue: { functions: { name: string; subpath: string; description: string }[] };
 }
 
 const nativeEntries: Record<string, string> = {
@@ -101,14 +120,18 @@ function resolveModule(from: string, specifier: string) {
     return ['.tsx', '.ts', '.vue'].map((extension) => base + extension).find((file) => existsSync(file));
 }
 
-/** The first template comment of the Vue component – most Vue components describe themselves there */
-function vueComment(reactFile: string, component: string) {
-    const vueFile = join(
+/** The .vue file of a component next to its React counterpart (blocks-react → blocks-vue) */
+const vueFileOf = (reactFile: string, component: string) =>
+    join(
         dirname(reactFile)
             .replace('/packages/react/', '/packages/vue/')
             .replace('/packages/blocks-react/', '/packages/blocks-vue/'),
         `${component}.vue`
     );
+
+/** The first template comment of the Vue component – most Vue components describe themselves there */
+function vueComment(reactFile: string, component: string) {
+    const vueFile = vueFileOf(reactFile, component);
     if (!existsSync(vueFile)) return '';
     const template = readFileSync(vueFile, 'utf8').split('<template>')[1] ?? '';
     return (
@@ -117,6 +140,76 @@ function vueComment(reactFile: string, component: string) {
             ?.replace(/\s+/g, ' ')
             .trim() ?? ''
     );
+}
+
+const oneLine = (text: string) => text.replace(/\s+/g, ' ').trim();
+
+/** Slots and events the Vue component declares with defineSlots<{…}> and defineEmits<{…}> */
+function vueApi(reactFile: string, component: string): ComponentInfo['vue'] {
+    const vueFile = vueFileOf(reactFile, component);
+    if (!existsSync(vueFile)) return undefined;
+    const script = readFileSync(vueFile, 'utf8').match(/<script setup[^>]*>([\s\S]*?)<\/script>/)?.[1];
+    if (!script) return undefined;
+    const file = ts.createSourceFile(vueFile, script, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS);
+    const slots: SlotInfo[] = [];
+    const events: EventInfo[] = [];
+    // The members of `{ … }` or `{ … } & { … }`
+    const members = (type: ts.TypeNode): ts.TypeElement[] =>
+        ts.isTypeLiteralNode(type)
+            ? [...type.members]
+            : ts.isIntersectionTypeNode(type)
+              ? type.types.flatMap(members)
+              : ts.isParenthesizedTypeNode(type)
+                ? members(type.type)
+                : [];
+    const nameOf = (member: ts.TypeElement) => {
+        // [cell: `cell-${string}`] → cell-<id>
+        if (ts.isIndexSignatureDeclaration(member))
+            return (member.parameters[0]?.type?.getText(file) ?? '')
+                .replace(/^`|`$/g, '')
+                .replace(/\$\{string\}/g, '<id>');
+        return member.name?.getText(file).replace(/^'|'$/g, '') ?? '';
+    };
+    // item?(props: {…}): unknown · item?: (props: {…}) => unknown · [x: `x-${string}`]: (props: {…}) => unknown
+    const slotProps = (member: ts.TypeElement) => {
+        const signature = ts.isMethodSignature(member)
+            ? member
+            : (ts.isPropertySignature(member) || ts.isIndexSignatureDeclaration(member)) &&
+                member.type &&
+                ts.isFunctionTypeNode(member.type)
+              ? member.type
+              : undefined;
+        return oneLine(signature?.parameters[0]?.type?.getText(file) ?? '');
+    };
+    // 'update:modelValue': [value: string] → value: string
+    const payload = (member: ts.TypeElement) =>
+        ts.isPropertySignature(member) && member.type && ts.isTupleTypeNode(member.type)
+            ? oneLine(member.type.elements.map((element) => element.getText(file)).join(', '))
+            : '';
+    const visit = (node: ts.Node) => {
+        if (ts.isCallExpression(node) && ts.isIdentifier(node.expression) && node.typeArguments?.[0]) {
+            const kind = node.expression.text;
+            if (kind === 'defineSlots')
+                for (const member of members(node.typeArguments[0]))
+                    slots.push({ name: nameOf(member), props: slotProps(member), description: docOf(member) });
+            if (kind === 'defineEmits')
+                for (const member of members(node.typeArguments[0]))
+                    events.push({ name: nameOf(member), payload: payload(member), description: docOf(member) });
+            // defineModel<string>() (Input, Textarea, PasswordInput): v-model without a declared emit
+            if (kind === 'defineModel') {
+                const model =
+                    node.arguments[0] && ts.isStringLiteral(node.arguments[0]) ? node.arguments[0].text : 'modelValue';
+                events.push({
+                    name: `update:${model}`,
+                    payload: `value: ${oneLine(node.typeArguments[0].getText(file))}`,
+                    description: '',
+                });
+            }
+        }
+        node.forEachChild(visit);
+    };
+    visit(file);
+    return slots.length || events.length ? { slots, events } : undefined;
 }
 
 const memberProps = (file: ts.SourceFile, node: ts.InterfaceDeclaration): PropInfo[] =>
@@ -234,6 +327,7 @@ function collectComponents(base = react, list = entries, inline = false) {
                             story: null,
                             extends: heritage,
                             props,
+                            ...(inline ? {} : { vue: vueApi(source.fileName, name) }),
                         });
                     } else functions.push({ name, subpath, description: docOf(node) });
                 }
@@ -270,6 +364,7 @@ function collectComponents(base = react, list = entries, inline = false) {
                         story: null,
                         extends: heritage,
                         props,
+                        ...(inline ? {} : { vue: vueApi(module.fileName, name) }),
                     });
                 }
             });
@@ -335,18 +430,6 @@ function collectStories(base = react) {
     return stories;
 }
 
-/** Removes MDX imports and blocks – lines inside fenced code blocks stay as they are */
-export function stripMdx(text: string) {
-    let fence = false;
-    return text
-        .split('\n')
-        .filter((line) => {
-            if (/^\s*(```|~~~)/.test(line)) fence = !fence;
-            return fence || !/^import |^<Meta|^<\w+ ?\/>$/.test(line);
-        })
-        .join('\n');
-}
-
 /** Sections (##) of the docs pages, without MDX imports and blocks */
 function collectGuides(): Guide[] {
     const docs = join(root, 'apps/storybook/src');
@@ -398,141 +481,9 @@ export function collect(): Collected {
     const nativeData = collectComponents(native, nativeEntries, true);
     withStories(nativeData.components, collectStories(native));
     nativeData.functions.sort((a, b) => a.name.localeCompare(b.name));
-    return { components, functions, guides: collectGuides(), native: nativeData };
-}
-
-export function componentText(component: ComponentInfo, storybook = '') {
-    const names = component.props.map((prop) => prop.name);
-    const lines = [
-        `### ${component.name}`,
-        '',
-        component.description || '(no description)',
-        '',
-        `- Import: \`import { ${component.name} } from '${importPath(component, 'react')}'\` · Vue: \`${importPath(component, 'vue')}\``,
-        component.category ? `- Category: ${component.category}` : '',
-        component.story ? `- Story: ${storybook}?path=/story/react_${component.story}` : '',
-        component.extends ? `- Also takes: ${component.extends}` : '',
-        '',
-        '| Prop (React) | Vue | Type | Description |',
-        '| --- | --- | --- | --- |',
-        ...component.props.map(
-            (prop) =>
-                `| ${prop.name}${prop.optional ? '?' : ''} | ${vueName(prop.name, names)} | \`${prop.type.replaceAll('|', '\\|')}\` | ${prop.description.replaceAll('|', '\\|')} |`
-        ),
-    ];
-    return lines.filter((line, index) => line !== '' || lines[index - 1] !== '').join('\n');
-}
-
-/** One React Native component: import from @wirecore/wirelayer-native, the props as they are (no Vue names) */
-export function nativeComponentText(component: ComponentInfo, storybook = '') {
-    const lines = [
-        `### ${component.name} (React Native)`,
-        '',
-        component.description || '(no description)',
-        '',
-        `- Import: \`import { ${component.name} } from '@wirecore/wirelayer-native${component.subpath}'\``,
-        component.category ? `- Category: ${component.category}` : '',
-        component.story ? `- Story: ${storybook}?path=/story/native_${component.story}` : '',
-        component.extends ? `- Also takes: ${component.extends}` : '',
-        '',
-        '| Prop | Type | Description |',
-        '| --- | --- | --- |',
-        ...component.props.map(
-            (prop) =>
-                `| ${prop.name}${prop.optional ? '?' : ''} | \`${prop.type.replaceAll('|', '\\|')}\` | ${prop.description.replaceAll('|', '\\|')} |`
-        ),
-    ];
-    return lines.filter((line, index) => line !== '' || lines[index - 1] !== '').join('\n');
-}
-
-const nativeIntro =
-    'React Native (Expo) components with Uniwind: same prop names and values as the React components where they fit on a phone – pickers open as bottom sheets, touch targets are at least 44 pt, no hover, gestures always with accessibility actions. Forms with TanStack Form via `@wirecore/wirelayer-native/form`; DataTable (no TanStack; table or cards per row) via `@wirecore/wirelayer-native/data-table`; charts drawn with react-native-svg (no Chart.js) via `@wirecore/wirelayer-native/chart`; PdfViewer on react-native-pdf (development build, not Expo Go) via `@wirecore/wirelayer-native/pdf`; CodeHighlight with Shiki via `@wirecore/wirelayer-native/code`; file pickers via `@wirecore/wirelayer-native/expo-document-picker` and `@wirecore/wirelayer-native/expo-image-picker`, `useClipboard` via `@wirecore/wirelayer-native/expo-clipboard`, `shareFile`/`shareUri` (DataTable export, PDFs) via `@wirecore/wirelayer-native/expo-sharing` (optional peer dependencies). Overlays: Dialog, Drawer (from every edge), Menu and ContextMenu as sheets, Popover next to its trigger; `toast()`, `confirm()`, `prompt()` and `openDialog()` need `<Toaster />`, `<ConfirmDialog />` and `<DialogHost />` once at the root.';
-
-const intro =
-    'WireLayer: a component library for Vue 3 (@wirecore/wirelayer-vue), React (@wirecore/wirelayer-react), React Native (@wirecore/wirelayer-native) and plain HTML (@wirecore/wirelayer-css). Vue and React share the same API and DOM; Tailwind CSS v4 recipes in @wirecore/wirelayer-recipes; WCAG 2.2 AA; English UI texts by default, German and other languages via LocaleProvider.';
-const conventions = [
-    '## Conventions',
-    '',
-    '- React props in camelCase; Vue takes the same props in kebab-case. Controlled values: React `value` + `onValueChange`, Vue `v-model`; other `onXChange` pairs are `v-model:x` in Vue, other callbacks `@x` events.',
-    '- `className` (React) is `class` (Vue). Every component takes `classes` (extra Tailwind classes per part) and reads defaults from `RecipesProvider`.',
-    '- Content: React props of type ReactNode/render functions are named slots in Vue (e.g. DataTable `cell` → `#cell-<id>`, `expansion` → `#expansion`).',
-    "- DataTable feature modules in `features` (only these end up in the bundle): `virtualRows` from `@wirecore/wirelayer-react/virtual` for `virtual`; `dateInput` and `numberInput` from `@wirecore/wirelayer-react/data-table` for DatePicker/NumberInput in date and number filters and editors (without them: the browser's inputs). Vue: the same from `@wirecore/wirelayer-vue/…`.",
-    '- Texts come from `LocaleProvider` (en-US built in; de, fr, es, it, pt, pt-BR, nl, pl, cs, hu, lv, ar, tr via `registerLocale(\'fr\', fr)` with `fr` from `@wirecore/wirelayer-vue/locales/fr` or `@wirecore/wirelayer-react/locales/fr`); dates are ISO strings ("2026-10-20", "2026-10-20T10:00").',
-].join('\n');
-
-export function llmsIndex(data: Collected, storybook = '') {
-    const byCategory = new Map<string, ComponentInfo[]>();
-    for (const component of data.components) {
-        const list = byCategory.get(component.category || 'Other') ?? [];
-        list.push(component);
-        byCategory.set(component.category || 'Other', list);
-    }
-    return [
-        '# WireLayer',
-        '',
-        `> ${intro}`,
-        '',
-        'Full API in llms-full.txt; MCP server: `npx -y -p @wirecore/wirelayer-mcp wirelayer-mcp` (tools list_components, get_component, search_components, get_guide).',
-        '',
-        conventions,
-        '',
-        ...[...byCategory].flatMap(([category, components]) => [
-            `## ${category}`,
-            '',
-            ...components.map(
-                (component) =>
-                    `- ${component.story ? `[${component.name}](${storybook}?path=/story/react_${component.story})` : component.name}: ${component.description || '–'} (\`${importPath(component, 'react')}\`)`
-            ),
-            '',
-        ]),
-        '## React Native (@wirecore/wirelayer-native)',
-        '',
-        nativeIntro,
-        '',
-        ...data.native.components.map(
-            (component) =>
-                `- ${component.story ? `[${component.name}](${storybook}?path=/story/native_${component.story})` : component.name}: ${component.description || '–'} (\`@wirecore/wirelayer-native${component.subpath}\`)`
-        ),
-        '',
-        '## Guides',
-        '',
-        ...data.guides.map((guide) => `- ${guide.title} (${guide.id})`),
-        '',
-    ].join('\n');
-}
-
-export function llmsFull(data: Collected, storybook = '') {
-    return [
-        '# WireLayer – full API',
-        '',
-        `> ${intro}`,
-        '',
-        conventions,
-        '',
-        '## Components',
-        '',
-        ...data.components.map((component) => `${componentText(component, storybook)}\n`),
-        '## Functions and hooks',
-        '',
-        ...data.functions.map(
-            (fn) => `- \`${fn.name}\` (\`@wirecore/wirelayer-react${fn.subpath}\`): ${fn.description || '–'}`
-        ),
-        '',
-        '## React Native components (@wirecore/wirelayer-native)',
-        '',
-        nativeIntro,
-        '',
-        ...data.native.components.map((component) => `${nativeComponentText(component, storybook)}\n`),
-        '## React Native functions and hooks',
-        '',
-        ...data.native.functions.map(
-            (fn) => `- \`${fn.name}\` (\`@wirecore/wirelayer-native${fn.subpath}\`): ${fn.description || '–'}`
-        ),
-        '',
-        '## Guides',
-        '',
-        ...data.guides.map((guide) => `### ${guide.title}\n\n${guide.text}\n`),
-    ].join('\n');
+    // Vue: only the functions – its components are .vue files and share the React entries above
+    const vueFunctions = collectComponents(vue).functions.sort((a, b) => a.name.localeCompare(b.name));
+    return { components, functions, guides: collectGuides(), native: nativeData, vue: { functions: vueFunctions } };
 }
 
 const outputs = (data: Collected) => ({
@@ -564,4 +515,4 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
     }
 }
 
-export { outputs };
+export { outputs, stripMdx };

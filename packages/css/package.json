@@ -23,7 +23,9 @@
     },
     "files": [
         "dist",
-        "THIRD_PARTY_NOTICES.md"
+        "THIRD_PARTY_NOTICES.md",
+        "llms.txt",
+        "llms-full.txt"
     ],
     "scripts": {
         "build": "node scripts/build.ts",

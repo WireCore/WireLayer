@@ -7,6 +7,20 @@ export interface PropInfo {
     description: string;
 }
 
+/** A slot of a Vue component (`#name`), with the type of its slot props */
+export interface SlotInfo {
+    name: string;
+    props: string;
+    description: string;
+}
+
+/** An event of a Vue component (`@name`), with its payload */
+export interface EventInfo {
+    name: string;
+    payload: string;
+    description: string;
+}
+
 export interface ComponentInfo {
     name: string;
     subpath: string;
@@ -17,6 +31,8 @@ export interface ComponentInfo {
     props: PropInfo[];
     /** "blocks": from @wirecore/wirelayer-blocks-react / @wirecore/wirelayer-blocks-vue instead of @wirecore/wirelayer-react / @wirecore/wirelayer-vue */
     package?: 'blocks';
+    /** Slots and events of the Vue component, when it declares any */
+    vue?: { slots: SlotInfo[]; events: EventInfo[] };
 }
 
 /** Import path of a web component for React or Vue */
@@ -31,12 +47,21 @@ export interface Collected {
     guides: { id: string; title: string; text: string }[];
     /** React Native components of @wirecore/wirelayer-native */
     native?: { components: ComponentInfo[]; functions: { name: string; subpath: string; description: string }[] };
+    /** Functions and composables of @wirecore/wirelayer-vue */
+    vue?: { functions: { name: string; subpath: string; description: string }[] };
 }
 
 /** Web (Vue and React) or React Native */
 export type Framework = 'web' | 'native';
 
-const kebab = (value: string) => value.replace(/[A-Z]/g, (char) => `-${char.toLowerCase()}`);
+export const kebab = (value: string) => value.replace(/[A-Z]/g, (char) => `-${char.toLowerCase()}`);
+
+/** How a Vue event is used in a template: update:modelValue → v-model, update:open → v-model:open, filterChange → @filter-change */
+export function vueEvent(name: string) {
+    const model = name.match(/^update:(.+)$/)?.[1];
+    if (model) return model === 'modelValue' ? 'v-model' : `v-model:${kebab(model)}`;
+    return `@${kebab(name)}`;
+}
 
 /** Vue name of a React prop: className → class, value/onValueChange → v-model, onX → @x */
 export function vueName(prop: string, props: string[]) {
@@ -122,6 +147,26 @@ export function createTools(data: Collected) {
                     (prop) =>
                         `- ${prop.name}${prop.optional ? '?' : ''} → ${vueName(prop.name, names)}: ${prop.type}${prop.description ? ` – ${prop.description}` : ''}`
                 ),
+                ...(component.vue?.events.length
+                    ? [
+                          '',
+                          'Vue events (in the template: payload – description):',
+                          ...component.vue.events.map(
+                              (event) =>
+                                  `- ${vueEvent(event.name)}: ${event.payload || '–'}${event.description ? ` – ${event.description}` : ''}`
+                          ),
+                      ]
+                    : []),
+                ...(component.vue?.slots.length
+                    ? [
+                          '',
+                          'Vue slots (#name: slot props – description; React: the props of type ReactNode or render functions):',
+                          ...component.vue.slots.map(
+                              (slot) =>
+                                  `- #${slot.name}: ${slot.props || '–'}${slot.description ? ` – ${slot.description}` : ''}`
+                          ),
+                      ]
+                    : []),
             ]
                 .filter((entry, index, all) => entry !== '' || all[index - 1] !== '')
                 .join('\n');
