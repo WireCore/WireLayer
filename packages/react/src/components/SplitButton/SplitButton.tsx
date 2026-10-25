@@ -19,7 +19,7 @@ export interface SplitButtonProps {
     /** Label of the main action */
     label: string;
     /** The other actions in the menu */
-    items: MenuEntry[];
+    items: readonly MenuEntry[];
     variant?: Exclude<ButtonVariant, 'link' | 'text'>;
     /** Colour combined with the variant, like Button `color` (e.g. outline in danger) */
     color?: ButtonColor;

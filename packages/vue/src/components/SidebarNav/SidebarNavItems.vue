@@ -9,7 +9,7 @@ import { useRecipe } from '../../recipes.js';
 
 defineOptions({ name: 'SidebarNavItems' });
 const props = defineProps<{
-    items: SidebarNavItem[];
+    items: readonly SidebarNavItem[];
     depth: number;
     rail?: boolean;
     expandOnHover?: boolean;

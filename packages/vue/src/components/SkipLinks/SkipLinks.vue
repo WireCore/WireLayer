@@ -12,7 +12,7 @@ export interface SkipLink {
 }
 
 export interface SkipLinksProps {
-    links: SkipLink[];
+    links: readonly SkipLink[];
     /** Accessible name of the navigation (default "Skip links") */
     label?: string;
     /** Extra classes per part of the component, e.g. { base: "…" } (see the recipe) */

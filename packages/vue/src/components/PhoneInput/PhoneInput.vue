@@ -30,7 +30,7 @@ export interface PhoneInputProps {
     /** Country before anything is chosen (default "DE") */
     defaultCountry?: string;
     /** Countries to offer (default: about 60 common ones; extend with your own entries) */
-    countries?: PhoneCountry[];
+    countries?: readonly PhoneCountry[];
     /** Accessible name of the country select (default "Country") */
     countryLabel?: string;
     placeholder?: string;

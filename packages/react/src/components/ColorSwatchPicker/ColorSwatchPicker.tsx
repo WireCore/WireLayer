@@ -15,7 +15,7 @@ export interface ColorSwatch {
 
 export interface ColorSwatchPickerProps extends Omit<ComponentProps<'div'>, 'defaultValue' | 'dir' | 'children'> {
     /** The colours to choose from */
-    items: ColorSwatch[];
+    items: readonly ColorSwatch[];
     /** Chosen colour (its value, controlled) */
     value?: string | null;
     defaultValue?: string | null;

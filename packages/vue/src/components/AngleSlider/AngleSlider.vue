@@ -15,7 +15,7 @@ export interface AngleSliderProps {
     /** Visible label, also the accessible name (or a surrounding Field, or aria-label) */
     label?: string;
     /** Tick marks at these angles, e.g. [0, 90, 180, 270] */
-    marks?: number[];
+    marks?: readonly number[];
     /** Shows the value below the dial (default true) */
     showValue?: boolean;
     /** Shown and announced text of the value (default "45°" shown, "45 degrees" announced) */

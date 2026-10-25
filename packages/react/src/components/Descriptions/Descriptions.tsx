@@ -17,7 +17,7 @@ export interface DescriptionsItem {
 }
 
 export interface DescriptionsProps extends Omit<ComponentProps<'div'>, 'title'> {
-    items: DescriptionsItem[];
+    items: readonly DescriptionsItem[];
     /** Heading above the list */
     title?: string;
     /** Level of the title (default 3) */

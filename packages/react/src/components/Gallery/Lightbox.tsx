@@ -43,7 +43,7 @@ export function GalleryLightbox({
     page,
     onPageChange,
 }: {
-    images: GalleryImage[];
+    images: readonly GalleryImage[];
     label: string;
     page: number;
     onPageChange: (page: number) => void;

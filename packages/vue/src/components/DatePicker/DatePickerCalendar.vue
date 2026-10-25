@@ -5,11 +5,11 @@ import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import DatePickerViews, { type CalendarPreset, type CalendarViewOptions } from './DatePickerViews.vue';
 import { useRecipe } from '../../recipes.js';
 
-const props = defineProps<{ presets?: CalendarPreset[]; responsive?: boolean } & CalendarViewOptions>();
+const props = defineProps<{ presets?: readonly CalendarPreset[]; responsive?: boolean } & CalendarViewOptions>();
 defineSlots<{ day?(props: { date: string } & CalendarDayState): unknown }>();
 const datePicker = useRecipe('datePicker', datePickerRecipe);
 const styles = datePicker();
-const views = computed<{ presets?: CalendarPreset[] } & CalendarViewOptions>(() => ({
+const views = computed<{ presets?: readonly CalendarPreset[] } & CalendarViewOptions>(() => ({
     presets: props.presets,
     showWeekNumbers: props.showWeekNumbers,
     numberOfMonths: props.numberOfMonths,

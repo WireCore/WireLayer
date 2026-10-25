@@ -12,13 +12,13 @@ export const SUBMENU_GUTTER = 9;
 
 /** Floating list of options – Select, MultiSelect, Combobox */
 export const listboxContent = [
-    'flex max-h-72 flex-col overflow-y-auto rounded-[10px] border border-line-2 bg-card p-1 text-fg outline-none',
+    'flex max-h-72 flex-col overflow-y-auto rounded-popup border border-line-2 bg-card p-1 text-fg outline-none',
     'shadow-[0_14px_32px_-12px_rgba(0,0,0,.45)]',
     ...popupMotion,
 ];
 
 export const listboxItem = [
-    'flex h-9 shrink-0 cursor-pointer items-center gap-2 rounded-md px-2.5 text-sm',
+    'flex h-9 shrink-0 cursor-pointer items-center gap-2 rounded-lg px-2.5 text-sm',
     'data-highlighted:bg-line data-[state=checked]:bg-line data-disabled:cursor-not-allowed data-disabled:opacity-40',
     'forced-colors:data-highlighted:forced-color-adjust-none forced-colors:data-highlighted:bg-[Highlight] forced-colors:data-highlighted:text-[HighlightText]',
 ];

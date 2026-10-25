@@ -23,7 +23,7 @@ export interface ProgressProps {
     /** Formats the value text (shown and announced) */
     valueText?: (percent: number) => string;
     /** Several parts in one bar (their sum is the value); a legend names them */
-    segments?: ProgressSegment[];
+    segments?: readonly ProgressSegment[];
     /** Shows the progress as this many blocks (e.g. steps of a wizard) */
     steps?: number;
     /** Diagonal stripes on the filled part */

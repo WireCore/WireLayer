@@ -16,7 +16,7 @@ export interface FilterChip {
 
 export interface FilterChipsProps {
     /** The active filters */
-    filters: FilterChip[];
+    filters: readonly FilterChip[];
     /** Accessible name of the list (default "Active filters") */
     label?: string;
     /** Text of the reset button (default "Reset all"); `false` hides it */

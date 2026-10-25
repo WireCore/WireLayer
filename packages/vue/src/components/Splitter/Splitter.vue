@@ -24,7 +24,7 @@ export interface SplitterPanel {
 }
 
 export interface SplitterProps {
-    panels: SplitterPanel[];
+    panels: readonly SplitterPanel[];
     orientation?: 'horizontal' | 'vertical';
     /** Arrow keys on a handle change the size by this many percent (default 1) */
     step?: number;

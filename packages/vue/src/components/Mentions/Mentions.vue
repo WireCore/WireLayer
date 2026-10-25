@@ -41,7 +41,7 @@ export interface MentionsProps<T = unknown> {
     /** Entries are being loaded (after the search event): the list shows "Loading" */
     loading?: boolean;
     /** Several trigger characters with their own entries (replaces items/dataSource) */
-    triggers?: MentionTrigger<T>[];
+    triggers?: readonly MentionTrigger<T>[];
     /** Text of an entry: property name or function (default `label`) */
     itemLabel?: ItemAccessor<T, string>;
     /** Id of an entry in the markup: property name or function (default `value`, else `id`) */
@@ -93,7 +93,7 @@ const hintId = `${id}hint`;
 const textarea = useTemplateRef<HTMLTextAreaElement>('textarea');
 const highlighter = useTemplateRef<HTMLDivElement>('highlighter');
 
-const triggerList = computed<MentionTrigger<T>[]>(
+const triggerList = computed<readonly MentionTrigger<T>[]>(
     () => props.triggers ?? [{ char: '@', items: props.items, dataSource: props.dataSource }]
 );
 const chars = computed(() => triggerList.value.map((trigger) => trigger.char));

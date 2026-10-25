@@ -4,6 +4,8 @@ import { Portal } from '@ark-ui/react/portal';
 import {
     filterMenuEntries,
     highlightFirstMenuItem,
+    linkTarget,
+    type LinkTo,
     menu as menuRecipe,
     menuSearchKey,
     type OverlayHandle,
@@ -27,6 +29,7 @@ import type { IconComponent } from '../../types.js';
 import { useTranslations } from '../LocaleProvider/LocaleProvider.js';
 import { useRecipe } from '../RecipesProvider/RecipesProvider.js';
 import { useAnchoredOverlay, type AnchorProp } from '../../overlay.js';
+import type { PopoverPlacement } from '../Popover/Popover.js';
 
 export interface MenuItem {
     value: string;
@@ -42,6 +45,8 @@ export interface MenuItem {
     children?: MenuEntry[];
     /** Link target – the item is a link (rendered with the menu's `linkAs`, e.g. a router link) */
     href?: string;
+    /** Router target instead of `href`, passed as `to` to `linkAs` (e.g. RouterLink, React Router or TanStack Link) */
+    to?: LinkTo;
     /** Closes the menu when chosen (default true) */
     closeOnSelect?: boolean;
 }
@@ -78,14 +83,14 @@ export interface MenuRadioGroup {
     label?: string;
     /** Initially chosen value */
     value?: string;
-    items: MenuRadioItem[];
+    items: readonly MenuRadioItem[];
 }
 
 /** Items under a heading */
 export interface MenuGroup {
     type: 'group';
     label: string;
-    items: MenuEntry[];
+    items: readonly MenuEntry[];
 }
 
 export interface MenuSeparator {
@@ -158,7 +163,7 @@ export interface MenuItemOptions {
     onCheckedChange?: (value: string, checked: boolean) => void;
     /** A radio group got a new value */
     onValueChange?: (name: string, value: string) => void;
-    /** Component for items with href, e.g. a router link (gets `href`); default <a> */
+    /** Component for link items, e.g. a router link (gets `to` for items with `to`, else `href`); default <a> */
     linkAs?: ElementType;
     /** Own content of an item (instead of icon, label and shortcut) */
     renderItem?: MenuItemRenderer;
@@ -167,9 +172,9 @@ export interface MenuItemOptions {
 export interface MenuProps extends MenuItemOptions {
     /**
      * Items, groups ({ type: 'group' }), separators ({ type: 'separator' }), checkbox items ({ type: 'checkbox' }) and
-     * radio groups ({ type: 'radio' }); items with children open a submenu, items with href are links
+     * radio groups ({ type: 'radio' }); items with children open a submenu, items with href or to are links
      */
-    items: MenuEntry[];
+    items: readonly MenuEntry[];
     open?: boolean;
     defaultOpen?: boolean;
     onOpenChange?: (open: boolean) => void;
@@ -179,6 +184,10 @@ export interface MenuProps extends MenuItemOptions {
     searchable?: boolean;
     /** Placeholder and accessible name of the filter field */
     searchLabel?: string;
+    /** Side of the trigger the menu opens on, e.g. `bottom-end` for a menu at the right edge (default bottom-start) */
+    placement?: PopoverPlacement;
+    /** Arrow pointing at the trigger, as on the Popover */
+    arrow?: boolean;
     /** open(anchor), close(), toggle(anchor) – to open the menu at any element or pointer position */
     ref?: Ref<OverlayHandle>;
     /** The trigger element, e.g. a Button or IconButton – optional with `anchor` or `open(anchor)` */
@@ -201,6 +210,8 @@ export function Menu({
     anchor,
     searchable,
     searchLabel,
+    placement = 'bottom-start',
+    arrow,
     ref,
     children,
 }: MenuProps) {
@@ -243,7 +254,8 @@ export function Menu({
             <ArkMenu.Root
                 open={state.isOpen}
                 onOpenChange={(details) => state.onOpenChange(details.open)}
-                positioning={state.positioning({})}
+                // With the arrow the gap of the Popover, else Ark's default
+                positioning={state.positioning({ placement, gutter: arrow ? 10 : 8 })}
                 anchorPoint={state.anchorPoint}
                 lazyMount
                 unmountOnExit
@@ -253,6 +265,11 @@ export function Menu({
                 <Portal>
                     <ArkMenu.Positioner>
                         <ArkMenu.Content className={styles.content()}>
+                            {arrow && (
+                                <ArkMenu.Arrow className={styles.arrow()}>
+                                    <ArkMenu.ArrowTip className={styles.arrowTip()} />
+                                </ArkMenu.Arrow>
+                            )}
                             {searchable && (
                                 <ArkMenu.Context>
                                     {(api) => {
@@ -324,7 +341,13 @@ function ItemContent({ item, shortcut }: { item: MenuItem | MenuCheckboxItem | M
  * Items, groups with a heading, checkbox and radio items, separators and submenus (recursive) – shared by Menu,
  * ContextMenu, Menubar
  */
-export function MenuEntries({ entries, onSelect }: { entries: MenuEntry[]; onSelect?: (value: string) => void }) {
+export function MenuEntries({
+    entries,
+    onSelect,
+}: {
+    entries: readonly MenuEntry[];
+    onSelect?: (value: string) => void;
+}) {
     const menu = useRecipe('menu', menuRecipe);
     const styles = menu();
     const state = useContext(MenuStateContext);
@@ -410,7 +433,7 @@ export function MenuEntries({ entries, onSelect }: { entries: MenuEntry[]; onSel
                     </Portal>
                 </ArkMenu.Root>
             );
-        if (entry.href) {
+        if (entry.href || entry.to) {
             const Link = state?.linkAs ?? 'a';
             return (
                 <ArkMenu.Item
@@ -420,7 +443,7 @@ export function MenuEntries({ entries, onSelect }: { entries: MenuEntry[]; onSel
                     closeOnSelect={entry.closeOnSelect}
                     asChild
                 >
-                    <Link href={entry.href} className={menu({ danger: entry.danger }).item()}>
+                    <Link {...linkTarget(entry.href, entry.to)} className={menu({ danger: entry.danger }).item()}>
                         <ItemContent item={entry} shortcut={entry.shortcut} />
                     </Link>
                 </ArkMenu.Item>

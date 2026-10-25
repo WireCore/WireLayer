@@ -44,7 +44,7 @@ const meta: Meta<typeof NotificationCenter> = {
     render: (args) => ({
         components: { Button, IconButton, NotificationCenter },
         setup: () => {
-            const items = ref<NotificationItem[]>(args.items ?? start);
+            const items = ref<NotificationItem[]>([...(args.items ?? start)]);
             const loading = ref(false);
             const more = ref(args.hasMore ?? true);
             const markRead = (id: string) =>

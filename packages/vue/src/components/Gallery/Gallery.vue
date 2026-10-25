@@ -17,7 +17,7 @@ import { useRecipe } from '../../recipes.js';
 const translations = useTranslations();
 
 export interface GalleryProps {
-    images: GalleryImage[];
+    images: readonly GalleryImage[];
     /** Accessible name of the gallery, also the title of the fullscreen view */
     label: string;
     /** Row of thumbnails below the picture (instead of the dots); it follows the shown picture */

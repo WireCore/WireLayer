@@ -106,7 +106,11 @@ export function initialConditionValue(field: ConditionField | undefined, operato
 }
 
 /** A new rule for the first field (or the given one) */
-export function newConditionRule(fields: ConditionField[], fieldId?: string, id = conditionId()): ConditionRule {
+export function newConditionRule(
+    fields: readonly ConditionField[],
+    fieldId?: string,
+    id = conditionId()
+): ConditionRule {
     const field = fields.find((entry) => entry.id === fieldId) ?? fields[0];
     const operator = operatorsFor(field)[0] ?? 'equals';
     return { type: 'rule', id, field: field?.id ?? '', operator, value: initialConditionValue(field, operator) };
@@ -152,7 +156,11 @@ export function removeConditionNode(tree: ConditionGroup, id: string): Condition
 }
 
 /** Changes the field of a rule: the operator and value start over when the type changes */
-export function setConditionField(rule: ConditionRule, fields: ConditionField[], fieldId: string): ConditionRule {
+export function setConditionField(
+    rule: ConditionRule,
+    fields: readonly ConditionField[],
+    fieldId: string
+): ConditionRule {
     const before = fields.find((field) => field.id === rule.field);
     const field = fields.find((entry) => entry.id === fieldId);
     if (!field) return rule;
@@ -164,7 +172,7 @@ export function setConditionField(rule: ConditionRule, fields: ConditionField[],
 /** Changes the operator of a rule: the value is kept if it still fits */
 export function setConditionOperator(
     rule: ConditionRule,
-    fields: ConditionField[],
+    fields: readonly ConditionField[],
     operator: ConditionOperator
 ): ConditionRule {
     const field = fields.find((entry) => entry.id === rule.field);
@@ -194,7 +202,7 @@ const isEmptyValue = (value: unknown) =>
     value === null || value === undefined || value === '' || (Array.isArray(value) && value.length === 0);
 
 /** Whether a rule has what it needs to filter: a known field and a value (unless the operator takes none) */
-export function isCompleteRule(rule: ConditionRule, fields?: ConditionField[]): boolean {
+export function isCompleteRule(rule: ConditionRule, fields?: readonly ConditionField[]): boolean {
     if (fields && !fields.some((field) => field.id === rule.field)) return false;
     if (isValuelessOperator(rule.operator)) return true;
     if (rule.operator === 'between') return Array.isArray(rule.value) && rule.value.some((part) => !isEmptyValue(part));
@@ -202,7 +210,10 @@ export function isCompleteRule(rule: ConditionRule, fields?: ConditionField[]): 
 }
 
 /** Whether a tree filters anything (has at least one complete rule) */
-export function isActiveCondition(tree: ConditionGroup | null | undefined, fields?: ConditionField[]): boolean {
+export function isActiveCondition(
+    tree: ConditionGroup | null | undefined,
+    fields?: readonly ConditionField[]
+): boolean {
     if (!tree) return false;
     return tree.children.some((child) =>
         child.type === 'rule' ? isCompleteRule(child, fields) : isActiveCondition(child, fields)
@@ -211,7 +222,12 @@ export function isActiveCondition(tree: ConditionGroup | null | undefined, field
 
 const filterType = (type: ConditionFieldType | undefined): DataTableFilterType => type ?? 'text';
 
-function matchesRule(row: unknown, rule: ConditionRule, fields: ConditionField[] | undefined, locale?: string) {
+function matchesRule(
+    row: unknown,
+    rule: ConditionRule,
+    fields: readonly ConditionField[] | undefined,
+    locale?: string
+) {
     const field = fields?.find((entry) => entry.id === rule.field);
     if (fields && !field) return true;
     const cell = field?.accessor
@@ -241,7 +257,7 @@ function matchesRule(row: unknown, rule: ConditionRule, fields: ConditionField[]
 export function matchesCondition(
     row: unknown,
     tree: ConditionNode | null | undefined,
-    fields?: ConditionField[],
+    fields?: readonly ConditionField[],
     locale?: string
 ): boolean {
     if (!tree) return true;

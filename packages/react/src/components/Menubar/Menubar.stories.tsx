@@ -38,7 +38,7 @@ const menus: MenubarMenu[] = [
     },
 ];
 
-function Demo({ menus }: { menus: MenubarMenu[] }) {
+function Demo({ menus }: { menus: readonly MenubarMenu[] }) {
     const [selected, setSelected] = useState('');
     return (
         <div className="flex flex-col gap-3">

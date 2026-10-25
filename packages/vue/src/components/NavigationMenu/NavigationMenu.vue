@@ -26,7 +26,7 @@ export interface NavigationMenuEntry {
 }
 
 export interface NavigationMenuProps {
-    items: NavigationMenuEntry[];
+    items: readonly NavigationMenuEntry[];
     /** Name of the navigation landmark */
     label?: string;
     /** Extra classes per part of the component, e.g. { base: "…" } (see the recipe) */

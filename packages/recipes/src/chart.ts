@@ -179,7 +179,7 @@ export function chartTable(
 /** Text alternative of a sparkline: the trend and the extremes */
 export function sparklineSummary(
     label: string,
-    data: number[],
+    data: readonly number[],
     formatValue: (value: number) => string,
     t: Translations['chart'] = translations.chart
 ) {

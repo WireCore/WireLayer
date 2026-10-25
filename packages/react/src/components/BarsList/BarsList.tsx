@@ -18,7 +18,7 @@ export interface BarsListItem {
 }
 
 export interface BarsListProps extends Omit<ComponentProps<'div'>, 'children'> {
-    items: BarsListItem[];
+    items: readonly BarsListItem[];
     /** Accessible name of the list (visible with `showTitle`) */
     label: string;
     showTitle?: boolean;

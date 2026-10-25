@@ -19,7 +19,7 @@ export interface RingProgressProps {
     /** One value (a progress bar) – or `segments` */
     value?: number;
     /** Several parts one after another (a group with a legend) */
-    segments?: RingProgressSegment[];
+    segments?: readonly RingProgressSegment[];
     /** The whole (default 100, or the sum of the segments when larger) */
     max?: number;
     /** Visible label below the ring, also its accessible name */

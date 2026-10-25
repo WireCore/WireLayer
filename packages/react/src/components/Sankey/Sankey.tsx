@@ -13,9 +13,9 @@ import { useLocale, useTranslations } from '../LocaleProvider/LocaleProvider.js'
 import { useRecipe } from '../RecipesProvider/RecipesProvider.js';
 
 export interface SankeyProps extends Omit<ComponentProps<'figure'>, 'children' | 'title'> {
-    nodes: SankeyNodeInput[];
+    nodes: readonly SankeyNodeInput[];
     /** Flows from node to node (ids) */
-    links: SankeyLinkInput[];
+    links: readonly SankeyLinkInput[];
     /** Title, also the accessible name of the diagram */
     title: string;
     /** Height of the diagram in px */

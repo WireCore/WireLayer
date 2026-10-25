@@ -314,7 +314,7 @@ const minutesOf = (time: string) => {
  * Closed times of a day as minute ranges [from, to) within 0–1440 – outside the opening hours of its weekday (all
  * day when the weekday has none). No opening hours: nothing closed.
  */
-export function closedRanges(hours: SchedulerBusinessHours[] | undefined, day: Date): [number, number][] {
+export function closedRanges(hours: readonly SchedulerBusinessHours[] | undefined, day: Date): [number, number][] {
     if (!hours) return [];
     const open = hours
         .filter((entry) => entry.days.includes(day.getDay()))
@@ -333,7 +333,7 @@ export function closedRanges(hours: SchedulerBusinessHours[] | undefined, day: D
 
 /** Closed times of a day in the visible hours as top and height in percent (for the day and week view) */
 export function closedTimes(
-    hours: SchedulerBusinessHours[] | undefined,
+    hours: readonly SchedulerBusinessHours[] | undefined,
     day: Date,
     startHour: number,
     endHour: number
@@ -439,7 +439,7 @@ export function eventsOverlap(
 
 export interface EventDropCheck {
     /** All shown events (series expanded) */
-    events: SchedulerEvent[];
+    events: readonly SchedulerEvent[];
     event: SchedulerEvent;
     start: string;
     end: string;

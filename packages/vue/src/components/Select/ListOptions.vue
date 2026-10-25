@@ -9,7 +9,7 @@ import type { ListClasses, ListItemState } from './types.js';
 // heading), then the loading row and the end marker that loads the next page
 defineProps<{
     parts: ListParts;
-    groups: ListGroup<T>[];
+    groups: readonly ListGroup<T>[];
     classes: ListClasses;
     checkbox?: boolean;
     /** No check mark (Autocomplete: suggestions are not selected) */

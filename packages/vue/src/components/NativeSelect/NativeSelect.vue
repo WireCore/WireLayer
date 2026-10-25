@@ -13,7 +13,7 @@ export interface NativeSelectOption {
 }
 
 export interface NativeSelectProps {
-    items: NativeSelectOption[];
+    items: readonly NativeSelectOption[];
     /** Chosen value – use with v-model */
     modelValue?: string;
     /** First, empty option, e.g. "Please choose" */

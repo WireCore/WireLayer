@@ -26,7 +26,7 @@ export interface CommandItem {
     group?: string;
     icon?: IconComponent;
     /** Further words that find the item */
-    keywords?: string[];
+    keywords?: readonly string[];
     /** Shortcut hint on the right (display only) */
     shortcut?: string;
     /** Second line below the label */
@@ -34,7 +34,7 @@ export interface CommandItem {
 }
 
 export interface CommandPaletteProps {
-    items: CommandItem[];
+    items: readonly CommandItem[];
     open?: boolean;
     onOpenChange?: (open: boolean) => void;
     onSelect?: (value: string) => void;

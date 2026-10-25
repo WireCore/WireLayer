@@ -25,7 +25,7 @@ export interface BreadcrumbProps {
     /** Accessible name of the navigation landmark */
     label?: string;
     /** The path as data instead of BreadcrumbItem children (needed for maxItems) */
-    items?: BreadcrumbEntry[];
+    items?: readonly BreadcrumbEntry[];
     /** With more items, the middle ones collapse into "…" – a menu with the hidden steps */
     maxItems?: number;
     /** Items kept before the "…" (default 1) */

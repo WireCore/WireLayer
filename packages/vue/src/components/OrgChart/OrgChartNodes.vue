@@ -6,7 +6,7 @@ import { useRecipe } from '../../recipes.js';
 
 defineOptions({ name: 'OrgChartNodes' });
 defineProps<{
-    nodes: OrgChartNode[];
+    nodes: readonly OrgChartNode[];
     /** Position of the parent ("0", "0-1") – for the default keys */
     path: string;
 }>();

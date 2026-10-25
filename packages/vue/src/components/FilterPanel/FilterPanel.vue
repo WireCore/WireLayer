@@ -12,7 +12,7 @@ import { useRecipe } from '../../recipes.js';
 
 export interface FilterPanelProps {
     /** The active filters – shown as chips and counted on the button */
-    filters?: FilterChip[];
+    filters?: readonly FilterChip[];
     /** Number on the button (default: the number of filters) */
     count?: number;
     /** Form shown – use with v-model:open */

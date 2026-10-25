@@ -18,7 +18,7 @@ export interface TourStep {
 }
 
 export interface TourProps {
-    steps: TourStep[];
+    steps: readonly TourStep[];
     /** Running – starting it sets it, the tour ends itself */
     open?: boolean;
     onOpenChange?: (open: boolean) => void;

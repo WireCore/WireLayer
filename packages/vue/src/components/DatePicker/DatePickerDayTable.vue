@@ -21,7 +21,7 @@ const props = defineProps<{
     showWeekNumbers?: boolean;
     plainToday?: boolean;
     hideOutsideDays?: boolean;
-    weekendDays?: number[];
+    weekendDays?: readonly number[];
     allowDeselect?: boolean;
 }>();
 defineSlots<{ day?(props: { date: string } & CalendarDayState): unknown }>();

@@ -13,7 +13,7 @@ export interface TocEntry {
 }
 
 export interface TableOfContentsProps {
-    items: TocEntry[];
+    items: readonly TocEntry[];
     title?: string;
     className?: string;
     style?: CSSProperties;

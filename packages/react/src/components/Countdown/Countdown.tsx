@@ -11,7 +11,7 @@ export interface CountdownProps extends Omit<ComponentProps<'div'>, 'children'> 
     /** Accessible name of the timer, e.g. "Offer ends in" */
     label: string;
     /** Shown units, largest first – the largest takes everything above it (e.g. 49 hours without days) */
-    units?: CountdownUnit[];
+    units?: readonly CountdownUnit[];
     variant?: 'boxed' | 'plain';
     size?: 'sm' | 'md' | 'lg';
     /** The target time was reached */

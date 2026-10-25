@@ -15,7 +15,7 @@ import { ChartCanvas } from './ChartCanvas.js';
 
 export interface PieChartProps {
     /** The slices: label, value, colour */
-    slices: PieSlice[];
+    slices: readonly PieSlice[];
     /** Title of the chart, also its accessible name */
     title: string;
     hideTitle?: boolean;

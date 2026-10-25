@@ -17,7 +17,7 @@ export interface FormErrorSummaryItem {
 
 export interface FormErrorSummaryProps extends Omit<ComponentProps<'div'>, 'title'> {
     /** The current errors; nothing is rendered without any */
-    errors: FormErrorSummaryItem[];
+    errors: readonly FormErrorSummaryItem[];
     /** Heading (default "Please correct 2 entries") */
     title?: string;
     /** Element of the heading – pick the level that fits the page outline */

@@ -22,7 +22,7 @@ import { useDataSource } from '../../utils/data-source.js';
 
 export interface NotificationCenterProps {
     /** The notifications (with `dataSource`: new ones pushed by the app, before the loaded pages) */
-    items?: NotificationItem[];
+    items?: readonly NotificationItem[];
     /**
      * Notifications from a server, page by page (newest first): the first page is loaded at the start, "Load more"
      * loads the next; items marked as read are kept as read here (report them with markRead/markAllRead)

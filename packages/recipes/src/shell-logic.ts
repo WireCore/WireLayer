@@ -1,5 +1,5 @@
 // Framework-neutral logic of the page shell: mega menu hover intent, current links, resize handles, headroom,
-// stored preferences, notification days, speed dial positions, masonry rows and responsive column variables.
+// link targets, stored preferences, notification days, speed dial positions, masonry rows and responsive column variables.
 
 export interface Point {
     x: number;
@@ -56,6 +56,12 @@ export function isCurrentLink<T extends CurrentLinkLike>(
     if (isCurrent) return isCurrent(link);
     return currentHref !== undefined && link.href !== undefined && link.href === currentHref;
 }
+
+/** Router target of a link: a path or a route object (vue-router, React Router, TanStack Router) */
+export type LinkTo = string | object;
+
+/** Props for the link component (`linkAs`): `to` when the link has a router target, else `href` */
+export const linkTarget = (href: string | undefined, to?: LinkTo) => (to === undefined ? { href } : { to });
 
 export interface ResizeLimits {
     min: number;
@@ -136,7 +142,7 @@ export function notificationDay(date: Date | string | number, now: Date = new Da
 }
 
 /** Items grouped by day (today, yesterday, older); groups without items are left out, the order is kept */
-export function groupByDay<T extends { date: Date | string | number }>(items: T[], now: Date = new Date()) {
+export function groupByDay<T extends { date: Date | string | number }>(items: readonly T[], now: Date = new Date()) {
     const days: NotificationDay[] = ['today', 'yesterday', 'older'];
     return days
         .map((day) => ({ day, items: items.filter((item) => notificationDay(item.date, now) === day) }))
@@ -164,14 +170,14 @@ export function notificationTime(date: Date | string | number, day: Notification
  */
 export function newUnread<T extends { id: string; read?: boolean; date: Date | string | number }>(
     known: Set<string>,
-    items: T[],
+    items: readonly T[],
     since = -Infinity
 ): T[] {
     return items.filter((item) => !item.read && !known.has(item.id) && new Date(item.date).getTime() > since);
 }
 
 /** Time (ms) of the newest item, -Infinity without items */
-export const newestTime = (items: { date: Date | string | number }[]) =>
+export const newestTime = (items: readonly { date: Date | string | number }[]) =>
     items.reduce((newest, item) => Math.max(newest, new Date(item.date).getTime()), -Infinity);
 
 export type SpeedDialLayout = 'column' | 'circle' | 'semicircle' | 'quarter';

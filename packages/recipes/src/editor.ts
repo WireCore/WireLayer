@@ -88,7 +88,7 @@ export const editor = tv({
             'focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-fg',
         ],
         /** Bubble menu (text selected) and floating menu (empty line) */
-        menu: 'z-20 flex items-center gap-0.5 rounded-lg border border-line bg-card p-1 shadow-[0_8px_24px_-12px_rgba(0,0,0,.35)]',
+        menu: 'z-20 flex items-center gap-0.5 rounded-popup border border-line bg-card p-1 shadow-[0_8px_24px_-12px_rgba(0,0,0,.35)]',
         /** Colour choice: swatches in a row */
         palette: 'flex flex-wrap items-center gap-1 border-b border-line p-2',
         paletteLabel: 'me-1 text-xs text-muted',
@@ -109,9 +109,9 @@ export const editor = tv({
             focusRing,
         ],
         /** Suggestions for mentions (listbox below the caret) */
-        suggestions: 'fixed z-50 max-h-60 w-64 overflow-y-auto rounded-lg border border-line bg-card p-1 shadow-lg',
+        suggestions: 'fixed z-50 max-h-60 w-64 overflow-y-auto rounded-popup border border-line bg-card p-1 shadow-lg',
         suggestion: [
-            'flex min-h-8 cursor-pointer items-center rounded-md px-2 text-sm text-fg',
+            'flex min-h-8 cursor-pointer items-center rounded-lg px-2 text-sm text-fg',
             'data-highlighted:bg-line forced-colors:data-highlighted:bg-[Highlight] forced-colors:data-highlighted:text-[HighlightText]',
         ],
         status: 'sr-only',

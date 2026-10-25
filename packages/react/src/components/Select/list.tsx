@@ -74,7 +74,7 @@ export function useListSelection<T>({
     value: unknown;
     defaultValue: unknown;
     accessors: ListItemAccessors<T>;
-    items: ListOption<T>[];
+    items: readonly ListOption<T>[];
     onChange?: (value: never) => void;
 }) {
     const [internal, setInternal] = useState<unknown>(defaultValue ?? (multiple ? [] : null));
@@ -167,7 +167,7 @@ export interface ListClasses {
 
 interface ListOptionsProps<T> {
     parts: ListParts;
-    groups: ListGroup<T>[];
+    groups: readonly ListGroup<T>[];
     classes: ListClasses;
     /** Check box before the label instead of the check mark after it (MultiSelect) */
     checkbox?: boolean;

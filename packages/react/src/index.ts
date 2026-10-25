@@ -183,6 +183,7 @@ export { Panel, type PanelProps } from './components/Panel/Panel.js';
 export { SplitButton, type SplitButtonProps } from './components/SplitButton/SplitButton.js';
 export { ToggleButton, type ToggleButtonProps } from './components/ToggleButton/ToggleButton.js';
 export { Toolbar, type ToolbarProps } from './components/Toolbar/Toolbar.js';
+export { TopBar, type TopBarProps } from './components/TopBar/TopBar.js';
 export { DataView, type DataViewProps } from './components/DataView/DataView.js';
 export { MeterGroup, type MeterGroupItem, type MeterGroupProps } from './components/MeterGroup/MeterGroup.js';
 export { OrderList, type OrderListProps } from './components/OrderList/OrderList.js';

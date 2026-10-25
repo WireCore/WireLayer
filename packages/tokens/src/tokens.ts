@@ -131,6 +131,8 @@ export const fonts = {
 export const radius = {
     card: '20px',
     panel: '28px',
+    /** Floating surfaces: menus, list boxes, popovers, pickers */
+    popup: '12px',
 };
 
 export const tracking = {

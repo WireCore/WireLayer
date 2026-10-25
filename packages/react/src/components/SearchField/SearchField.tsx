@@ -27,14 +27,14 @@ export interface SearchFieldProps extends Omit<ComponentProps<'form'>, 'onSubmit
     /** Search is running: spinner in the field, aria-busy */
     loading?: boolean;
     /** Areas to search in – a select before the field */
-    scopes?: NativeSelectOption[];
+    scopes?: readonly NativeSelectOption[];
     /** Chosen area (controlled) */
     scope?: string;
     onScopeChange?: (scope: string) => void;
     /** Accessible name of the area select (default "Search in") */
     scopeLabel?: string;
     /** Suggestions while typing (combobox pattern) – any other text can still be searched */
-    suggestions?: string[];
+    suggestions?: readonly string[];
     /** Accessible name of the clear button (default "Clear search") */
     clearLabel?: string;
     size?: Size;

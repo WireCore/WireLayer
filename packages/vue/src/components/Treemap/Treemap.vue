@@ -18,7 +18,7 @@ export interface TreemapItem {
 }
 
 export interface TreemapProps {
-    items: TreemapItem[];
+    items: readonly TreemapItem[];
     /** Accessible name of the list (and visible title with `showTitle`) */
     label: string;
     showTitle?: boolean;

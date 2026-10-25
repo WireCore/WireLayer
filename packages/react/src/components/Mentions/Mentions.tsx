@@ -57,7 +57,7 @@ export interface MentionsProps<T = unknown> extends Omit<
     /** Loads the "@" entries for the typed text */
     dataSource?: DataSource<T>;
     /** Several trigger characters with their own entries (replaces items/dataSource) */
-    triggers?: MentionTrigger<T>[];
+    triggers?: readonly MentionTrigger<T>[];
     /** Text of an entry: property name or function (default `label`) */
     itemLabel?: ItemAccessor<T, string>;
     /** Id of an entry in the markup: property name or function (default `value`, else `id`) */
@@ -120,7 +120,7 @@ export function Mentions<T = unknown>({
     const highlighter = useRef<HTMLDivElement>(null);
     const pendingCaret = useRef<number | null>(null);
 
-    const triggerList: MentionTrigger<T>[] = triggers ?? [{ char: '@', items, dataSource }];
+    const triggerList: readonly MentionTrigger<T>[] = triggers ?? [{ char: '@', items, dataSource }];
     const chars = triggerList.map((trigger) => trigger.char);
     const [internal, setInternal] = useState(defaultValue);
     const markup = value ?? internal;

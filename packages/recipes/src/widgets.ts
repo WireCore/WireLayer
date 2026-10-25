@@ -80,7 +80,7 @@ export const floatingPanel = tv({
     slots: {
         positioner: 'z-50',
         content: [
-            'flex flex-col overflow-hidden rounded-xl border border-line-2 bg-card text-fg outline-none',
+            'flex flex-col overflow-hidden rounded-popup border border-line-2 bg-card text-fg outline-none',
             popupShadow,
             'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fg',
             'data-maximized:rounded-none data-minimized:h-auto!',

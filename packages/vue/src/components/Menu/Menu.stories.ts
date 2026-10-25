@@ -1,6 +1,19 @@
-import { Copy, Ellipsis, FolderInput, MapPin, Pencil, RotateCw, SlidersHorizontal, Trash2 } from '@lucide/vue';
+import {
+    Copy,
+    Ellipsis,
+    FolderInput,
+    LogOut,
+    MapPin,
+    Pencil,
+    RotateCw,
+    Settings,
+    SlidersHorizontal,
+    Trash2,
+    UserRound,
+} from '@lucide/vue';
 import type { Meta, StoryObj } from '@storybook/vue3-vite';
 import { ref } from 'vue';
+import Avatar from '../Avatar/Avatar.vue';
 import Badge from '../Badge/Badge.vue';
 import Button from '../Button/Button.vue';
 import IconButton from '../IconButton/IconButton.vue';
@@ -17,8 +30,14 @@ const items = [
 const meta = {
     title: 'Overlays/Menu',
     component: Menu,
-    args: { items },
-    argTypes: { items: { control: false } },
+    args: { items, placement: 'bottom-start', arrow: false },
+    argTypes: {
+        items: { control: false },
+        placement: {
+            control: 'select',
+            options: ['bottom-start', 'bottom', 'bottom-end', 'top-start', 'top', 'top-end', 'left', 'right'],
+        },
+    },
     render: (args) => ({
         components: { IconButton, Menu },
         setup: () => ({ args, Ellipsis, selected: ref('') }),
@@ -136,8 +155,8 @@ export const Searchable: Story = {
 };
 
 /**
- * Items with `href` are links (with a router: `link-as="RouterLink"` or NuxtLink); the `item` slot shows own
- * content, here a badge.
+ * Items with `href` or `to` are links. With vue-router: `:link-as="RouterLink"` and items with `to` (a path or a route
+ * object); NuxtLink takes either. The `item` slot shows own content, here a badge.
  */
 export const LinksAndOwnContent: Story = {
     render: () => ({
@@ -184,6 +203,37 @@ export const OpenAtAnchor: Story = {
                 </button>
                 <Menu ref="menu" :items="items" @select="selected = $event" />
                 <p class="h-4 text-xs text-muted" aria-live="polite">{{ selected && 'Selected: ' + selected }}</p>
+            </div>`,
+    }),
+};
+
+/**
+ * User menu at the right edge of a header: the Avatar as the trigger (`as="button"`, named by `name`), opening
+ * towards the start (`placement="bottom-end"`) with an arrow at the avatar.
+ */
+export const UserMenu: Story = {
+    render: () => ({
+        components: { Avatar, Menu },
+        setup: () => ({
+            account: [
+                {
+                    type: 'group',
+                    label: 'julia@example.com',
+                    items: [
+                        { value: 'profile', label: 'Profile', icon: UserRound },
+                        { value: 'settings', label: 'Settings', icon: Settings },
+                    ],
+                },
+                { type: 'separator' },
+                { value: 'logout', label: 'Sign out', icon: LogOut },
+            ] satisfies MenuEntry[],
+        }),
+        template: `
+            <div class="flex w-full max-w-xl items-center justify-between rounded-lg border border-line px-4 py-2">
+                <span class="text-sm font-semibold">Console</span>
+                <Menu :items="account" placement="bottom-end" arrow>
+                    <Avatar as="button" name="Julia Klein" color="auto" size="sm" />
+                </Menu>
             </div>`,
     }),
 };

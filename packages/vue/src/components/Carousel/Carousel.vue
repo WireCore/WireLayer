@@ -13,7 +13,7 @@ import { useTranslations } from '../../locale.js';
 import { useRecipe } from '../../recipes.js';
 
 export interface CarouselProps<T> {
-    items: T[];
+    items: readonly T[];
     /** Accessible name of the carousel region, e.g. "References" */
     label: string;
     /** Slides in view at once – fractions show a part of the next one (e.g. 1.5) */
@@ -25,7 +25,7 @@ export interface CarouselProps<T> {
     /** Height of the slides area (CSS length) – needed when vertical */
     height?: string;
     /** Settings from a width of the carousel on (a container query), e.g. [{ minWidth: 640, slidesPerPage: 2 }] */
-    breakpoints?: CarouselBreakpoint[];
+    breakpoints?: readonly CarouselBreakpoint[];
     /** The slides can be dragged with the mouse, too (touch swipes anyway) */
     allowMouseDrag?: boolean;
     /** Gap between slides (CSS length) */

@@ -10,7 +10,7 @@ export interface HeatmapProps {
     /** Row names */
     rows: string[];
     /** Column names */
-    columns: string[];
+    columns: readonly string[];
     /** Values per row and column; null for no value */
     values: (number | null)[][];
     /** Range of the colours (default: smallest and largest value) */

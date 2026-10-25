@@ -33,6 +33,8 @@ export interface AvatarProps extends Omit<ComponentProps<'div'>, 'children'> {
     color?: AvatarColor | 'auto';
     /** Extra classes per part of the component, e.g. { base: "…" } (see the recipe) */
     classes?: RecipeClasses<typeof avatarRecipe>;
+    /** `button`: a button with the avatar as its content, e.g. the trigger of a user menu – named by `name` */
+    as?: 'div' | 'button';
 }
 
 export function Avatar({
@@ -44,6 +46,7 @@ export function Avatar({
     size,
     shape,
     color,
+    as: Tag = 'div',
     className,
     ...props
 }: AvatarProps) {
@@ -55,22 +58,42 @@ export function Avatar({
         shape,
         color: color === 'auto' ? (name ? avatarColor(name) : undefined) : color,
         grouped: groupSize !== null,
+        interactive: Tag === 'button',
     });
     const initials = name ? getInitials(name) : '';
 
-    // With a name the avatar is one image for assistive tech; without it is decorative
-    return (
-        <ArkAvatar.Root
-            {...props}
-            className={styles.base({ class: className })}
-            role={name ? 'img' : undefined}
-            aria-label={name || undefined}
-            aria-hidden={name ? undefined : true}
-        >
+    const content = (
+        <>
             <ArkAvatar.Fallback className={styles.fallback()}>
                 {initials || <Icon className={styles.icon()} aria-hidden="true" />}
             </ArkAvatar.Fallback>
             {src && <ArkAvatar.Image src={src} alt="" className={styles.image()} />}
+        </>
+    );
+    const named = { role: name ? 'img' : undefined, 'aria-hidden': name ? undefined : true };
+
+    // With a name the avatar is one image for assistive tech, without it is decorative. As a button an image inside
+    // carries the name: the button is named by its content, so the visible initials need not be part of an
+    // aria-label (WCAG 2.5.3 label in name)
+    if (Tag === 'button') {
+        return (
+            <ArkAvatar.Root {...props} asChild className={styles.base({ class: className })}>
+                <button type="button">
+                    <span {...named} className={styles.content()} aria-label={name || undefined}>
+                        {content}
+                    </span>
+                </button>
+            </ArkAvatar.Root>
+        );
+    }
+    return (
+        <ArkAvatar.Root
+            {...props}
+            {...named}
+            className={styles.base({ class: className })}
+            aria-label={props['aria-label'] ?? (name || undefined)}
+        >
+            {content}
         </ArkAvatar.Root>
     );
 }

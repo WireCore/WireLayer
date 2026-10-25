@@ -24,7 +24,7 @@ export interface NavigationMenuEntry {
 }
 
 export interface NavigationMenuProps {
-    items: NavigationMenuEntry[];
+    items: readonly NavigationMenuEntry[];
     /** Name of the navigation landmark */
     label?: string;
     className?: string;

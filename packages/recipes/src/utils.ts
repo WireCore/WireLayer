@@ -217,7 +217,7 @@ export interface PasswordRequirement {
 }
 
 /** Which requirements a password meets, in their order */
-export const checkPasswordRequirements = (password: string, requirements: PasswordRequirement[]): boolean[] =>
+export const checkPasswordRequirements = (password: string, requirements: readonly PasswordRequirement[]): boolean[] =>
     requirements.map(({ test }) => (typeof test === 'function' ? test(password) : test.test(password)));
 
 /** Characters a PinInput box takes */
@@ -707,7 +707,7 @@ export function matchesHotkey(event: KeyLike, hotkey: string): boolean {
  * Keeps the items a score accepts: `false`/0 drop an item, `true` keeps it in place, higher numbers come first
  * (stable). `limit` cuts the list.
  */
-export function rankItems<T>(items: T[], score: (item: T) => number | boolean, limit?: number): T[] {
+export function rankItems<T>(items: readonly T[], score: (item: T) => number | boolean, limit?: number): T[] {
     const ranked = items
         .map((item, index) => ({ item, index, score: Number(score(item)) }))
         .filter((entry) => entry.score > 0)
@@ -740,7 +740,7 @@ export function filterCommands<T extends CommandSearchItem>(
     const score = filter
         ? (item: T) => filter(item, query)
         : (item: T) => [item.label, ...(item.keywords ?? [])].some((text) => fold(text).includes(needle));
-    return rankItems([...items], score, limit);
+    return rankItems(items, score, limit);
 }
 
 /** Items by their group heading, in the order the groups first appear ('' for items without a group) */
@@ -757,7 +757,7 @@ export function commandGroups<T extends { group?: string }>(items: readonly T[])
 interface FilterableEntry {
     type?: string;
     label?: string;
-    items?: FilterableEntry[];
+    items?: readonly FilterableEntry[];
     children?: FilterableEntry[];
 }
 
@@ -765,7 +765,10 @@ interface FilterableEntry {
  * Filters menu entries by their label: groups keep their matching items, submenus their matching entries (or all
  * when their own label matches), separators are dropped.
  */
-export function filterMenuEntries<T extends FilterableEntry>(entries: T[], matches: (label: string) => boolean): T[] {
+export function filterMenuEntries<T extends FilterableEntry>(
+    entries: readonly T[],
+    matches: (label: string) => boolean
+): T[] {
     const result: T[] = [];
     for (const entry of entries) {
         if (entry.type === 'separator') continue;

@@ -11,7 +11,7 @@ export interface SiteHeaderProps {
     /** Name next to the logo, links to the home page */
     brand: string;
     homeHref?: string;
-    items?: NavItem[];
+    items?: readonly NavItem[];
     /** Accessible name of the navigation landmark */
     navLabel?: string;
     /** Accessible name of the mobile menu button */

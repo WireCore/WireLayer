@@ -16,7 +16,7 @@ export interface SiteHeaderProps {
     /** Name next to the logo, links to the home page */
     brand: string;
     homeHref?: string;
-    items?: NavItem[];
+    items?: readonly NavItem[];
     /** Logo before the brand name (decorative – the name is the link text) */
     logo?: ReactNode;
     /** Actions on the right, e.g. a CTA button and the ModeToggle – repeated in the mobile menu */

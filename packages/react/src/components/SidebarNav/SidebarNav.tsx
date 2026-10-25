@@ -20,7 +20,7 @@ export interface SidebarNavItem {
 }
 
 export interface SidebarNavProps {
-    items: SidebarNavItem[];
+    items: readonly SidebarNavItem[];
     /** Name of the navigation landmark, e.g. "Main navigation" */
     label: string;
     /** A link was clicked – call event.preventDefault() and route yourself in a single-page app */
@@ -85,7 +85,7 @@ function Items({
     rail,
     expandOnHover,
 }: {
-    items: SidebarNavItem[];
+    items: readonly SidebarNavItem[];
     depth: number;
     onNavigate?: SidebarNavProps['onNavigate'];
     rail: boolean;

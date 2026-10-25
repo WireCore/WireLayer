@@ -16,7 +16,7 @@ export interface ColorSwatch {
 
 export interface ColorSwatchPickerProps {
     /** The colours to choose from */
-    items: ColorSwatch[];
+    items: readonly ColorSwatch[];
     /** Chosen colour (its value) – use with v-model */
     modelValue?: string | null;
     defaultValue?: string | null;

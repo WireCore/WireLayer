@@ -30,7 +30,7 @@ const props = defineProps<{
     type: DataTableFilterType;
     modelValue: DataTableFilterValue | undefined;
     options?: readonly unknown[];
-    matchModes?: DataTableMatchMode[];
+    matchModes?: readonly DataTableMatchMode[];
     maxConstraints: number;
 }>();
 defineSlots<{

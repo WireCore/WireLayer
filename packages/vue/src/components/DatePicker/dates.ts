@@ -58,7 +58,7 @@ export const wallKey = (value: DateLike | null | undefined, withTime: boolean, t
 /** isDateUnavailable (gets the ISO date) together with excludeDates */
 export function unavailableDates(
     isDateUnavailable?: (date: string) => boolean,
-    excludeDates?: DateLike[]
+    excludeDates?: readonly DateLike[]
 ): ((date: DateValue) => boolean) | undefined {
     if (!isDateUnavailable && !excludeDates?.length) return undefined;
     const excluded = new Set(excludeDates?.map((date) => toWallIso(date, false)));

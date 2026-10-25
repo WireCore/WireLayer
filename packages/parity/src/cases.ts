@@ -400,6 +400,16 @@ export const cases: [string, El][] = [
     ['Avatar xl, auto colour', el('Avatar', { name: 'Julia Klein', size: 'xl', color: 'auto' })],
     ['Avatar 2xl square, info', el('Avatar', { name: 'Max Schulz', size: '2xl', shape: 'square', color: 'info' })],
     ['Avatar auto colour without name', el('Avatar', { size: 'xl', color: 'auto' })],
+    ['Avatar as button', el('Avatar', { name: 'Julia Klein', as: 'button', size: 'sm' })],
+    ['Avatar as button, own label', el('Avatar', { name: 'Julia Klein', as: 'button', 'aria-label': 'Account' })],
+    [
+        'Menu with an Avatar trigger, arrow and placement',
+        el(
+            'Menu',
+            { items: [{ value: 'logout', label: 'Sign out' }], placement: 'bottom-end', arrow: true },
+            el('Avatar', { name: 'Julia Klein', as: 'button' })
+        ),
+    ],
     [
         'AvatarGroup',
         el(
@@ -2227,6 +2237,19 @@ export const cases: [string, El][] = [
             orientation: 'vertical',
             children: () => null,
         }),
+    ],
+    [
+        'TopBar',
+        el(
+            'TopBar',
+            {
+                $slots: {
+                    start: el('span', {}, 'Console'),
+                    end: el('Avatar', { name: 'Julia Klein', as: 'button', size: 'sm' }),
+                },
+            },
+            el('span', {}, 'Search')
+        ),
     ],
     [
         'Toolbar regions',

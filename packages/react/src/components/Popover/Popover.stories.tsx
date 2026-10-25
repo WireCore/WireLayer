@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import type { OverlayHandle } from '@wirecore/wirelayer-recipes';
-import { Info } from 'lucide-react';
+import { Info, LayoutGrid } from 'lucide-react';
 import { useRef } from 'react';
 import { Button } from '../Button/Button.js';
 import { IconButton } from '../IconButton/IconButton.js';
@@ -56,6 +56,31 @@ export const TriggerWidthAndOverlay: Story = {
                         Nuremberg
                     </Button>
                 </PopoverClose>
+            </PopoverContent>
+        </Popover>
+    ),
+};
+
+/**
+ * Only own content, e.g. an app switcher: `hideTitle` keeps the title for screen readers, `closable={false}` drops
+ * the close button (Escape, outside clicks and PopoverClose still close)
+ */
+export const HiddenTitleWithoutClose: Story = {
+    render: () => (
+        <Popover placement="bottom-start">
+            <PopoverTrigger>
+                <IconButton icon={LayoutGrid} label="Apps" />
+            </PopoverTrigger>
+            <PopoverContent title="Apps" hideTitle closable={false} className="w-64">
+                <div className="grid grid-cols-3 gap-1">
+                    {['Mail', 'Calendar', 'Files', 'Chat', 'Billing', 'Admin'].map((app) => (
+                        <PopoverClose key={app}>
+                            <Button size="sm" variant="text">
+                                {app}
+                            </Button>
+                        </PopoverClose>
+                    ))}
+                </div>
             </PopoverContent>
         </Popover>
     ),

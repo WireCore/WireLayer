@@ -39,7 +39,7 @@ export interface DateRangePickerProps<T extends DateRangeLike = DateRange> {
     /** Dates that cannot be chosen, e.g. weekends – receives the ISO date */
     isDateUnavailable?: (date: string) => boolean;
     /** Single dates that cannot be chosen (holidays, booked days) */
-    excludeDates?: DateLike[];
+    excludeDates?: readonly DateLike[];
     locale?: string;
     disabled?: boolean;
     readOnly?: boolean;
@@ -68,7 +68,7 @@ export interface DateRangePickerProps<T extends DateRangeLike = DateRange> {
     /** First day of the week: 0 = Sunday … 6 = Saturday; default from the locale */
     firstDayOfWeek?: number;
     /** Weekend days (0 = Sunday … 6) marked with data-weekend; default from the locale */
-    weekendDays?: number[];
+    weekendDays?: readonly number[];
     /** IANA zone ("Europe/Berlin") with withTime: shown and typed in the zone, the values get its offset */
     timeZone?: string;
     /** Short zone name after the times ("CEST") */

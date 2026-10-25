@@ -16,7 +16,7 @@ export interface TocEntry {
 }
 
 export interface TableOfContentsProps {
-    items: TocEntry[];
+    items: readonly TocEntry[];
     title?: string;
     /** Extra classes per part of the component, e.g. { base: "…" } (see the recipe) */
     classes?: RecipeClasses<typeof tableOfContentsRecipe>;

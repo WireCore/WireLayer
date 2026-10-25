@@ -53,7 +53,7 @@ export interface CalendarViewOptions {
     /** highlightToday false: today without its own style */
     plainToday?: boolean;
     hideOutsideDays?: boolean;
-    weekendDays?: number[];
+    weekendDays?: readonly number[];
     allowDeselect?: boolean;
     /** "Today" in this zone */
     timeZone?: string;
@@ -81,7 +81,7 @@ export interface DatePickerBaseProps extends CalendarViewOptions {
     /** Month and year only (MonthPicker) or the year only (YearPicker) */
     period?: 'month' | 'year';
     /** Range presets below the calendar */
-    presets?: CalendarPreset[];
+    presets?: readonly CalendarPreset[];
     size?: 'sm' | 'md' | 'lg';
     /** clearable false: no clear button */
     hideClear?: boolean;
@@ -385,7 +385,7 @@ function Calendar({
     presets,
     responsive,
     ...options
-}: { presets?: CalendarPreset[]; responsive?: boolean } & CalendarViewOptions) {
+}: { presets?: readonly CalendarPreset[]; responsive?: boolean } & CalendarViewOptions) {
     const datePicker = useRecipe('datePicker', datePickerRecipe);
     const styles = datePicker();
     const narrow = useNarrow(responsive);
@@ -434,7 +434,7 @@ export function CalendarViews({
     allowDeselect,
     timeZone,
     renderDay,
-}: { presets?: CalendarPreset[] } & CalendarViewOptions) {
+}: { presets?: readonly CalendarPreset[] } & CalendarViewOptions) {
     const datePicker = useRecipe('datePicker', datePickerRecipe);
     const styles = datePicker();
     const translations = useTranslations();
@@ -605,7 +605,7 @@ function DayTable({
     showWeekNumbers?: boolean;
     plainToday?: boolean;
     hideOutsideDays?: boolean;
-    weekendDays?: number[];
+    weekendDays?: readonly number[];
     allowDeselect?: boolean;
     renderDay?: RenderDay;
 }) {

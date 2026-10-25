@@ -18,16 +18,16 @@ import { useRecipe } from '../../recipes.js';
 
 export interface MenubarMenu {
     label: string;
-    items: MenuEntry[];
+    items: readonly MenuEntry[];
 }
 
 export interface MenubarProps {
-    menus: MenubarMenu[];
+    menus: readonly MenubarMenu[];
     /** Below the md breakpoint (768px) a menu button with all menus replaces the bar */
     responsive?: boolean;
     /** Accessible name of the menu button on small screens */
     menuLabel?: string;
-    /** Component for items with href, e.g. RouterLink or NuxtLink (gets `href`); default <a> */
+    /** Component for link items, e.g. RouterLink or NuxtLink (gets `to` for items with `to`, else `href`); default <a> */
     linkAs?: Component | string;
     /** Extra classes per part of the component, e.g. { base: "…" } (see the recipe) */
     classes?: RecipeClasses<typeof menubarRecipe>;
@@ -66,7 +66,7 @@ provideMenuState({
 });
 // The menu button on small screens: every menu becomes a submenu
 const burgerItems = computed<MenuEntry[]>(() =>
-    props.menus.map((entry, index) => ({ value: `menubar-${index}`, label: entry.label, children: entry.items }))
+    props.menus.map((entry, index) => ({ value: `menubar-${index}`, label: entry.label, children: [...entry.items] }))
 );
 // Content before/after the bar and the menu button sit outside role="menubar" (only menu items may be inside)
 const wrapped = computed(() => !!(slots.start || slots.end || props.responsive));

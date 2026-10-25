@@ -20,7 +20,7 @@ export interface TourStep {
 }
 
 export interface TourProps {
-    steps: TourStep[];
+    steps: readonly TourStep[];
     /** Running – use with v-model:open */
     open?: boolean;
     /** Extra classes per part of the component, e.g. { base: "…" } (see the recipe) */

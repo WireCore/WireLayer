@@ -13,6 +13,7 @@ import {
 import { computed, nextTick, ref, watch, type Component } from 'vue';
 import MenuEntries from './MenuEntries.vue';
 import { provideMenuState } from './state.js';
+import type { PopoverPlacement } from '../Popover/Popover.vue';
 import type { MenuCheckboxItem, MenuEntry, MenuItem, MenuRadioItem } from './types.js';
 import { useTranslations } from '../../locale.js';
 import { useAnchoredOverlay } from '../../overlay.js';
@@ -21,9 +22,9 @@ import { useRecipe } from '../../recipes.js';
 export interface MenuProps {
     /**
      * Items, groups ({ type: 'group' }), separators ({ type: 'separator' }), checkbox items ({ type: 'checkbox' }) and
-     * radio groups ({ type: 'radio' }); items with children open a submenu, items with href are links
+     * radio groups ({ type: 'radio' }); items with children open a submenu, items with href or to are links
      */
-    items: MenuEntry[];
+    items: readonly MenuEntry[];
     /** Controlled state – use with v-model:open */
     open?: boolean;
     defaultOpen?: boolean;
@@ -33,13 +34,22 @@ export interface MenuProps {
     searchable?: boolean;
     /** Placeholder and accessible name of the filter field */
     searchLabel?: string;
-    /** Component for items with href, e.g. RouterLink or NuxtLink (gets `href`); default <a> */
+    /** Side of the trigger the menu opens on, e.g. `bottom-end` for a menu at the right edge (default bottom-start) */
+    placement?: PopoverPlacement;
+    /** Arrow pointing at the trigger, as on the Popover */
+    arrow?: boolean;
+    /** Component for link items, e.g. RouterLink or NuxtLink (gets `to` for items with `to`, else `href`); default <a> */
     linkAs?: Component | string;
     /** Extra classes per part of the component, e.g. { base: "…" } (see the recipe) */
     classes?: RecipeClasses<typeof menuRecipe>;
 }
 
-const props = withDefaults(defineProps<MenuProps>(), { open: undefined, defaultOpen: undefined, anchor: undefined });
+const props = withDefaults(defineProps<MenuProps>(), {
+    open: undefined,
+    defaultOpen: undefined,
+    anchor: undefined,
+    placement: 'bottom-start',
+});
 const menu = useRecipe('menu', menuRecipe, () => props.classes);
 const emit = defineEmits<{
     select: [value: string];
@@ -96,7 +106,8 @@ watch(overlay.isOpen, async (open) => {
     requestAnimationFrame(() => requestAnimationFrame(() => search.value?.focus()));
 });
 // One object until the inputs change – a new one on every render can make Ark re-render endlessly
-const positioning = computed(() => overlay.positioning({}));
+// With the arrow the gap of the Popover, else Ark's default
+const positioning = computed(() => overlay.positioning({ placement: props.placement, gutter: props.arrow ? 10 : 8 }));
 </script>
 
 <template>
@@ -114,6 +125,9 @@ const positioning = computed(() => overlay.positioning({}));
         <Teleport to="body">
             <Menu.Positioner>
                 <Menu.Content :class="styles.content()">
+                    <Menu.Arrow v-if="arrow" :class="styles.arrow()">
+                        <Menu.ArrowTip :class="styles.arrowTip()" />
+                    </Menu.Arrow>
                     <Menu.Context v-if="searchable" v-slot="api">
                         <!-- A group: a text field may not sit directly in a menu -->
                         <div

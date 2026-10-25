@@ -22,7 +22,7 @@ import { useLocale, useTranslations } from '../../locale.js';
 import { useRecipe } from '../../recipes.js';
 
 export interface DataViewProps<T> {
-    items?: T[];
+    items?: readonly T[];
     /** Accessible name of the list, e.g. "Server" */
     label: string;
     /** List or grid – use with v-model:layout */
@@ -33,7 +33,7 @@ export interface DataViewProps<T> {
     /** Items per page – enables pagination (v-model:page-size with `pageSizes`) */
     pageSize?: number;
     /** Page sizes to choose from below the items */
-    pageSizes?: number[];
+    pageSizes?: readonly number[];
     /** Current page, 1-based – use with v-model:page */
     page?: number;
     defaultPage?: number;

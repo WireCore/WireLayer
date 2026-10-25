@@ -25,7 +25,7 @@ import { useLocale, useTranslations } from '../../locale.js';
 import { useRecipe } from '../../recipes.js';
 
 export interface CascadeSelectProps<V = string> {
-    items: CascadeOption<V>[];
+    items: readonly CascadeOption<V>[];
     /** Chosen value – use with v-model; any type (see `valueKey`) */
     modelValue?: V | null;
     defaultValue?: V | null;

@@ -3,15 +3,22 @@ import { popupMotion, pressable, tv } from './tv.js';
 // Menu, tooltip, dialog and toast – rendered in a portal on top of the page.
 
 const floatingSurface = [
-    'flex flex-col rounded-[10px] border border-line-2 bg-card p-1 text-fg outline-none',
+    'flex flex-col rounded-popup border border-line-2 bg-card p-1 text-fg outline-none',
     'shadow-[0_14px_32px_-12px_rgba(0,0,0,.45)]',
 ];
+
+/** Arrow from a floating panel to its trigger (Popover, Menu with `arrow`) */
+const popupArrow = {
+    arrow: '[--arrow-background:var(--color-card)] [--arrow-size:10px]',
+    arrowTip: 'border-t border-l border-line-2',
+};
 
 export const menu = tv({
     slots: {
         content: [...floatingSurface, 'min-w-56', ...popupMotion],
+        ...popupArrow,
         item: [
-            'flex h-9 shrink-0 cursor-pointer items-center gap-2.5 rounded-md px-2.5 text-sm',
+            'flex h-9 shrink-0 cursor-pointer items-center gap-2.5 rounded-lg px-2.5 text-sm',
             'data-highlighted:bg-line data-disabled:cursor-not-allowed data-disabled:opacity-40',
             'forced-colors:data-highlighted:forced-color-adjust-none forced-colors:data-highlighted:bg-[Highlight] forced-colors:data-highlighted:text-[HighlightText]',
         ],
@@ -53,12 +60,11 @@ export const tooltip = tv({
 export const popover = tv({
     slots: {
         content: [
-            'relative flex w-80 max-w-[calc(100vw-2rem)] flex-col gap-1 rounded-xl border border-line-2 bg-card p-4 text-fg outline-none',
+            'relative flex w-80 max-w-[calc(100vw-2rem)] flex-col gap-1 rounded-popup border border-line-2 bg-card p-4 text-fg outline-none',
             'shadow-[0_14px_32px_-12px_rgba(0,0,0,.45)]',
             ...popupMotion,
         ],
-        arrow: '[--arrow-background:var(--color-card)] [--arrow-size:10px]',
-        arrowTip: 'border-t border-l border-line-2',
+        ...popupArrow,
         /** Optional dimming behind the panel (`overlay`) */
         backdrop: [
             'fixed inset-0 z-50 bg-black/40',
@@ -77,6 +83,10 @@ export const popover = tv({
         /** `trigger`: as wide as the trigger or anchor (Ark sets --reference-width) */
         width: {
             trigger: { content: 'w-[var(--reference-width)] max-w-none' },
+        },
+        /** The title only for screen readers – it still names the panel */
+        hideTitle: {
+            true: { title: 'sr-only', body: 'mt-0' },
         },
     },
 });

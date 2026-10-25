@@ -325,3 +325,19 @@ const markdown = markdownElements(
 export const Markdown: Story = {
     render: () => html` <div class="wc-prose" style="max-width:36rem">${markdown}</div>`,
 };
+
+/** Slim app header: start, middle (takes the free space) and end – here with an avatar as a button */
+export const TopBar: Story = {
+    render: () =>
+        html` <header class="wc-top-bar" style="width:640px">
+            <div class="wc-top-bar-start"><span style="font-size:14px;font-weight:600">Console</span></div>
+            <div class="wc-top-bar-center"><span style="font-size:14px;color:var(--color-muted)">Overview</span></div>
+            <div class="wc-top-bar-end">
+                <button type="button" class="wc-avatar wc-avatar-sm wc-avatar-interactive">
+                    <span class="wc-avatar-content" role="img" aria-label="Julia Klein"
+                        ><span class="wc-avatar-fallback">JK</span></span
+                    >
+                </button>
+            </div>
+        </header>`,
+};

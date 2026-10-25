@@ -181,7 +181,7 @@ export const copyButton = tv({
 export const hoverCard = tv({
     slots: {
         content: [
-            'w-72 max-w-[calc(100vw-2rem)] rounded-xl border border-line-2 bg-card p-4 text-sm text-fg outline-none',
+            'w-72 max-w-[calc(100vw-2rem)] rounded-popup border border-line-2 bg-card p-4 text-sm text-fg outline-none',
             'shadow-[0_14px_32px_-12px_rgba(0,0,0,.45)]',
             ...popupMotion,
         ],

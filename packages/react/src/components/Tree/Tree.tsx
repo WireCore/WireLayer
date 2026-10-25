@@ -31,7 +31,7 @@ import { useTree, type TreeModel } from './useTree.js';
 export type { TreeDropAllowed, TreeNode, TreeNodeState, TreeTransfer } from './types.js';
 
 export interface TreeProps {
-    items: TreeNode[];
+    items: readonly TreeNode[];
     /** Visible label, also the tree's accessible name */
     label?: string;
     /** Accessible name without a visible label */

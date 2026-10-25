@@ -14,7 +14,7 @@ import { useRecipe } from '../../recipes.js';
 
 defineOptions({ name: 'CascadeLevel' });
 defineProps<{
-    options: CascadeOption<unknown>[];
+    options: readonly CascadeOption<unknown>[];
     value: string | null;
     /** The option this level belongs to (`changeOnSelect`: it can be chosen here) */
     parent?: CascadeOption<unknown>;

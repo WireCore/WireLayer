@@ -29,7 +29,7 @@ export interface DatePickerProps<T extends DatePickerValue = string | null> {
     /** Dates that cannot be chosen, e.g. weekends – receives the ISO date */
     isDateUnavailable?: (date: string) => boolean;
     /** Single dates that cannot be chosen (holidays, booked days) */
-    excludeDates?: DateLike[];
+    excludeDates?: readonly DateLike[];
     /** Order of the parts and the separators follow the locale (de-DE: TT.MM.JJJJ) */
     locale?: string;
     disabled?: boolean;
@@ -53,7 +53,7 @@ export interface DatePickerProps<T extends DatePickerValue = string | null> {
     /** First day of the week: 0 = Sunday … 6 = Saturday; default from the locale */
     firstDayOfWeek?: number;
     /** Weekend days (0 = Sunday … 6) marked with data-weekend; default from the locale */
-    weekendDays?: number[];
+    weekendDays?: readonly number[];
     /** Choosing the selected day again clears the field */
     allowDeselect?: boolean;
     /** IANA zone ("Europe/Berlin") of a date with time: shown and typed in the zone, the value gets its offset */

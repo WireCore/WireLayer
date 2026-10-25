@@ -14,9 +14,9 @@ import { useRecipe } from '../../recipes.js';
 import { useLocale, useTranslations } from '../../locale.js';
 
 export interface SankeyProps {
-    nodes: SankeyNodeInput[];
+    nodes: readonly SankeyNodeInput[];
     /** Flows from node to node (ids) */
-    links: SankeyLinkInput[];
+    links: readonly SankeyLinkInput[];
     /** Title, also the accessible name of the diagram */
     title: string;
     /** Height of the diagram in px */

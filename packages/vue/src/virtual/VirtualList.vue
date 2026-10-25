@@ -13,7 +13,7 @@ import { useTranslations } from '../locale.js';
 import { useRecipe } from '../recipes.js';
 
 export interface VirtualListProps<T> {
-    items?: T[];
+    items?: readonly T[];
     /** Accessible name of the list */
     label: string;
     /** Estimated row height in px (rows are measured when shown) */

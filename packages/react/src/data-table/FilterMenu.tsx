@@ -29,7 +29,7 @@ export interface FilterMenuProps {
     value: DataTableFilterValue | undefined;
     onChange: (value: DataTableFilterValue | undefined) => void;
     options?: readonly unknown[];
-    matchModes?: DataTableMatchMode[];
+    matchModes?: readonly DataTableMatchMode[];
     maxConstraints: number;
     /** Own input for the value of a condition (the column's renderFilter) */
     renderValue?: (props: { value: unknown; setValue: (value: unknown) => void }) => ReactNode;

@@ -22,7 +22,7 @@ export interface ColorPickerProps {
     /** Adds an opacity slider; the value then has 8 hex digits */
     alpha?: boolean;
     /** Preset colours shown below the picker */
-    swatches?: string[];
+    swatches?: readonly string[];
     /** Format of the value: hex (default), rgb, hsl, hsb or oklch – e.g. "oklch(55.4% 0.218 262.9)" */
     format?: ColorFormat;
     /** Area and sliders in the popup (default true); false: only the `swatches` (a palette) */

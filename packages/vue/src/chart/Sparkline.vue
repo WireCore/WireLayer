@@ -12,7 +12,7 @@ import { useLocale, useTranslations } from '../locale.js';
 import { useRecipe } from '../recipes.js';
 
 export interface SparklineProps {
-    data: number[];
+    data: readonly number[];
     /** What the line shows, e.g. "Load over the last 24 hours" – starts the text alternative */
     label: string;
     /** Area under the line */

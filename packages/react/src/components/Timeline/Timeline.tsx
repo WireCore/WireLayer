@@ -20,7 +20,7 @@ export interface TimelineItem {
 }
 
 export interface TimelineProps {
-    items: TimelineItem[];
+    items: readonly TimelineItem[];
     /** Accessible name of the list, e.g. "History" */
     label: string;
     /** Marker at the start (default), at the end, or in the middle with the content alternating sides (vertical only) */

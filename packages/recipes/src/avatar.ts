@@ -1,4 +1,4 @@
-import { tv } from './tv.js';
+import { pressable, tv } from './tv.js';
 
 export type AvatarVariant = 'solid' | 'outline' | 'soft';
 export type AvatarShape = 'circle' | 'square';
@@ -21,6 +21,8 @@ export const avatar = tv({
         image: 'size-full object-cover',
         fallback: 'flex size-full items-center justify-center',
         icon: 'shrink-0',
+        /** Inside a button (`as="button"`): the image that carries the name, so the button is named by it */
+        content: 'flex size-full items-center justify-center',
     },
     variants: {
         variant: {
@@ -53,6 +55,15 @@ export const avatar = tv({
         /** Set by AvatarGroup: inner separating border (like the design), opaque background for the overlap */
         grouped: {
             true: { base: 'border-2 border-card' },
+        },
+        /** A button (`as="button"`), e.g. the trigger of a user menu: focus ring, a ring on hover and while open */
+        interactive: {
+            true: {
+                base: [
+                    ...pressable,
+                    'hover:ring-2 hover:ring-line-2 data-[state=open]:ring-2 data-[state=open]:ring-line-2',
+                ],
+            },
         },
     },
     compoundVariants: [

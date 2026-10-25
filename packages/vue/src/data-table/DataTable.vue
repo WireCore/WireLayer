@@ -184,7 +184,7 @@ import { useRecipe } from '../recipes.js';
 
 export interface DataTableProps<T> {
     /** The rows (with `dataSource` the table loads them itself) */
-    data?: T[];
+    data?: readonly T[];
     /**
      * Rows from a server instead of `data` and `manual`: the table asks `getRows` (page, sorting, filters, search,
      * grouping, abort signal) whenever they change, cancels outdated requests, goes back to page 1 when filters,
@@ -200,14 +200,14 @@ export interface DataTableProps<T> {
      * `values` aggregated in the cells, totals per row and column (ids are column ids of `columns`)
      */
     pivot?: DataTablePivot;
-    columns: DataTableColumn<T>[];
+    columns: readonly DataTableColumn<T>[];
     /** Accessible name of the table (visually hidden caption) */
     caption: string;
     getRowId?: (row: T, index: number) => string;
     /** Rows per page – enables pagination (v-model:page-size with `pageSizeOptions`) */
     pageSize?: number;
     /** Choices for the rows per page, shown next to the pagination */
-    pageSizeOptions?: number[];
+    pageSizeOptions?: readonly number[];
     /** Current page (1-based) – use with v-model:page */
     page?: number;
     /** Index of the first row of the current page (0-based) – instead of `page`, use with v-model:first */
@@ -304,7 +304,7 @@ export interface DataTableProps<T> {
     /** Groups the rows by the values of these columns (expandable group rows) – v-model:group-by */
     groupBy?: string | string[];
     /** Rows (ids) that stay at the top, also while scrolling and paging */
-    frozenRows?: string[];
+    frozenRows?: readonly string[];
     /** Rows can be moved with the drag handle (mouse or arrow keys) – reported via row-reorder */
     reorderableRows?: boolean;
     /** Column with the row number */
@@ -361,7 +361,7 @@ export interface DataTableProps<T> {
      * `virtualRows` from `/virtual` for `virtual`, `dateInput` and `numberInput` for date and number filters and
      * editors (without them the browser's inputs)
      */
-    features?: DataTableFeature[];
+    features?: readonly DataTableFeature[];
     /** Only the visible rows are rendered (requires `scrollHeight` and the feature `virtualRows`) */
     virtual?: boolean;
     /** Estimated row height in px for `virtual` */
@@ -561,7 +561,7 @@ const pivotModel = computed(() => {
     const pivot = props.pivot;
     if (!pivot) return null;
     const byId = new Map<string, DataTableColumn<TData>>();
-    const walk = (list: DataTableColumn<TData>[]) =>
+    const walk = (list: readonly DataTableColumn<TData>[]) =>
         list.forEach((column) => (column.columns ? walk(column.columns) : byId.set(column.id, column)));
     walk(props.columns);
     const columnValue = (row: TData, columnId: string) => {
@@ -638,13 +638,13 @@ const busy = computed(() => !!props.loading || (!!props.dataSource && sourceStat
 
 // Leaf columns (columns inside groups) by id
 const leafDefs = computed(() => {
-    const flatten = (columns: DataTableColumn<TData>[]): DataTableColumn<TData>[] =>
+    const flatten = (columns: readonly DataTableColumn<TData>[]): DataTableColumn<TData>[] =>
         columns.flatMap((column) => (column.columns ? flatten(column.columns) : [column]));
     return flatten(columnDefs.value);
 });
 const columnById = computed(() => {
     const map = new Map<string, DataTableColumn<TData>>();
-    const walk = (columns: DataTableColumn<TData>[]) =>
+    const walk = (columns: readonly DataTableColumn<TData>[]) =>
         columns.forEach((column) => {
             map.set(column.id, column);
             if (column.columns) walk(column.columns);
@@ -753,7 +753,7 @@ watch(
     (value) => value && (density.value = value)
 );
 // Own computed: a new object on every render would count as a change for TanStack
-const rowPinning = computed(() => ({ top: props.frozenRows ?? [], bottom: [] }));
+const rowPinning = computed(() => ({ top: [...(props.frozenRows ?? [])], bottom: [] }));
 
 const labelFor = (row: TData, index: number) => props.rowLabel?.(row, index) ?? t.row(index);
 const expandLabelFor = (row: TData, index: number) =>

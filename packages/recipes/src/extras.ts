@@ -22,7 +22,7 @@ export const navigationMenu = tv({
             focusRing,
         ],
         content: [
-            'absolute top-[calc(100%+6px)] inset-s-0 z-40 grid w-[34rem] max-w-[calc(100vw-2rem)] grid-cols-2 gap-1 rounded-xl border border-line-2 bg-card p-2',
+            'absolute top-[calc(100%+6px)] inset-s-0 z-40 grid w-[34rem] max-w-[calc(100vw-2rem)] grid-cols-2 gap-1 rounded-popup border border-line-2 bg-card p-2',
             'shadow-[0_14px_32px_-12px_rgba(0,0,0,.45)]',
             ...popupMotion,
         ],
@@ -76,7 +76,7 @@ export const tour = tv({
             'data-[type=dialog]:items-center data-[type=dialog]:justify-center data-[type=dialog]:p-4',
         ],
         content: [
-            'pointer-events-auto flex w-80 max-w-[calc(100vw-2rem)] flex-col gap-2 rounded-xl border border-line-2 bg-card p-4 text-fg outline-none',
+            'pointer-events-auto flex w-80 max-w-[calc(100vw-2rem)] flex-col gap-2 rounded-popup border border-line-2 bg-card p-4 text-fg outline-none',
             'shadow-[0_14px_32px_-12px_rgba(0,0,0,.45)]',
             ...popupMotion,
         ],

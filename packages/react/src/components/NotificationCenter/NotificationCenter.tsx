@@ -33,7 +33,7 @@ export interface NotificationItem {
 
 export interface NotificationCenterProps extends Omit<ComponentProps<'div'>, 'onSelect'> {
     /** The notifications (with `dataSource`: new ones pushed by the app, before the loaded pages) */
-    items?: NotificationItem[];
+    items?: readonly NotificationItem[];
     /**
      * Notifications from a server, page by page (newest first): the first page is loaded at the start, "Load more"
      * loads the next; items marked as read are kept as read here (report them with onMarkRead/onMarkAllRead)
@@ -83,7 +83,7 @@ type ListProps = Pick<
     | 'onSelect'
     | 'renderActions'
     | 'classes'
-> & { items: NotificationItem[]; unread: number };
+> & { items: readonly NotificationItem[]; unread: number };
 
 function NotificationList({
     items,

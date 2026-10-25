@@ -19,7 +19,7 @@ export interface BarsListItem {
 }
 
 export interface BarsListProps {
-    items: BarsListItem[];
+    items: readonly BarsListItem[];
     /** Accessible name of the list (visible with `showTitle`) */
     label: string;
     showTitle?: boolean;

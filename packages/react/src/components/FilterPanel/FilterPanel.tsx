@@ -24,7 +24,7 @@ export interface FilterChip {
 
 export interface FilterChipsProps extends ComponentProps<'ul'> {
     /** The active filters */
-    filters: FilterChip[];
+    filters: readonly FilterChip[];
     /** Accessible name of the list (default "Active filters") */
     label?: string;
     /** Text of the reset button (default "Reset all"); `false` hides it */
@@ -93,7 +93,7 @@ export function FilterChips({
 
 export interface FilterPanelProps extends ComponentProps<'section'> {
     /** The active filters – shown as chips and counted on the button */
-    filters?: FilterChip[];
+    filters?: readonly FilterChip[];
     /** Number on the button (default: the number of filters) */
     count?: number;
     /** Form shown (controlled) */

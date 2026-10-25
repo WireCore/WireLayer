@@ -18,7 +18,7 @@ export interface DescriptionsItem {
 }
 
 export interface DescriptionsProps {
-    items: DescriptionsItem[];
+    items: readonly DescriptionsItem[];
     /** Heading above the list */
     title?: string;
     /** Level of the title (default 3) */

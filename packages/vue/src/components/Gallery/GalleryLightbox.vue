@@ -30,7 +30,7 @@ import { useRecipe } from '../../recipes.js';
 
 // Lightbox of a Gallery (`tools`): one picture at a time – zoom (buttons, +/−, Ctrl+wheel, two fingers), move the
 // zoomed picture (drag, arrow keys), rotate, download, fill the screen; swipe or arrow keys change the picture
-const props = defineProps<{ images: GalleryImage[]; label: string; page: number }>();
+const props = defineProps<{ images: readonly GalleryImage[]; label: string; page: number }>();
 const emit = defineEmits<{ 'update:page': [page: number] }>();
 const gallery = useRecipe('gallery', galleryRecipe);
 const dialog = useRecipe('dialog', dialogRecipe);

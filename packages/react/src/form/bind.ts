@@ -2,7 +2,11 @@ import type { AnyFieldApi } from '@tanstack/react-form';
 import type { ChangeEvent } from 'react';
 import type { CheckedState } from '../components/Checkbox/Checkbox.js';
 
-/** Props for Input and Textarea: `<Input {...bindInput(field)} />` */
+/**
+ * Props for the text fields with a change event: Input, Textarea and PasswordInput – `<Input {...bindInput(field)} />`.
+ * SearchField, MaskInput, PhoneInput, ColorInput, JsonInput, PinInput, Mentions and Autocomplete report their text with
+ * `onValueChange`: use bindValue
+ */
 export const bindInput = (field: AnyFieldApi) => ({
     name: field.name,
     value: (field.state.value as string) ?? '',
@@ -18,7 +22,7 @@ export const bindCheckbox = (field: AnyFieldApi) => ({
     onBlur: field.handleBlur,
 });
 
-/** Props for Select, RadioGroup, ChipGroup and SegmentedControl */
+/** Props for Select, RadioGroup, ChipGroup, SegmentedControl and the other components with `value`/`onValueChange` */
 export const bindValue = (field: AnyFieldApi) => ({
     name: field.name,
     value: field.state.value,

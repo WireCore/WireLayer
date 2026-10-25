@@ -13,7 +13,7 @@ import { useRecipe } from '../../recipes.js';
 
 export interface FunnelProps {
     /** The stages, widest first */
-    stages: FunnelStage[];
+    stages: readonly FunnelStage[];
     /** Title, also the accessible name of the funnel */
     title: string;
     /** The title only for screen readers */

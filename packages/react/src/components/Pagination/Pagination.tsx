@@ -40,7 +40,7 @@ export interface PaginationProps extends Omit<ComponentProps<'nav'>, 'dir'> {
     showSummary?: boolean;
     summary?: (range: PaginationRange) => string;
     /** Choice of rows per page, e.g. [10, 25, 50]; the current page keeps its first item in view */
-    pageSizes?: number[];
+    pageSizes?: readonly number[];
     /** Field to go to a page by number */
     jumper?: boolean;
     /**

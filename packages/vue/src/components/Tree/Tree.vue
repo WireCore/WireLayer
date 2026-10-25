@@ -19,7 +19,7 @@ import { useRecipe } from '../../recipes.js';
 const translations = useTranslations();
 
 export interface TreeProps {
-    items: TreeNode[];
+    items: readonly TreeNode[];
     /** Visible label, also the tree's accessible name */
     label?: string;
     selectionMode?: 'single' | 'multiple';

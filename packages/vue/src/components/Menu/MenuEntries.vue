@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { Menu } from '@ark-ui/vue/menu';
 import { Check, ChevronRight, Circle } from '@lucide/vue';
-import { menu as menuRecipe, SUBMENU_GUTTER } from '@wirecore/wirelayer-recipes';
+import { linkTarget, menu as menuRecipe, SUBMENU_GUTTER } from '@wirecore/wirelayer-recipes';
 import { useMenuState } from './state.js';
 import type { MenuCheckboxItem, MenuEntry, MenuItem, MenuRadioItem } from './types.js';
 import { useRecipe } from '../../recipes.js';
 
 defineOptions({ name: 'MenuEntries' });
-defineProps<{ entries: MenuEntry[] }>();
+defineProps<{ entries: readonly MenuEntry[] }>();
 defineSlots<{
     /** Own content of an item (instead of icon, label and shortcut) */
     item?(props: { item: MenuItem | MenuCheckboxItem | MenuRadioItem }): unknown;
@@ -101,13 +101,17 @@ const keyOf = (entry: MenuEntry, index: number) => {
             </Teleport>
         </Menu.Root>
         <Menu.Item
-            v-else-if="!('type' in entry) && entry.href"
+            v-else-if="!('type' in entry) && (entry.href || entry.to)"
             :value="entry.value"
             :disabled="entry.disabled"
             :close-on-select="entry.closeOnSelect"
             as-child
         >
-            <component :is="state?.linkAs() ?? 'a'" :href="entry.href" :class="menu({ danger: entry.danger }).item()">
+            <component
+                :is="state?.linkAs() ?? 'a'"
+                v-bind="linkTarget(entry.href, entry.to)"
+                :class="menu({ danger: entry.danger }).item()"
+            >
                 <slot name="item" :item="entry">
                     <component :is="entry.icon" v-if="entry.icon" :class="styles.icon()" aria-hidden="true" />
                     <span :class="styles.label()">{{ entry.label }}</span>

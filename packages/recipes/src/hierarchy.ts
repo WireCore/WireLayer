@@ -281,7 +281,7 @@ export const treeSelect = tv({
         indicator:
             'size-4 shrink-0 text-muted transition-transform motion-reduce:transition-none data-[state=open]:rotate-180',
         content: [
-            'max-h-80 w-[var(--reference-width)] overflow-y-auto rounded-[10px] border border-line-2 bg-card p-1 text-fg outline-none',
+            'max-h-80 w-[var(--reference-width)] overflow-y-auto rounded-popup border border-line-2 bg-card p-1 text-fg outline-none',
             'shadow-[0_14px_32px_-12px_rgba(0,0,0,.45)]',
             ...popupMotion,
         ],

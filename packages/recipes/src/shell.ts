@@ -39,7 +39,7 @@ export const megaMenu = tv({
         ],
         content: [
             // At least as wide as one column plus the teaser, even when the navigation itself is narrow
-            'absolute inset-x-0 top-[calc(100%+6px)] z-40 flex min-w-[min(48rem,calc(100vw-2rem))] flex-col gap-4 rounded-xl border border-line-2 bg-card p-5 text-fg',
+            'absolute inset-x-0 top-[calc(100%+6px)] z-40 flex min-w-[min(48rem,calc(100vw-2rem))] flex-col gap-4 rounded-popup border border-line-2 bg-card p-5 text-fg',
             panelShadow,
             'motion-safe:data-[state=open]:animate-pop-in',
         ],
@@ -364,6 +364,19 @@ export const descriptions = tv({
     ],
     defaultVariants: {
         orientation: 'vertical',
+    },
+});
+
+/**
+ * Slim header of an app outside AppShell: content at the start, in the middle and at the end – no menus, no toolbar
+ * keyboard navigation (TopBar)
+ */
+export const topBar = tv({
+    slots: {
+        base: 'flex h-14 shrink-0 items-center gap-3 border-b border-line bg-card px-4',
+        start: 'flex shrink-0 items-center gap-2',
+        center: 'flex min-w-0 flex-1 items-center gap-2',
+        end: 'ms-auto flex shrink-0 items-center gap-2',
     },
 });
 

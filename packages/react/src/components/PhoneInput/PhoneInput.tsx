@@ -36,7 +36,7 @@ export interface PhoneInputProps extends Omit<
     /** Whether the number has a valid length for its country (after every change) */
     onValidChange?: (valid: boolean) => void;
     /** Countries to offer (default: about 60 common ones; extend with your own entries) */
-    countries?: PhoneCountry[];
+    countries?: readonly PhoneCountry[];
     /** Accessible name of the country select (default "Country") */
     countryLabel?: string;
     size?: Size;

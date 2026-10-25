@@ -13,7 +13,7 @@ import { useRecipe } from '../RecipesProvider/RecipesProvider.js';
 
 export interface ContextMenuProps extends MenuItemOptions {
     /** Items, groups, separators, checkbox items, radio groups and submenus – as in Menu */
-    items: MenuEntry[];
+    items: readonly MenuEntry[];
     /** Accessible name of the menu – without it the menu is named by the area's content */
     label?: string;
     /** open(anchor), close(), toggle(anchor) – e.g. open(event) from your own handler */

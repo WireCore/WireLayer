@@ -10,7 +10,7 @@ const items: StepperItem[] = [
     { label: 'Review', description: 'Is everything correct?' },
 ];
 
-function Demo({ items, linear }: { items: StepperItem[]; linear?: boolean }) {
+function Demo({ items, linear }: { items: readonly StepperItem[]; linear?: boolean }) {
     const [step, setStep] = useState(0);
     const [name, setName] = useState('');
     const [project, setProject] = useState('');

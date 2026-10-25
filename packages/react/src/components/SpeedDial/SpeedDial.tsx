@@ -21,7 +21,7 @@ export interface SpeedDialItem {
 }
 
 export interface SpeedDialProps {
-    items: SpeedDialItem[];
+    items: readonly SpeedDialItem[];
     /** Accessible name of the main button */
     label?: string;
     /**

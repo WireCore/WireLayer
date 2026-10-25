@@ -41,13 +41,13 @@ export interface GalleryImage {
     /** Picture shown before the video plays */
     poster?: string;
     /** Captions and other text tracks of the video (WCAG 1.2.2) */
-    tracks?: GalleryTrack[];
+    tracks?: readonly GalleryTrack[];
     /** File the download button offers (`tools`); defaults to fullSrc or src */
     download?: string;
 }
 
 export interface GalleryProps {
-    images: GalleryImage[];
+    images: readonly GalleryImage[];
     /** Accessible name of the gallery, also the title of the fullscreen view */
     label: string;
     /** Row of thumbnails below the picture (instead of the dots); it follows the shown picture */

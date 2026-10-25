@@ -18,7 +18,7 @@ import { useRecipe } from '../RecipesProvider/RecipesProvider.js';
 export type TreeSelectValue = string | string[] | null;
 
 export interface TreeSelectProps<T extends TreeSelectValue = string | null> {
-    items: TreeNode[];
+    items: readonly TreeNode[];
     /** Chosen node id (an array of ids with `multiple`) */
     value?: T;
     defaultValue?: T;

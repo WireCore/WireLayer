@@ -16,7 +16,7 @@ export interface WizardStep {
 }
 
 export interface WizardProps {
-    steps: WizardStep[];
+    steps: readonly WizardStep[];
     /** Current step (0-based; steps + summary = done) – use with v-model:step */
     step?: number;
     defaultStep?: number;

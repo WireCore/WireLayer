@@ -17,7 +17,7 @@ export interface StepperItem {
 }
 
 export interface StepperProps {
-    items: StepperItem[];
+    items: readonly StepperItem[];
     /** Current step (0-based; items.length = all done) – use with v-model:step */
     step?: number;
     defaultStep?: number;

@@ -21,7 +21,7 @@ const steps: TourStep[] = [
     },
 ];
 
-function Demo({ steps }: { steps: TourStep[] }) {
+function Demo({ steps }: { steps: readonly TourStep[] }) {
     const [open, setOpen] = useState(false);
     const [done, setDone] = useState(false);
     return (

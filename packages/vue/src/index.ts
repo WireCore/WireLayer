@@ -158,6 +158,7 @@ export { default as Panel, type PanelProps } from './components/Panel/Panel.vue'
 export { default as SplitButton, type SplitButtonProps } from './components/SplitButton/SplitButton.vue';
 export { default as ToggleButton, type ToggleButtonProps } from './components/ToggleButton/ToggleButton.vue';
 export { default as Toolbar, type ToolbarProps } from './components/Toolbar/Toolbar.vue';
+export { default as TopBar, type TopBarProps } from './components/TopBar/TopBar.vue';
 export { default as DataView, type DataViewProps } from './components/DataView/DataView.vue';
 export {
     default as MeterGroup,

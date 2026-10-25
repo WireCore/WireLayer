@@ -51,7 +51,7 @@ export interface CascadeOption<V = string> {
 }
 
 export interface CascadeSelectProps<V = string> {
-    items: CascadeOption<V>[];
+    items: readonly CascadeOption<V>[];
     /** Chosen value; any type (see `valueKey`) */
     value?: V | null;
     defaultValue?: V | null;

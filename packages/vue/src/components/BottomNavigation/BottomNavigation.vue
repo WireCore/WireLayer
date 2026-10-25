@@ -3,6 +3,8 @@ import {
     bottomNavigation as bottomNavigationRecipe,
     formatCount,
     isCurrentLink,
+    linkTarget,
+    type LinkTo,
     type RecipeClasses,
 } from '@wirecore/wirelayer-recipes';
 import { computed, normalizeClass, useAttrs, type Component } from 'vue';
@@ -12,6 +14,8 @@ import { useRecipe } from '../../recipes.js';
 export interface BottomNavigationItem {
     label: string;
     href: string;
+    /** Router target, passed as `to` to `linkAs` instead of `href`; `href` still identifies the item (`currentHref`) */
+    to?: LinkTo;
     icon: Component;
     /** Count (shown as 99+ above 99) or short text on the icon; it is part of the link's name */
     badge?: number | string;
@@ -21,14 +25,14 @@ export interface BottomNavigationItem {
 
 export interface BottomNavigationProps {
     /** 3 to 5 destinations */
-    items: BottomNavigationItem[];
+    items: readonly BottomNavigationItem[];
     /** Name of the navigation landmark (default "Navigation") */
     label?: string;
     /** Path of the current page – the item with exactly this href gets aria-current="page" */
     currentHref?: string;
     /** Own check for the current page, e.g. with the router */
     isCurrent?: (item: BottomNavigationItem) => boolean;
-    /** Component for the links, e.g. RouterLink or NuxtLink (gets `href`); default <a> */
+    /** Component for the links, e.g. RouterLink or NuxtLink (gets `to` for links with `to`, else `href`); default <a> */
     linkAs?: string | Component;
     /** In the flow of the page instead of fixed at the bottom */
     inline?: boolean;
@@ -60,7 +64,7 @@ const badgeText = (badge: number | string) => (typeof badge === 'number' ? forma
             <li v-for="item in items" :key="item.href" :class="styles.item()">
                 <component
                     :is="linkAs"
-                    :href="item.href"
+                    v-bind="linkTarget(item.href, item.to)"
                     :class="styles.link()"
                     :aria-current="isCurrentLink(item, currentHref, isCurrent) ? 'page' : undefined"
                     @click="emit('navigate', item, $event)"
