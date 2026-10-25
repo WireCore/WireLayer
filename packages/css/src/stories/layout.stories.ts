@@ -333,8 +333,10 @@ export const TopBar: Story = {
             <div class="wc-top-bar-start"><span style="font-size:14px;font-weight:600">Console</span></div>
             <div class="wc-top-bar-center"><span style="font-size:14px;color:var(--color-muted)">Overview</span></div>
             <div class="wc-top-bar-end">
-                <button type="button" class="wc-avatar wc-avatar-sm wc-avatar-interactive" aria-label="Julia Klein">
-                    <span class="wc-avatar-fallback">JK</span>
+                <button type="button" class="wc-avatar wc-avatar-sm wc-avatar-interactive">
+                    <span class="wc-avatar-content" role="img" aria-label="Julia Klein"
+                        ><span class="wc-avatar-fallback">JK</span></span
+                    >
                 </button>
             </div>
         </header>`,

@@ -21,6 +21,8 @@ export const avatar = tv({
         image: 'size-full object-cover',
         fallback: 'flex size-full items-center justify-center',
         icon: 'shrink-0',
+        /** Inside a button (`as="button"`): the image that carries the name, so the button is named by it */
+        content: 'flex size-full items-center justify-center',
     },
     variants: {
         variant: {

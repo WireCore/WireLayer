@@ -526,7 +526,9 @@ describe.each(frameworks)('%s', (framework) => {
             const trigger = screen.getByRole('button', { name: 'Julia Klein' });
             expect(trigger).toHaveAttribute('type', 'button');
             expect(trigger).toHaveAttribute('aria-haspopup', 'menu');
-            expect(screen.queryByRole('img', { name: 'Julia Klein' })).toBeNull();
+            // Named by the image inside, not by an aria-label without the visible initials (WCAG 2.5.3)
+            expect(trigger).not.toHaveAttribute('aria-label');
+            expect(within(trigger).getByRole('img', { name: 'Julia Klein' })).toHaveTextContent('JK');
             await userEvent.click(trigger);
             expect(await screen.findByRole('menuitem', { name: 'Sign out' })).toBeInTheDocument();
             expect(trigger).toHaveAttribute('aria-expanded', 'true');
