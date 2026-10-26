@@ -1,6 +1,6 @@
 {
     "name": "@wirecore/wirelayer-mcp",
-    "version": "0.2.0",
+    "version": "0.3.0",
     "description": "MCP server with the WireLayer component API and guides for AI assistants",
     "license": "MIT",
     "repository": {
