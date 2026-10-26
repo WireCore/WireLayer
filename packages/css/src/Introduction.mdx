@@ -87,9 +87,23 @@ npx wirelayer-css embed --scope '#my-app' --components button,input,card,data-ta
 | Field, Input, Textarea                                             | ✓ – errors through `aria-invalid` + `aria-describedby`                 |
 | Breadcrumb, Steps, Progress, Table                                 | ✓ – values in the markup (sorting/paging needs JS)                     |
 | Dialog                                                             | ✓ with `<dialog class="wc-dialog">` and `command`/`commandfor`         |
-| Checkbox, RadioGroup, Switch, ChipGroup, SegmentedControl          | display only – the state lives in `data-state`, which JS sets          |
+| Checkbox                                                           | ✓ with `<input type="checkbox" class="wc-checkbox-input">` (below)     |
+| RadioGroup, Switch, ChipGroup, SegmentedControl                    | display only – the state lives in `data-state`, which JS sets          |
 | Select, Menu, Tooltip, Tabs, Toast, Pagination                     | needs JS (keyboard, focus, positioning) – use the framework packages   |
 | Accordion, Popover, Drawer, all form controls with a popup         | needs JS – use the framework packages                                  |
+
+A checkbox without JavaScript – the native input right before the control; checked, focus, `aria-invalid` and
+`disabled` come from it (partially selected needs the framework packages):
+
+```html
+<label class="wc-checkbox">
+    <input type="checkbox" class="wc-checkbox-input" name="terms" />
+    <span class="wc-checkbox-control">
+        <svg class="wc-checkbox-icon" aria-hidden="true"><!-- check mark --></svg>
+    </span>
+    <span class="wc-checkbox-label">I agree</span>
+</label>
+```
 
 `@wirecore/wirelayer-vue` and `@wirecore/wirelayer-react` are meant for interactive pages: they bring keyboard
 interaction, focus management and ARIA states that plain CSS cannot provide.

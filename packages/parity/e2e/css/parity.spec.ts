@@ -54,6 +54,10 @@ const parentOf =
     (find: Find): Find =>
     (page) =>
         find(page).locator('xpath=..');
+const previousOf =
+    (find: Find): Find =>
+    (page) =>
+        find(page).locator('xpath=preceding-sibling::*[1]');
 
 const cases: Case[] = [
     {
@@ -494,6 +498,20 @@ const cases: Case[] = [
         react: 'data-ailabel--playground',
         html: 'data--ai-label',
         elements: [byText('AI-generated'), parentOf(byText('AI-generated'))],
+    },
+    // Native input in HTML, data-state in React: the control (before the label text) looks the same in every state
+    {
+        name: 'Checkbox',
+        react: 'forms-checkbox--states',
+        html: 'forms-groups--checkbox',
+        elements: [
+            byText('Selected'),
+            parentOf(byText('Selected')),
+            previousOf(byText('Not selected')),
+            previousOf(byText('Selected')),
+            previousOf(byText('Invalid')),
+            parentOf(byText('Disabled')),
+        ],
     },
     {
         name: 'CheckboxCard',

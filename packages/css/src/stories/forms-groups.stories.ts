@@ -73,6 +73,25 @@ export const NativeSelect: Story = {
         </div>`,
 };
 
+const checkbox = (label: string, attributes = '') =>
+    html` <label class="wc-checkbox">
+        <input class="wc-checkbox-input" type="checkbox" ${attributes} />
+        <span class="wc-checkbox-control">${icons.check('wc-checkbox-icon')}</span>
+        <span class="wc-checkbox-label">${label}</span>
+    </label>`;
+
+/**
+ * Checkbox with a native input: checked, focus, invalid (aria-invalid) and disabled come from the input, no
+ * JavaScript (partially selected needs the framework components)
+ */
+export const Checkbox: Story = {
+    render: () =>
+        html` <div style="display:flex;flex-direction:column;gap:12px">
+            ${checkbox('Not selected')} ${checkbox('Selected', 'checked')} ${checkbox('Invalid', 'aria-invalid="true"')}
+            ${checkbox('Disabled', 'disabled')}
+        </div>`,
+};
+
 const card = (
     type: 'checkbox' | 'radio',
     name: string,
