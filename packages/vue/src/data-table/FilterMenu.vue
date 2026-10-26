@@ -19,6 +19,7 @@ import { computed, ref } from 'vue';
 import Button from '../components/Button/Button.vue';
 import IconButton from '../components/IconButton/IconButton.vue';
 import Select from '../components/Select/Select.vue';
+import type { DataTableFilterInputOptions } from './types.js';
 import ValueInput from './ValueInput.vue';
 import { useLocale, useTranslations } from '../locale.js';
 import { useRecipe } from '../recipes.js';
@@ -32,10 +33,14 @@ const props = defineProps<{
     options?: readonly unknown[];
     matchModes?: readonly DataTableMatchMode[];
     maxConstraints: number;
+    /** Settings of the value inputs (the column's `filterInputProps`) */
+    inputProps?: DataTableFilterInputOptions;
 }>();
 defineSlots<{
     /** Own input for the value of a condition (the column's filter slot) */
     value?: (props: { value: unknown; setValue: (value: unknown) => void }) => unknown;
+    /** An option of select and multiSelect (the column's `#option-<id>`) */
+    option?: (props: { item: unknown; selected: boolean; highlighted: boolean; disabled: boolean }) => unknown;
 }>();
 const dataTable = useRecipe('dataTable', dataTableRecipe);
 const emit = defineEmits<{ 'update:modelValue': [value: DataTableFilterValue | undefined] }>();
@@ -147,6 +152,7 @@ const bottomEndPositioning = { placement: 'bottom-end', gutter: 4 } as const;
                                     :type="inputType(constraint.matchMode)"
                                     :label="`${t.value(index)}, ${t.from}`"
                                     :options="options"
+                                    :input-props="inputProps"
                                     :model-value="Array.isArray(constraint.value) ? constraint.value[0] : null"
                                     @update:model-value="setRange(index, 0, $event)"
                                 />
@@ -154,6 +160,7 @@ const bottomEndPositioning = { placement: 'bottom-end', gutter: 4 } as const;
                                     :type="inputType(constraint.matchMode)"
                                     :label="`${t.value(index)}, ${t.to}`"
                                     :options="options"
+                                    :input-props="inputProps"
                                     :model-value="Array.isArray(constraint.value) ? constraint.value[1] : null"
                                     @update:model-value="setRange(index, 1, $event)"
                                 />
@@ -163,9 +170,14 @@ const bottomEndPositioning = { placement: 'bottom-end', gutter: 4 } as const;
                                 :type="inputType(constraint.matchMode)"
                                 :label="t.value(index)"
                                 :options="options"
+                                :input-props="inputProps"
                                 :model-value="constraint.value"
                                 @update:model-value="constraint.value = $event"
-                            />
+                            >
+                                <template v-if="$slots.option" #option="scope">
+                                    <slot name="option" v-bind="scope" />
+                                </template>
+                            </ValueInput>
                         </div>
                         <Button
                             v-if="draft.constraints.length < maxConstraints"

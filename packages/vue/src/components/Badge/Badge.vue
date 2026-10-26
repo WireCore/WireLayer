@@ -7,6 +7,8 @@ export interface BadgeProps {
     variant?: BadgeVariant;
     /** Icon component rendered before the text */
     icon?: Component;
+    /** Props passed on to the icon component, e.g. { fill: 'currentColor' } for a filled icon or { strokeWidth: 1.5 } */
+    iconProps?: Record<string, unknown>;
     /** Round shape for a count or a single character (grows into a pill for longer content) */
     circle?: boolean;
     /** Extra classes per part of the component, e.g. { base: "…" } (see the recipe) */
@@ -22,7 +24,7 @@ const styles = computed(() => badge({ variant: props.variant, circle: props.circ
 
 <template>
     <span v-bind="{ ...attrs, class: styles.base({ class: normalizeClass(attrs.class) }) }">
-        <component :is="icon" v-if="icon" :class="styles.icon()" aria-hidden="true" />
+        <component :is="icon" v-if="icon" v-bind="iconProps" :class="styles.icon()" aria-hidden="true" />
         <slot />
     </span>
 </template>

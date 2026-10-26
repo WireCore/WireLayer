@@ -106,3 +106,24 @@ export const OwnToaster: Story = {
             </div>`,
     }),
 };
+
+const placed = createToaster();
+
+/**
+ * `placement`, `max`, `overlap` and `gap` straight on `<Toaster />` – also on the app-wide one of `toast()`, e.g.
+ * `<Toaster placement="top" />` once in the app. Here on a toaster of its own, so the other stories keep theirs
+ */
+export const Placement: Story = {
+    render: () => ({
+        components: { Button, Toaster },
+        setup: () => ({
+            placed,
+            add: () => placed.toast({ title: `Saved ${++counter}`, type: 'success' }),
+        }),
+        template: `
+            <div class="flex flex-wrap gap-2">
+                <Button variant="secondary" size="sm" @click="add">Save</Button>
+                <Toaster :toaster="placed.toaster" label="Saved at the top" placement="top" :max="2" />
+            </div>`,
+    }),
+};

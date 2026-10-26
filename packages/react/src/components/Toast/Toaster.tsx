@@ -2,13 +2,21 @@ import { Toast, Toaster as ArkToaster } from '@ark-ui/react/toast';
 import { isSwipeDismiss, toast as toastRecipe, type RecipeClasses } from '@wirecore/wirelayer-recipes';
 import { CircleCheck, Info, LoaderCircle, OctagonX, TriangleAlert, X } from 'lucide-react';
 import { useState, type PointerEvent, type ReactNode } from 'react';
-import { toaster as appToaster } from './toaster.js';
+import { toaster as appToaster, type ToasterOptions } from './toaster.js';
 import { useTranslations } from '../LocaleProvider/LocaleProvider.js';
 import { useRecipe } from '../RecipesProvider/RecipesProvider.js';
 
 export interface ToasterProps {
     /** A toaster from createToaster() – without it the app-wide one of toast() */
     toaster?: typeof appToaster;
+    /** Where the toasts appear (default bottom-end) – also for the app-wide toaster of toast() */
+    placement?: ToasterOptions['placement'];
+    /** Toasts shown at once (default 5); more wait in a queue */
+    max?: number;
+    /** Toasts lie on top of each other and fan out on hover or focus (instead of a list) */
+    overlap?: boolean;
+    /** Space between the toasts in px (default 12) */
+    gap?: number;
     /** Accessible name of the notification region */
     label?: string;
     /** Accessible name of each toast's close button */
@@ -22,6 +30,12 @@ export interface ToasterProps {
 }
 
 const icons = { success: CircleCheck, info: Info, warning: TriangleAlert, error: OctagonX };
+
+/** Placement, max, overlap and gap go into the toaster before its region is created (Ark reads them from there) */
+function configure(toaster: typeof appToaster, options: ToasterOptions) {
+    for (const [key, value] of Object.entries(options))
+        if (value !== undefined) Object.assign(toaster.attrs, { [key]: value });
+}
 
 /** Root of one toast; swiping: it follows the pointer sideways and closes when let go far enough */
 function ToastRoot({
@@ -76,12 +90,18 @@ export function Toaster({
     closeLabel,
     showProgress,
     swipeToDismiss,
+    placement,
+    max,
+    overlap,
+    gap,
 }: ToasterProps) {
+    configure(toaster, { placement, max, overlap, gap });
     const toast = useRecipe('toast', toastRecipe, classes);
     const styles = toast({ showProgress, swipeable: swipeToDismiss });
     const translations = useTranslations();
     return (
-        <ArkToaster toaster={toaster} label={label ?? translations.toast.label}>
+        // A new region when they change (the toasts stay)
+        <ArkToaster key={`${placement}|${overlap}|${gap}`} toaster={toaster} label={label ?? translations.toast.label}>
             {(item) => {
                 const Icon = item.type && item.type in icons ? icons[item.type as keyof typeof icons] : undefined;
                 return (

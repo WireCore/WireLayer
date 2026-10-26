@@ -1,10 +1,13 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite';
 import { ref, type ConcreteComponent } from 'vue';
+import DateRangePicker from '../DateRangePicker/DateRangePicker.vue';
 import Field from '../Field/Field.vue';
+import MonthPickerComponent from '../MonthPicker/MonthPicker.vue';
 import DatePickerComponent from './DatePicker.vue';
 
 // Generic component: Storybook's Vue types can't infer args here
 const DatePicker = DatePickerComponent as unknown as ConcreteComponent;
+const MonthPicker = MonthPickerComponent as unknown as ConcreteComponent;
 
 const meta = {
     title: 'Forms/DatePicker',
@@ -136,6 +139,23 @@ export const Responsive: Story = {
         template: `
             <div class="flex w-64 flex-col gap-3">
                 <Field label="Arrival"><DatePicker default-value="2026-11-10" responsive /></Field>
+            </div>`,
+    }),
+};
+
+/**
+ * `placeholder`: a short text in the empty field until it gets the focus – then the date parts show. It describes
+ * the field (aria-describedby) but does not replace its label. DateRangePicker, MonthPicker and YearPicker the same
+ */
+export const Placeholder: Story = {
+    name: 'Placeholder',
+    render: () => ({
+        components: { DatePicker, DateRangePicker, MonthPicker, Field },
+        template: `
+            <div class="flex w-72 flex-col gap-3">
+                <Field label="Due date"><DatePicker placeholder="When it has to be paid" /></Field>
+                <Field label="Period"><DateRangePicker placeholder="Any period" /></Field>
+                <Field label="Billing month"><MonthPicker placeholder="Choose a month" /></Field>
             </div>`,
     }),
 };

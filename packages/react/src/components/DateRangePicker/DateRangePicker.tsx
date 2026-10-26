@@ -47,6 +47,8 @@ export interface DateRangePickerProps<T extends DateRangeLike = DateRange> {
     required?: boolean;
     /** Sent as name[0] and name[1] */
     name?: string;
+    /** Text of the empty field, shown until it gets the focus – no replacement for a label */
+    placeholder?: string;
     /**
      * Buttons below the calendar: presets ("last7Days", "thisMonth", "thisQuarter", "last3Months", "last12Months",
      * "last3Years" …) or own { label, value } ranges

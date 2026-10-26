@@ -2,7 +2,16 @@
 //   llmsIndex/llmsFull           the combined files of the docs Storybook (React and Vue side by side, React Native)
 //   packageLlms(data, target)    llms.txt and llms-full.txt of one package in its own syntax – written by
 //                                scripts/llms.ts (vue, react, native) and by the build of @wirecore/wirelayer-css (cssLlms)
-import { importPath, vueEvent, vueName, type Collected, type ComponentInfo, type PropInfo } from '../src/tools.ts';
+import {
+    importPath,
+    vueEvent,
+    vueName,
+    vueOnlyProps,
+    vuePropName,
+    type Collected,
+    type ComponentInfo,
+    type PropInfo,
+} from '../src/tools.ts';
 
 /** The hosted docs: the composed Storybook with the Vue, React, React Native and HTML Storybooks */
 export const STORYBOOK = 'https://wirecore.github.io/WireLayer/';
@@ -42,6 +51,11 @@ export function componentText(component: ComponentInfo, storybook = '') {
         ...component.props.map(
             (prop) =>
                 `| ${prop.name}${prop.optional ? '?' : ''} | ${vueName(prop.name, names)} | \`${prop.type.replaceAll('|', '\\|')}\` | ${prop.description.replaceAll('|', '\\|')} |`
+        ),
+        // Props only Vue has (e.g. a string where React takes a ReactNode under another name)
+        ...vueOnlyProps(component).map(
+            (prop) =>
+                `| – | ${vuePropName(prop.name, component.vue?.events.map((event) => event.name) ?? [])}${prop.optional ? '?' : ''} | \`${prop.type.replaceAll('|', '\\|')}\` | ${prop.description.replaceAll('|', '\\|')} |`
         ),
     ];
     return lines.filter((line, index) => line !== '' || lines[index - 1] !== '').join('\n');
@@ -194,10 +208,10 @@ const vueType = (type: string) =>
     type.replace(/\bIconComponent\b/g, 'Component').replace(/\bElementType\b/g, 'Component | string');
 
 /**
- * The props a Vue user sets: React-only ones (children, ref, className) are dropped, as are callbacks and content props
- * the Vue component has as events and slots (listed on their own)
+ * The props a Vue user sets, when the Vue component's own props are not known: the React ones without the React-only
+ * ones (children, ref, className), the callbacks and the content props the Vue component has as events and slots
  */
-function vueProps(component: ComponentInfo): PropInfo[] {
+function reactPropsForVue(component: ComponentInfo): PropInfo[] {
     const events = !!component.vue?.events.length;
     const slots = !!component.vue?.slots.length;
     return component.props.filter(
@@ -226,8 +240,12 @@ function vueExtends(heritage: string | null) {
 }
 
 function vueComponentText(component: ComponentInfo) {
-    const props = vueProps(component);
+    // The Vue component's own props (defineProps) – otherwise the React ones under their Vue names
+    const own = component.vue?.props;
+    const props = own ?? reactPropsForVue(component);
     const names = component.props.map((prop) => prop.name);
+    const events = component.vue?.events.map((event) => event.name) ?? [];
+    const nameOf = (prop: PropInfo) => (own ? vuePropName(prop.name, events) : vueName(prop.name, names));
     const link = storyLink('vue', component);
     return tidy([
         `### ${component.name}`,
@@ -245,7 +263,7 @@ function vueComponentText(component: ComponentInfo) {
                   '| --- | --- | --- |',
                   ...props.map(
                       (prop) =>
-                          `| ${vueName(prop.name, names).replace(/^\S+/, (name) => (prop.optional ? `${name}?` : name))} | \`${cell(vueType(prop.type))}\` | ${cell(prop.description)} |`
+                          `| ${nameOf(prop).replace(/^\S+/, (name) => (prop.optional ? `${name}?` : name))} | \`${cell(vueType(prop.type))}\` | ${cell(prop.description)} |`
                   ),
                   '',
               ]

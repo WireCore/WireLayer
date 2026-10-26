@@ -272,9 +272,12 @@ export const datePicker = tv({
         base: 'flex w-full flex-col',
         control: [...box, 'h-10'],
         // Segmented date field (DateInput): one spin button per part, separators come from the locale
-        dateInput: 'flex min-w-0 flex-1 items-center px-3',
-        // Holds one date, or start – end of a range, in a row
-        dateControl: 'flex min-w-0 items-center',
+        dateInput: 'relative flex min-w-0 flex-1 items-center px-3',
+        // Holds one date, or start – end of a range, in a row; invisible (still usable) while the placeholder shows
+        dateControl: 'flex min-w-0 items-center data-placeholder-shown:opacity-0',
+        /** Own placeholder of the empty field (`placeholder`) – gives way to the parts on focus */
+        placeholder:
+            'absolute inset-0 flex cursor-text items-center overflow-hidden px-3 text-[15px] whitespace-nowrap text-muted data-hidden:pointer-events-none data-hidden:opacity-0',
         segments: 'flex items-center text-[15px]',
         segment: [
             'rounded-sm px-px text-fg tabular-nums outline-none data-placeholder-shown:text-muted',
@@ -380,6 +383,7 @@ export const datePicker = tv({
             sm: {
                 control: 'h-8 rounded-md',
                 dateInput: 'px-2.5',
+                placeholder: 'px-2.5 text-[13px]',
                 segments: 'text-[13px]',
                 multiValue: 'px-2.5 text-[13px]',
                 textInput: 'px-2.5 text-[13px]',
@@ -391,6 +395,7 @@ export const datePicker = tv({
             lg: {
                 control: 'h-12 rounded-[10px]',
                 dateInput: 'px-4',
+                placeholder: 'px-4 text-base',
                 segments: 'text-base',
                 multiValue: 'px-4 text-base',
                 textInput: 'px-4 text-base',

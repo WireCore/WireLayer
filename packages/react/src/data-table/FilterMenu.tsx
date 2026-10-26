@@ -18,8 +18,10 @@ import { Filter, Plus, Trash2 } from 'lucide-react';
 import { useState, type ReactNode } from 'react';
 import { Button } from '../components/Button/Button.js';
 import { IconButton } from '../components/IconButton/IconButton.js';
+import type { ListItemState } from '../components/Select/list.js';
 import { Select } from '../components/Select/Select.js';
 import { useLocale, useTranslations } from '../components/LocaleProvider/LocaleProvider.js';
+import type { DataTableFilterInputOptions } from './types.js';
 import { ValueInput } from './ValueInput.js';
 import { useRecipe } from '../components/RecipesProvider/RecipesProvider.js';
 
@@ -33,6 +35,10 @@ export interface FilterMenuProps {
     maxConstraints: number;
     /** Own input for the value of a condition (the column's renderFilter) */
     renderValue?: (props: { value: unknown; setValue: (value: unknown) => void }) => ReactNode;
+    /** Settings of the value inputs (the column's `filterInputProps`) */
+    inputProps?: DataTableFilterInputOptions;
+    /** An option of select and multiSelect (the column's `renderOption`) */
+    renderOption?: (item: unknown, state: ListItemState) => ReactNode;
 }
 
 /** Filter menu of a column: conditions (match mode + value) joined with and/or, applied together */
@@ -45,6 +51,8 @@ export function FilterMenu({
     matchModes,
     maxConstraints,
     renderValue,
+    inputProps,
+    renderOption,
 }: FilterMenuProps) {
     const dataTable = useRecipe('dataTable', dataTableRecipe);
     const styles = dataTable();
@@ -173,6 +181,7 @@ export function FilterMenu({
                                                 type={inputType(constraint.matchMode)}
                                                 label={`${t.value(index)}, ${t.from}`}
                                                 options={options}
+                                                inputProps={inputProps}
                                                 value={Array.isArray(constraint.value) ? constraint.value[0] : null}
                                                 onChange={(next) => setRange(index, 0, next)}
                                             />
@@ -180,6 +189,7 @@ export function FilterMenu({
                                                 type={inputType(constraint.matchMode)}
                                                 label={`${t.value(index)}, ${t.to}`}
                                                 options={options}
+                                                inputProps={inputProps}
                                                 value={Array.isArray(constraint.value) ? constraint.value[1] : null}
                                                 onChange={(next) => setRange(index, 1, next)}
                                             />
@@ -189,6 +199,8 @@ export function FilterMenu({
                                             type={inputType(constraint.matchMode)}
                                             label={t.value(index)}
                                             options={options}
+                                            inputProps={inputProps}
+                                            renderOption={renderOption}
                                             value={constraint.value}
                                             onChange={(next) => update(index, { value: next })}
                                         />

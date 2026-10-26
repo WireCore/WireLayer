@@ -391,6 +391,10 @@ export const cases: [string, El][] = [
         ]),
     ['IconButton xs square', el('IconButton', { icon: icon('Plus'), label: 'Add', size: 'xs', shape: 'square' })],
     ['IconButton warn', el('IconButton', { icon: icon('Bell'), label: 'Warning', variant: 'warn' })],
+    [
+        'IconButton filled icon',
+        el('IconButton', { icon: icon('Bell'), label: 'Favourite', iconProps: { fill: 'currentColor' } }),
+    ],
 
     ['Avatar initials', el('Avatar', { name: 'Julia Klein' })],
     ['Avatar solid lg', el('Avatar', { name: 'Julia Klein', variant: 'solid', size: 'lg' })],
@@ -515,6 +519,43 @@ export const cases: [string, El][] = [
         ),
     ],
 
+    [
+        'SegmentedControl, RadioGroup and ChipGroup in Field',
+        el(
+            'div',
+            {},
+            el(
+                'Field',
+                { label: 'View', helperText: 'How the list looks' },
+                el(
+                    'SegmentedControl',
+                    { defaultValue: 'list' },
+                    el('SegmentedControlItem', { value: 'list' }, 'List'),
+                    el('SegmentedControlItem', { value: 'grid' }, 'Grid')
+                )
+            ),
+            el(
+                'Field',
+                { label: 'Plan', error: 'Choose a plan', required: true },
+                el(
+                    'RadioGroup',
+                    { name: 'plan' },
+                    el('RadioGroupItem', { value: 'basic' }, 'Basic'),
+                    el('RadioGroupItem', { value: 'pro' }, 'Pro')
+                )
+            ),
+            el(
+                'Field',
+                { label: 'Services', helperText: 'Any number' },
+                el(
+                    'ChipGroup',
+                    { defaultValue: ['web'] },
+                    el('Chip', { value: 'web' }, 'Web'),
+                    el('Chip', { value: 'ai' }, 'AI')
+                )
+            )
+        ),
+    ],
     ['Select', el('Select', { items: selectItems, 'aria-label': 'Service' })],
     ['Select selected', el('Select', { items: selectItems, 'aria-label': 'Service', defaultValue: 'hosting' })],
     [
@@ -964,6 +1005,19 @@ export const cases: [string, El][] = [
     ],
     ['DatePicker', el('Field', { label: 'Appointment' }, el('DatePicker', { defaultValue: '2026-10-20' }))],
     ['DatePicker empty, disabled', el('DatePicker', { disabled: true, 'aria-label': 'Appointment' })],
+    [
+        'DatePicker placeholder',
+        el('Field', { label: 'Due date' }, el('DatePicker', { placeholder: 'Pick a due date' })),
+    ],
+    [
+        'DateRangePicker placeholder, MonthPicker placeholder',
+        el(
+            'div',
+            {},
+            el('DateRangePicker', { placeholder: 'Any period', 'aria-label': 'Period' }),
+            el('MonthPicker', { placeholder: 'Billing month', 'aria-label': 'Month', size: 'sm' })
+        ),
+    ],
     [
         'DatePicker with time',
         el(
@@ -1549,6 +1603,19 @@ export const cases: [string, El][] = [
     ],
     ['ToggleButton', el('ToggleButton', { icon: icon('Check'), size: 'sm' }, 'Active only')],
     ['ToggleButton pressed disabled', el('ToggleButton', { pressed: true, disabled: true }, 'Bold')],
+    [
+        'ToggleButton pressed icon',
+        el(
+            'ToggleButton',
+            {
+                icon: icon('Bell'),
+                pressedIcon: icon('Check'),
+                pressedIconProps: { fill: 'currentColor' },
+                pressed: true,
+            },
+            'Flagged only'
+        ),
+    ],
     [
         'InputGroup',
         el(
@@ -2682,6 +2749,45 @@ export const cases: [string, El][] = [
             statusBar: true,
             wrapHeaders: true,
             $slots: { toolbarStart: el('strong', {}, 'Fleet'), toolbarEnd: el('span', {}, 'As of today') },
+        }),
+    ],
+    [
+        'DataTable filter reset, header for screen readers, column classes, filter input settings',
+        el('DataTable', {
+            data: fleet,
+            caption: 'Server',
+            getRowId,
+            columns: [
+                {
+                    id: 'name',
+                    header: 'Name',
+                    filter: 'text',
+                    headerClass: 'w-40',
+                    cellClass: 'font-semibold',
+                    filterInputProps: { placeholder: 'Hostname …' },
+                },
+                {
+                    id: 'location',
+                    header: 'Location',
+                    filter: 'multiSelect',
+                    filterOptions: [
+                        { value: 'Frankfurt', label: 'Frankfurt', keywords: ['Hesse'] },
+                        { value: 'Nuremberg', label: 'Nuremberg', keywords: ['Bavaria'] },
+                    ],
+                    filterInputProps: { filter: true, maxShown: 1, clearable: true, placeholder: 'Any location' },
+                },
+                {
+                    id: 'load',
+                    header: 'Load',
+                    align: 'end',
+                    cellClass: (row: { load: number }) => (row.load > 50 ? 'text-danger' : undefined),
+                },
+                { id: 'actions', header: 'Actions', headerHidden: true, accessor: () => '' },
+            ],
+            filters: { name: 'o' },
+            filterReset: true,
+            filterToggle: true,
+            search: true,
         }),
     ],
     [

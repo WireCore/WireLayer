@@ -1,8 +1,10 @@
+import { X } from '@lucide/vue';
 import type { Meta, StoryObj } from '@storybook/vue3-vite';
 import { FileTypes } from '@wirecore/wirelayer-recipes';
 import { ref } from 'vue';
 import Avatar from '../Avatar/Avatar.vue';
 import Button from '../Button/Button.vue';
+import IconButton from '../IconButton/IconButton.vue';
 import Dialog from '../Dialog/Dialog.vue';
 import DialogClose from '../Dialog/DialogClose.vue';
 import DialogContent from '../Dialog/DialogContent.vue';
@@ -122,6 +124,30 @@ export const CropAvatar: Story = {
                         </template>
                     </DialogContent>
                 </Dialog>
+            </div>`,
+    }),
+};
+
+/**
+ * The app shows the files itself: `:show-file-list="false"` hides the list, v-model:files holds the chosen files –
+ * removing one in the app's list removes it in the upload, too (`clear()` empties it). Rejected files (wrong type,
+ * too large) come with `@files-reject`
+ */
+export const OwnFileList: Story = {
+    name: 'Own file list',
+    render: () => ({
+        components: { FileUpload, IconButton },
+        setup: () => ({ files: ref<File[]>([]), X }),
+        template: `
+            <div class="flex w-[420px] flex-col gap-3">
+                <FileUpload v-model:files="files" label="Receipts" :max-files="5" :show-file-list="false" />
+                <ul class="flex flex-col gap-1 text-sm">
+                    <li v-for="file in files" :key="file.name" class="flex items-center justify-between gap-2">
+                        {{ file.name }}
+                        <IconButton :icon="X" :label="'Remove ' + file.name" variant="text" size="xs" @click="files = files.filter((other) => other !== file)" />
+                    </li>
+                    <li v-if="!files.length" class="text-muted">No receipts yet</li>
+                </ul>
             </div>`,
     }),
 };

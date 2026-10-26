@@ -100,3 +100,24 @@ function MinRangeDemo() {
 
 /** Range with a minimum distance of €100 between the thumbs */
 export const MinRange: Story = { render: () => <MinRangeDemo /> };
+
+function ApplyOnReleaseDemo() {
+    const [applied, setApplied] = useState([50]);
+    return (
+        <div className="flex w-80 flex-col gap-3">
+            <Slider
+                label="Minimum load"
+                defaultValue={[50]}
+                formatValue={(v) => `${v}%`}
+                onValueChangeEnd={setApplied}
+            />
+            <span className="text-xs text-muted">Filter applied: {applied[0]}%</span>
+        </div>
+    );
+}
+
+/**
+ * Apply on release: without `value` the slider keeps its own value (`defaultValue`); `onValueChangeEnd` reports it
+ * once the thumb is let go – e.g. to filter only then. Change its `key` to set it back from outside
+ */
+export const ApplyOnRelease: Story = { name: 'Apply on release', render: () => <ApplyOnReleaseDemo /> };

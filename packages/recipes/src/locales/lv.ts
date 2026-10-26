@@ -605,6 +605,7 @@ export const lv: Translations = {
         exportAll: 'Visas rindas',
         exportSelection: 'Atlasītās rindas',
         filterToggle: 'Rādīt filtrus',
+        resetFilters: 'Atiestatīt filtrus',
         rowCount: (count) => plural(count, forms('{count} rinda', '{count} rindas')),
         filteredCount: (count) => plural(count, forms('{count} filtrēta', '{count} filtrētas')),
         copy: (header, value) => `Kopēt: ${value}, ${header}`,

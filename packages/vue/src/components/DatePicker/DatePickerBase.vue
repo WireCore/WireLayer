@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { DateInput } from '@ark-ui/vue/date-input';
+import { DateInput, type UseDateInputContext } from '@ark-ui/vue/date-input';
 import { DatePicker, type DateValue } from '@ark-ui/vue/date-picker';
 import { useFieldContext } from '@ark-ui/vue/field';
 import { CalendarDays, X } from '@lucide/vue';
@@ -43,6 +43,8 @@ const props = defineProps<
         required?: boolean;
         name?: string;
         label?: string;
+        /** Text of the empty field, shown until it gets the focus */
+        placeholder?: string;
         className?: string;
         /** Month and year only (MonthPicker) or the year only (YearPicker) */
         period?: 'month' | 'year';
@@ -117,9 +119,20 @@ const describedby = computed(
     () => [field?.value.ariaDescribedby, zone.value ? `${id}tz` : undefined].filter(Boolean).join(' ') || undefined
 );
 
+// Own placeholder: while no part is typed (a part alone is no value yet) and the field has no focus. It describes
+// the parts – also while they show, for the screen reader reads the description on focus
+type DateInputApi = UseDateInputContext['value'];
+const empty = (api: DateInputApi) =>
+    groups.every((index) =>
+        api.getSegments({ index }).every((segment) => segment.type === 'literal' || segment.isPlaceholder)
+    );
+const placeholderShown = (api: DateInputApi) => !!props.placeholder && empty(api) && !api.focused;
+const describedbyOf = (api: DateInputApi) =>
+    props.placeholder && empty(api) ? [describedby.value, `${id}ph`].filter(Boolean).join(' ') : describedby.value;
+
 // Several dates (selectionMode multiple): the field shows them as text
 const multipleText = computed(() => {
-    if (!props.dates.length) return translations.calendar.noDates;
+    if (!props.dates.length) return props.placeholder ?? translations.calendar.noDates;
     if (props.dates.length > 3)
         return pluralText(translations.calendar.datesSelected, props.dates.length, props.locale);
     const formatter = new DateFormatter(props.locale, {
@@ -230,21 +243,36 @@ const bottomStartPositioning = { placement: 'bottom-start', gutter: 4 } as const
                 :translations="translations.dateInput"
                 @value-change="emit('change', $event.value)"
             >
-                <DateInput.Control :class="styles.dateControl()">
-                    <template v-for="index in groups" :key="index">
-                        <span v-if="index === 1" :class="styles.rangeSeparator()" aria-hidden="true">–</span>
-                        <span v-if="range && field" :id="`${id}r${index}`" :class="styles.rangeLabel()">
-                            {{ rangeNames[index] }}
-                        </span>
-                        <DateSegments
-                            :index="index"
-                            :label="groupLabel(index)"
-                            :describedby="describedby"
-                            :paste="period ? undefined : pasteText"
-                            :size="size"
-                        />
-                    </template>
-                </DateInput.Control>
+                <DateInput.Context v-slot="api">
+                    <DateInput.Control
+                        :class="styles.dateControl()"
+                        :data-placeholder-shown="placeholderShown(api) || undefined"
+                    >
+                        <template v-for="index in groups" :key="index">
+                            <span v-if="index === 1" :class="styles.rangeSeparator()" aria-hidden="true">–</span>
+                            <span v-if="range && field" :id="`${id}r${index}`" :class="styles.rangeLabel()">
+                                {{ rangeNames[index] }}
+                            </span>
+                            <DateSegments
+                                :index="index"
+                                :label="groupLabel(index)"
+                                :describedby="describedbyOf(api)"
+                                :paste="period ? undefined : pasteText"
+                                :size="size"
+                            />
+                        </template>
+                    </DateInput.Control>
+                    <!-- Stays while focused (hidden): the parts keep their description -->
+                    <span
+                        v-if="placeholder && empty(api)"
+                        :id="`${id}ph`"
+                        :class="styles.placeholder()"
+                        :data-hidden="placeholderShown(api) ? undefined : ''"
+                        @click="api.focus()"
+                    >
+                        {{ placeholder }}
+                    </span>
+                </DateInput.Context>
                 <DateInput.HiddenInput v-for="index in groups" :key="index" :index="index" />
             </DateInput.Root>
             <template v-if="zone">

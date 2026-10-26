@@ -7,6 +7,8 @@ export { CompositeChart, type CompositeChartProps } from './CompositeChart.js';
 export { WaterfallChart, type WaterfallChartProps } from './WaterfallChart.js';
 export { PieChart, type PieChartProps } from './PieChart.js';
 export type { SeriesChartBaseProps } from './types.js';
+/** Chart.js types for options and data kept in variables, e.g. `computed<ChartOptions<'bar'>>(…)` */
+export type { ChartData, ChartOptions, ChartType, Plugin as ChartPlugin } from 'chart.js/auto';
 export type {
     ChartReference,
     ChartRow,

@@ -583,6 +583,7 @@ export const fr: Translations = {
         exportAll: 'Toutes les lignes',
         exportSelection: 'Lignes sélectionnées',
         filterToggle: 'Afficher les filtres',
+        resetFilters: 'Réinitialiser les filtres',
         rowCount: (count) => plural(count, { one: '{count} ligne', other: '{count} lignes' }),
         filteredCount: (count) => plural(count, { one: '{count} filtrée', other: '{count} filtrées' }),
         copy: (header, value) => `Copier ${value}, ${header}`,

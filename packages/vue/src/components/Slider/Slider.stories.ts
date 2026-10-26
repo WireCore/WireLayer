@@ -64,3 +64,20 @@ export const MinRange: Story = {
             '<Slider v-model="value" label="Price" :max="1000" :step="10" :min-range="100" :format-value="(v) => \'€\' + v" class="w-80" />',
     }),
 };
+
+/**
+ * Apply on release: without v-model the slider keeps its own value (`default-value`); `@value-change-end` reports it
+ * once the thumb is let go – e.g. to filter only then. Change its `key` to set it back from outside
+ */
+export const ApplyOnRelease: Story = {
+    name: 'Apply on release',
+    render: () => ({
+        components: { Slider },
+        setup: () => ({ applied: ref([50]) }),
+        template: `
+            <div class="flex w-80 flex-col gap-3">
+                <Slider label="Minimum load" :default-value="[50]" :format-value="(v) => v + '%'" @value-change-end="applied = $event" />
+                <span class="text-xs text-muted">Filter applied: {{ applied[0] }}%</span>
+            </div>`,
+    }),
+};

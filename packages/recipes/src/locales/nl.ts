@@ -557,6 +557,7 @@ export const nl: Translations = {
         exportAll: 'Alle rijen',
         exportSelection: 'Geselecteerde rijen',
         filterToggle: 'Filters weergeven',
+        resetFilters: 'Filters wissen',
         rowCount: (count) => plural(count, { one: '{count} rij', other: '{count} rijen' }),
         filteredCount: (count) => `${count} gefilterd`,
         copy: (header, value) => `${value}, ${header} kopiëren`,

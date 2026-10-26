@@ -7,6 +7,7 @@ import Select from '../components/Select/Select.vue';
 import Textarea from '../components/Textarea/Textarea.vue';
 import { useTranslations } from '../locale.js';
 import { featureKey } from './features.js';
+import type { DataTableFilterInputOptions } from './types.js';
 
 // One value of a filter condition or an edited cell – the matching input for the type
 
@@ -19,6 +20,12 @@ const props = defineProps<{
     /** Select: an "All" choice (empty value) first – for filters */
     any?: boolean;
     invalid?: boolean;
+    /** Settings of the input (the column's `filterInputProps`) */
+    inputProps?: DataTableFilterInputOptions;
+}>();
+defineSlots<{
+    /** An option of select and multiSelect (the column's `#option-<id>`) */
+    option?: (props: { item: unknown; selected: boolean; highlighted: boolean; disabled: boolean }) => unknown;
 }>();
 const emit = defineEmits<{ 'update:modelValue': [value: unknown] }>();
 const t = useTranslations().dataTable;
@@ -53,6 +60,7 @@ const selected = computed(() => (byValue.value ? (props.modelValue ?? (props.any
         size="sm"
         :aria-label="label"
         :invalid="invalid"
+        :placeholder="inputProps?.placeholder"
         :model-value="text"
         @update:model-value="emit('update:modelValue', $event ?? '')"
     />
@@ -71,6 +79,7 @@ const selected = computed(() => (byValue.value ? (props.modelValue ?? (props.any
         size="sm"
         :aria-label="label"
         :invalid="invalid"
+        :placeholder="inputProps?.placeholder"
         :model-value="typeof modelValue === 'number' ? modelValue : null"
         @update:model-value="emit('update:modelValue', $event)"
     />
@@ -80,6 +89,7 @@ const selected = computed(() => (byValue.value ? (props.modelValue ?? (props.any
         size="sm"
         :aria-label="label"
         :invalid="invalid"
+        :placeholder="inputProps?.placeholder"
         :model-value="typeof modelValue === 'number' ? String(modelValue) : ''"
         @update:model-value="emit('update:modelValue', toNumber($event))"
     />
@@ -88,6 +98,7 @@ const selected = computed(() => (byValue.value ? (props.modelValue ?? (props.any
         v-else-if="(type === 'date' || type === 'datetime') && feature.dateInput"
         :aria-label="label"
         :invalid="invalid"
+        :placeholder="inputProps?.placeholder"
         :with-time="type === 'datetime'"
         :model-value="text || null"
         @update:model-value="emit('update:modelValue', $event)"
@@ -106,10 +117,17 @@ const selected = computed(() => (byValue.value ? (props.modelValue ?? (props.any
         :aria-label="label"
         :items="items"
         :invalid="invalid"
-        :placeholder="t.filterAll"
+        :placeholder="inputProps?.placeholder ?? t.filterAll"
+        :filter="inputProps?.filter"
+        :max-shown="inputProps?.maxShown"
+        :clearable="inputProps?.clearable"
         :model-value="Array.isArray(modelValue) ? (modelValue as unknown[]) : []"
         @update:model-value="emit('update:modelValue', $event)"
-    />
+    >
+        <template v-if="$slots.option" #item="scope">
+            <slot name="option" v-bind="scope" />
+        </template>
+    </MultiSelect>
     <Checkbox
         v-else-if="type === 'checkbox'"
         :aria-label="label"
@@ -122,8 +140,14 @@ const selected = computed(() => (byValue.value ? (props.modelValue ?? (props.any
         :aria-label="label"
         :items="items"
         :invalid="invalid"
-        :placeholder="translations.common.placeholder"
+        :placeholder="inputProps?.placeholder ?? translations.common.placeholder"
+        :filter="inputProps?.filter"
+        :clearable="inputProps?.clearable"
         :model-value="selected"
         @update:model-value="emit('update:modelValue', $event ?? '')"
-    />
+    >
+        <template v-if="$slots.option" #item="scope">
+            <slot name="option" v-bind="scope" />
+        </template>
+    </Select>
 </template>

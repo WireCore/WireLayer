@@ -1495,3 +1495,121 @@ function AdvancedFilterTable() {
  * Blocks › ConditionBuilder › In the DataTable
  */
 export const AdvancedFilter: Story = { name: 'Advanced filter', render: () => <AdvancedFilterTable /> };
+
+const resetColumns: DataTableColumn<ServerRow>[] = [
+    { id: 'name', header: 'Name', sortable: true, filter: 'text' },
+    { id: 'location', header: 'Location', sortable: true, filter: 'select' },
+    { id: 'load', header: 'Load', sortable: true, align: 'end', format: (value) => `${value}%` },
+];
+
+function ResetTable() {
+    const table = useRef<DataTableHandle>(null);
+    const [picked, setPicked] = useState<ServerRow[]>([]);
+    return (
+        <div className="flex max-w-[900px] flex-col gap-2">
+            <DataTable<ServerRow>
+                ref={table}
+                selectedRows={picked}
+                onSelectedRowsChange={setPicked}
+                data={servers}
+                columns={resetColumns}
+                caption="Servers"
+                getRowId={(row) => row.id}
+                rowLabel={(row) => row.name}
+                stateKey="storybook-reset"
+                defaultSorting={{ id: 'name', desc: false }}
+                pageSize={4}
+                pageSizeOptions={[4, 6]}
+                search
+                filterToggle
+                filterReset
+                selectable
+                toolbar={
+                    <Button variant="outline" size="sm" onClick={() => table.current?.resetState()}>
+                        Reset everything
+                    </Button>
+                }
+                className={card}
+            />
+            <p className="text-xs text-muted" aria-live="polite">
+                Selected: {picked.map((row) => row.name).join(', ') || '–'}
+            </p>
+        </div>
+    );
+}
+
+/**
+ * "Reset filters" in the toolbar (`filterReset`) clears the column filters and the search; `resetState()` also
+ * sorts as at the start and forgets the saved state. `stateKey` keeps sorting, filters, page, rows per page and
+ * whether the filter row shows – not the selection (`stateExclude`, default `['selection']`). The selection as row
+ * objects: `selectedRows` with `onSelectedRowsChange`
+ */
+export const ResetAndState: Story = { name: 'Reset filters and saved state', render: () => <ResetTable /> };
+
+const statusOptions = [
+    { value: 'ONLINE', label: 'Online', keywords: ['up'] },
+    { value: 'MAINTENANCE', label: 'Maintenance' },
+    { value: 'OUTAGE', label: 'Outage', keywords: ['down'] },
+];
+const settingsColumns: DataTableColumn<ServerRow>[] = [
+    {
+        id: 'name',
+        header: 'Name',
+        sortable: true,
+        filter: 'text',
+        cellClass: 'font-semibold',
+        filterInputProps: { placeholder: 'Host name …' },
+    },
+    {
+        id: 'status',
+        header: 'Status',
+        filter: 'multiSelect',
+        filterOptions: statusOptions,
+        filterInputProps: { filter: true, clearable: true, maxShown: 1, placeholder: 'Any status' },
+        cell: (row) => <Badge variant={statusVariant[row.status]}>{row.status}</Badge>,
+        renderOption: (item) => {
+            const option = item as (typeof statusOptions)[number];
+            return <Badge variant={statusVariant[option.value as ServerRow['status']]}>{option.label}</Badge>;
+        },
+    },
+    {
+        id: 'load',
+        header: 'Load',
+        sortable: true,
+        align: 'end',
+        headerClass: 'w-28',
+        cellClass: (row) => (row.load > 90 ? 'tabular-nums font-semibold text-danger' : 'tabular-nums'),
+        format: (value) => `${value}%`,
+    },
+    {
+        id: 'actions',
+        header: 'Actions',
+        headerHidden: true,
+        accessor: () => null,
+        align: 'end',
+        cell: (row) => <IconButton icon={Pencil} label={`Edit ${row.name}`} variant="text" size="sm" />,
+    },
+];
+
+/**
+ * Per column: `cellClass` (a text or per row) and `headerClass`; `headerHidden` keeps the header text for screen
+ * readers only (a column of buttons). `filterInputProps` set up the built-in filter inputs (placeholder; search, clear
+ * button and shown values of the list), `renderOption` shows the choices – here as badges; `keywords` of a choice
+ * are found by the list's search ("down"). `rowKeywords`: the search above also finds the IP address, which has no
+ * column of its own
+ */
+export const ColumnSettings: Story = {
+    name: 'Column settings and filter inputs',
+    render: () => (
+        <DataTable<ServerRow>
+            data={servers}
+            columns={settingsColumns}
+            caption="Servers"
+            getRowId={(row) => row.id}
+            rowKeywords={(row) => row.ip}
+            search
+            filterReset
+            className={`${card} max-w-[900px]`}
+        />
+    ),
+};

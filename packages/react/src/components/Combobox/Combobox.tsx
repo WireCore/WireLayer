@@ -31,7 +31,7 @@ export interface ComboboxProps<T = SelectItem, V = ItemValueOf<T>> extends Omit<
     onInputValueChange?: (inputValue: string) => void;
     /** Typed text – e.g. to load matching items from a server (manualFilter) */
     onFilterChange?: (text: string) => void;
-    /** Filters the items by the typed text (ignores case and accents) */
+    /** Filters the items by the typed text (label and itemKeywords; ignores case and accents) */
     filter?: boolean;
     /** The items are filtered elsewhere (server): no local filtering, listen to onFilterChange */
     manualFilter?: boolean;
@@ -53,6 +53,11 @@ export interface ComboboxProps<T = SelectItem, V = ItemValueOf<T>> extends Omit<
     itemDisabled?: ItemAccessor<T, boolean>;
     /** Group heading of an item: property name or function (default: `group`); items are listed per group */
     itemGroup?: ItemAccessor<T, string | null | undefined>;
+    /**
+     * More text the search finds an item by, besides its label: property name or function, one text or a list
+     * (default: `keywords`), e.g. the name of the item's category
+     */
+    itemKeywords?: ItemAccessor<T, string | readonly string[] | null | undefined>;
     /** Identifies object values (property name or function), e.g. "id" – without it objects are compared by content */
     valueKey?: ItemAccessor<V, string | number>;
     /** Button that clears value and text (default true; not a tab stop – the text can be deleted, too) */
@@ -105,6 +110,7 @@ export function Combobox<T = SelectItem, V = ItemValueOf<T>>({
     itemLabel,
     itemDisabled,
     itemGroup,
+    itemKeywords,
     valueKey,
     clearable = true,
     loading,
@@ -125,7 +131,7 @@ export function Combobox<T = SelectItem, V = ItemValueOf<T>>({
     const combobox = useRecipe('combobox', comboboxRecipe, classes);
     const styles = combobox({ size });
     const translations = useTranslations();
-    const accessors = { itemValue, itemLabel, itemDisabled, itemGroup, valueKey };
+    const accessors = { itemValue, itemLabel, itemDisabled, itemGroup, itemKeywords, valueKey };
     const [query, setQuery] = useState('');
     const source = useOptionSource<T>({ items, source: dataSource, accessors, pageSize, minSearchLength });
     const { options, groups, ordered } = useListOptions(

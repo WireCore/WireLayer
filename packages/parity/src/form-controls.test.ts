@@ -48,6 +48,106 @@ describe.each(frameworks)('%s', (framework) => {
         expect(screen.getByRole('textbox', { name: /^Company ?\(optional\)$/ })).toBeInTheDocument();
     });
 
+    it('Field names SegmentedControl, RadioGroup and ChipGroup by its label; its texts describe them', async () => {
+        await render(
+            framework,
+            el(
+                'div',
+                {},
+                el(
+                    'Field',
+                    { label: 'View', helperText: 'How the list looks' },
+                    el(
+                        'SegmentedControl',
+                        { defaultValue: 'list' },
+                        el('SegmentedControlItem', { value: 'list' }, 'List'),
+                        el('SegmentedControlItem', { value: 'grid' }, 'Grid')
+                    )
+                ),
+                el(
+                    'Field',
+                    { label: 'Plan', error: 'Choose a plan' },
+                    el(
+                        'RadioGroup',
+                        {},
+                        el('RadioGroupItem', { value: 'basic' }, 'Basic'),
+                        el('RadioGroupItem', { value: 'pro' }, 'Pro')
+                    )
+                ),
+                el(
+                    'Field',
+                    { label: 'Services', helperText: 'Any number', disabled: true },
+                    el('ChipGroup', {}, el('Chip', { value: 'web' }, 'Web'))
+                ),
+                el(
+                    'Field',
+                    { label: 'Layout' },
+                    el('ChipGroup', { label: 'Own name' }, el('Chip', { value: 'a' }, 'A'))
+                )
+            )
+        );
+        await waitFor(() =>
+            expect(screen.getByRole('radiogroup', { name: 'View' })).toHaveAccessibleDescription('How the list looks')
+        );
+        expect(screen.getByRole('radiogroup', { name: 'Plan' })).toHaveAccessibleDescription('Choose a plan');
+        expect(screen.getByRole('group', { name: 'Services' })).toHaveAccessibleDescription('Any number');
+        expect(screen.getByRole('button', { name: 'Web' })).toBeDisabled();
+        // An own name wins over the Field label
+        expect(screen.getByRole('group', { name: 'Own name' })).toBeInTheDocument();
+    });
+
+    it('Field: helper text and error as content of their own (Vue slots, React nodes) describe the control', async () => {
+        const helper = framework === 'vue' ? 'helper-text' : 'helperText';
+        await render(
+            framework,
+            el(
+                'Field',
+                {
+                    label: 'IBAN',
+                    $slots: {
+                        [helper]: el('span', {}, 'Where to find it: ', el('a', { href: '/help' }, 'the guide')),
+                        error: 'Enter a valid IBAN',
+                    },
+                },
+                el('Input', {})
+            )
+        );
+        const input = screen.getByRole('textbox', { name: 'IBAN' });
+        await waitFor(() =>
+            expect(input).toHaveAccessibleDescription(/Enter a valid IBAN.*Where to find it: the guide/)
+        );
+        expect(input).toHaveAttribute('aria-invalid', 'true');
+        expect(screen.getByRole('link', { name: 'the guide' })).toHaveAttribute('href', '/help');
+    });
+
+    it('DatePicker placeholder: while empty and not focused; it describes the date parts', async () => {
+        await render(
+            framework,
+            el('Field', { label: 'Due date' }, el('DatePicker', { placeholder: 'Pick a due date' }))
+        );
+        const placeholder = screen.getByText('Pick a due date');
+        expect(placeholder).not.toHaveAttribute('data-hidden');
+        await waitFor(() =>
+            expect(screen.getByRole('group', { name: 'Due date' })).toHaveAccessibleDescription(/Pick a due date/)
+        );
+        await userEvent.click(placeholder);
+        const [first] = screen.getAllByRole('spinbutton');
+        expect(first).toHaveFocus();
+        expect(placeholder).toHaveAttribute('data-hidden');
+        // One part set is no value yet – the placeholder must not cover it
+        await userEvent.keyboard('{ArrowUp}');
+        await userEvent.click(document.body);
+        expect(screen.queryByText('Pick a due date')).not.toBeInTheDocument();
+    });
+
+    it('DateRangePicker placeholder: one text for both dates', async () => {
+        await render(framework, el('DateRangePicker', { placeholder: 'Any period', 'aria-label': 'Period' }));
+        expect(screen.getAllByText('Any period')).toHaveLength(1);
+        const groups = screen.getAllByRole('group', { name: /Period/ });
+        expect(groups).toHaveLength(2);
+        for (const group of groups) expect(group).toHaveAccessibleDescription(/Any period/);
+    });
+
     it('Textarea counter: visible count, remaining characters announced after a pause', async () => {
         vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'], shouldAdvanceTime: true });
         try {

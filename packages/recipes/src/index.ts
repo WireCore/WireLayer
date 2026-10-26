@@ -537,6 +537,7 @@ export {
     matchesColumnFilter,
     matchesConstraint,
     matchesFilter,
+    matchesRowKeywords,
     matchesSearch,
     matchModeDefinition,
     matchModeLabel,
@@ -546,9 +547,11 @@ export {
     moveTreeRow,
     nextSorting,
     numberSummary,
+    omitTableState,
     printHtml,
     printTableHtml,
     saveTableState,
+    sameTableValue,
     toFilterRule,
     type ColumnBlock,
     type PrintCell,
@@ -563,6 +566,7 @@ export {
     type DataTableMatchModeDefinition,
     type DataTableSort,
     type DataTableState,
+    type DataTableStateKey,
 } from './data-table.js';
 export {
     fitColumnWidth,

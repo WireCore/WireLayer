@@ -1,10 +1,15 @@
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { InMemoryTransport } from '@modelcontextprotocol/sdk/inMemory.js';
+import { compileScript, parse, registerTS } from '@vue/compiler-sfc';
+import ts from 'typescript';
 import { describe, expect, it } from 'vitest';
 import { createServer } from '../src/server.js';
 import { collect, stripMdx } from '../scripts/collect.ts';
 import { cssLlms, packageLlms } from '../scripts/render.ts';
-import { vueName } from '../src/tools.js';
+import { vueName, vuePropName } from '../src/tools.js';
 
 async function connect() {
     const [clientSide, serverSide] = InMemoryTransport.createLinkedPair();
@@ -176,6 +181,80 @@ describe('llms.txt of the packages', () => {
         expect(api(full)).not.toContain('@wirecore/wirelayer-react');
         // Callbacks and content props are events and slots in Vue
         expect(full).not.toMatch(/\| on[A-Z]\w*\?? \|/);
+    });
+
+    it('Vue: the props of the Vue components themselves – also where React has another type', () => {
+        const { full } = packageLlms(data, 'vue');
+        const section = (name: string) => full.slice(full.indexOf(`### ${name}\n`)).split('\n### ')[0]!;
+        // Card and Field take strings and slots in Vue, ReactNode in React
+        expect(section('Card')).toContain('| title? | `string` |');
+        expect(section('Field')).toContain('| helper-text? | `string` |');
+        expect(section('Field')).toContain('| error? | `string` |');
+        expect(section('Field')).toContain('| #helper-text |');
+        // A slot declared with defineSlots, not a ReactNode prop
+        expect(section('DialogContent')).toContain('| #footer |');
+        expect(section('DialogContent')).not.toContain('| footer? |');
+        expect(section('DataTable')).toContain('| v-model:selected-rows? |');
+    });
+
+    // Independent of the collector: Vue's own compiler names the props of every component
+    it('Vue: every prop of every component is listed', () => {
+        registerTS(() => ts);
+        const root = fileURLToPath(new URL('../../..', import.meta.url));
+        const vueFiles = new Map<string, string>();
+        const walk = (directory: string) => {
+            for (const entry of readdirSync(directory, { withFileTypes: true })) {
+                const path = join(directory, entry.name);
+                if (entry.isDirectory()) walk(path);
+                else if (entry.name.endsWith('.vue') && !vueFiles.has(entry.name)) vueFiles.set(entry.name, path);
+            }
+        };
+        walk(join(root, 'packages/vue/src'));
+        walk(join(root, 'packages/blocks-vue/src'));
+        const fs = { fileExists: existsSync, readFile: (path: string) => readFileSync(path, 'utf8') };
+        const { full } = packageLlms(data, 'vue');
+        const missing: string[] = [];
+        for (const component of data.components) {
+            const path = vueFiles.get(`${component.name}.vue`);
+            const source = path && readFileSync(path, 'utf8');
+            if (!source?.includes('defineProps')) continue;
+            const { descriptor } = parse(source, { filename: path });
+            const bindings = compileScript(descriptor, { id: component.name, fs }).bindings ?? {};
+            const section = full.slice(full.indexOf(`### ${component.name}\n`)).split('\n### ')[0]!;
+            const events = component.vue?.events.map((event) => event.name) ?? [];
+            // "v-model (modelValue)" is listed as "v-model? (modelValue)" when optional
+            const row = (prop: string) => `| ${vuePropName(prop, events).replace(/^\S+/, (name) => `${name}?`)}`;
+            for (const [prop, kind] of Object.entries(bindings))
+                if (
+                    kind === 'props' &&
+                    !section.includes(`| ${vuePropName(prop, events)} |`) &&
+                    !section.includes(row(prop))
+                )
+                    missing.push(`${component.name}.${prop}`);
+        }
+        expect(missing).toEqual([]);
+    });
+
+    it('Vue: every named <slot> is declared with defineSlots (the docs read it)', () => {
+        const root = fileURLToPath(new URL('../../..', import.meta.url));
+        const undeclared: string[] = [];
+        const walk = (directory: string) => {
+            for (const entry of readdirSync(directory, { withFileTypes: true })) {
+                const path = join(directory, entry.name);
+                if (entry.isDirectory()) walk(path);
+                else if (entry.name.endsWith('.vue')) {
+                    const source = readFileSync(path, 'utf8');
+                    const template = source.split('<template>')[1] ?? '';
+                    const declared = source.match(/defineSlots<([\s\S]*?)>\(\)/)?.[1] ?? '';
+                    for (const [, name] of template.matchAll(/<slot\s+name="([^"]+)"/g))
+                        if (!new RegExp(`['\\s{;]${name}'?\\??[(:]`).test(declared))
+                            undeclared.push(`${entry.name} #${name}`);
+                }
+            }
+        };
+        walk(join(root, 'packages/vue/src/components'));
+        walk(join(root, 'packages/blocks-vue/src'));
+        expect(undeclared).toEqual([]);
     });
 
     it('React and React Native: their own imports only', () => {

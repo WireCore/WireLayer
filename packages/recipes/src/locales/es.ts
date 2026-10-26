@@ -570,6 +570,7 @@ export const es: Translations = {
         exportAll: 'Todas las filas',
         exportSelection: 'Filas seleccionadas',
         filterToggle: 'Mostrar filtros',
+        resetFilters: 'Restablecer filtros',
         rowCount: (count) => plural(count, { one: '{count} fila', other: '{count} filas' }),
         filteredCount: (count) => plural(count, { one: '{count} filtrada', other: '{count} filtradas' }),
         copy: (header, value) => `Copiar ${value}, ${header}`,

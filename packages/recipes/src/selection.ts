@@ -110,7 +110,8 @@ export type SegmentedControlSize = 'sm' | 'md';
 
 export const segmentedControl = tv({
     slots: {
-        base: 'inline-flex items-center gap-0.5 rounded-full border border-line-2 p-[3px]',
+        // As wide as its segments – also as a flex item of a column (inside a Field)
+        base: 'inline-flex w-fit items-center gap-0.5 rounded-full border border-line-2 p-[3px]',
         label: 'sr-only',
         item: [
             'inline-flex cursor-pointer items-center gap-1.5 rounded-full whitespace-nowrap text-muted',

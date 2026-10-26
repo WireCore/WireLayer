@@ -554,6 +554,7 @@ export const tr: Translations = {
         exportAll: 'Tüm satırlar',
         exportSelection: 'Seçili satırlar',
         filterToggle: 'Filtreleri göster',
+        resetFilters: 'Filtreleri sıfırla',
         rowCount: (count) => plural(count, { one: '{count} satır', other: '{count} satır' }),
         filteredCount: (count) => plural(count, { one: '{count} filtrelendi', other: '{count} filtrelendi' }),
         copy: (header, value) => `Kopyala: ${value}, ${header}`,

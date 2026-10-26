@@ -49,7 +49,12 @@ function collect(value: unknown, components: Set<string>, own: Set<string>) {
         collect(Object.values(props), components, own);
         collect(value.children, components, own);
     } else if (Array.isArray(value)) value.forEach((item) => collect(item, components, own));
-    else if (value && Object.getPrototypeOf(value) === Object.prototype) collect(Object.values(value), components, own);
+    else if (value && Object.getPrototypeOf(value) === Object.prototype) {
+        // DataTable columns: their own classes (headerClass, cellClass as text) are the app's, like `class`
+        const { headerClass, cellClass } = value as { headerClass?: unknown; cellClass?: unknown };
+        [headerClass, cellClass].flatMap(strings).forEach((cls) => own.add(cls));
+        collect(Object.values(value), components, own);
+    }
 }
 
 describe.each(Object.entries(manifests))('the %s sources files contain the rendered classes', (_, files) => {

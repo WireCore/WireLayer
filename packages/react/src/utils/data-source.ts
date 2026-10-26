@@ -120,10 +120,10 @@ export function useOptionSource<T>({
 }) {
     const { translations } = useLocale();
     const data = useDataSource<T>({ source, pageSize, minSearchLength });
-    const { itemValue, itemLabel, itemDisabled, itemGroup, valueKey } = accessors;
+    const { itemValue, itemLabel, itemDisabled, itemGroup, itemKeywords, valueKey } = accessors;
     const resolvedOptions = useMemo(
-        () => toListOptions(data.resolved, { itemValue, itemLabel, itemDisabled, itemGroup, valueKey }),
-        [data.resolved, itemValue, itemLabel, itemDisabled, itemGroup, valueKey]
+        () => toListOptions(data.resolved, { itemValue, itemLabel, itemDisabled, itemGroup, itemKeywords, valueKey }),
+        [data.resolved, itemValue, itemLabel, itemDisabled, itemGroup, itemKeywords, valueKey]
     );
     const t = translations.dataSource;
     return {

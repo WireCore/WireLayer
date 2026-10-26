@@ -645,6 +645,7 @@ export const cs: Translations = {
         exportAll: 'Všechny řádky',
         exportSelection: 'Vybrané řádky',
         filterToggle: 'Zobrazit filtry',
+        resetFilters: 'Zrušit filtry',
         rowCount: (count) => plural(count, { one: '{count} řádek', few: '{count} řádky', other: '{count} řádků' }),
         filteredCount: (count) =>
             plural(count, {

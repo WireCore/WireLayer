@@ -5,6 +5,7 @@ import {
     indexListOptions,
     listOptionsForValues,
     listValueKey,
+    listValues,
     toggleAllListOptions,
     toListOptions,
 } from '@wirecore/wirelayer-recipes';
@@ -76,6 +77,34 @@ describe('option lists', () => {
         const contains = (text: string, query: string) => text.toLowerCase().includes(query.toLowerCase());
         expect(filterListOptions(options, ' web ', contains).map((option) => option.key)).toEqual(['2']);
         expect(filterListOptions(options, '', contains)).toHaveLength(3);
+    });
+
+    it("also finds by keywords: an accessor (one text or a list) or the items' own keywords", () => {
+        const contains = (text: string, query: string) => text.toLowerCase().includes(query.toLowerCase());
+        const options = toListOptions(people, { itemValue: 'id', itemLabel: 'name', itemKeywords: 'team' });
+        expect(options[0]!.keywords).toEqual(['Sales']);
+        expect(filterListOptions(options, 'engineer', contains).map((option) => option.key)).toEqual(['2']);
+        const listed = toListOptions(people, {
+            itemValue: 'id',
+            itemLabel: 'name',
+            itemKeywords: (person) => [person.team, `#${person.id}`],
+        });
+        expect(filterListOptions(listed, '#3', contains).map((option) => option.key)).toEqual(['3']);
+        const own = toListOptions([{ value: 'de', label: 'Germany', keywords: ['Deutschland', 'DE'] }]);
+        expect(filterListOptions(own, 'deutsch', contains)).toHaveLength(1);
+        expect(toListOptions([{ value: 'x', label: 'X' }])[0]!.keywords).toBeUndefined();
+    });
+
+    it('null chooses an item with the value null ("All") – otherwise it means nothing chosen', () => {
+        const withAll = toListOptions([
+            { value: null, label: 'All' },
+            { value: true, label: 'Yes' },
+        ]);
+        expect(listValues(null, withAll)).toEqual([null]);
+        expect(listValues(null, toListOptions([{ value: true, label: 'Yes' }]))).toEqual([]);
+        expect(listValues(undefined, withAll)).toEqual([]);
+        expect(listValues(true, withAll)).toEqual([true]);
+        expect(listOptionsForValues(listValues(null, withAll), indexListOptions(withAll))[0]!.label).toBe('All');
     });
 
     it('finds the options of values – also values that are not among the items', () => {

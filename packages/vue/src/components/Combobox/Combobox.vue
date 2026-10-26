@@ -25,7 +25,7 @@ export interface ComboboxProps<T = SelectItem, V = ItemValueOf<T>> {
     /** Chosen value – use with v-model; any type (string, number, boolean, object) */
     modelValue?: V | null;
     defaultValue?: V | null;
-    /** Filters the items by the typed text (ignores case and accents) */
+    /** Filters the items by the typed text (label and itemKeywords; ignores case and accents) */
     filter?: boolean;
     /** The items are filtered elsewhere (server): no local filtering, listen to filterChange */
     manualFilter?: boolean;
@@ -50,6 +50,11 @@ export interface ComboboxProps<T = SelectItem, V = ItemValueOf<T>> {
     itemDisabled?: ItemAccessor<T, boolean>;
     /** Group heading of an item: property name or function (default: `group`); items are listed per group */
     itemGroup?: ItemAccessor<T, string | null | undefined>;
+    /**
+     * More text the search finds an item by, besides its label: property name or function, one text or a list
+     * (default: `keywords`), e.g. the name of the item's category
+     */
+    itemKeywords?: ItemAccessor<T, string | readonly string[] | null | undefined>;
     /** Identifies object values (property name or function), e.g. "id" – without it objects are compared by content */
     valueKey?: ItemAccessor<V, string | number>;
     /** Button that clears value and text (default true; not a tab stop – the text can be deleted, too) */
@@ -110,6 +115,7 @@ const accessors = computed(() => ({
     itemLabel: props.itemLabel,
     itemDisabled: props.itemDisabled,
     itemGroup: props.itemGroup,
+    itemKeywords: props.itemKeywords,
     valueKey: props.valueKey,
 }));
 const query = ref('');

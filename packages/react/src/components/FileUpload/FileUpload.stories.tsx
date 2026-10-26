@@ -1,8 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { X } from 'lucide-react';
 import { FileTypes } from '@wirecore/wirelayer-recipes';
 import { useRef, useState } from 'react';
 import { Avatar } from '../Avatar/Avatar.js';
 import { Button } from '../Button/Button.js';
+import { IconButton } from '../IconButton/IconButton.js';
 import { Dialog, DialogClose, DialogContent } from '../Dialog/Dialog.js';
 import { ImageCropper, type ImageCropperHandle } from '../ImageCropper/ImageCropper.js';
 import { FileUpload, type FileUploadHandle } from './FileUpload.js';
@@ -135,3 +137,34 @@ function AvatarCrop() {
 
 /** Choose a picture, crop it in a dialog (circle, zoom, rotate) and use it as avatar */
 export const CropAvatar: Story = { name: 'Crop avatar', render: () => <AvatarCrop /> };
+
+function OwnFileListDemo() {
+    const [files, setFiles] = useState<File[]>([]);
+    return (
+        <div className="flex w-[420px] flex-col gap-3">
+            <FileUpload files={files} onFilesChange={setFiles} label="Receipts" maxFiles={5} showFileList={false} />
+            <ul className="flex flex-col gap-1 text-sm">
+                {files.map((file) => (
+                    <li key={file.name} className="flex items-center justify-between gap-2">
+                        {file.name}
+                        <IconButton
+                            icon={X}
+                            label={`Remove ${file.name}`}
+                            variant="text"
+                            size="xs"
+                            onClick={() => setFiles(files.filter((other) => other !== file))}
+                        />
+                    </li>
+                ))}
+                {!files.length && <li className="text-muted">No receipts yet</li>}
+            </ul>
+        </div>
+    );
+}
+
+/**
+ * The app shows the files itself: `showFileList={false}` hides the list, `files` with `onFilesChange` holds the
+ * chosen files – removing one in the app's list removes it in the upload, too (`clear()` empties it). Rejected files
+ * (wrong type, too large) come with `onFilesReject`
+ */
+export const OwnFileList: Story = { name: 'Own file list', render: () => <OwnFileListDemo /> };

@@ -31,8 +31,8 @@ export interface ComponentInfo {
     props: PropInfo[];
     /** "blocks": from @wirecore/wirelayer-blocks-react / @wirecore/wirelayer-blocks-vue instead of @wirecore/wirelayer-react / @wirecore/wirelayer-vue */
     package?: 'blocks';
-    /** Slots and events of the Vue component, when it declares any */
-    vue?: { slots: SlotInfo[]; events: EventInfo[] };
+    /** Props, slots and events of the Vue component, when it declares any */
+    vue?: { props?: PropInfo[]; slots: SlotInfo[]; events: EventInfo[] };
 }
 
 /** Import path of a web component for React or Vue */
@@ -74,6 +74,21 @@ export function vueName(prop: string, props: string[]) {
     if (/^on[A-Z]/.test(prop)) return `@${kebab(prop.slice(2).charAt(0).toLowerCase() + prop.slice(3))}`;
     if (prop === 'value') return 'v-model (modelValue)';
     return kebab(prop);
+}
+
+/** How a prop of a Vue component is set in a template: modelValue → v-model, x with update:x → v-model:x, else kebab-case */
+export function vuePropName(prop: string, events: readonly string[]) {
+    if (prop === 'modelValue') return 'v-model (modelValue)';
+    if (events.includes(`update:${prop}`)) return `v-model:${kebab(prop)}`;
+    return kebab(prop);
+}
+
+/** Props the Vue component has and React does not (or under another name) */
+export function vueOnlyProps(component: ComponentInfo): PropInfo[] {
+    const react = new Set(component.props.map((prop) => prop.name));
+    return (component.vue?.props ?? []).filter(
+        (prop) => !react.has(prop.name) && !(prop.name === 'modelValue' && react.has('value'))
+    );
 }
 
 const words = (text: string) => text.toLowerCase().split(/\s+/).filter(Boolean);
@@ -147,6 +162,19 @@ export function createTools(data: Collected) {
                     (prop) =>
                         `- ${prop.name}${prop.optional ? '?' : ''} → ${vueName(prop.name, names)}: ${prop.type}${prop.description ? ` – ${prop.description}` : ''}`
                 ),
+                ...(vueOnlyProps(component).length
+                    ? [
+                          '',
+                          'Vue only (Vue name: type – description):',
+                          ...vueOnlyProps(component).map(
+                              (prop) =>
+                                  `- ${vuePropName(
+                                      prop.name,
+                                      component.vue!.events.map((event) => event.name)
+                                  )}${prop.optional ? '?' : ''}: ${prop.type}${prop.description ? ` – ${prop.description}` : ''}`
+                          ),
+                      ]
+                    : []),
                 ...(component.vue?.events.length
                     ? [
                           '',

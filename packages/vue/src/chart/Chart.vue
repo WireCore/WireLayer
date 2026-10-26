@@ -7,7 +7,7 @@ import {
     themeChartData,
     themeChartOptions,
 } from '@wirecore/wirelayer-recipes';
-import { Chart, type ChartData, type ChartOptions, type ChartType } from 'chart.js/auto';
+import { Chart, type ChartData, type ChartOptions, type ChartType, type Plugin } from 'chart.js/auto';
 import {
     computed,
     normalizeClass,
@@ -23,10 +23,16 @@ import { useLocale, useTranslations } from '../locale.js';
 import { useRecipe } from '../recipes.js';
 
 export interface ChartProps<TType extends ChartType> {
+    /** Chart.js chart type – it alone decides the types of `data`, `options` and `plugins` */
     type: TType;
-    data: ChartData<TType>;
-    /** Chart.js options – merged over the WireLayer defaults (colours, font, no fixed aspect ratio) */
-    options?: ChartOptions<TType>;
+    data: ChartData<NoInfer<TType>>;
+    /**
+     * Chart.js options – merged over the WireLayer defaults (colours, font, no fixed aspect ratio). Options kept in
+     * a variable need their type, e.g. `computed<ChartOptions<'bar'>>(…)`, or `indexAxis: 'y'` becomes a string
+     */
+    options?: ChartOptions<NoInfer<TType>>;
+    /** Inline Chart.js plugins of this chart (global ones: `Chart.register`) – changing them re-creates the chart */
+    plugins?: Plugin<NoInfer<TType>>[];
     /** Title of the chart, also its accessible name */
     title: string;
     /** Keep the title for screen readers only, e.g. inside a card that already has a heading */
@@ -45,6 +51,7 @@ const localeContext = useLocale();
 const translations = useTranslations();
 const props = withDefaults(defineProps<ChartProps<TType>>(), {
     options: undefined,
+    plugins: undefined,
     hideTitle: false,
     height: '18rem',
     table: true,
@@ -83,7 +90,7 @@ function create() {
     instance = undefined;
     // No 2D context outside a real browser (e.g. jsdom) – the table still renders
     const context = canvas.value?.getContext('2d');
-    if (context) instance = new Chart(context, config());
+    if (context) instance = new Chart(context, { ...config(), plugins: props.plugins ? [...props.plugins] : [] });
 }
 
 function update() {
@@ -111,6 +118,13 @@ onBeforeUnmount(() => {
     instance?.destroy();
 });
 watch(() => props.type, create);
+// A new list with the same plugins (inline in the template) is no change
+watch(
+    () => props.plugins,
+    (next = [], before = []) => {
+        if (next.length !== before.length || next.some((plugin, index) => plugin !== before[index])) create();
+    }
+);
 watch([() => props.data, () => props.options], update, { deep: true });
 </script>
 

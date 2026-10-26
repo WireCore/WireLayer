@@ -576,6 +576,7 @@ export const pt: Translations = {
         exportAll: 'Todas as linhas',
         exportSelection: 'Linhas selecionadas',
         filterToggle: 'Mostrar filtros',
+        resetFilters: 'Repor filtros',
         rowCount: (count) => plural(count, { one: '{count} linha', other: '{count} linhas' }),
         filteredCount: (count) => plural(count, { one: '{count} filtrada', other: '{count} filtradas' }),
         copy: (header, value) => `Copiar ${value}, ${header}`,

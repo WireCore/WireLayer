@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Trash2 } from 'lucide-react';
-import { useState } from 'react';
+import { useState, type CSSProperties } from 'react';
 import { Button } from '../Button/Button.js';
 import { Dialog, DialogClose, DialogContent, DialogTrigger } from './Dialog.js';
 
@@ -45,7 +45,19 @@ type Story = StoryObj<typeof meta>;
 
 export const Playground: Story = {};
 
-/** Widths sm (320px), md (400px, default), lg, xl and full; on small screens every dialog takes the full width */
+/**
+ * Maximum width per `size`; on small screens every dialog takes the full width (`responsive`).
+ *
+ * | size | Width |
+ * | --- | --- |
+ * | sm | 320px (20rem) |
+ * | md | 400px (25rem) – default |
+ * | lg | 560px (35rem) |
+ * | xl | 800px (50rem) |
+ * | full | screen width minus the margin |
+ *
+ * Another width: leave out `size` and set the CSS variable `--wc-dialog-w` (see "Own width")
+ */
 export const Sizes: Story = {
     render: () => (
         <div className="flex flex-wrap justify-center gap-2">
@@ -67,6 +79,28 @@ export const Sizes: Story = {
                 </Dialog>
             ))}
         </div>
+    ),
+};
+
+/** Own width: without `size`, the CSS variable `--wc-dialog-w` sets the maximum width – no Tailwind class needed */
+export const OwnWidth: Story = {
+    name: 'Own width',
+    render: () => (
+        <Dialog>
+            <DialogTrigger>
+                <Button variant="outline">36rem</Button>
+            </DialogTrigger>
+            <DialogContent
+                title="Edit booking"
+                description="36rem wide – between md and xl."
+                style={{ '--wc-dialog-w': '36rem' } as CSSProperties}
+                footer={
+                    <DialogClose>
+                        <Button size="sm">OK</Button>
+                    </DialogClose>
+                }
+            />
+        </Dialog>
     ),
 };
 

@@ -1,3 +1,4 @@
+import { useFieldContext } from '@ark-ui/react/field';
 import { RadioGroup as ArkRadioGroup } from '@ark-ui/react/radio-group';
 import {
     radioGroup as radioGroupRecipe,
@@ -5,13 +6,14 @@ import {
     type RecipeClasses,
 } from '@wirecore/wirelayer-recipes';
 import type { ComponentProps, CSSProperties } from 'react';
+import { useFieldStatus } from '../Field/context.js';
 import { useRecipe } from '../RecipesProvider/RecipesProvider.js';
 
 export interface RadioGroupProps extends Omit<ComponentProps<'div'>, 'defaultValue' | 'dir'> {
     value?: string | null;
     defaultValue?: string | null;
     onValueChange?: (value: string | null) => void;
-    /** Visible group label (otherwise pass aria-label) */
+    /** Visible group label (otherwise pass aria-label – or place the group in a Field with a label) */
     label?: string;
     orientation?: RadioGroupOrientation;
     /** Cards in a grid with this many columns (one column on small screens) – for RadioCard */
@@ -43,18 +45,25 @@ export function RadioGroup({
 }: RadioGroupProps) {
     const radioGroup = useRecipe('radioGroup', radioGroupRecipe, classes);
     const styles = radioGroup({ orientation, grid: columns !== undefined });
+    // Inside a Field: its label names the group (unless it has a name of its own), its texts describe it
+    const field = useFieldContext();
+    const fieldStatus = useFieldStatus();
+    const fieldLabelled =
+        !label && !props['aria-label'] && !props['aria-labelledby'] && !!field && fieldStatus.labelled;
 
     return (
         <ArkRadioGroup.Root
+            aria-describedby={field?.ariaDescribedby}
             {...props}
             className={styles.base({ class: className })}
+            {...(fieldLabelled ? { ids: { label: field.ids.label } } : {})}
             value={value}
             defaultValue={defaultValue}
             onValueChange={(details) => onValueChange?.(details.value)}
             orientation={orientation}
-            disabled={disabled}
-            invalid={invalid}
-            required={required}
+            disabled={disabled ?? field?.disabled}
+            invalid={invalid ?? field?.invalid}
+            required={required ?? field?.required}
             name={name}
         >
             {label && <ArkRadioGroup.Label className={styles.label()}>{label}</ArkRadioGroup.Label>}

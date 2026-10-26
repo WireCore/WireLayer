@@ -1768,3 +1768,137 @@ export const AdvancedFilter: Story = {
             </DataTable>`,
     }),
 };
+
+const resetColumns = [
+    { id: 'name', header: 'Name', sortable: true, filter: 'text' as const },
+    { id: 'location', header: 'Location', sortable: true, filter: 'select' as const },
+    { id: 'load', header: 'Load', sortable: true, align: 'end' as const, format: (value: unknown) => `${value}%` },
+];
+
+/**
+ * "Reset filters" in the toolbar (`filter-reset`) clears the column filters and the search; `resetState()` also
+ * sorts as at the start and forgets the saved state. `state-key` keeps sorting, filters, page, rows per page and
+ * whether the filter row shows – not the selection (`state-exclude`, default `['selection']`). The selection as row
+ * objects: v-model:selected-rows
+ */
+export const ResetAndState: Story = {
+    name: 'Reset filters and saved state',
+    render: () => ({
+        components: { Button, DataTable: DataTable as ConcreteComponent },
+        setup: () => ({
+            servers,
+            columns: resetColumns,
+            card,
+            picked: ref<ServerRow[]>([]),
+            table: ref<{ resetState: () => void } | null>(null),
+            getRowId: (row: ServerRow) => row.id,
+            rowLabel: (row: ServerRow) => row.name,
+        }),
+        template: `
+            <div class="flex max-w-[900px] flex-col gap-2">
+                <DataTable
+                    ref="table"
+                    v-model:selected-rows="picked"
+                    :data="servers"
+                    :columns="columns"
+                    caption="Servers"
+                    :get-row-id="getRowId"
+                    :row-label="rowLabel"
+                    state-key="storybook-reset"
+                    :default-sorting="{ id: 'name', desc: false }"
+                    :page-size="4"
+                    :page-size-options="[4, 6]"
+                    search
+                    filter-toggle
+                    filter-reset
+                    selectable
+                    :class="card"
+                >
+                    <template #toolbar>
+                        <Button variant="outline" size="sm" @click="table?.resetState()">Reset everything</Button>
+                    </template>
+                </DataTable>
+                <p class="text-xs text-muted" aria-live="polite">
+                    Selected: {{ picked.map((row) => row.name).join(', ') || '–' }}
+                </p>
+            </div>`,
+    }),
+};
+
+const statusOptions = [
+    { value: 'ONLINE', label: 'Online', keywords: ['up'] },
+    { value: 'MAINTENANCE', label: 'Maintenance' },
+    { value: 'OUTAGE', label: 'Outage', keywords: ['down'] },
+];
+const settingsColumns = [
+    {
+        id: 'name',
+        header: 'Name',
+        sortable: true,
+        filter: 'text' as const,
+        cellClass: 'font-semibold',
+        filterInputProps: { placeholder: 'Host name …' },
+    },
+    {
+        id: 'status',
+        header: 'Status',
+        filter: 'multiSelect' as const,
+        filterOptions: statusOptions,
+        filterInputProps: { filter: true, clearable: true, maxShown: 1, placeholder: 'Any status' },
+    },
+    {
+        id: 'load',
+        header: 'Load',
+        sortable: true,
+        align: 'end' as const,
+        headerClass: 'w-28',
+        cellClass: (row: ServerRow) => (row.load > 90 ? 'tabular-nums font-semibold text-danger' : 'tabular-nums'),
+        format: (value: unknown) => `${value}%`,
+    },
+    { id: 'actions', header: 'Actions', headerHidden: true, accessor: () => null, align: 'end' as const },
+];
+
+/**
+ * Per column: `cellClass` (a text or per row) and `headerClass`; `headerHidden` keeps the header text for screen
+ * readers only (a column of buttons). `filterInputProps` set up the built-in filter inputs (placeholder; search, clear
+ * button and shown values of the list), `#option-<id>` shows the choices – here as badges; `keywords` of a choice are
+ * found by the list's search ("down"). `row-keywords`: the search above also finds the IP address, which has no
+ * column of its own
+ */
+export const ColumnSettings: Story = {
+    name: 'Column settings and filter inputs',
+    render: () => ({
+        components: { Badge, DataTable: DataTable as ConcreteComponent, IconButton },
+        setup: () => ({
+            servers,
+            columns: settingsColumns,
+            card,
+            statusVariant,
+            Pencil,
+            getRowId: (row: ServerRow) => row.id,
+            rowKeywords: (row: ServerRow) => row.ip,
+        }),
+        template: `
+            <DataTable
+                :data="servers"
+                :columns="columns"
+                caption="Servers"
+                :get-row-id="getRowId"
+                :row-keywords="rowKeywords"
+                search
+                filter-reset
+                :class="card"
+                class="max-w-[900px]"
+            >
+                <template #cell-status="{ row }">
+                    <Badge :variant="statusVariant[row.status]">{{ row.status }}</Badge>
+                </template>
+                <template #option-status="{ item }">
+                    <Badge :variant="statusVariant[item.value]">{{ item.label }}</Badge>
+                </template>
+                <template #cell-actions="{ row }">
+                    <IconButton :icon="Pencil" :label="'Edit ' + row.name" variant="text" size="sm" />
+                </template>
+            </DataTable>`,
+    }),
+};

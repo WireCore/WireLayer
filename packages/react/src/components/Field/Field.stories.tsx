@@ -1,7 +1,13 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Mail, Search } from 'lucide-react';
 import { useState } from 'react';
+import { Chip } from '../ChipGroup/Chip.js';
+import { ChipGroup } from '../ChipGroup/ChipGroup.js';
 import { Input } from '../Input/Input.js';
+import { RadioGroup } from '../RadioGroup/RadioGroup.js';
+import { RadioGroupItem } from '../RadioGroup/RadioGroupItem.js';
+import { SegmentedControl } from '../SegmentedControl/SegmentedControl.js';
+import { SegmentedControlItem } from '../SegmentedControl/SegmentedControlItem.js';
 import { Textarea } from '../Textarea/Textarea.js';
 import { Field } from './Field.js';
 
@@ -93,3 +99,57 @@ function StatesDemo() {
 
 /** Success (green border, check icon, text in the description), loading, clear button and "(optional)" */
 export const States: Story = { name: 'States', render: () => <StatesDemo /> };
+
+/**
+ * Own content instead of a text: `helperText`, `success`, `error` (and `label`) take React nodes – e.g. a hint with
+ * a link. It stays part of the control's description (aria-describedby)
+ */
+export const RichTexts: Story = {
+    name: 'Helper text with a link',
+    render: () => (
+        <Field
+            label="IBAN"
+            className="w-[380px]"
+            helperText={
+                <>
+                    On your bank card or in online banking –{' '}
+                    <a href="#help" className="underline">
+                        where to find it
+                    </a>
+                </>
+            }
+        >
+            <Input />
+        </Field>
+    ),
+};
+
+/**
+ * SegmentedControl, RadioGroup and ChipGroup inside a Field: the Field's label names the group (visible), its helper
+ * and error texts describe it – no `label` of their own needed
+ */
+export const Groups: Story = {
+    name: 'Groups in a Field',
+    render: () => (
+        <div className="flex w-[380px] flex-col gap-4">
+            <Field label="View" helperText="How the list is shown">
+                <SegmentedControl defaultValue="list">
+                    <SegmentedControlItem value="list">List</SegmentedControlItem>
+                    <SegmentedControlItem value="grid">Grid</SegmentedControlItem>
+                </SegmentedControl>
+            </Field>
+            <Field label="Plan" error="Choose a plan" required>
+                <RadioGroup name="plan">
+                    <RadioGroupItem value="basic">Basic</RadioGroupItem>
+                    <RadioGroupItem value="pro">Pro</RadioGroupItem>
+                </RadioGroup>
+            </Field>
+            <Field label="Services" helperText="Any number">
+                <ChipGroup defaultValue={['web']}>
+                    <Chip value="web">Web</Chip>
+                    <Chip value="ai">AI</Chip>
+                </ChipGroup>
+            </Field>
+        </div>
+    ),
+};

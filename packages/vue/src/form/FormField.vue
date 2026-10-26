@@ -18,6 +18,15 @@ export interface FormFieldProps {
 }
 
 const props = defineProps<FormFieldProps>();
+defineSlots<{
+    default?(props: { field: AnyFieldApi }): unknown;
+    /** Own content of the label (instead of `label`) */
+    label?(): unknown;
+    /** Own helper text, e.g. with a link – part of the control's description (instead of `helperText`) */
+    'helper-text'?(): unknown;
+    /** Own confirmation (instead of `success`) */
+    success?(): unknown;
+}>();
 const meta = useStore(props.field.store, (state) => state.meta);
 
 // Errors appear once the field was left (or the form submitted, which touches every field)
@@ -36,5 +45,8 @@ const error = computed(() => (meta.value.isTouched ? firstError(meta.value.error
         :disabled="disabled"
     >
         <slot :field="field" />
+        <template v-if="$slots.label" #label><slot name="label" /></template>
+        <template v-if="$slots['helper-text']" #helper-text><slot name="helper-text" /></template>
+        <template v-if="$slots.success" #success><slot name="success" /></template>
     </Field>
 </template>

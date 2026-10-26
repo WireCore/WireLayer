@@ -30,6 +30,8 @@ export interface SelectItem<V = string> {
     description?: string;
     /** Items with the same group are listed under this heading */
     group?: string;
+    /** More text the search finds the item by, besides its label */
+    keywords?: readonly string[];
 }
 
 export interface SelectProps<T = SelectItem, V = ItemValueOf<T>> extends Omit<
@@ -54,6 +56,11 @@ export interface SelectProps<T = SelectItem, V = ItemValueOf<T>> extends Omit<
     itemDisabled?: ItemAccessor<T, boolean>;
     /** Group heading of an item: property name or function (default: `group`); items are listed per group */
     itemGroup?: ItemAccessor<T, string | null | undefined>;
+    /**
+     * More text the search finds an item by, besides its label: property name or function, one text or a list
+     * (default: `keywords`), e.g. the name of the item's category
+     */
+    itemKeywords?: ItemAccessor<T, string | readonly string[] | null | undefined>;
     /** Identifies object values (property name or function), e.g. "id" – without it objects are compared by content */
     valueKey?: ItemAccessor<V, string | number>;
     /** Button that clears the value (also Backspace/Delete on the closed field) */
@@ -64,7 +71,7 @@ export interface SelectProps<T = SelectItem, V = ItemValueOf<T>> extends Omit<
     loadingText?: string;
     /** Height of the field: 32, 40 (default) or 48 px */
     size?: SelectSize;
-    /** Search field at the top of the list; filters by label, ignoring case and accents */
+    /** Search field at the top of the list; filters by label and itemKeywords, ignoring case and accents */
     filter?: boolean;
     /** The items are filtered elsewhere (server): no local filtering, listen to onFilterChange */
     manualFilter?: boolean;
@@ -118,6 +125,7 @@ export function Select<T = SelectItem, V = ItemValueOf<T>>({
     itemLabel,
     itemDisabled,
     itemGroup,
+    itemKeywords,
     valueKey,
     clearable,
     loading,
@@ -144,7 +152,7 @@ export function Select<T = SelectItem, V = ItemValueOf<T>>({
     const styles = select({ size, clearable });
     const translations = useTranslations();
     const t = translations.select;
-    const accessors = { itemValue, itemLabel, itemDisabled, itemGroup, valueKey };
+    const accessors = { itemValue, itemLabel, itemDisabled, itemGroup, itemKeywords, valueKey };
     const [query, setQuery] = useState('');
     const source = useOptionSource<T>({ items, source: dataSource, accessors, pageSize, minSearchLength });
     const { options, groups, ordered, firstFor } = useListOptions(

@@ -34,7 +34,12 @@ export interface FileUploadProps extends Omit<ComponentProps<'div'>, 'onChange' 
     maxFiles?: number;
     /** Maximum size per file in bytes */
     maxFileSize?: number;
-    /** The accepted files after every change */
+    /**
+     * The chosen files – controlled with onFilesChange, e.g. to remove or replace files from outside (otherwise the
+     * component keeps them itself; `clear()` empties it)
+     */
+    files?: File[];
+    /** The accepted files after every change (rejected files: onFilesReject) */
     onFilesChange?: (files: File[]) => void;
     /** Files that were not taken, with the reasons as codes (FILE_INVALID_TYPE, FILE_TOO_LARGE, TOO_MANY_FILES …) */
     onFilesReject?: (rejections: { file: File; errors: string[] }[]) => void;
@@ -58,6 +63,8 @@ export interface FileUploadProps extends Omit<ComponentProps<'div'>, 'onChange' 
     fullscreenDrop?: boolean;
     /** Ctrl+V inside the component adds files from the clipboard */
     paste?: boolean;
+    /** The list of the chosen files below the drop zone – false when the app shows the files itself */
+    showFileList?: boolean;
     disabled?: boolean;
     invalid?: boolean;
     required?: boolean;
@@ -93,6 +100,7 @@ export function FileUpload({
     accept,
     maxFiles = 1,
     maxFileSize,
+    files,
     onFilesChange,
     onFilesReject,
     onUploadComplete,
@@ -105,6 +113,7 @@ export function FileUpload({
     preview,
     fullscreenDrop,
     paste,
+    showFileList = true,
     disabled,
     invalid,
     required,
@@ -156,6 +165,7 @@ export function FileUpload({
         invalid,
         required,
         name,
+        acceptedFiles: files,
         translations: t,
         onFileChange: (details) => {
             onFilesChange?.(details.acceptedFiles);
@@ -284,7 +294,7 @@ export function FileUpload({
                 </ArkFileUpload.Dropzone>
             )}
             {variant === 'button' && hint && <span className={styles.hint()}>{hint}</span>}
-            {api.acceptedFiles.length > 0 && (
+            {showFileList && api.acceptedFiles.length > 0 && (
                 <ArkFileUpload.ItemGroup className={styles.list()}>
                     {api.acceptedFiles.map((file) => {
                         const state = states.get(file);
