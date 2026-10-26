@@ -81,7 +81,8 @@ describe('wirelayer-css embed', () => {
     it('contains every class of wirecore.css with "all"', () => {
         const { css } = embed('--scope', '#app', '--components', 'all');
         const classes = (text: string) => new Set(text.match(/\.wc-[\w-]+/g));
-        const missing = [...classes(compiled)].filter((name) => !classes(css).has(name));
+        const embedded = classes(css);
+        const missing = [...classes(compiled)].filter((name) => !embedded.has(name));
         expect(missing).toEqual([]);
     });
 
