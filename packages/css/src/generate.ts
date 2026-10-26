@@ -193,13 +193,9 @@ export function generate(module: Record<string, unknown>, mergeConfig: Parameter
     const blocks = recipesOf(module).map(([exportName, recipe]) => {
         const name = cssNames[exportName] ?? kebab(exportName);
         const rules = recipeRules(name, recipe, merge);
-        return { name, rules };
+        const css = `/* ${name} */\n${rules.map((r) => `${r.selector} {\n    @apply ${r.classes};\n}`).join('\n')}`;
+        return { name, rules, css };
     });
-    const css = blocks
-        .map(
-            ({ name, rules }) =>
-                `/* ${name} */\n${rules.map((r) => `${r.selector} {\n    @apply ${r.classes};\n}`).join('\n')}`
-        )
-        .join('\n\n');
+    const css = blocks.map((block) => block.css).join('\n\n');
     return { css: `@layer components {\n${css}\n}\n`, blocks };
 }
