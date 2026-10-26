@@ -31,6 +31,35 @@ Tailwind v4 yourself, import the sources instead:
 @import '@wirecore/wirelayer-css/components.css';
 ```
 
+## Inside a page with CSS of its own
+
+`wirecore.css` styles the whole page (preflight on `html`, `body`, `button` …). For WireLayer inside a page that
+brings its own CSS – a WordPress admin page, a host app – `wirelayer-css embed` writes one file with the chosen
+components, scoped to one element:
+
+```sh
+npx wirelayer-css embed --scope '#my-app' --components button,input,card,data-table --out assets/wirelayer
+```
+
+```html
+<link rel="stylesheet" href="assets/wirelayer/wirelayer.css" />
+<div id="my-app" data-mode="light">
+    <button type="button" class="wc-button">Save</button>
+</div>
+```
+
+- **Scoped:** components only apply inside the scope element; preflight, theme variables and the base styles apply to
+  it and everything inside it. The rest of the page stays untouched.
+- **Without `@layer`:** the page's own CSS is usually not in a layer and would beat every layered rule. An id as scope
+  (`#my-app`) also outranks its element and class rules.
+- **`data-mode` and `data-theme`** work on the scope element as they do on `<html>`. Without `data-mode` it follows the
+  system setting – `data-mode="light"` keeps it light inside a light host page.
+- **Components** by the names of the class reference, comma separated (`all` for every one); parts that live in a
+  component of their own (`card-parts`) come along. `--out` gets `wirelayer.css` and `fonts/` (with `OFL.txt`),
+  `--no-fonts` leaves the fonts out.
+- **No build tools needed:** the parts are precompiled in the package, the command only puts them together. Commit the
+  output or generate it in your build, and run it again after an update of the package.
+
 ## Classes
 
 | What                     | Class                    | Example                                   |
@@ -58,9 +87,23 @@ Tailwind v4 yourself, import the sources instead:
 | Field, Input, Textarea                                             | ✓ – errors through `aria-invalid` + `aria-describedby`                 |
 | Breadcrumb, Steps, Progress, Table                                 | ✓ – values in the markup (sorting/paging needs JS)                     |
 | Dialog                                                             | ✓ with `<dialog class="wc-dialog">` and `command`/`commandfor`         |
-| Checkbox, RadioGroup, Switch, ChipGroup, SegmentedControl          | display only – the state lives in `data-state`, which JS sets          |
+| Checkbox                                                           | ✓ with `<input type="checkbox" class="wc-checkbox-input">` (below)     |
+| RadioGroup, Switch, ChipGroup, SegmentedControl                    | display only – the state lives in `data-state`, which JS sets          |
 | Select, Menu, Tooltip, Tabs, Toast, Pagination                     | needs JS (keyboard, focus, positioning) – use the framework packages   |
 | Accordion, Popover, Drawer, all form controls with a popup         | needs JS – use the framework packages                                  |
+
+A checkbox without JavaScript – the native input right before the control; checked, focus, `aria-invalid` and
+`disabled` come from it (partially selected needs the framework packages):
+
+```html
+<label class="wc-checkbox">
+    <input type="checkbox" class="wc-checkbox-input" name="terms" />
+    <span class="wc-checkbox-control">
+        <svg class="wc-checkbox-icon" aria-hidden="true"><!-- check mark --></svg>
+    </span>
+    <span class="wc-checkbox-label">I agree</span>
+</label>
+```
 
 `@wirecore/wirelayer-vue` and `@wirecore/wirelayer-react` are meant for interactive pages: they bring keyboard
 interaction, focus management and ARIA states that plain CSS cannot provide.

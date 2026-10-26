@@ -2,6 +2,7 @@
  * Native HTML elements that work without JavaScript – not generated, they have no recipe.
  *   <dialog class="wc-dialog"> wraps .wc-dialog-content; open/close with invoker commands (command/commandfor);
  *   size, position and full screen as modifiers on the <dialog>: wc-dialog-lg, wc-dialog-top, wc-dialog-fullscreen
+ *   <input type="checkbox" class="wc-checkbox-input"> inside .wc-checkbox; its state styles .wc-checkbox-control
  */
 @layer components {
     dialog.wc-dialog {
@@ -82,5 +83,32 @@
     }
     .wc-mega-menu details[open] > summary .wc-mega-menu-trigger-icon {
         rotate: 180deg;
+    }
+
+    /*
+     * Checkbox without JavaScript: a native <input type="checkbox" class="wc-checkbox-input"> right before
+     * .wc-checkbox-control inside the label – checked, focus, invalid (aria-invalid) and disabled come from the input,
+     * the check mark only shows while it is checked (the framework components set data-state instead)
+     */
+    .wc-checkbox:has(> .wc-checkbox-input) {
+        position: relative;
+    }
+    .wc-checkbox:has(> .wc-checkbox-input:disabled) {
+        @apply cursor-not-allowed opacity-40;
+    }
+    .wc-checkbox-input {
+        @apply sr-only;
+    }
+    .wc-checkbox-input:checked + .wc-checkbox-control {
+        @apply border-primary bg-primary forced-colors:forced-color-adjust-none forced-colors:border-[Highlight] forced-colors:bg-[Highlight] forced-colors:text-[HighlightText];
+    }
+    .wc-checkbox-input:not(:checked) + .wc-checkbox-control > .wc-checkbox-icon {
+        display: none;
+    }
+    .wc-checkbox-input:focus-visible + .wc-checkbox-control {
+        @apply outline-2 outline-offset-2 outline-fg;
+    }
+    .wc-checkbox-input[aria-invalid='true'] + .wc-checkbox-control {
+        @apply border-danger;
     }
 }

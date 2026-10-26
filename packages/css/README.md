@@ -29,6 +29,14 @@ With your own Tailwind build:
 @import '@wirecore/wirelayer-css/components.css';
 ```
 
+Inside a page with CSS of its own (WordPress admin, a host app) – the chosen components, scoped to one element, without `@layer`, no build tools needed:
+
+```sh
+npx wirelayer-css embed --scope '#my-app' --components button,input,card --out assets/wirelayer
+```
+
+Details in the HTML guide (Storybook › HTML › Getting started, or `llms-full.txt`).
+
 The bundled fonts are licensed under the SIL Open Font License 1.1 (`dist/fonts/OFL.txt`), see [THIRD_PARTY_NOTICES.md](./THIRD_PARTY_NOTICES.md).
 
 ## AI assistants
