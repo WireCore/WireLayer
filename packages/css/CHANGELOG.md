@@ -1,5 +1,12 @@
 # @wirecore/wirelayer-css
 
+## 0.6.0
+
+### Minor Changes
+
+- 18a647e: `wirelayer-css embed`: WireLayer inside a page that brings its own CSS (WordPress admin, a host app) – the chosen components in one file, scoped to one element (`--scope '#my-app'`), without `@layer`, with the fonts. The parts come precompiled in `dist/embed/`, no build tools needed. `wirecore.css` and `components.css` stay unchanged.
+- 2431cd9: Checkbox without JavaScript: a native `<input type="checkbox" class="wc-checkbox-input">` right before `.wc-checkbox-control` sets checked, focus, invalid (`aria-invalid`) and disabled – new rules in `wirecore.css` and `components.css`, nothing existing changes.
+
 ## 0.5.0
 
 ### Minor Changes
