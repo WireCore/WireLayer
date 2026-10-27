@@ -818,10 +818,13 @@ describe.each(frameworks)('%s DataTable', (framework) => {
         );
         await waitFor(() => expect(screen.getAllByRole('status')[0]).toHaveTextContent('Name is now column 2 of 3'));
 
+        // Each menu once the one before has closed – its items share the names
+        await waitFor(() => expect(screen.queryByRole('menu')).toBeNull());
         await userEvent.click(screen.getByRole('button', { name: 'Options for Load' }));
         await userEvent.click(await screen.findByRole('menuitem', { name: 'Pin to start' }));
         expect(onPinned).toHaveBeenLastCalledWith({ start: ['load'], end: [] });
 
+        await waitFor(() => expect(screen.queryByRole('menu')).toBeNull());
         await userEvent.click(screen.getByRole('button', { name: 'Options for Location' }));
         await userEvent.click(await screen.findByRole('menuitem', { name: 'Hide' }));
         expect(onHidden).toHaveBeenLastCalledWith(['location']);
