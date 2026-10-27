@@ -1,5 +1,97 @@
 # @wirecore/wirelayer-vue
 
+## 0.7.0
+
+### Minor Changes
+
+- e7ecc8e: ConfirmDialog: `confirmButton` and `cancelButton` (Vue `confirm-button`, `cancel-button`) set the look of its buttons
+  for every request – `{ variant, color, size, shape }` as on Button; the same options in `confirm()` and `prompt()` win
+  for one request. The defaults stay: size sm, cancel `outline`, confirm `primary` (`danger` with status danger). New
+  type `ConfirmButtonOptions`.
+- e7ecc8e: `FormField` passes `classes` on to its Field – e.g. `{ label: 'text-sm' }` – like every other component; before, the
+  label could only be changed through the label slot. React's `FormField` also takes `className` now (Vue passed `class`
+  through already).
+- e7ecc8e: `DialogContent` and `DrawerContent` take `hideTitle` (Vue `hide-title`), like `PopoverContent`: the title stays the
+  accessible name of the dialog but is shown for screen readers only – e.g. around a video. Recipe variant `hideTitle` for
+  `dialog` and `drawer`.
+- e7ecc8e: IconButton `loading`, like Button: a spinner instead of the icon, the name stays; the button stays focusable
+  (`aria-disabled`, `aria-busy`) and ignores clicks – it does not submit its form either.
+- e7ecc8e: DataTable `rowExpandable` (Vue `row-expandable`): `(row) => boolean` decides which rows have details (`expansion`). Rows
+  without details get no expand button – their cell keeps its width, the columns stay aligned – and "Expand all" opens
+  only the rows that have details. Without the prop every row can be expanded, as before.
+- e7ecc8e: Smaller additions, the defaults stay:
+
+    - Slider `hideLabel`: the label is for screen readers only – it still names the thumbs; without `showValue` the header
+      takes no room (also in React Native, where the thumbs keep the label as their name)
+    - Carousel `controlsPosition: 'bottom' | 'sides'` (default `bottom`): with `sides` previous and next sit beside the
+      slides, vertically centred; autoplay and dots stay below
+    - Tooltip `closeOnScroll` (default `true`, as before): `false` keeps it open while the page or a container around the
+      trigger scrolls
+
+- e7ecc8e: DataTable `bordered`: a border around the whole table, with or without `gridlines` (which keep drawing the lines between
+  the columns only). Recipe variant `bordered` of `dataTable`.
+- e7ecc8e: DataTable pagination: `paginatorEdges` (Vue `paginator-edges`) adds the buttons to the first and the last page,
+  `paginatorAlign` (`'between'` – the default, rows per page at the start and the pages at the end – `'start'`,
+  `'center'`, `'end'`) places the pagination row. Recipe variant `paginatorAlign` of `dataTable`. The standalone
+  `Pagination` has `withEdges` already.
+- e7ecc8e: Recipe overrides per variant: `RecipesProvider` (and `useRecipe`) take `variants` – classes per part for single values
+  of a variant, e.g. `button: { variants: { size: { md: { base: 'h-[2.625rem]' } } } }` – and `compoundVariants` for
+  combinations (`{ size: ['sm', 'md'], shape: 'rounded', classes: { base: 'rounded-md' } }`). Names of variants, values and
+  parts are typed from the recipe like `defaultVariants`. Inner providers extend outer ones. Order per part: `classes`,
+  matching `variants` and `compoundVariants`, the states of the recipe, overrides of states, the own `class`. New types
+  `RecipeVariantClasses`, `RecipeCompoundClasses`, `RecipeVariantName`.
+- e7ecc8e: Smaller CSS without listing files by hand: the Vite plugin `wirelayer()` from `@wirecore/wirelayer-recipes/vite` reads
+  the imports from `@wirecore/wirelayer-*` in an app's source files (Vue, React, Astro, MDX …) and adds the sources files
+  of the imported components and recipes to the CSS file that imports `theme.css` or `styles-core.css` – in development
+  again when an import is added. Put it before Tailwind's plugin; works with Nuxt and Astro (`vite.plugins`). `vite` is an
+  optional peer dependency.
+
+    New `@wirecore/wirelayer-vue/theme.css` and `@wirecore/wirelayer-react/theme.css`: the theme without fonts and without
+    component classes, for an app with its own font (`@theme { --font-sans: … }`) – the WireLayer fonts are no longer
+    bundled. `fonts.css` brings them separately. `styles.css` and `styles-core.css` stay unchanged.
+
+### Patch Changes
+
+- e7ecc8e: DataTable `defaultSorting` (and a controlled `sorting`) now also sorts by a column without `sortable`. TanStack applied
+  a sorting only to columns the user can sort and dropped the others without a word – the table showed the rows unsorted.
+  The column still has no sort button and no sort entries in its menu; its header announces the order (`aria-sort`).
+- e7ecc8e: An own `id` on Ark-based controls no longer breaks them. Ark finds its parts by the ids it generates – an `id` passed to
+  a Select ended up on the trigger and replaced that id, so the list opened at the top left of the page; the focus did not
+  return after choosing. The `id` now goes through Ark's `ids` to the part a `<label for>` points to, the ids of a
+  surrounding Field are kept:
+
+    - the trigger: Select, MultiSelect, VirtualSelect, CascadeSelect, TreeSelect, ColorPicker (the buttons of the last three
+      are named by the label and describe themselves by their value)
+    - the input: Combobox, Autocomplete, NumberInput, PasswordInput, TagsInput, QuarterPicker (React; Vue already did),
+      ColorInput and Mentions (Vue lost it outside a Field)
+    - the hidden check box: Checkbox, Switch, CheckboxCard – a Switch without text leaves out its empty label, which hid a
+      `<label for>`
+
+    No label element can name a date field (spin buttons per part), a slider, a list box or a group: DatePicker,
+    DateRangePicker, MonthPicker, YearPicker, TimePicker, TimeRangePicker (the first date or time gets the id),
+    DurationInput (its group), Knob (the dial), Rating, PinInput, Listbox, AngleSlider (their root) keep the id, and a
+    `<label for>` pointing at one of them – or at a Slider, RadioGroup or SegmentedControl – warns in development: use a
+    Field or `aria-label`. New in `@wirecore/wirelayer-recipes`: `controlIds()` and `warnLabelFor()`.
+
+- e7ecc8e: Select, MultiSelect, VirtualSelect, Combobox and Listbox warn in development when a chosen value is not among their
+  items – it shows as raw text, e.g. `'DE'` with items that carry country names. They warn once the items are there: not
+  while loading, not without items, not with a data source (it resolves values later) and not for free text
+  (`allowCustomValue`). Nothing changes at runtime. New in `@wirecore/wirelayer-recipes`: `checkListValues()`; options
+  of such values carry `unknown: true`.
+- Updated dependencies [e7ecc8e]
+- Updated dependencies [e7ecc8e]
+- Updated dependencies [e7ecc8e]
+- Updated dependencies [e7ecc8e]
+- Updated dependencies [e7ecc8e]
+- Updated dependencies [e7ecc8e]
+- Updated dependencies [e7ecc8e]
+- Updated dependencies [e7ecc8e]
+- Updated dependencies [e7ecc8e]
+- Updated dependencies [e7ecc8e]
+- Updated dependencies [e7ecc8e]
+    - @wirecore/wirelayer-recipes@0.6.0
+    - @wirecore/wirelayer-tokens@0.4.0
+
 ## 0.6.0
 
 ### Minor Changes

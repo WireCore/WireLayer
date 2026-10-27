@@ -1,6 +1,6 @@
 {
     "name": "@wirecore/wirelayer-native",
-    "version": "0.3.1",
+    "version": "0.4.0",
     "description": "WireLayer components for React Native (Expo) with Uniwind",
     "license": "MIT",
     "repository": {

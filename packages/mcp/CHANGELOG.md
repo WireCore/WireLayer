@@ -1,5 +1,12 @@
 # @wirecore/wirelayer-mcp
 
+## 0.3.1
+
+### Patch Changes
+
+- e7ecc8e: New guide "Getting started › Migrating from PrimeVue" (also in `llms-full.txt` and the MCP server): PrimeVue
+  components and APIs side by side with their WireLayer counterparts, and the places where the two behave differently.
+
 ## 0.3.0
 
 ### Minor Changes

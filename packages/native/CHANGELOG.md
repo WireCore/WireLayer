@@ -1,5 +1,40 @@
 # @wirecore/wirelayer-native
 
+## 0.4.0
+
+### Minor Changes
+
+- e7ecc8e: ConfirmDialog: `confirmButton` and `cancelButton` (Vue `confirm-button`, `cancel-button`) set the look of its buttons
+  for every request – `{ variant, color, size, shape }` as on Button; the same options in `confirm()` and `prompt()` win
+  for one request. The defaults stay: size sm, cancel `outline`, confirm `primary` (`danger` with status danger). New
+  type `ConfirmButtonOptions`.
+- e7ecc8e: IconButton `loading`, like Button: a spinner instead of the icon, the name stays; the button stays focusable
+  (`aria-disabled`, `aria-busy`) and ignores clicks – it does not submit its form either.
+- e7ecc8e: Smaller additions, the defaults stay:
+
+    - Slider `hideLabel`: the label is for screen readers only – it still names the thumbs; without `showValue` the header
+      takes no room (also in React Native, where the thumbs keep the label as their name)
+    - Carousel `controlsPosition: 'bottom' | 'sides'` (default `bottom`): with `sides` previous and next sit beside the
+      slides, vertically centred; autoplay and dots stay below
+    - Tooltip `closeOnScroll` (default `true`, as before): `false` keeps it open while the page or a container around the
+      trigger scrolls
+
+### Patch Changes
+
+- Updated dependencies [e7ecc8e]
+- Updated dependencies [e7ecc8e]
+- Updated dependencies [e7ecc8e]
+- Updated dependencies [e7ecc8e]
+- Updated dependencies [e7ecc8e]
+- Updated dependencies [e7ecc8e]
+- Updated dependencies [e7ecc8e]
+- Updated dependencies [e7ecc8e]
+- Updated dependencies [e7ecc8e]
+- Updated dependencies [e7ecc8e]
+- Updated dependencies [e7ecc8e]
+    - @wirecore/wirelayer-recipes@0.6.0
+    - @wirecore/wirelayer-tokens@0.4.0
+
 ## 0.3.1
 
 ### Patch Changes

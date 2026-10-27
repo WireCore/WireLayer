@@ -1,5 +1,88 @@
 # @wirecore/wirelayer-recipes
 
+## 0.6.0
+
+### Minor Changes
+
+- e7ecc8e: Component variables for the measures a brand usually changes – set them on `:root`, a `[data-theme]` or any element.
+  Their defaults are the values the recipes had, nothing looks different without them:
+
+    - `--wc-control-h-sm` / `-md` / `-lg` (2rem / 2.5rem / 3rem): height of buttons, icon buttons and fields per size
+    - `--wc-control-radius-sm` / `-md` / `-lg` (6px / 8px / 10px) and `--wc-control-text-sm` / `-md` / `-lg` (13px / 15px /
+      16px): corners and text of the fields (Input, Textarea, NativeSelect, Select, MultiSelect, Combobox, NumberInput,
+      PasswordInput, the date and time fields, ColorPicker, TagsInput)
+    - `--wc-button-radius` (8px): Button and IconButton with `shape="rounded"`
+    - `--wc-card-p` (1.5rem): padding of Card
+    - `--wc-backdrop` (`rgb(0 0 0 / 0.6)`): dimming behind Dialog, Drawer and ConfirmDialog
+
+    The recipes use the variables instead of fixed classes (`h-10` is now `h-[var(--wc-control-h-md,2.5rem)]`) – selectors
+    on the old class names (`[&.h-10]:…`) no longer match; use `variants` in `RecipesProvider` instead.
+
+    Fix: `--radius-card`, `--radius-panel` and `--radius-popup` were compiled into the utilities (`@theme inline`), so a
+    theme could not change them at runtime. The utilities now read the variables; the values stay the same.
+
+- e7ecc8e: `DialogContent` and `DrawerContent` take `hideTitle` (Vue `hide-title`), like `PopoverContent`: the title stays the
+  accessible name of the dialog but is shown for screen readers only – e.g. around a video. Recipe variant `hideTitle` for
+  `dialog` and `drawer`.
+- e7ecc8e: An own `id` on Ark-based controls no longer breaks them. Ark finds its parts by the ids it generates – an `id` passed to
+  a Select ended up on the trigger and replaced that id, so the list opened at the top left of the page; the focus did not
+  return after choosing. The `id` now goes through Ark's `ids` to the part a `<label for>` points to, the ids of a
+  surrounding Field are kept:
+
+    - the trigger: Select, MultiSelect, VirtualSelect, CascadeSelect, TreeSelect, ColorPicker (the buttons of the last three
+      are named by the label and describe themselves by their value)
+    - the input: Combobox, Autocomplete, NumberInput, PasswordInput, TagsInput, QuarterPicker (React; Vue already did),
+      ColorInput and Mentions (Vue lost it outside a Field)
+    - the hidden check box: Checkbox, Switch, CheckboxCard – a Switch without text leaves out its empty label, which hid a
+      `<label for>`
+
+    No label element can name a date field (spin buttons per part), a slider, a list box or a group: DatePicker,
+    DateRangePicker, MonthPicker, YearPicker, TimePicker, TimeRangePicker (the first date or time gets the id),
+    DurationInput (its group), Knob (the dial), Rating, PinInput, Listbox, AngleSlider (their root) keep the id, and a
+    `<label for>` pointing at one of them – or at a Slider, RadioGroup or SegmentedControl – warns in development: use a
+    Field or `aria-label`. New in `@wirecore/wirelayer-recipes`: `controlIds()` and `warnLabelFor()`.
+
+- e7ecc8e: Smaller additions, the defaults stay:
+
+    - Slider `hideLabel`: the label is for screen readers only – it still names the thumbs; without `showValue` the header
+      takes no room (also in React Native, where the thumbs keep the label as their name)
+    - Carousel `controlsPosition: 'bottom' | 'sides'` (default `bottom`): with `sides` previous and next sit beside the
+      slides, vertically centred; autoplay and dots stay below
+    - Tooltip `closeOnScroll` (default `true`, as before): `false` keeps it open while the page or a container around the
+      trigger scrolls
+
+- e7ecc8e: Classes from `RecipesProvider` or `classes` no longer hide states. A provider with `input: { classes: { base:
+'border-line-2' } }` replaced the red border of an invalid field (tailwind-merge let the later class win). The classes
+  of an active state variant – `invalid`, `success`, `disabled`, `readOnly`, `current`, `selected`, `checked`, `loading`,
+  also in compound variants – now come after the override classes of their part. The class passed to the component itself
+  (`class`/`className`) still comes last and wins over everything. Without overrides nothing changes.
+- e7ecc8e: DataTable `bordered`: a border around the whole table, with or without `gridlines` (which keep drawing the lines between
+  the columns only). Recipe variant `bordered` of `dataTable`.
+- e7ecc8e: DataTable pagination: `paginatorEdges` (Vue `paginator-edges`) adds the buttons to the first and the last page,
+  `paginatorAlign` (`'between'` – the default, rows per page at the start and the pages at the end – `'start'`,
+  `'center'`, `'end'`) places the pagination row. Recipe variant `paginatorAlign` of `dataTable`. The standalone
+  `Pagination` has `withEdges` already.
+- e7ecc8e: Select, MultiSelect, VirtualSelect, Combobox and Listbox warn in development when a chosen value is not among their
+  items – it shows as raw text, e.g. `'DE'` with items that carry country names. They warn once the items are there: not
+  while loading, not without items, not with a data source (it resolves values later) and not for free text
+  (`allowCustomValue`). Nothing changes at runtime. New in `@wirecore/wirelayer-recipes`: `checkListValues()`; options
+  of such values carry `unknown: true`.
+- e7ecc8e: Recipe overrides per variant: `RecipesProvider` (and `useRecipe`) take `variants` – classes per part for single values
+  of a variant, e.g. `button: { variants: { size: { md: { base: 'h-[2.625rem]' } } } }` – and `compoundVariants` for
+  combinations (`{ size: ['sm', 'md'], shape: 'rounded', classes: { base: 'rounded-md' } }`). Names of variants, values and
+  parts are typed from the recipe like `defaultVariants`. Inner providers extend outer ones. Order per part: `classes`,
+  matching `variants` and `compoundVariants`, the states of the recipe, overrides of states, the own `class`. New types
+  `RecipeVariantClasses`, `RecipeCompoundClasses`, `RecipeVariantName`.
+- e7ecc8e: Smaller CSS without listing files by hand: the Vite plugin `wirelayer()` from `@wirecore/wirelayer-recipes/vite` reads
+  the imports from `@wirecore/wirelayer-*` in an app's source files (Vue, React, Astro, MDX …) and adds the sources files
+  of the imported components and recipes to the CSS file that imports `theme.css` or `styles-core.css` – in development
+  again when an import is added. Put it before Tailwind's plugin; works with Nuxt and Astro (`vite.plugins`). `vite` is an
+  optional peer dependency.
+
+    New `@wirecore/wirelayer-vue/theme.css` and `@wirecore/wirelayer-react/theme.css`: the theme without fonts and without
+    component classes, for an app with its own font (`@theme { --font-sans: … }`) – the WireLayer fonts are no longer
+    bundled. `fonts.css` brings them separately. `styles.css` and `styles-core.css` stay unchanged.
+
 ## 0.5.0
 
 ### Minor Changes
