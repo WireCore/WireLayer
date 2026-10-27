@@ -234,10 +234,16 @@ export function suggestThemeFixes(theme: Theme): ContrastSuggestion[] {
         const colors = resolveColors(theme, mode);
         const before = contrastPairs(colors);
         const failing = new Set(before.filter((result) => result.ratio < result.min).map((result) => result.name));
-        const ratioOf = (set: ColorSet, name: string) => contrastPairs(set).find((result) => result.name === name)!;
+        // The pairs with one token changed – the same candidates come up for every missed pair
+        const cache = new Map<string, ContrastResult[]>();
+        const pairsWith = (token: ColorToken, value: string) => {
+            const key = `${token} ${value}`;
+            let results = cache.get(key);
+            if (!results) cache.set(key, (results = contrastPairs({ ...colors, [token]: value })));
+            return results;
+        };
         /** Meets the pair and every pair that passed before still passes */
-        const fixes = (set: ColorSet, name: string) => {
-            const results = contrastPairs(set);
+        const fixes = (results: ContrastResult[], name: string) => {
             const own = results.find((result) => result.name === name)!;
             const broken = results.some((result) => result.ratio < result.min && !failing.has(result.name));
             return own.ratio >= own.min && !broken ? own.ratio : undefined;
@@ -248,15 +254,17 @@ export function suggestThemeFixes(theme: Theme): ContrastSuggestion[] {
             .map((result): ContrastSuggestion => {
                 // The tokens the pair depends on: changing them changes its ratio
                 const involved = colorTokens.filter((token) => {
-                    const shifted = { ...colors, [token]: toHex(over(parse('#808080'), parse(colors[token]), 0.5)) };
-                    return Math.abs(ratioOf(shifted, result.name).ratio - result.ratio) > 1e-6;
+                    const shifted = pairsWith(token, toHex(over(parse('#808080'), parse(colors[token]), 0.5)));
+                    return Math.abs(shifted.find((pair) => pair.name === result.name)!.ratio - result.ratio) > 1e-6;
                 });
                 const ordered = [...involved].sort((a, b) => Number(b in own) - Number(a in own));
                 const suggestion: ContrastSuggestion = { ...result, mode };
                 // Translucent tokens (lines) keep their alpha – no opaque replacement for them
                 const opaque = ordered.filter((name) => !name.startsWith('on-') && parse(colors[name]).a === 1);
                 for (const token of opaque) {
-                    const fix = nearestLightness(colors, token, (set) => fixes(set, result.name));
+                    const fix = nearestLightness(colors[token], token, (value) =>
+                        fixes(pairsWith(token, value), result.name)
+                    );
                     if (fix) {
                         suggestion.color = fix;
                         break;
@@ -264,7 +272,7 @@ export function suggestThemeFixes(theme: Theme): ContrastSuggestion[] {
                 }
                 for (const token of ordered.filter((name) => name.startsWith('on-'))) {
                     for (const value of ON_COLORS) {
-                        const ratio = fixes({ ...colors, [token]: value }, result.name);
+                        const ratio = fixes(pairsWith(token, value), result.name);
                         if (ratio !== undefined && value.toLowerCase() !== colors[token].toLowerCase()) {
                             suggestion.on = { token, value, ratio };
                             break;
@@ -277,18 +285,18 @@ export function suggestThemeFixes(theme: Theme): ContrastSuggestion[] {
     });
 }
 
-/** The colour of `token` with the nearest OKLCH lightness (either way) for which `meets` gives a ratio */
+/** The value of `token` with the nearest OKLCH lightness to `color` (either way) for which `meets` gives a ratio */
 function nearestLightness(
-    colors: ColorSet,
+    color: string,
     token: ColorToken,
-    meets: (set: ColorSet) => number | undefined
+    meets: (value: string) => number | undefined
 ): ContrastFix | undefined {
-    const { l, c, h } = rgbToOklch(parse(colors[token]));
+    const { l, c, h } = rgbToOklch(parse(color));
     for (let step = 1; step * LIGHTNESS_STEP <= 1; step++) {
         for (const lightness of [l - step * LIGHTNESS_STEP, l + step * LIGHTNESS_STEP]) {
             if (lightness < 0 || lightness > 1) continue;
             const value = toHex(oklchToRgb(lightness, chromaInGamut(lightness, c, h), h));
-            const ratio = meets({ ...colors, [token]: value });
+            const ratio = meets(value);
             if (ratio !== undefined) return { token, value, ratio };
         }
     }
