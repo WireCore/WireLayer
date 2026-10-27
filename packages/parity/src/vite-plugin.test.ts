@@ -4,13 +4,34 @@
 // components, and is much smaller than with styles.css.
 import { compile, optimize } from '@tailwindcss/node';
 import { Scanner } from '@tailwindcss/oxide';
+import * as recipes from '@wirecore/wirelayer-recipes';
 import { findImports, wirelayer } from '@wirecore/wirelayer-recipes/vite';
-import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { copyFileSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { afterAll, describe, expect, it } from 'vitest';
+import { isRecipe, writeComponentSources, writeRecipeSources } from '../../../scripts/sources.ts';
 
 const app = join(import.meta.dirname, '../fixtures/vite-sources');
 const styles = join(app, 'src/style.css');
+const packages = join(import.meta.dirname, '../..');
+
+// The packages as npm installs them, in the app's node_modules: an entry to resolve (dist, or src under the tests'
+// wirecore:source condition) and dist/sources – without a build of the workspace packages
+const module = recipes as Record<string, unknown>;
+const recipeNames = new Set(Object.keys(module).filter((name) => isRecipe(module[name])));
+const installed = (name: string, files: string[] = []) => {
+    const dir = join(app, 'node_modules/@wirecore', `wirelayer-${name}`);
+    for (const entry of ['dist/index.js', 'src/index.ts']) {
+        mkdirSync(join(dir, entry, '..'), { recursive: true });
+        writeFileSync(join(dir, entry), '');
+    }
+    for (const file of ['package.json', ...files]) copyFileSync(join(packages, name, file), join(dir, file));
+    return join(dir, 'dist/sources');
+};
+writeRecipeSources(installed('recipes'), module);
+writeComponentSources(join(packages, 'react'), installed('react', ['theme.css']), recipeNames);
+writeComponentSources(join(packages, 'vue'), installed('vue'), recipeNames);
+afterAll(() => rmSync(join(app, 'node_modules'), { recursive: true, force: true }));
 
 /** The plugin's hooks as Vite calls them in a build */
 function transform(code: string) {
@@ -50,7 +71,6 @@ describe('wirelayer()', () => {
     const ignored = join(app, 'node_modules/ignored');
     mkdirSync(ignored, { recursive: true });
     writeFileSync(join(ignored, 'index.ts'), "import { Scheduler } from '@wirecore/wirelayer-react';\n");
-    afterAll(() => rmSync(join(app, 'node_modules'), { recursive: true, force: true }));
 
     it('adds the sources files of the used components and recipes right after the theme import', () => {
         const code = transform(readFileSync(styles, 'utf8'))!;
@@ -70,7 +90,7 @@ describe('wirelayer()', () => {
         );
         expect(recipes).toEqual(expect.arrayContaining(['--wc-recipe-badge', '--wc-recipe-prose']));
         expect(recipes).not.toContain('--wc-recipe-scheduler');
-        const full = await build("@import 'tailwindcss';\n@import '@wirecore/wirelayer-react/styles.css';");
+        const full = await build(`@import 'tailwindcss';\n@import '${join(packages, 'react/styles.css')}';`);
         expect(css.length).toBeLessThan(full.length / 2);
         console.info(
             `theme.css + plugin: ${(css.length / 1024).toFixed(0)} kB, styles.css: ${(full.length / 1024).toFixed(0)} kB`
