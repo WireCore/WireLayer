@@ -1,6 +1,7 @@
 import { Checkbox as ArkCheckbox } from '@ark-ui/react/checkbox';
+import { useFieldContext } from '@ark-ui/react/field';
 import { RadioGroup as ArkRadioGroup } from '@ark-ui/react/radio-group';
-import { selectionCard as selectionCardRecipe, type RecipeClasses } from '@wirecore/wirelayer-recipes';
+import { controlIds, selectionCard as selectionCardRecipe, type RecipeClasses } from '@wirecore/wirelayer-recipes';
 import { Check } from 'lucide-react';
 import { useId, type ComponentProps, type ReactNode } from 'react';
 import type { IconComponent } from '../../types.js';
@@ -50,6 +51,7 @@ export function CheckboxCard({
     invalid,
     required,
     name,
+    id,
     className,
     style,
     children,
@@ -57,9 +59,11 @@ export function CheckboxCard({
 }: CheckboxCardProps) {
     const selectionCard = useRecipe('selectionCard', selectionCardRecipe, classes);
     const styles = selectionCard({ type: 'checkbox' });
-    const id = useId();
+    const uid = useId();
+    // An own id goes to the hidden input through Ark (it finds the input by its id)
+    const field = useFieldContext();
     const describedBy =
-        [description && `${id}description`, price && `${id}price`].filter(Boolean).join(' ') || undefined;
+        [description && `${uid}description`, price && `${uid}price`].filter(Boolean).join(' ') || undefined;
     return (
         <ArkCheckbox.Root
             className={styles.base({ class: className })}
@@ -72,6 +76,7 @@ export function CheckboxCard({
             required={required}
             name={name}
             value={value}
+            {...controlIds(id, 'hiddenInput', { label: field?.ids.label, hiddenInput: field?.ids.control })}
         >
             {Icon && (
                 <span className={styles.icon()}>
@@ -82,13 +87,13 @@ export function CheckboxCard({
                 <span className={styles.heading()}>
                     <ArkCheckbox.Label className={styles.title()}>{title}</ArkCheckbox.Label>
                     {price && (
-                        <span id={`${id}price`} className={styles.price()}>
+                        <span id={`${uid}price`} className={styles.price()}>
                             {price}
                         </span>
                     )}
                 </span>
                 {description && (
-                    <span id={`${id}description`} className={styles.description()}>
+                    <span id={`${uid}description`} className={styles.description()}>
                         {description}
                     </span>
                 )}

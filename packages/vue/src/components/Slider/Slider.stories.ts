@@ -81,3 +81,9 @@ export const ApplyOnRelease: Story = {
             </div>`,
     }),
 };
+
+/** `hide-label`: the label is for screen readers only (it still names the thumb) – e.g. under a column header */
+export const HiddenLabel: Story = {
+    name: 'Hidden label',
+    args: { hideLabel: true },
+};

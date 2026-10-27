@@ -43,6 +43,8 @@ const props = defineProps<
         required?: boolean;
         name?: string;
         label?: string;
+        /** Own id of the field: the (first) date gets it */
+        ownId?: string;
         /** Text of the empty field, shown until it gets the focus */
         placeholder?: string;
         className?: string;
@@ -81,12 +83,16 @@ const multiple = props.mode === 'multiple';
 const inputMode = range ? 'range' : 'single';
 const groups = range ? [0, 1] : [0];
 const rangeNames = [translations.dateRange.start, translations.dateRange.end];
-// The field label names the date; in a range followed by "Start"/"End"
-const ids = computed(() =>
-    field?.value
+// The field label names the date; in a range followed by "Start"/"End". An own id goes to the (first) date through
+// Ark – undefined leaves Ark its own id
+const ids = computed(() => {
+    const own = props.ownId;
+    const label = field?.value
         ? { label: (index: number) => (range ? `${field.value.ids.label} ${id}r${index}` : field.value.ids.label) }
-        : undefined
-);
+        : {};
+    const segmentGroup = own ? { segmentGroup: (index: number) => (index === 0 ? own : undefined) as string } : {};
+    return field?.value || own ? { ...label, ...segmentGroup } : undefined;
+});
 const groupLabel = (index: number) =>
     field?.value ? undefined : range ? [props.label, rangeNames[index]].filter(Boolean).join(', ') : props.label;
 const calendarTranslations = range

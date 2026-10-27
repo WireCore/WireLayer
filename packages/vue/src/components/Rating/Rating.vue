@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { Star } from '@lucide/vue';
 import { RatingGroup } from '@ark-ui/vue/rating-group';
-import { rating as ratingRecipe, type RecipeClasses } from '@wirecore/wirelayer-recipes';
+import { controlIds, rating as ratingRecipe, type RecipeClasses } from '@wirecore/wirelayer-recipes';
 import { computed, normalizeClass, useAttrs, type Component } from 'vue';
 import { useTranslations } from '../../locale.js';
 import { useRecipe } from '../../recipes.js';
+import { useLabelForWarning } from '../../utils/label-for.js';
 
 const translations = useTranslations();
 
@@ -25,6 +26,8 @@ export interface RatingProps {
     label?: string;
     size?: 'sm' | 'md' | 'lg';
     name?: string;
+    /** Id of the root element; a `<label for>` cannot name the rating, use a Field or aria-label */
+    id?: string;
     /** Extra classes per part of the component, e.g. { base: "…" } (see the recipe) */
     classes?: RecipeClasses<typeof ratingRecipe>;
 }
@@ -43,6 +46,9 @@ const props = withDefaults(defineProps<RatingProps>(), {
 const rating = useRecipe('rating', ratingRecipe, () => props.classes);
 const emit = defineEmits<{ 'update:modelValue': [value: number] }>();
 const attrs = useAttrs();
+// An own id goes to the root through Ark (it finds its parts by their ids)
+const rootIds = computed(() => controlIds(props.id, 'root'));
+useLabelForWarning('Rating', () => props.id);
 const styles = computed(() => rating({ size: props.size }));
 
 // allowClear: the value before the click – clicking it again clears
@@ -68,6 +74,7 @@ function onKeydown(api: RatingApi, event: KeyboardEvent) {
 <template>
     <!-- Star rating: a radio group – arrow keys change the value, each star reads "3 stars" -->
     <RatingGroup.Root
+        v-bind="rootIds"
         :class="styles.base({ class: normalizeClass(attrs.class) })"
         :style="attrs.style"
         :count="count"

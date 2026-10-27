@@ -44,24 +44,24 @@ export const input = tv({
     variants: {
         size: {
             sm: {
-                base: 'h-8 rounded-md',
-                control: 'px-2.5 text-[13px]',
+                base: 'h-[var(--wc-control-h-sm,2rem)] rounded-[var(--wc-control-radius-sm,0.375rem)]',
+                control: 'px-2.5 text-[length:var(--wc-control-text-sm,13px)]',
                 icon: 'ms-2.5 size-3.5',
                 statusIcon: 'me-2.5 size-3.5',
                 spinner: 'me-2.5 size-3.5',
                 clear: 'me-1 size-6',
             },
             md: {
-                base: 'h-10 rounded-lg',
-                control: 'px-3 text-[15px]',
+                base: 'h-[var(--wc-control-h-md,2.5rem)] rounded-[var(--wc-control-radius-md,0.5rem)]',
+                control: 'px-3 text-[length:var(--wc-control-text-md,15px)]',
                 icon: 'ms-3 size-4',
                 statusIcon: 'me-3 size-4',
                 spinner: 'me-3 size-4',
                 clear: 'me-1.5 size-6',
             },
             lg: {
-                base: 'h-12 rounded-[10px]',
-                control: 'px-4 text-base',
+                base: 'h-[var(--wc-control-h-lg,3rem)] rounded-[var(--wc-control-radius-lg,10px)]',
+                control: 'px-4 text-[length:var(--wc-control-text-lg,1rem)] leading-normal',
                 icon: 'ms-4 size-[18px]',
                 statusIcon: 'me-4 size-[18px]',
                 spinner: 'me-4 size-[18px]',
@@ -92,14 +92,14 @@ export const input = tv({
 
 export const textarea = tv({
     base: [
-        'block w-full resize-y rounded-lg border border-line-strong bg-bg px-3 py-[9px] text-[15px] leading-normal text-fg',
+        'block w-full resize-y rounded-[var(--wc-control-radius-md,0.5rem)] border border-line-strong bg-bg px-3 py-[9px] text-[length:var(--wc-control-text-md,15px)] leading-normal text-fg',
         'outline-none transition-colors placeholder:text-muted focus:border-primary motion-reduce:transition-none',
     ],
     variants: {
         size: {
-            sm: 'rounded-md px-2.5 py-1.5 text-[13px]',
-            md: 'rounded-lg px-3 py-[9px] text-[15px]',
-            lg: 'rounded-[10px] px-4 py-3 text-base',
+            sm: 'rounded-[var(--wc-control-radius-sm,0.375rem)] px-2.5 py-1.5 text-[length:var(--wc-control-text-sm,13px)]',
+            md: 'rounded-[var(--wc-control-radius-md,0.5rem)] px-3 py-[9px] text-[length:var(--wc-control-text-md,15px)]',
+            lg: 'rounded-[var(--wc-control-radius-lg,10px)] px-4 py-3 text-[length:var(--wc-control-text-lg,1rem)] leading-normal',
         },
         invalid: {
             true: 'border-danger focus:border-danger',

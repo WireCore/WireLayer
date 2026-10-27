@@ -1,6 +1,7 @@
 import { useFieldContext } from '@ark-ui/react/field';
 import { PasswordInput as ArkPasswordInput } from '@ark-ui/react/password-input';
 import {
+    controlIds,
     checkPasswordRequirements,
     passwordInput as passwordInputRecipe,
     passwordStrength,
@@ -62,6 +63,7 @@ export function PasswordInput({
     loading = false,
     clearable = false,
     clearLabel,
+    id,
     className,
     style,
     ...props
@@ -75,7 +77,7 @@ export function PasswordInput({
     const styles = passwordInput({ size, success: isSuccess });
 
     // Strength: 4 bars and a word, announced politely and linked to the input
-    const id = useId();
+    const uid = useId();
     const [typed, setTyped] = useState(String(props.defaultValue ?? ''));
     const text = props.value === undefined ? typed : String(props.value);
     const level = passwordStrength(text);
@@ -83,7 +85,7 @@ export function PasswordInput({
     const met = checkPasswordRequirements(text, requirements ?? []);
     const describedBy =
         strength || requirements?.length
-            ? [field?.ariaDescribedby, strength && `${id}strength`, requirements?.length && `${id}requirements`]
+            ? [field?.ariaDescribedby, strength && `${uid}strength`, requirements?.length && `${uid}requirements`]
                   .filter(Boolean)
                   .join(' ')
             : undefined;
@@ -110,6 +112,7 @@ export function PasswordInput({
             onVisibilityChange={(details) => onVisibleChange?.(details.visible)}
             autoComplete={autoComplete as 'current-password' | 'new-password'}
             translations={translations.passwordInput}
+            {...controlIds(id, 'input', { input: field?.ids.control })}
         >
             <ArkPasswordInput.Control ref={control} className={styles.control()}>
                 <ArkPasswordInput.Input
@@ -155,14 +158,14 @@ export function PasswordInput({
                             />
                         ))}
                     </div>
-                    <span id={`${id}strength`} className={styles.strengthText()} aria-live="polite">
+                    <span id={`${uid}strength`} className={styles.strengthText()} aria-live="polite">
                         {levelText && translations.passwordStrength.label(levelText)}
                     </span>
                 </div>
             )}
             {!!requirements?.length && (
                 <ul
-                    id={`${id}requirements`}
+                    id={`${uid}requirements`}
                     className={styles.requirements()}
                     aria-label={translations.passwordRequirements.label}
                 >

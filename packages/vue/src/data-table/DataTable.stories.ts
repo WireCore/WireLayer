@@ -480,6 +480,61 @@ export const Rows: Story = {
     }),
 };
 
+/** Details on some rows only (`row-expandable`): the others have no button, their cell keeps its width */
+export const RowDetails: Story = {
+    name: 'Details on some rows',
+    render: () => ({
+        components: { DataTable: DataTable as ConcreteComponent },
+        setup: () => ({
+            rows: machines(4),
+            columns: rowColumns,
+            getRowId: machineId,
+            rowLabel: machineName,
+            card,
+            withDetails: (row: MachineRow) => row.id !== 'vm-0002',
+        }),
+        template: `
+            <DataTable
+                :data="rows"
+                :columns="columns"
+                caption="Machines"
+                :get-row-id="getRowId"
+                :row-label="rowLabel"
+                :row-expandable="withDetails"
+                :default-expanded="['vm-0001']"
+                :class="['max-w-[900px]', card]"
+            >
+                <template #expansion="{ row }">
+                    <dl class="grid grid-cols-[max-content_1fr] gap-x-6 gap-y-1">
+                        <dt class="text-muted">System</dt><dd>{{ row.os }}</dd>
+                    </dl>
+                </template>
+            </DataTable>`,
+    }),
+};
+
+/** `bordered` frames the table (here with `gridlines`); `paginator-edges` adds first/last page, `paginator-align` centres */
+export const BorderAndPagination: Story = {
+    name: 'Border and pagination',
+    render: () => ({
+        components: { DataTable: DataTable as ConcreteComponent },
+        setup: () => ({ rows: machines(12), columns: rowColumns, getRowId: machineId }),
+        template: `
+            <DataTable
+                class="max-w-[900px]"
+                :data="rows"
+                :columns="columns"
+                caption="Machines"
+                :get-row-id="getRowId"
+                gridlines
+                bordered
+                :page-size="4"
+                paginator-edges
+                paginator-align="center"
+            />`,
+    }),
+};
+
 /** Editing a whole row: text, number, choice, date and checkbox, with a check per value */
 export const RowEditing: Story = {
     render: () => ({

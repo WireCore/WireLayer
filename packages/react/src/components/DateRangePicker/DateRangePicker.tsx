@@ -10,6 +10,7 @@ import { useState, type CSSProperties } from 'react';
 import { DatePickerBase, type CalendarPreset, type RenderDay } from '../DatePicker/DatePickerBase.js';
 import { fromDateLike, fromIso, toOutput, unavailableDates, wallKey } from '../DatePicker/dates.js';
 import { useLocale, useTranslations } from '../LocaleProvider/LocaleProvider.js';
+import { useLabelForWarning } from '../../utils/label-for.js';
 
 export interface DateRange {
     /** ISO date (with time "2026-10-20T14:30"), null while not entered; a Date with valueType "date" */
@@ -81,6 +82,8 @@ export interface DateRangePickerProps<T extends DateRangeLike = DateRange> {
     renderDay?: RenderDay;
     /** Accessible name without a surrounding Field */
     'aria-label'?: string;
+    /** Id of the field – the (first) date gets it; a `<label for>` cannot name it, use a Field or aria-label */
+    id?: string;
     className?: string;
     style?: CSSProperties;
     /** Extra classes per part of the date field, e.g. { control: "…" } (the calendar: RecipesProvider) */
@@ -101,10 +104,12 @@ export function DateRangePicker<T extends DateRangeLike = DateRange>({
     locale: localeProp,
     presets,
     'aria-label': ariaLabel,
+    id,
     clearable = true,
     highlightToday = true,
     ...rest
 }: DateRangePickerProps<T>) {
+    useLabelForWarning('DateRangePicker', id);
     const localeContext = useLocale();
     const locale = localeProp ?? localeContext.locale;
     const translations = useTranslations();
@@ -150,6 +155,7 @@ export function DateRangePicker<T extends DateRangeLike = DateRange>({
             locale={locale}
             presets={calendarPresets}
             label={ariaLabel}
+            ownId={id}
             hideClear={!clearable}
             plainToday={!highlightToday}
         />

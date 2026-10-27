@@ -121,3 +121,9 @@ function ApplyOnReleaseDemo() {
  * once the thumb is let go – e.g. to filter only then. Change its `key` to set it back from outside
  */
 export const ApplyOnRelease: Story = { name: 'Apply on release', render: () => <ApplyOnReleaseDemo /> };
+
+/** `hideLabel`: the label is for screen readers only (it still names the thumb) – e.g. under a column header */
+export const HiddenLabel: Story = {
+    name: 'Hidden label',
+    args: { hideLabel: true },
+};

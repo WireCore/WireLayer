@@ -46,6 +46,8 @@ export interface TagsInputProps {
     dataSource?: DataSource<string>;
     /** Fewest characters the typed text needs before the data source is asked (default 1) */
     minSearchLength?: number;
+    /** Id of the input, e.g. for a `<label for>` */
+    id?: string;
     /** Extra classes per part of the component, e.g. { base: "…" } (see the recipe) */
     classes?: RecipeClasses<typeof tagsInputRecipe>;
 }
@@ -76,9 +78,9 @@ const emit = defineEmits<{
 const attrs = useAttrs();
 const split = computed(() => splitAttrs(attrs));
 const styles = tagsInput();
-// The input gets the Field's control id, so the Field label names it
+// The input gets the Field's control id, so the Field label names it – or an own id (Ark finds the input by it)
 const field = useFieldContext();
-const ids = computed(() => (field?.value ? { input: field.value.ids.control } : undefined));
+const ids = computed(() => (props.id || field?.value ? { input: props.id ?? field?.value.ids.control } : undefined));
 const check = computed(() =>
     props.validate ? (details: { inputValue: string }) => props.validate!(details.inputValue) : undefined
 );

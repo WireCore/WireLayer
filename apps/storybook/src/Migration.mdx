@@ -1,0 +1,59 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="Getting started/Migrating from PrimeVue" />
+
+# Migrating from PrimeVue
+
+What a Vue app that used PrimeVue (styled mode) changes when it moves to `@wirecore/wirelayer-vue` – the components side
+by side, then the places where the two behave differently. The React package has the same names and props
+(`class` → `className`, `v-model` → `value`/`onValueChange`).
+
+## Components and APIs side by side
+
+| PrimeVue                                                                            | WireLayer                                                                                                         |
+| ----------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| `<Button label icon="pi pi-x">`                                                     | the label as slot text, `:leading-icon` with a Lucide component (`@lucide/vue`)                                   |
+| `severity` / `text` / `outlined`                                                    | `color` – or `variant="text"` / `variant="outline"`                                                               |
+| Icon button + `v-tooltip`                                                           | `<Tooltip content><IconButton :icon label /></Tooltip>` – `label` is the accessible name (often the tooltip text) |
+| `Button :loading`                                                                   | `loading` on `Button` and `IconButton` (stays focusable, ignores clicks)                                          |
+| `Card` with `#title`/`#content`                                                     | `Card` with the default slot and an own heading                                                                   |
+| `InputText`, `Password`, `InputNumber`, `InputChips`, `SelectButton`, `RadioButton` | `Input`, `PasswordInput`, `NumberInput`, `TagsInput`, `SegmentedControl`, `RadioGroup` + `RadioGroupItem`         |
+| `IconField` + `InputIcon`                                                           | `Input :leading-icon`                                                                                             |
+| `Select :options optionLabel optionValue`                                           | `Select :items item-label item-value` (object values: `value-key`)                                                |
+| `Message severity`                                                                  | `Alert status` (`error` → `danger`)                                                                               |
+| `Tag`                                                                               | `Badge`                                                                                                           |
+| `Dialog v-model:visible header`                                                     | `Dialog v-model:open` + `DialogContent title size` (`hide-title` keeps the title for screen readers only)         |
+| `Toolbar` as a container                                                            | a plain `div` – WireLayer's `Toolbar` is `role="toolbar"` (one tab stop, arrow keys)                              |
+| `useToast().add({ severity, summary, detail, life })`                               | `toast({ type, title, description, duration })`, `<Toaster />` once in the app                                    |
+| `useConfirm().require({ … })`                                                       | `await confirm({ title, description, … })`, `<ConfirmDialog />` once in the app                                   |
+| `DataTable` + `Column`                                                              | `DataTable :columns` (column objects), `#cell-<id>`, `#expansion`, `v-model:page-size`                            |
+| `expandedRows` with a row toggler on some rows                                      | `#expansion` + `row-expandable`                                                                                   |
+| `paginatorTemplate` (first/last page)                                               | `paginator-edges`, `paginator-align`                                                                              |
+| `showGridlines` (with the outer border)                                             | `gridlines` + `bordered`                                                                                          |
+| `FilterMatchMode`, `filters`                                                        | `v-model:global-filter`, column `filter`/`filterOptions`, `filter-display="row"`                                  |
+| `@primevue/forms` + `zodResolver`                                                   | TanStack Form with Zod directly as a Standard Schema, `FormField` + `bindInput`/`bindValue`                       |
+| `pt` (pass-through)                                                                 | `classes` per part, `RecipesProvider` for all components below it                                                 |
+| Theme preset (`definePreset`)                                                       | `--wc-*` tokens, `defineTheme`, the component variables (_Foundations › Themes_)                                  |
+| `darkModeSelector` (a class)                                                        | `data-mode` on `<html>`                                                                                           |
+| `tailwindcss-primeui` (`bg-surface-*`, `text-muted-color`)                          | semantic tokens: `bg-card`, `bg-bg-2`, `text-muted`, `border-line` …                                              |
+
+## Pitfalls
+
+- **An empty choice is `null`, not `''`.** For PrimeVue's Select `''` means "nothing chosen"; WireLayer's Select treats
+  `''` as a value (it warns in development that it is not among the items). Use `null`.
+- **TanStack fields start with `''`.** A required text in Zod therefore needs `.min(1)` – `z.string()` alone accepts
+  the empty field.
+- **Fonts:** set your own with `@theme { --font-sans: … }`. Import `theme.css` instead of `styles.css` (with the
+  sources files, or the Vite plugin `@wirecore/wirelayer-recipes/vite`) so the WireLayer fonts are not bundled
+  (_Getting started › Welcome › Smaller CSS_).
+- **Card spacing:** `Card` puts a `gap` between its direct children – wrap content that should sit tight in one
+  element.
+- **Overrides go per part and per variant.** `classes: { base: 'rounded-md' }` reaches every size; only the medium size
+  with `variants: { size: { md: { base: '…' } } }` – no selectors on the recipe's own classes. States such as `invalid`
+  stay visible over such classes; only `class` on the component itself replaces them.
+- **Sizes and corners in one place:** the height, text and corners of buttons and fields per size, the corners of
+  rounded buttons, the padding of cards and the backdrop of dialogs are CSS variables (`--wc-control-h-md` …).
+- **Labels:** wrap a control in `Field` (it links label, description and error). A native `<label for>` works with the
+  control's own `id`; date fields, sliders and groups need `Field` or `aria-label`.
+- **Brand colours:** `checkTheme` lists the pairs below WCAG AA, `suggestThemeFixes` the nearest colours (and `on-*`
+  colours) that meet them – an orange `primary` with white text, common in PrimeVue themes, does not.

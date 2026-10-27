@@ -3,6 +3,7 @@ import { PasswordInput } from '@ark-ui/vue/password-input';
 import { Check, Circle, Eye, EyeOff } from '@lucide/vue';
 import { useFieldContext } from '@ark-ui/vue/field';
 import {
+    controlIds,
     checkPasswordRequirements,
     passwordInput as passwordInputRecipe,
     passwordStrength,
@@ -49,6 +50,8 @@ export interface PasswordInputProps {
     clearLabel?: string;
     /** Initial value without v-model */
     defaultValue?: string;
+    /** Id of the input, e.g. for a `<label for>` */
+    id?: string;
     /** Extra classes per part of the component, e.g. { base: "…" } (see the recipe) */
     classes?: RecipeClasses<typeof passwordInputRecipe>;
 }
@@ -79,7 +82,7 @@ const isSuccess = computed(() => !isInvalid.value && (!!props.success || fieldSt
 const styles = computed(() => passwordInput({ size: props.size, success: isSuccess.value }));
 
 // Strength: 4 bars and a word, announced politely and linked to the input
-const id = useId();
+const uid = useId();
 // Typed value without v-model
 const typed = ref(props.defaultValue);
 const current = computed(() => model.value ?? typed.value);
@@ -94,8 +97,8 @@ const describedBy = computed(() =>
     props.strength || props.requirements?.length
         ? [
               field?.value.ariaDescribedby,
-              props.strength && `${id}strength`,
-              props.requirements?.length && `${id}requirements`,
+              props.strength && `${uid}strength`,
+              props.requirements?.length && `${uid}requirements`,
           ]
               .filter(Boolean)
               .join(' ')
@@ -111,6 +114,8 @@ function clear() {
     setTextControlValue(input);
     input.focus();
 }
+// An own id goes to the input through Ark (it finds the input by its id)
+const ids = computed(() => controlIds(props.id, 'input', { input: field?.value.ids.control }));
 </script>
 
 <template>
@@ -127,6 +132,7 @@ function clear() {
         :visible="visible"
         :auto-complete="autocomplete"
         :translations="translations.passwordInput"
+        v-bind="ids"
         @visibility-change="emit('update:visible', $event.visible)"
     >
         <PasswordInput.Control ref="control" :class="styles.control()">
@@ -169,13 +175,13 @@ function clear() {
                     :data-filled="bar <= level || undefined"
                 />
             </div>
-            <span :id="`${id}strength`" :class="styles.strengthText()" aria-live="polite">
+            <span :id="`${uid}strength`" :class="styles.strengthText()" aria-live="polite">
                 <template v-if="levelText">{{ translations.passwordStrength.label(levelText) }}</template>
             </span>
         </div>
         <ul
             v-if="requirements?.length"
-            :id="`${id}requirements`"
+            :id="`${uid}requirements`"
             :class="styles.requirements()"
             :aria-label="translations.passwordRequirements.label"
         >

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useStore, type AnyFieldApi } from '@tanstack/vue-form';
+import type { field as fieldRecipe, RecipeClasses } from '@wirecore/wirelayer-recipes';
 import { computed } from 'vue';
 import Field from '../components/Field/Field.vue';
 import { firstError } from './errors.js';
@@ -15,6 +16,8 @@ export interface FormFieldProps {
     /** "(optional)" after the label */
     optional?: boolean;
     disabled?: boolean;
+    /** Extra classes per part of the Field, e.g. { label: "…" } (see the field recipe) */
+    classes?: RecipeClasses<typeof fieldRecipe>;
 }
 
 const props = defineProps<FormFieldProps>();
@@ -43,6 +46,7 @@ const error = computed(() => (meta.value.isTouched ? firstError(meta.value.error
         :required="required"
         :optional="optional"
         :disabled="disabled"
+        :classes="classes"
     >
         <slot :field="field" />
         <template v-if="$slots.label" #label><slot name="label" /></template>

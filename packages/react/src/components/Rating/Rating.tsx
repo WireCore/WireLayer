@@ -1,9 +1,10 @@
 import { RatingGroup as ArkRatingGroup } from '@ark-ui/react/rating-group';
-import { rating as ratingRecipe, type RecipeClasses } from '@wirecore/wirelayer-recipes';
+import { controlIds, rating as ratingRecipe, type RecipeClasses } from '@wirecore/wirelayer-recipes';
 import { Star } from 'lucide-react';
 import { useRef, type ComponentType, type CSSProperties } from 'react';
 import { useTranslations } from '../LocaleProvider/LocaleProvider.js';
 import { useRecipe } from '../RecipesProvider/RecipesProvider.js';
+import { useLabelForWarning } from '../../utils/label-for.js';
 
 export interface RatingProps {
     value?: number;
@@ -21,6 +22,8 @@ export interface RatingProps {
     /** Visible label, also the group's accessible name */
     label?: string;
     'aria-label'?: string;
+    /** Id of the root element; a `<label for>` cannot name the rating, use a Field or aria-label */
+    id?: string;
     size?: 'sm' | 'md' | 'lg';
     name?: string;
     className?: string;
@@ -43,11 +46,13 @@ export function Rating({
     disabled,
     label,
     'aria-label': ariaLabel,
+    id,
     size,
     name,
     className,
     style,
 }: RatingProps) {
+    useLabelForWarning('Rating', id);
     const rating = useRecipe('rating', ratingRecipe, classes);
     const translations = useTranslations();
     const styles = rating({ size });
@@ -56,6 +61,7 @@ export function Rating({
 
     return (
         <ArkRatingGroup.Root
+            {...controlIds(id, 'root')}
             className={styles.base({ class: className })}
             style={style}
             count={count}

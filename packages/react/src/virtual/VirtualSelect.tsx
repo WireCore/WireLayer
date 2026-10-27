@@ -1,8 +1,10 @@
 import { createListCollection } from '@ark-ui/react/collection';
+import { useFieldContext } from '@ark-ui/react/field';
 import { Portal } from '@ark-ui/react/portal';
 import { Select as ArkSelect } from '@ark-ui/react/select';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import {
+    controlIds,
     select as selectRecipe,
     virtualList as virtualListRecipe,
     type DataSource,
@@ -101,6 +103,7 @@ export function VirtualSelect<T = SelectItem, V = ItemValueOf<T>>({
     dataSource,
     pageSize,
     minSearchLength,
+    id,
     className,
     style,
     onKeyDown,
@@ -110,6 +113,8 @@ export function VirtualSelect<T = SelectItem, V = ItemValueOf<T>>({
     const virtualList = useRecipe('virtualList', virtualListRecipe);
     const styles = select({ size, clearable });
     const list = virtualList();
+    // An own id goes to the trigger through Ark (it finds the trigger by its id)
+    const field = useFieldContext();
     const translations = useTranslations();
     const t = translations.select;
     // No groups: the rows are positioned one below the other
@@ -129,6 +134,8 @@ export function VirtualSelect<T = SelectItem, V = ItemValueOf<T>>({
         accessors,
         items: known,
         onChange: onValueChange,
+        // Without a data source and loaded: a value outside the items warns in development
+        check: { component: 'VirtualSelect', ready: !dataSource && !loadingProp && items.length > 0 },
     });
     // A chosen value that is not loaded gets its label from the data source
     const keyText = keys.join('\u0000');
@@ -242,6 +249,7 @@ export function VirtualSelect<T = SelectItem, V = ItemValueOf<T>>({
             name={name}
             positioning={{ sameWidth: true, gutter: 4 }}
             composite={!filter}
+            {...controlIds(id, 'trigger', { label: field?.ids.label, hiddenSelect: field?.ids.control })}
             scrollToIndexFn={(details) => virtualizer.scrollToIndex(details.index, { align: 'auto' })}
         >
             {/* No class attribute without a clear button (unchanged DOM) */}

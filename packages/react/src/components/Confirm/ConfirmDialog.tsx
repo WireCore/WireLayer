@@ -6,19 +6,23 @@ import { useRef, useState, useSyncExternalStore } from 'react';
 import { Button } from '../Button/Button.js';
 import { Field } from '../Field/Field.js';
 import { Input } from '../Input/Input.js';
-import { confirmStore, type ConfirmRequest } from './confirm.js';
+import { confirmStore, type ConfirmButtonOptions, type ConfirmRequest } from './confirm.js';
 import { useTranslations } from '../LocaleProvider/LocaleProvider.js';
 import { useRecipe } from '../RecipesProvider/RecipesProvider.js';
 
 export interface ConfirmDialogProps {
     /** Accessible name of the close button */
     closeLabel?: string;
+    /** Look of the confirm button in every request (default: size sm, `primary`, `danger` for status danger) */
+    confirmButton?: ConfirmButtonOptions;
+    /** Look of the cancel button in every request (default: size sm, `outline`) */
+    cancelButton?: ConfirmButtonOptions;
     /** Extra classes per part of the component, e.g. { base: "…" } (see the recipe) */
     classes?: RecipeClasses<typeof dialogRecipe>;
 }
 
 /** Place once in the app; ask with `await confirm({ title, … })` or `await prompt({ title, label })` */
-export function ConfirmDialog({ classes, closeLabel }: ConfirmDialogProps) {
+export function ConfirmDialog({ classes, closeLabel, confirmButton, cancelButton }: ConfirmDialogProps) {
     const dialog = useRecipe('dialog', dialogRecipe, classes);
     const translations = useTranslations();
     const request = useSyncExternalStore(confirmStore.subscribe, confirmStore.get, () => null);
@@ -32,7 +36,7 @@ export function ConfirmDialog({ classes, closeLabel }: ConfirmDialogProps) {
         setValue(request.kind === 'prompt' ? (request.defaultValue ?? '') : '');
         setAttempted(false);
     }
-    const cancelButton = useRef<HTMLButtonElement>(null);
+    const cancelButtonRef = useRef<HTMLButtonElement>(null);
     const inputBox = useRef<HTMLDivElement>(null);
     const styles = dialog({ status: content?.status, position: content?.position });
     const Icon = content?.icon;
@@ -60,7 +64,7 @@ export function ConfirmDialog({ classes, closeLabel }: ConfirmDialogProps) {
             onOpenChange={(details) => !details.open && request?.settle(false)}
             role="alertdialog"
             // The text field gets the focus when there is one, otherwise cancelling (the safe choice)
-            initialFocusEl={() => inputBox.current?.querySelector('input') ?? cancelButton.current}
+            initialFocusEl={() => inputBox.current?.querySelector('input') ?? cancelButtonRef.current}
             finalFocusEl={() => content?.returnFocus ?? null}
             lazyMount
             unmountOnExit
@@ -112,9 +116,11 @@ export function ConfirmDialog({ classes, closeLabel }: ConfirmDialogProps) {
                             </div>
                             <div className={styles.footer()}>
                                 <Button
-                                    ref={cancelButton}
+                                    ref={cancelButtonRef}
                                     variant="outline"
                                     size="sm"
+                                    {...cancelButton}
+                                    {...content.cancelButton}
                                     onClick={() => request?.settle(false)}
                                 >
                                     {content.cancelLabel ?? translations.common.cancel}
@@ -122,6 +128,8 @@ export function ConfirmDialog({ classes, closeLabel }: ConfirmDialogProps) {
                                 <Button
                                     variant={content.status === 'danger' ? 'danger' : 'primary'}
                                     size="sm"
+                                    {...confirmButton}
+                                    {...content.confirmButton}
                                     onClick={submit}
                                 >
                                     {content.confirmLabel ?? translations.common.confirm}

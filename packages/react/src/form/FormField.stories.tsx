@@ -246,3 +246,29 @@ function AsyncForm() {
  * AbortSignal, so an outdated request is cancelled
  */
 export const AsyncValidation: Story = { render: () => <AsyncForm /> };
+
+function ClassesForm() {
+    const form = useForm({ defaultValues: { company: '', city: '' } });
+    const label = { label: 'text-base font-semibold' };
+    return (
+        <div className="grid w-[380px] grid-cols-2 gap-3.5">
+            <form.Field name="company">
+                {(field) => (
+                    <FormField field={field} label="Company" classes={label} className="col-span-2">
+                        <Input {...bindInput(field)} />
+                    </FormField>
+                )}
+            </form.Field>
+            <form.Field name="city">
+                {(field) => (
+                    <FormField field={field} label="City" classes={label}>
+                        <Input {...bindInput(field)} />
+                    </FormField>
+                )}
+            </form.Field>
+        </div>
+    );
+}
+
+/** `classes` per part of the Field (here the labels) and `className` for the field as a whole (here a grid span) */
+export const Classes: Story = { name: 'Classes per part', render: () => <ClassesForm /> };

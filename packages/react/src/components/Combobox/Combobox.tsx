@@ -1,7 +1,9 @@
 import { Combobox as ArkCombobox } from '@ark-ui/react/combobox';
 import { createListCollection } from '@ark-ui/react/collection';
+import { useFieldContext } from '@ark-ui/react/field';
 import { Portal } from '@ark-ui/react/portal';
 import {
+    controlIds,
     combobox as comboboxRecipe,
     type DataSource,
     type ItemAccessor,
@@ -122,6 +124,7 @@ export function Combobox<T = SelectItem, V = ItemValueOf<T>>({
     minSearchLength,
     pageSize,
     renderItem,
+    id,
     className,
     style,
     onBlur,
@@ -130,6 +133,8 @@ export function Combobox<T = SelectItem, V = ItemValueOf<T>>({
 }: ComboboxProps<T, V>) {
     const combobox = useRecipe('combobox', comboboxRecipe, classes);
     const styles = combobox({ size });
+    // An own id goes to the input through Ark (it finds the input by its id)
+    const field = useFieldContext();
     const translations = useTranslations();
     const accessors = { itemValue, itemLabel, itemDisabled, itemGroup, itemKeywords, valueKey };
     const [query, setQuery] = useState('');
@@ -147,6 +152,8 @@ export function Combobox<T = SelectItem, V = ItemValueOf<T>>({
         accessors,
         items: known,
         onChange: onValueChange,
+        // Without a data source and loaded: a value outside the items warns in development
+        check: { component: 'Combobox', ready: !dataSource && !loading && items.length > 0 && !allowCustomValue },
     });
     // A chosen value that is not loaded gets its label from the data source
     const keyText = keys.join('\u0000');
@@ -191,6 +198,7 @@ export function Combobox<T = SelectItem, V = ItemValueOf<T>>({
             className={styles.base({ class: className })}
             style={style}
             collection={collection}
+            {...controlIds(id, 'input', { label: field?.ids.label, input: field?.ids.control })}
             value={keys}
             onValueChange={(details) => commitKeys(details.value, details.items as ListOption<T>[])}
             inputValue={text}

@@ -19,6 +19,7 @@ import {
 } from '@wirecore/wirelayer-recipes';
 import { computed, ref, useAttrs, useId } from 'vue';
 import { splitAttrs } from '../../utils/attrs.js';
+import { useLabelForWarning } from '../../utils/label-for.js';
 import DateSegments from '../DatePicker/DateSegments.vue';
 import { fromTime, timeSlots, toTime } from '../DatePicker/dates.js';
 import { useLocale, useTranslations } from '../../locale.js';
@@ -63,6 +64,8 @@ export interface TimePickerProps {
     /** Short zone name after the time ("CEST") */
     showTimeZone?: boolean;
     /** Extra classes per part of the component, e.g. { base: "…" } (see the recipe) */
+    /** Id of the field – the (first) time gets it; a `<label for>` cannot name it, use a Field or aria-label */
+    id?: string;
     classes?: RecipeClasses<typeof datePickerRecipe>;
 }
 
@@ -85,11 +88,21 @@ const currentLocale = computed(() => props.locale ?? localeContext.value.locale)
 const emit = defineEmits<{ 'update:modelValue': [value: string | null] }>();
 const attrs = useAttrs();
 const split = computed(() => splitAttrs(attrs));
+useLabelForWarning('TimePicker', () => props.id);
 const styles = computed(() => datePicker({ size: props.size }));
 const list = select();
-const id = useId();
+const uid = useId();
 
 const field = useFieldContext();
+// The field label names the time; an own id goes to the time through Ark (undefined leaves Ark its own id)
+const dateIds = computed(() =>
+    field?.value || props.id
+        ? {
+              ...(field?.value ? { label: () => field.value.ids.label } : {}),
+              ...(props.id ? { segmentGroup: (index: number) => (index === 0 ? props.id : undefined) as string } : {}),
+          }
+        : undefined
+);
 const state = computed(() => ({
     disabled: props.disabled ?? field?.value.disabled,
     readOnly: props.readOnly ?? field?.value.readOnly,
@@ -151,7 +164,7 @@ const zone = computed(() => {
     };
 });
 const describedby = computed(
-    () => [field?.value.ariaDescribedby, zone.value ? `${id}tz` : undefined].filter(Boolean).join(' ') || undefined
+    () => [field?.value.ariaDescribedby, zone.value ? `${uid}tz` : undefined].filter(Boolean).join(' ') || undefined
 );
 // Pasting "14:30", "2:30 PM" or "14.30 Uhr" sets the time (Ark reads ISO dates only)
 function pasteText(text: string) {
@@ -178,7 +191,7 @@ const bottomEndPositioning = { placement: 'bottom-end', gutter: 4 } as const;
         >
             <DateInput.Root
                 :class="styles.dateInput()"
-                :ids="field ? { label: () => field!.ids.label } : undefined"
+                :ids="dateIds"
                 :model-value="times"
                 :granularity="withSeconds ? 'second' : 'minute'"
                 :formatter="formatter"
@@ -201,7 +214,7 @@ const bottomEndPositioning = { placement: 'bottom-end', gutter: 4 } as const;
             </DateInput.Root>
             <template v-if="zone">
                 <span :class="styles.timeZone()" aria-hidden="true">{{ zone.short }}</span>
-                <span :id="`${id}tz`" hidden>{{ zone.long }}</span>
+                <span :id="`${uid}tz`" hidden>{{ zone.long }}</span>
             </template>
             <input v-if="name" type="hidden" :name="name" :value="current ?? ''" />
             <button
@@ -218,7 +231,7 @@ const bottomEndPositioning = { placement: 'bottom-end', gutter: 4 } as const;
                 :collection="collection"
                 :model-value="wall ? [wall] : []"
                 :disabled="state.disabled || state.readOnly"
-                :ids="{ label: `${id}list` }"
+                :ids="{ label: `${uid}list` }"
                 :positioning="bottomEndPositioning"
                 lazy-mount
                 unmount-on-exit

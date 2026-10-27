@@ -1,7 +1,9 @@
 import { createListCollection } from '@ark-ui/react/collection';
+import { useFieldContext } from '@ark-ui/react/field';
 import { Portal } from '@ark-ui/react/portal';
 import { Select as ArkSelect } from '@ark-ui/react/select';
 import {
+    controlIds,
     select as selectRecipe,
     type DataSource,
     type ItemAccessor,
@@ -143,6 +145,7 @@ export function Select<T = SelectItem, V = ItemValueOf<T>>({
     standalone,
     renderItem,
     renderValue,
+    id,
     className,
     style,
     onKeyDown,
@@ -150,6 +153,8 @@ export function Select<T = SelectItem, V = ItemValueOf<T>>({
 }: SelectProps<T, V>) {
     const select = useRecipe('select', selectRecipe, classes);
     const styles = select({ size, clearable });
+    // An own id goes to the trigger through Ark (it finds the trigger by its id)
+    const field = useFieldContext();
     const translations = useTranslations();
     const t = translations.select;
     const accessors = { itemValue, itemLabel, itemDisabled, itemGroup, itemKeywords, valueKey };
@@ -168,6 +173,8 @@ export function Select<T = SelectItem, V = ItemValueOf<T>>({
         accessors,
         items: known,
         onChange: onValueChange,
+        // Without a data source and loaded: a value outside the items warns in development
+        check: { component: 'Select', ready: !dataSource && !loading && items.length > 0 },
     });
     // A chosen value that is not loaded gets its label from the data source
     const keyText = keys.join('\u0000');
@@ -252,7 +259,7 @@ export function Select<T = SelectItem, V = ItemValueOf<T>>({
             invalid={invalid}
             required={required}
             name={name}
-            {...(standalone ? { ids: {} } : {})}
+            {...controlIds(id, 'trigger', { label: field?.ids.label, hiddenSelect: field?.ids.control }, standalone)}
             positioning={{ sameWidth: true, gutter: 4 }}
             composite={!filter}
             lazyMount

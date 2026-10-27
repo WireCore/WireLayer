@@ -1,9 +1,11 @@
 <script setup lang="ts" generic="T = SelectItem, V = ItemValueOf<T>">
 import { createListCollection } from '@ark-ui/vue/collection';
+import { useFieldContext } from '@ark-ui/vue/field';
 import { Select } from '@ark-ui/vue/select';
 import { Check, ChevronDown, LoaderCircle, X } from '@lucide/vue';
 import { useVirtualizer } from '@tanstack/vue-virtual';
 import {
+    controlIds,
     select as selectRecipe,
     virtualList as virtualListRecipe,
     type DataSource,
@@ -64,6 +66,8 @@ export interface VirtualSelectProps<T = SelectItem, V = ItemValueOf<T>> {
     pageSize?: number;
     /** Fewest characters the search needs before the data source is asked */
     minSearchLength?: number;
+    /** Id of the field (the trigger), e.g. for a `<label for>` */
+    id?: string;
 }
 
 defineOptions({ inheritAttrs: false });
@@ -120,6 +124,8 @@ const { selected, keys, commit, commitKeys } = useListSelection<T>({
     accessors: () => accessors.value,
     items: known,
     emit: (value) => emit('update:modelValue', value as V | null),
+    // Without a data source and loaded: a value outside the items warns in development
+    check: { component: 'VirtualSelect', ready: () => !props.dataSource && !props.loading && props.items.length > 0 },
 });
 const current = computed(() => selected.value[0]);
 const collection = computed(() =>
@@ -199,6 +205,11 @@ const activeId = (api: Api) => (api.highlightedItem ? api.getItemProps({ item: a
 // Fixed objects: a new literal in the template on every render makes Ark update the machine, which can re-render
 // endlessly (Vue only stops it in development)
 const listPositioning = { sameWidth: true, gutter: 4 } as const;
+// An own id goes to the trigger through Ark (it finds the trigger by its id)
+const field = useFieldContext();
+const ids = computed(() =>
+    controlIds(props.id, 'trigger', { label: field?.value.ids.label, hiddenSelect: field?.value.ids.control })
+);
 </script>
 
 <template>
@@ -214,6 +225,7 @@ const listPositioning = { sameWidth: true, gutter: 4 } as const;
         :name="name"
         :positioning="listPositioning"
         :composite="!filter"
+        v-bind="ids"
         :scroll-to-index-fn="
             (details: { index: number }) => virtualizer.scrollToIndex(details.index, { align: 'auto' })
         "

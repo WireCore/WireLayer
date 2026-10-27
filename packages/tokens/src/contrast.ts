@@ -1,8 +1,8 @@
 // WCAG 2.2 AA contrast checks for a full colour set – used by the token tests for every built-in theme
 // and exported so projects can test their own themes:
 //   expect(checkTheme(myTheme)).toEqual([])
-import { contrast, over, parse, type Rgba } from './color.js';
-import { modes, resolveColors, type ColorSet, type ColorToken, type Mode, type Theme } from './tokens.js';
+import { contrast, inGamut, oklchToRgb, over, parse, rgbToOklch, toHex, type Rgba } from './color.js';
+import { colorTokens, modes, resolveColors, type ColorSet, type ColorToken, type Mode, type Theme } from './tokens.js';
 
 /** 4.5:1 for text (1.4.3), 3:1 for UI component boundaries, selected states and icons (1.4.11). */
 const TEXT = 4.5;
@@ -199,4 +199,118 @@ export function checkTheme(theme: Theme): (ContrastResult & { mode: Mode })[] {
             .filter((result) => result.ratio < result.min)
             .map((result) => ({ ...result, mode }))
     );
+}
+
+/** A way to meet a missed contrast: a token and its new value, with the ratio the pair then reaches */
+export interface ContrastFix {
+    token: ColorToken;
+    value: string;
+    ratio: number;
+}
+
+/** A pair `checkTheme` reports, with suggestions to fix it */
+export interface ContrastSuggestion extends ContrastResult {
+    mode: Mode;
+    /**
+     * The nearest colour that meets it – its lightness moved in OKLCH, the hue kept (the chroma only lowered where
+     * sRGB needs it) – without breaking another pair
+     */
+    color?: ContrastFix;
+    /** A light or dark text colour (`on-*`) that meets it */
+    on?: ContrastFix;
+}
+
+const ON_COLORS = ['#FFFFFF', '#050505'];
+/** Steps of the OKLCH lightness while searching the nearest colour that meets a pair */
+const LIGHTNESS_STEP = 0.005;
+
+/**
+ * The pairs `checkTheme` reports, each with suggestions: the nearest variant of a colour of the pair that meets it
+ * (lightness moved in OKLCH, hue and chroma kept) and/or a light or dark `on-*` colour. Tokens the theme sets
+ * itself are tried first. Empty when the theme passes.
+ */
+export function suggestThemeFixes(theme: Theme): ContrastSuggestion[] {
+    return modes.flatMap((mode) => {
+        const colors = resolveColors(theme, mode);
+        const before = contrastPairs(colors);
+        const failing = new Set(before.filter((result) => result.ratio < result.min).map((result) => result.name));
+        // The pairs with one token changed – the same candidates come up for every missed pair
+        const cache = new Map<string, ContrastResult[]>();
+        const pairsWith = (token: ColorToken, value: string) => {
+            const key = `${token} ${value}`;
+            let results = cache.get(key);
+            if (!results) cache.set(key, (results = contrastPairs({ ...colors, [token]: value })));
+            return results;
+        };
+        /** Meets the pair and every pair that passed before still passes */
+        const fixes = (results: ContrastResult[], name: string) => {
+            const own = results.find((result) => result.name === name)!;
+            const broken = results.some((result) => result.ratio < result.min && !failing.has(result.name));
+            return own.ratio >= own.min && !broken ? own.ratio : undefined;
+        };
+        const own = theme.colors[mode] ?? {};
+        return before
+            .filter((result) => result.ratio < result.min)
+            .map((result): ContrastSuggestion => {
+                // The tokens the pair depends on: changing them changes its ratio
+                const involved = colorTokens.filter((token) => {
+                    const shifted = pairsWith(token, toHex(over(parse('#808080'), parse(colors[token]), 0.5)));
+                    return Math.abs(shifted.find((pair) => pair.name === result.name)!.ratio - result.ratio) > 1e-6;
+                });
+                const ordered = [...involved].sort((a, b) => Number(b in own) - Number(a in own));
+                const suggestion: ContrastSuggestion = { ...result, mode };
+                // Translucent tokens (lines) keep their alpha – no opaque replacement for them
+                const opaque = ordered.filter((name) => !name.startsWith('on-') && parse(colors[name]).a === 1);
+                for (const token of opaque) {
+                    const fix = nearestLightness(colors[token], token, (value) =>
+                        fixes(pairsWith(token, value), result.name)
+                    );
+                    if (fix) {
+                        suggestion.color = fix;
+                        break;
+                    }
+                }
+                for (const token of ordered.filter((name) => name.startsWith('on-'))) {
+                    for (const value of ON_COLORS) {
+                        const ratio = fixes(pairsWith(token, value), result.name);
+                        if (ratio !== undefined && value.toLowerCase() !== colors[token].toLowerCase()) {
+                            suggestion.on = { token, value, ratio };
+                            break;
+                        }
+                    }
+                    if (suggestion.on) break;
+                }
+                return suggestion;
+            });
+    });
+}
+
+/** The value of `token` with the nearest OKLCH lightness to `color` (either way) for which `meets` gives a ratio */
+function nearestLightness(
+    color: string,
+    token: ColorToken,
+    meets: (value: string) => number | undefined
+): ContrastFix | undefined {
+    const { l, c, h } = rgbToOklch(parse(color));
+    for (let step = 1; step * LIGHTNESS_STEP <= 1; step++) {
+        for (const lightness of [l - step * LIGHTNESS_STEP, l + step * LIGHTNESS_STEP]) {
+            if (lightness < 0 || lightness > 1) continue;
+            const value = toHex(oklchToRgb(lightness, chromaInGamut(lightness, c, h), h));
+            const ratio = meets(value);
+            if (ratio !== undefined) return { token, value, ratio };
+        }
+    }
+    return undefined;
+}
+
+/** The chroma closest to `c` that sRGB can show at this lightness and hue – so the hue stays */
+function chromaInGamut(l: number, c: number, h: number) {
+    if (inGamut(l, c, h)) return c;
+    let [low, high] = [0, c];
+    for (let i = 0; i < 20; i++) {
+        const middle = (low + high) / 2;
+        if (inGamut(l, middle, h)) low = middle;
+        else high = middle;
+    }
+    return low;
 }

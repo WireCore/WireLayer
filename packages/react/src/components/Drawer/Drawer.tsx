@@ -65,6 +65,8 @@ export function DrawerClose({ children }: { children: ReactElement }) {
 
 export interface DrawerContentProps extends Omit<ComponentProps<'div'>, 'title'> {
     title: string;
+    /** The title only for screen readers – it still names the drawer (e.g. a video in a dialog) */
+    hideTitle?: boolean;
     description?: string;
     placement?: DrawerPlacement;
     /**
@@ -88,6 +90,7 @@ export interface DrawerContentProps extends Omit<ComponentProps<'div'>, 'title'>
 export function DrawerContent({
     classes,
     title,
+    hideTitle,
     description,
     placement,
     size,
@@ -102,7 +105,7 @@ export function DrawerContent({
     const drawer = useRecipe('drawer', drawerRecipe, classes);
     const translations = useTranslations();
     const { modal } = useContext(DialogRootContext);
-    const styles = drawer({ placement, size, offset });
+    const styles = drawer({ placement, size, offset, hideTitle });
 
     return (
         <Portal>

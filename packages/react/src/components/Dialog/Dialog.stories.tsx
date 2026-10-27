@@ -82,6 +82,21 @@ export const Sizes: Story = {
     ),
 };
 
+/** `hideTitle`: the title names the dialog for screen readers but is not shown – e.g. around a video or an image */
+export const HiddenTitle: Story = {
+    name: 'Hidden title',
+    render: () => (
+        <Dialog>
+            <DialogTrigger>
+                <Button variant="outline">Watch the intro</Button>
+            </DialogTrigger>
+            <DialogContent title="Intro video" hideTitle size="lg">
+                <div className="flex aspect-video items-center justify-center rounded-lg bg-bg-2 text-muted">Video</div>
+            </DialogContent>
+        </Dialog>
+    ),
+};
+
 /** Own width: without `size`, the CSS variable `--wc-dialog-w` sets the maximum width – no Tailwind class needed */
 export const OwnWidth: Story = {
     name: 'Own width',

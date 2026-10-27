@@ -51,6 +51,29 @@ that render components, such as `confirm` or the DataTable feature `dateInput`, 
 components warn in the console when the classes of a recipe they render are missing. Recipes you call yourself
 (`card()`) are not checked – add their files along with the import.
 
+**With Vite** (Vue, React, Nuxt, Astro) the plugin `@wirecore/wirelayer-recipes/vite` adds these files itself: it reads
+the imports from `@wirecore/wirelayer-*` in your source files and adds the files of the imported components and recipes
+to the CSS file that imports `theme.css` (or `styles-core.css`). Put it before Tailwind's plugin:
+
+```ts
+// vite.config.ts (Nuxt: vite.plugins in nuxt.config.ts, Astro: vite.plugins in astro.config.mjs)
+import tailwindcss from '@tailwindcss/vite';
+import { wirelayer } from '@wirecore/wirelayer-recipes/vite';
+
+export default { plugins: [wirelayer(), tailwindcss()] };
+```
+
+```css
+@import 'tailwindcss';
+@import '@wirecore/wirelayer-vue/theme.css'; /* the plugin adds the sources files here */
+@import '@wirecore/wirelayer-vue/fonts.css'; /* the WireLayer fonts – leave it out with a font of your own */
+```
+
+`theme.css` is the theme without fonts and without component classes: an app with its own font
+(`@theme { --font-sans: … }`) does not bundle Schibsted Grotesk and JetBrains Mono. Components the plugin cannot see –
+registered globally (`app.component(…)`) or imported automatically – trigger the warning above; import their files by
+hand. Next.js does not use Vite: there, list the files or use `styles.css`.
+
 ## Usage
 
 ```vue
@@ -83,9 +106,13 @@ import { ArrowRight } from 'lucide-react';
 // nuxt.config.ts
 import tailwindcss from '@tailwindcss/vite';
 
+import { wirelayer } from '@wirecore/wirelayer-recipes/vite';
+
 export default defineNuxtConfig({
-    css: ['~/assets/main.css'], // @import 'tailwindcss'; @import '@wirecore/wirelayer-vue/styles.css';
-    vite: { plugins: [tailwindcss()] },
+    // main.css: @import 'tailwindcss'; @import '@wirecore/wirelayer-vue/theme.css';
+    //           @import '@wirecore/wirelayer-vue/fonts.css'; – or styles.css with all classes, without the plugin
+    css: ['~/assets/main.css'],
+    vite: { plugins: [wirelayer(), tailwindcss()] },
 });
 ```
 
@@ -167,6 +194,31 @@ Every component consists of named parts of its recipe (`base`, `icon`, `row`, `t
 
 The names are the exports of the recipes (`button`, `iconButton`, `dataTable` …) and are checked by TypeScript, as are
 the variants and parts. Your own components use the same through `useRecipe('button', button)`.
+
+`variants` adds classes for single values of a variant, `compoundVariants` for combinations – instead of selectors on
+the recipe's own classes, which break when they change:
+
+```ts
+const recipes: RecipeConfig = {
+    // only the medium size: 42px high, 16px text
+    button: {
+        variants: { size: { md: { base: 'h-[2.625rem] text-base' } } },
+        compoundVariants: [{ size: ['sm', 'md'], shape: 'rounded', classes: { base: 'rounded-md' } }],
+    },
+    input: { variants: { size: { md: { base: 'h-[2.625rem]' } }, invalid: { true: { base: 'border-2' } } } },
+};
+```
+
+Per part the classes come in this order: `classes`, the matching `variants` and `compoundVariants`, the states of the
+recipe, the overrides of states (`invalid: { true: … }`), and last the class passed to the component. Inner providers
+extend outer ones (classes of the same value are joined, the inner ones win).
+
+Classes from a provider or `classes` change the look, not the states: the classes of an active state variant
+(`invalid`, `success`, `disabled`, `readOnly`, `current`, `selected`, `checked`, `loading`) are added after them, so a
+field with `classes: { base: 'border-line-2' }` still turns red when it is invalid. States that the components mark as
+attributes (`data-invalid:`, `data-disabled:`, `data-[state=checked]:`) win through their selector anyway. Only the
+class passed to the component itself (`class`/`className`) comes after the states – the way out when a single field
+should look different in every state.
 
 ## Hooks and composables
 

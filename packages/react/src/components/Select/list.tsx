@@ -1,6 +1,7 @@
 // Shared parts of the option lists (Select, MultiSelect, Combobox, Listbox, VirtualSelect) – internal, not exported
 import { useFilter } from '@ark-ui/react/locale';
 import {
+    checkListValues,
     filterListOptions,
     groupListOptions,
     indexListOptions,
@@ -69,6 +70,7 @@ export function useListSelection<T>({
     accessors,
     items,
     onChange,
+    check,
 }: {
     multiple: boolean;
     value: unknown;
@@ -76,6 +78,8 @@ export function useListSelection<T>({
     accessors: ListItemAccessors<T>;
     items: readonly ListOption<T>[];
     onChange?: (value: never) => void;
+    /** Development warning for values not among the items: the component's name, and whether its items are complete */
+    check?: { component: string; ready: boolean };
 }) {
     const [internal, setInternal] = useState<unknown>(defaultValue ?? (multiple ? [] : null));
     // Options chosen in this component – their labels stay known when the items change
@@ -87,6 +91,15 @@ export function useListSelection<T>({
         accessors
     );
     const keys = selected.map((option) => option.key);
+    const unknownKeys = selected
+        .filter((option) => option.unknown)
+        .map((option) => option.key)
+        .join();
+    useEffect(() => {
+        if (check?.ready && unknownKeys) checkListValues(check.component, selected);
+        // Only when the unknown values change – `selected` is a new array on every render
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [check?.ready, check?.component, unknownKeys]);
 
     function commit(next: ListOption<T>[]) {
         setPicked(next);

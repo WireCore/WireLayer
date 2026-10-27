@@ -103,6 +103,24 @@ describe('open overlays render the same DOM', () => {
             '[role=dialog]',
         ],
         [
+            'Dialog and Drawer: hidden title',
+            el(
+                'div',
+                {},
+                el(
+                    'Dialog',
+                    { defaultOpen: true, modal: false },
+                    el('DialogContent', { title: 'Video', hideTitle: true })
+                ),
+                el(
+                    'Drawer',
+                    { defaultOpen: true, modal: false },
+                    el('DrawerContent', { title: 'Help', hideTitle: true })
+                )
+            ),
+            '[role=dialog]',
+        ],
+        [
             'Menu: links, checkbox and radio items, filter field',
             el('Menu', { items: menuItems, defaultOpen: true, searchable: true }, el('Button', {}, 'View')),
             '[role=menu]',
@@ -137,6 +155,30 @@ describe.each(frameworks)('%s', (framework) => {
             expect(dialog).not.toHaveAttribute('aria-modal', 'true');
             expect(document.querySelector('[data-scope=dialog][data-part=backdrop]')).toBeNull();
             expect(within(dialog).queryByRole('button', { name: 'Close' })).toBeNull();
+        });
+
+        it('hideTitle: the title stays the name of the dialog and of the drawer, shown for screen readers only', async () => {
+            await render(
+                framework,
+                el(
+                    'div',
+                    {},
+                    el(
+                        'Dialog',
+                        { defaultOpen: true, modal: false },
+                        el('DialogContent', { title: 'Video', hideTitle: true })
+                    ),
+                    el(
+                        'Drawer',
+                        { defaultOpen: true, modal: false },
+                        el('DrawerContent', { title: 'Help', hideTitle: true })
+                    )
+                )
+            );
+            expect(await screen.findByRole('dialog', { name: 'Video' })).toBeInTheDocument();
+            expect(screen.getByText('Video')).toHaveClass('sr-only');
+            expect(await screen.findByRole('dialog', { name: 'Help' })).toBeInTheDocument();
+            expect(screen.getByText('Help')).toHaveClass('sr-only');
         });
 
         it('maximize button switches to the whole screen and back, reports the state', async () => {
@@ -295,6 +337,31 @@ describe.each(frameworks)('%s', (framework) => {
             expect(await within(dialog).findByText('At least 4 characters')).toBeInTheDocument();
             await userEvent.type(field, '-01{Enter}');
             await expect(answer).resolves.toBe('web-01');
+        });
+
+        it('button looks: sm by default; ConfirmDialog props for all requests, a request wins', async () => {
+            const { confirm } = lib(framework);
+            const MD = 'h-[var(--wc-control-h-md,2.5rem)]';
+            const SM = 'h-[var(--wc-control-h-sm,2rem)]';
+            await render(
+                framework,
+                el('ConfirmDialog', { confirmButton: { size: 'md' }, cancelButton: { variant: 'text' } })
+            );
+            await act(async () => {
+                void confirm({ title: 'Archive?', cancelButton: { size: 'lg' } });
+            });
+            let dialog = await screen.findByRole('alertdialog', { name: 'Archive?' });
+            const ok = within(dialog).getByRole('button', { name: 'Confirm' });
+            expect(ok).toHaveClass(MD, 'bg-primary');
+            const cancel = within(dialog).getByRole('button', { name: 'Cancel' });
+            expect(cancel).toHaveClass('h-[var(--wc-control-h-lg,3rem)]');
+            expect(cancel).not.toHaveClass('border');
+            await userEvent.click(cancel);
+            await act(async () => {
+                void confirm({ title: 'Delete?', status: 'danger', confirmButton: { size: 'sm' } });
+            });
+            dialog = await screen.findByRole('alertdialog', { name: 'Delete?' });
+            expect(within(dialog).getByRole('button', { name: 'Confirm' })).toHaveClass(SM, 'bg-danger');
         });
 
         it('prompt() resolves with null when cancelled', async () => {

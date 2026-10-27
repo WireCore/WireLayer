@@ -1,5 +1,6 @@
 import { createListCollection, Listbox as ArkListbox } from '@ark-ui/react/listbox';
 import {
+    controlIds,
     allListOptionsState,
     listbox as listboxRecipe,
     toggleAllListOptions,
@@ -16,6 +17,7 @@ import { useOptionSource } from '../../utils/data-source.js';
 import { useTranslations } from '../LocaleProvider/LocaleProvider.js';
 import { useRecipe } from '../RecipesProvider/RecipesProvider.js';
 import { ListOptions, useListOptions, useListSelection, type ListItemState } from '../Select/list.js';
+import { useLabelForWarning } from '../../utils/label-for.js';
 
 export interface ListboxItem<V = string> {
     value: V;
@@ -35,6 +37,8 @@ export interface ListboxProps<T = ListboxItem, V = ItemValueOf<T>> {
     label?: string;
     /** Accessible name without a visible label */
     'aria-label'?: string;
+    /** Id of the root element; a `<label for>` cannot name the list box, use a Field or aria-label */
+    id?: string;
     /** Several options can be chosen (Space toggles) */
     multiple?: boolean;
     /** Chosen values; any type (string, number, boolean, object) */
@@ -97,6 +101,7 @@ export function Listbox<T = ListboxItem, V = ItemValueOf<T>>({
     items,
     label,
     'aria-label': ariaLabel,
+    id,
     multiple = false,
     value,
     defaultValue,
@@ -125,6 +130,7 @@ export function Listbox<T = ListboxItem, V = ItemValueOf<T>>({
     className,
     style,
 }: ListboxProps<T, V>) {
+    useLabelForWarning('Listbox', id);
     const listbox = useRecipe('listbox', listboxRecipe, classes);
     const styles = listbox();
     const translations = useTranslations();
@@ -144,6 +150,8 @@ export function Listbox<T = ListboxItem, V = ItemValueOf<T>>({
         accessors,
         items: known,
         onChange: onValueChange,
+        // Without a data source and loaded: a value outside the items warns in development
+        check: { component: 'Listbox', ready: !dataSource && !loading && items.length > 0 },
     });
     // Always visible: the first page loads at once; chosen values that are not loaded get their labels
     const keyText = keys.join('\u0000');
@@ -170,6 +178,7 @@ export function Listbox<T = ListboxItem, V = ItemValueOf<T>>({
     );
     return (
         <ArkListbox.Root
+            {...controlIds(id, 'root')}
             className={styles.base({ class: className })}
             style={style}
             collection={collection}

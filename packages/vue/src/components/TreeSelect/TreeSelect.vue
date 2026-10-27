@@ -3,6 +3,7 @@ import { useFieldContext } from '@ark-ui/vue/field';
 import { Popover } from '@ark-ui/vue/popover';
 import { ChevronDown, LoaderCircle, X } from '@lucide/vue';
 import {
+    controlIds,
     type DataSource,
     type RecipeClasses,
     type TreeCheckedStrategy,
@@ -49,6 +50,8 @@ export interface TreeSelectProps<T extends TreeSelectValue = string | null> {
     loadChildren?: (node: TreeNode, request: { signal: AbortSignal }) => Promise<TreeNode[]>;
     /** Source of the children of lazy nodes (`getChildren`) */
     dataSource?: DataSource<TreeNode>;
+    /** Id of the field (the trigger), e.g. for a `<label for>` */
+    id?: string;
     /** Extra classes per part of the component, e.g. { base: "…" } (see the recipe) */
     classes?: RecipeClasses<typeof treeSelectRecipe>;
 }
@@ -81,7 +84,7 @@ const attrs = useAttrs();
 const field = useFieldContext();
 const styles = computed(() => treeSelect({ size: props.size, clearable: props.clearable && !props.multiple }));
 const t = translations.treeSelect;
-const id = useId();
+const uid = useId();
 const open = ref(false);
 const internal = ref<TreeSelectValue>(props.defaultValue ?? (props.multiple ? [] : null));
 const current = computed(() => (props.modelValue === undefined ? internal.value : props.modelValue));
@@ -177,6 +180,13 @@ const triggerLabel = computed(() =>
           ? `${ariaLabel.value}: ${valueText.value || placeholderText.value}`
           : undefined
 );
+// An own id goes to the trigger through Ark, which finds it by its id. Named by a <label for>, the trigger
+// describes itself by the chosen nodes
+const popoverIds = computed(() => controlIds(props.id, 'trigger'));
+const labelledBy = computed(() => (field?.value ? `${field.value.ids.label} ${uid}value` : undefined));
+const describedBy = computed(() =>
+    field?.value ? field.value.ariaDescribedby : props.id && !ariaLabel.value ? `${uid}value` : undefined
+);
 /** Wraps its content in a div only when `wrap` is set (no extra element without a clear button) */
 const Wrap: FunctionalComponent<{ wrap: boolean; class: string }> = (wrapProps, { slots }) =>
     wrapProps.wrap ? h('div', { class: wrapProps.class }, slots.default?.()) : slots.default?.();
@@ -188,7 +198,7 @@ const listPositioning = { placement: 'bottom-start', gutter: 4, sameWidth: true 
 
 <template>
     <!-- Select whose options are a tree: the button opens the tree in a panel, choosing a node closes it -->
-    <Popover.Root v-model:open="open" :positioning="listPositioning" lazy-mount unmount-on-exit>
+    <Popover.Root v-model:open="open" :positioning="listPositioning" v-bind="popoverIds" lazy-mount unmount-on-exit>
         <div :class="styles.base({ class: normalizeClass(attrs.class) })" :style="attrs.style">
             <!-- Several nodes: chips in a box, the trigger fills the rest of the row -->
             <div
@@ -222,12 +232,12 @@ const listPositioning = { placement: 'bottom-start', gutter: 4, sameWidth: true 
                     :aria-invalid="isInvalid || undefined"
                     :aria-busy="loading || undefined"
                     :aria-label="triggerLabel"
-                    :aria-labelledby="field ? `${field.ids.label} ${id}value` : undefined"
-                    :aria-describedby="field?.ariaDescribedby"
+                    :aria-labelledby="labelledBy"
+                    :aria-describedby="describedBy"
                     @keydown="onTriggerKeydown"
                 >
                     <span
-                        :id="`${id}value`"
+                        :id="`${uid}value`"
                         :class="styles.value()"
                         :data-placeholder-shown="!chosen.length || undefined"
                     >
@@ -266,11 +276,11 @@ const listPositioning = { placement: 'bottom-start', gutter: 4, sameWidth: true 
                     :aria-invalid="isInvalid || undefined"
                     :aria-busy="loading || undefined"
                     :aria-label="triggerLabel"
-                    :aria-labelledby="field ? `${field.ids.label} ${id}value` : undefined"
-                    :aria-describedby="field?.ariaDescribedby"
+                    :aria-labelledby="labelledBy"
+                    :aria-describedby="describedBy"
                     @keydown="onTriggerKeydown"
                 >
-                    <span :id="`${id}value`" :class="styles.value()" :data-placeholder-shown="!selected || undefined">
+                    <span :id="`${uid}value`" :class="styles.value()" :data-placeholder-shown="!selected || undefined">
                         {{ selected?.label ?? placeholderText }}
                     </span>
                     <span v-if="loading" :class="styles.indicator()" aria-hidden="true">

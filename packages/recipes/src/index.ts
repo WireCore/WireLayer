@@ -23,7 +23,7 @@ export {
     type AuthValidationOptions,
     type AuthValues,
 } from './blocks.js';
-export { dataTable, virtualList } from './data.js';
+export { dataTable, paginatorAlignKey, virtualList, type DataTablePaginatorAlign } from './data.js';
 export { breadcrumb } from './breadcrumb.js';
 export {
     button,
@@ -55,6 +55,7 @@ export { statusDot, type StatusDotStatus } from './status-dot.js';
 export { pagination, progress, select, sidebarNav, stepper, steps, tabs, type StepStatus } from './navigation.js';
 export {
     allListOptionsState,
+    checkListValues,
     filterListOptions,
     groupListOptions,
     indexListOptions,
@@ -667,11 +668,14 @@ export {
     withRecipeOverrides,
     type AnyRecipe,
     type RecipeClasses,
+    type RecipeCompoundClasses,
     type RecipeConfig,
     type RecipeName,
     type RecipeOverride,
     type RecipeOverrides,
     type RecipeSlot,
+    type RecipeVariantClasses,
+    type RecipeVariantName,
 } from './overrides.js';
 export {
     GAUGE_ARC,
@@ -834,7 +838,8 @@ export {
     type TrendDirection,
     type TrendTone,
 } from './format.js';
-export { checkRecipeSources, warnInDevelopment } from './dev.js';
+export { checkRecipeSources, warnInDevelopment, warnLabelFor } from './dev.js';
+export { controlIds, type ControlIds } from './control-ids.js';
 export {
     formatHotkey,
     formatHotkeyText,

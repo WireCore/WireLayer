@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { useFieldContext } from '@ark-ui/vue/field';
 import { PinInput } from '@ark-ui/vue/pin-input';
-import { pinInput as pinInputRecipe, type RecipeClasses } from '@wirecore/wirelayer-recipes';
-import { normalizeClass, useAttrs } from 'vue';
+import { controlIds, pinInput as pinInputRecipe, type RecipeClasses } from '@wirecore/wirelayer-recipes';
+import { computed, normalizeClass, useAttrs } from 'vue';
 import { useTranslations } from '../../locale.js';
 import { useRecipe } from '../../recipes.js';
+import { useLabelForWarning } from '../../utils/label-for.js';
 
 const translations = useTranslations();
 
@@ -23,6 +24,8 @@ export interface PinInputProps {
     invalid?: boolean;
     disabled?: boolean;
     name?: string;
+    /** Id of the root element; a `<label for>` cannot name the PIN input, use a Field or aria-label */
+    id?: string;
     /** Extra classes per part of the component, e.g. { base: "…" } (see the recipe) */
     classes?: RecipeClasses<typeof pinInputRecipe>;
 }
@@ -42,6 +45,9 @@ const props = withDefaults(defineProps<PinInputProps>(), {
 const pinInput = useRecipe('pinInput', pinInputRecipe, () => props.classes);
 const emit = defineEmits<{ 'update:modelValue': [value: string]; valueComplete: [value: string] }>();
 const attrs = useAttrs();
+// An own id goes to the root through Ark (it finds its parts by their ids)
+const rootIds = computed(() => controlIds(props.id, 'root'));
+useLabelForWarning('PinInput', () => props.id);
 const field = useFieldContext();
 const styles = pinInput();
 const toArray = (value: string | undefined) => (value === undefined ? undefined : value.split(''));
@@ -58,6 +64,7 @@ function onValueChange(details: { value: string[]; valueAsString: string }) {
 <template>
     <!-- Code input (OTP, PIN): one box per character, typing moves on, pasting fills all boxes -->
     <PinInput.Root
+        v-bind="rootIds"
         :class="styles.base({ class: normalizeClass(attrs.class) })"
         :style="attrs.style"
         :count="length"

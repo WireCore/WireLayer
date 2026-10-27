@@ -658,6 +658,35 @@ describe.each(frameworks)('%s DataTable', (framework) => {
     const table = (props: Record<string, unknown> = {}) =>
         el('DataTable', { data: fleet, columns, caption: 'Server', getRowId, rowLabel, ...props });
 
+    it('paginatorEdges and paginatorAlign: first and last page, the pagination row centred', async () => {
+        await render(framework, table({ pageSize: 1, paginatorEdges: true, paginatorAlign: 'center' }));
+        await userEvent.click(screen.getByRole('button', { name: 'Last page' }));
+        expect(names()).toEqual(['k8s-node-3']);
+        await userEvent.click(screen.getByRole('button', { name: 'First page' }));
+        expect(names()).toEqual(['web-01']);
+        expect(screen.getByRole('navigation', { name: /Pagination/ }).parentElement).toHaveClass('justify-center');
+    });
+
+    it('bordered: a border around the whole table, the pagination row stays as it was by default', async () => {
+        await render(framework, table({ pageSize: 1, bordered: true }));
+        expect(screen.getByRole('table')).toHaveClass('border', 'border-line');
+        expect(screen.getByRole('navigation', { name: /Pagination/ }).parentElement).toHaveClass('justify-between');
+        expect(screen.queryByRole('button', { name: 'First page' })).not.toBeInTheDocument();
+    });
+
+    it('defaultSorting also sorts by a column the user cannot sort', async () => {
+        const fixed = columns.map((column) => (column.id === 'load' ? { ...column, sortable: false } : column));
+        await render(framework, table({ columns: fixed, defaultSorting: { id: 'load', desc: true } }));
+        expect(names()).toEqual(['db-primary', 'web-01', 'k8s-node-3']);
+        const load = screen.getByRole('columnheader', { name: /Load/ });
+        expect(load).toHaveAttribute('aria-sort', 'descending');
+        // No sort button – the user cannot change it there, the other columns still sort
+        expect(within(load).queryByRole('button')).not.toBeInTheDocument();
+        await userEvent.click(within(screen.getByRole('columnheader', { name: /Name/ })).getByRole('button'));
+        expect(names()).toEqual(['db-primary', 'k8s-node-3', 'web-01']);
+        expect(load).not.toHaveAttribute('aria-sort');
+    });
+
     it('sorts by several columns with Shift+click and names the sort levels', async () => {
         const onSorting = vi.fn();
         await render(
@@ -789,10 +818,13 @@ describe.each(frameworks)('%s DataTable', (framework) => {
         );
         await waitFor(() => expect(screen.getAllByRole('status')[0]).toHaveTextContent('Name is now column 2 of 3'));
 
+        // Each menu once the one before has closed – its items share the names
+        await waitFor(() => expect(screen.queryByRole('menu')).toBeNull());
         await userEvent.click(screen.getByRole('button', { name: 'Options for Load' }));
         await userEvent.click(await screen.findByRole('menuitem', { name: 'Pin to start' }));
         expect(onPinned).toHaveBeenLastCalledWith({ start: ['load'], end: [] });
 
+        await waitFor(() => expect(screen.queryByRole('menu')).toBeNull());
         await userEvent.click(screen.getByRole('button', { name: 'Options for Location' }));
         await userEvent.click(await screen.findByRole('menuitem', { name: 'Hide' }));
         expect(onHidden).toHaveBeenLastCalledWith(['location']);
@@ -822,6 +854,24 @@ describe.each(frameworks)('%s DataTable', (framework) => {
         expect(details).toHaveTextContent('Maintenance plan db-primary');
         await userEvent.click(screen.getByRole('button', { name: 'Expand all rows' }));
         expect(screen.getByText('Maintenance plan k8s-node-3')).toBeInTheDocument();
+    });
+
+    it('rowExpandable: rows without details get no button, the cell keeps its room', async () => {
+        await render(
+            framework,
+            table({
+                rowExpandable: (row: { name: string }) => row.name !== 'web-01',
+                $render: { expansion: (row: { name: string }) => el('p', {}, `Maintenance plan ${row.name}`) },
+            })
+        );
+        expect(screen.getByRole('button', { name: 'Details of db-primary' })).toBeInTheDocument();
+        expect(screen.queryByRole('button', { name: 'Details of web-01' })).not.toBeInTheDocument();
+        const row = screen.getByRole('row', { name: /web-01/ });
+        expect(row.querySelector('td')!.firstElementChild).toHaveClass('size-6');
+        // "Expand all" opens the details of the rows that have them
+        await userEvent.click(screen.getByRole('button', { name: 'Expand all rows' }));
+        expect(screen.getByText('Maintenance plan db-primary')).toBeInTheDocument();
+        expect(screen.queryByText('Maintenance plan web-01')).not.toBeInTheDocument();
     });
 
     it('moves rows with the arrow keys on the drag handle', async () => {

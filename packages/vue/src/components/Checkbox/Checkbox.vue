@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { Checkbox } from '@ark-ui/vue/checkbox';
+import { useFieldContext } from '@ark-ui/vue/field';
 import { Check, Minus } from '@lucide/vue';
-import { checkbox as checkboxRecipe, type RecipeClasses } from '@wirecore/wirelayer-recipes';
+import { controlIds, checkbox as checkboxRecipe, type RecipeClasses } from '@wirecore/wirelayer-recipes';
 import { computed, useAttrs } from 'vue';
 import { splitAttrs } from '../../utils/attrs.js';
 import { useRecipe } from '../../recipes.js';
@@ -17,6 +18,8 @@ export interface CheckboxProps {
     required?: boolean;
     name?: string;
     value?: string;
+    /** Id of the check box (the hidden input), e.g. for a `<label for>` */
+    id?: string;
     /** Extra classes per part of the component, e.g. { base: "…" } (see the recipe) */
     classes?: RecipeClasses<typeof checkboxRecipe>;
 }
@@ -35,6 +38,11 @@ const emit = defineEmits<{ 'update:checked': [checked: CheckedState] }>();
 const attrs = useAttrs();
 const split = computed(() => splitAttrs(attrs));
 const styles = checkbox();
+// An own id goes to the hidden input through Ark (it finds the input by its id)
+const field = useFieldContext();
+const ids = computed(() =>
+    controlIds(props.id, 'hiddenInput', { label: field?.value.ids.label, hiddenInput: field?.value.ids.control })
+);
 </script>
 
 <template>
@@ -48,6 +56,7 @@ const styles = checkbox();
         :required="required"
         :name="name"
         :value="value"
+        v-bind="ids"
         @update:checked="emit('update:checked', $event)"
     >
         <Checkbox.Control :class="styles.control()">

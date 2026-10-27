@@ -2,6 +2,7 @@ import { useFieldContext } from '@ark-ui/react/field';
 import { Popover as ArkPopover } from '@ark-ui/react/popover';
 import { Portal } from '@ark-ui/react/portal';
 import {
+    controlIds,
     treeSelect as treeSelectRecipe,
     withLoadedChildren,
     type DataSource,
@@ -53,6 +54,8 @@ export interface TreeSelectProps<T extends TreeSelectValue = string | null> {
     dataSource?: DataSource<TreeNode>;
     /** Accessible name without a surrounding Field */
     'aria-label'?: string;
+    /** Id of the field (the trigger), e.g. for a `<label for>` */
+    id?: string;
     className?: string;
     style?: CSSProperties;
     /** Extra classes per part of the component, e.g. { base: "…" } (see the recipe) */
@@ -83,6 +86,7 @@ export function TreeSelect<T extends TreeSelectValue = string | null>({
     onLoadChildren,
     dataSource,
     'aria-label': ariaLabel,
+    id,
     className,
     style,
 }: TreeSelectProps<T>) {
@@ -92,7 +96,7 @@ export function TreeSelect<T extends TreeSelectValue = string | null>({
     const t = translations.treeSelect;
     const placeholder = placeholderProp ?? translations.common.placeholder;
     const field = useFieldContext();
-    const id = useId();
+    const uid = useId();
     const [open, setOpen] = useState(false);
     const [internal, setInternal] = useState<TreeSelectValue>(defaultValue ?? (multiple ? [] : null));
     const current = value === undefined ? internal : value;
@@ -172,8 +176,9 @@ export function TreeSelect<T extends TreeSelectValue = string | null>({
         'aria-invalid': isInvalid || undefined,
         'aria-busy': loading || undefined,
         'aria-label': triggerLabel,
-        'aria-labelledby': field ? `${field.ids.label} ${id}value` : undefined,
-        'aria-describedby': field?.ariaDescribedby,
+        'aria-labelledby': field ? `${field.ids.label} ${uid}value` : undefined,
+        // Named by a <label for>: the chosen value as the description
+        'aria-describedby': field ? field.ariaDescribedby : id && !ariaLabel ? `${uid}value` : undefined,
         onKeyDown: onTriggerKeyDown,
     };
     let control: ReactNode;
@@ -214,7 +219,7 @@ export function TreeSelect<T extends TreeSelectValue = string | null>({
                     {...triggerProps}
                 >
                     <span
-                        id={`${id}value`}
+                        id={`${uid}value`}
                         className={styles.value()}
                         data-placeholder-shown={!chosen.length || undefined}
                     >
@@ -246,7 +251,7 @@ export function TreeSelect<T extends TreeSelectValue = string | null>({
                 data-disabled={isDisabled || undefined}
                 {...triggerProps}
             >
-                <span id={`${id}value`} className={styles.value()} data-placeholder-shown={!selected || undefined}>
+                <span id={`${uid}value`} className={styles.value()} data-placeholder-shown={!selected || undefined}>
                     {selected?.label ?? placeholder}
                 </span>
                 {indicator}
@@ -279,6 +284,7 @@ export function TreeSelect<T extends TreeSelectValue = string | null>({
             open={open}
             onOpenChange={(details) => setOpen(details.open)}
             positioning={{ placement: 'bottom-start', gutter: 4, sameWidth: true }}
+            {...controlIds(id, 'trigger')}
             lazyMount
             unmountOnExit
         >

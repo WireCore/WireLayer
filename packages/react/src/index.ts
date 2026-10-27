@@ -94,7 +94,13 @@ export {
     type AccordionProps,
 } from './components/Accordion/Accordion.js';
 export { ConfirmDialog, type ConfirmDialogProps } from './components/Confirm/ConfirmDialog.js';
-export { confirm, prompt, type ConfirmOptions, type PromptOptions } from './components/Confirm/confirm.js';
+export {
+    confirm,
+    prompt,
+    type ConfirmButtonOptions,
+    type ConfirmOptions,
+    type PromptOptions,
+} from './components/Confirm/confirm.js';
 export { Divider, type DividerProps } from './components/Divider/Divider.js';
 export {
     Drawer,

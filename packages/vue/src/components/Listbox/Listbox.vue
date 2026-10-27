@@ -2,6 +2,7 @@
 import { createListCollection, Listbox } from '@ark-ui/vue/listbox';
 import { Check, Minus } from '@lucide/vue';
 import {
+    controlIds,
     allListOptionsState,
     listbox as listboxRecipe,
     toggleAllListOptions,
@@ -18,6 +19,7 @@ import ListOptions from '../Select/ListOptions.vue';
 import type { ListItemState } from '../Select/types.js';
 import { useTranslations } from '../../locale.js';
 import { useRecipe } from '../../recipes.js';
+import { useLabelForWarning } from '../../utils/label-for.js';
 
 export interface ListboxItem<V = string> {
     value: V;
@@ -78,6 +80,8 @@ export interface ListboxProps<T = ListboxItem, V = ItemValueOf<T>> {
     pageSize?: number;
     /** The options can be dragged (`draggable`, `data-value` is the key) – lists that exchange items (PickList) */
     draggableItems?: boolean;
+    /** Id of the root element; a `<label for>` cannot name the list box, use a Field or aria-label */
+    id?: string;
     /** Extra classes per part of the component, e.g. { base: "…" } (see the recipe) */
     classes?: RecipeClasses<typeof listboxRecipe>;
 }
@@ -107,6 +111,9 @@ defineSlots<{
     item?(props: { item: T } & ListItemState): unknown;
 }>();
 const attrs = useAttrs();
+// An own id goes to the root through Ark (it finds its parts by their ids)
+const rootIds = computed(() => controlIds(props.id, 'root'));
+useLabelForWarning('Listbox', () => props.id);
 const styles = listbox();
 
 const accessors = computed(() => ({
@@ -137,6 +144,8 @@ const { selected, keys, commit, commitKeys } = useListSelection<T>({
     accessors: () => accessors.value,
     items: known,
     emit: (value) => emit('update:modelValue', value as V[]),
+    // Without a data source and loaded: a value outside the items warns in development
+    check: { component: 'Listbox', ready: () => !props.dataSource && !props.loading && props.items.length > 0 },
 });
 // Always visible: the first page loads at once; chosen values that are not loaded get their labels
 onMounted(() => {
@@ -185,6 +194,7 @@ function onLoadMore() {
 <template>
     <!-- Always visible list (role="listbox"): arrow keys move, Enter/Space choose, typing jumps to an option -->
     <Listbox.Root
+        v-bind="rootIds"
         :class="styles.base({ class: normalizeClass(attrs.class) })"
         :style="attrs.style"
         :collection="collection"

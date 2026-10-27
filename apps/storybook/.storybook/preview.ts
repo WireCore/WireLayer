@@ -4,7 +4,9 @@ import './preview.css';
 const preview: Preview = {
     parameters: {
         options: {
-            storySort: { order: ['Getting started', ['Welcome', 'Accessibility'], 'Foundations'] },
+            storySort: {
+                order: ['Getting started', ['Welcome', 'Accessibility', 'Migrating from PrimeVue'], 'Foundations'],
+            },
         },
     },
 };

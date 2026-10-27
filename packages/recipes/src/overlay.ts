@@ -96,7 +96,7 @@ export type DialogStatus = 'neutral' | 'success' | 'info' | 'warn' | 'danger';
 export const dialog = tv({
     slots: {
         backdrop: [
-            'fixed inset-0 z-50 bg-black/60',
+            'fixed inset-0 z-50 bg-[var(--wc-backdrop,rgb(0_0_0/0.6))]',
             'motion-safe:data-[state=open]:animate-fade-in motion-safe:data-[state=closed]:animate-fade-out',
         ],
         positioner: 'fixed inset-0 z-50 flex items-center justify-center overflow-y-auto p-4',
@@ -126,6 +126,10 @@ export const dialog = tv({
         maximizeIcon: 'size-4',
     },
     variants: {
+        /** The title only for screen readers – it still names the dialog */
+        hideTitle: {
+            true: { title: 'sr-only' },
+        },
         status: {
             neutral: { iconBox: 'bg-line text-fg' },
             success: { iconBox: 'bg-success/14 text-success' },
@@ -189,7 +193,7 @@ const drawerSizes: OverlaySize[] = ['sm', 'md', 'lg', 'xl', 'full'];
 export const drawer = tv({
     slots: {
         backdrop: [
-            'fixed inset-0 z-50 bg-black/60',
+            'fixed inset-0 z-50 bg-[var(--wc-backdrop,rgb(0_0_0/0.6))]',
             'motion-safe:data-[state=open]:animate-fade-in motion-safe:data-[state=closed]:animate-fade-out',
         ],
         positioner: 'fixed inset-0 z-50 flex',
@@ -210,6 +214,10 @@ export const drawer = tv({
         footer: 'flex flex-wrap justify-end gap-2 border-t border-line px-5 py-3',
     },
     variants: {
+        /** The title only for screen readers – it still names the drawer */
+        hideTitle: {
+            true: { title: 'sr-only' },
+        },
         placement: {
             right: {
                 positioner: 'justify-end',

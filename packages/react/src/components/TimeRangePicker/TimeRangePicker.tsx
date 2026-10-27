@@ -8,6 +8,7 @@ import { DateSegments } from '../DatePicker/DatePickerBase.js';
 import { fromTime, toTime } from '../DatePicker/dates.js';
 import { useLocale, useTranslations } from '../LocaleProvider/LocaleProvider.js';
 import { useRecipe } from '../RecipesProvider/RecipesProvider.js';
+import { useLabelForWarning } from '../../utils/label-for.js';
 
 /** Start and end time ("HH:mm"), null while not entered */
 export interface TimeRange {
@@ -40,6 +41,8 @@ export interface TimeRangePickerProps {
     clearable?: boolean;
     /** Accessible name without a surrounding Field */
     'aria-label'?: string;
+    /** Id of the field – the (first) time gets it; a `<label for>` cannot name it, use a Field or aria-label */
+    id?: string;
     className?: string;
     style?: CSSProperties;
     /** Extra classes per part of the component (see the datePicker recipe) */
@@ -64,16 +67,18 @@ export function TimeRangePicker({
     size,
     clearable = true,
     'aria-label': ariaLabel,
+    id,
     className,
     style,
     classes,
 }: TimeRangePickerProps) {
+    useLabelForWarning('TimeRangePicker', id);
     const datePicker = useRecipe('datePicker', datePickerRecipe, classes);
     const styles = datePicker({ size });
     const localeContext = useLocale();
     const locale = localeProp ?? localeContext.locale;
     const translations = useTranslations();
-    const id = useId();
+    const uid = useId();
     const field = useFieldContext();
     const state = {
         disabled: disabled ?? field?.disabled,
@@ -82,8 +87,14 @@ export function TimeRangePicker({
         required: required ?? field?.required,
     };
     const rangeNames = [translations.dateRange.start, translations.dateRange.end];
-    // The field label names the times, followed by "Start"/"End"
-    const ids = field ? { label: (index: number) => `${field.ids.label} ${id}r${index}` } : undefined;
+    // The field label names the times, followed by "Start"/"End"; an own id goes to the first time through Ark
+    const ids =
+        field || id
+            ? {
+                  ...(field ? { label: (index: number) => `${field.ids.label} ${uid}r${index}` } : {}),
+                  ...(id ? { segmentGroup: (index: number) => (index === 0 ? id : undefined) as string } : {}),
+              }
+            : undefined;
     const groupLabel = (index: number) =>
         field ? undefined : [ariaLabel, rangeNames[index]].filter(Boolean).join(', ');
     const [internal, setInternal] = useState(defaultValue);
@@ -153,7 +164,7 @@ export function TimeRangePicker({
                                     </span>
                                 )}
                                 {field && (
-                                    <span id={`${id}r${index}`} className={styles.rangeLabel()}>
+                                    <span id={`${uid}r${index}`} className={styles.rangeLabel()}>
                                         {rangeNames[index]}
                                     </span>
                                 )}

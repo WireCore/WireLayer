@@ -4,6 +4,7 @@ import { useState, type CSSProperties } from 'react';
 import { DatePickerBase, type RenderDay } from './DatePickerBase.js';
 import { fromDateLike, toOutput, unavailableDates, wallKey } from './dates.js';
 import { useLocale } from '../LocaleProvider/LocaleProvider.js';
+import { useLabelForWarning } from '../../utils/label-for.js';
 
 /** One date (ISO string or Date), several dates (selectionMode multiple) or nothing */
 export type DatePickerValue = DateLike | DateLike[] | null;
@@ -68,6 +69,8 @@ export interface DatePickerProps<T extends DatePickerValue = string | null> {
     renderDay?: RenderDay;
     /** Accessible name without a surrounding Field */
     'aria-label'?: string;
+    /** Id of the field – the (first) date gets it; a `<label for>` cannot name it, use a Field or aria-label */
+    id?: string;
     className?: string;
     style?: CSSProperties;
     /** Extra classes per part of the date field, e.g. { control: "…" } (the calendar: RecipesProvider) */
@@ -88,10 +91,12 @@ export function DatePicker<T extends DatePickerValue = string | null>({
     excludeDates,
     locale: localeProp,
     'aria-label': ariaLabel,
+    id,
     clearable = true,
     highlightToday = true,
     ...rest
 }: DatePickerProps<T>) {
+    useLabelForWarning('DatePicker', id);
     const localeContext = useLocale();
     const locale = localeProp ?? localeContext.locale;
     // Field and calendar are two Ark parts with one value
@@ -121,6 +126,7 @@ export function DatePicker<T extends DatePickerValue = string | null>({
             isDateUnavailable={unavailableDates(isDateUnavailable, excludeDates)}
             locale={locale}
             label={ariaLabel}
+            ownId={id}
             hideClear={!clearable}
             plainToday={!highlightToday}
         />

@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { AngleSlider } from '@ark-ui/vue/angle-slider';
 import { useFieldContext } from '@ark-ui/vue/field';
-import { angleSlider as angleSliderRecipe, type RecipeClasses } from '@wirecore/wirelayer-recipes';
+import { controlIds, angleSlider as angleSliderRecipe, type RecipeClasses } from '@wirecore/wirelayer-recipes';
 import { computed, normalizeClass, ref, useAttrs } from 'vue';
 import { useTranslations } from '../../locale.js';
 import { useRecipe } from '../../recipes.js';
+import { useLabelForWarning } from '../../utils/label-for.js';
 
 export interface AngleSliderProps {
     /** Angle 0–360 – use with v-model */
@@ -24,6 +25,8 @@ export interface AngleSliderProps {
     readOnly?: boolean;
     invalid?: boolean;
     name?: string;
+    /** Id of the root element; a `<label for>` cannot name the angle slider, use a Field or aria-label */
+    id?: string;
     /** Extra classes per part of the component, e.g. { base: "…" } (see the recipe) */
     classes?: RecipeClasses<typeof angleSliderRecipe>;
 }
@@ -45,6 +48,9 @@ const emit = defineEmits<{
 }>();
 const angleSlider = useRecipe('angleSlider', angleSliderRecipe, () => props.classes);
 const attrs = useAttrs();
+// An own id goes to the root through Ark (it finds its parts by their ids)
+const rootIds = computed(() => controlIds(props.id, 'root'));
+useLabelForWarning('AngleSlider', () => props.id);
 const field = useFieldContext();
 const t = useTranslations().angleSlider;
 const styles = angleSlider();
@@ -62,6 +68,7 @@ function onChange(value: number) {
 <template>
     <!-- Dial for an angle: the needle is the slider (arrow keys, Home/End), drag anywhere on the dial -->
     <AngleSlider.Root
+        v-bind="rootIds"
         :class="styles.base({ class: normalizeClass(attrs.class) })"
         :style="attrs.style"
         :model-value="modelValue"

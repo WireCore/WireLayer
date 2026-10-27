@@ -158,13 +158,13 @@ export const button = tv({
         color: colorKeys,
         size: {
             xs: { base: 'h-6 gap-1 px-2.5 text-xs', icon: 'size-3' },
-            sm: { base: 'h-8 gap-1 px-3 text-[13px]', icon: 'size-3.5' },
-            md: { base: 'h-10 gap-1.5 px-4 text-sm', icon: 'size-4' },
-            lg: { base: 'h-12 gap-2 px-5.5 text-[15px]', icon: 'size-[18px]' },
+            sm: { base: 'h-[var(--wc-control-h-sm,2rem)] gap-1 px-3 text-[13px]', icon: 'size-3.5' },
+            md: { base: 'h-[var(--wc-control-h-md,2.5rem)] gap-1.5 px-4 text-sm', icon: 'size-4' },
+            lg: { base: 'h-[var(--wc-control-h-lg,3rem)] gap-2 px-5.5 text-[15px]', icon: 'size-[18px]' },
         },
         shape: {
             pill: {},
-            rounded: { base: 'rounded-lg' },
+            rounded: { base: 'rounded-[var(--wc-button-radius,0.5rem)]' },
             square: { base: 'rounded-none' },
         },
         /** Full width of its container */
@@ -225,13 +225,13 @@ export const iconButton = tv({
         color: colorKeys,
         size: {
             xs: { base: 'size-6', icon: 'size-3.5' },
-            sm: { base: 'size-8', icon: 'size-3.5' },
-            md: { base: 'size-10', icon: 'size-[18px]' },
-            lg: { base: 'size-12', icon: 'size-5' },
+            sm: { base: 'size-[var(--wc-control-h-sm,2rem)]', icon: 'size-3.5' },
+            md: { base: 'size-[var(--wc-control-h-md,2.5rem)]', icon: 'size-[18px]' },
+            lg: { base: 'size-[var(--wc-control-h-lg,3rem)]', icon: 'size-5' },
         },
         shape: {
             pill: {},
-            rounded: { base: 'rounded-lg' },
+            rounded: { base: 'rounded-[var(--wc-button-radius,0.5rem)]' },
             square: { base: 'rounded-none' },
         },
     },

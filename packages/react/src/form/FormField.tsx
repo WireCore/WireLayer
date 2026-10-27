@@ -1,4 +1,5 @@
 import { useStore, type AnyFieldApi } from '@tanstack/react-form';
+import type { field as fieldRecipe, RecipeClasses } from '@wirecore/wirelayer-recipes';
 import type { ReactNode } from 'react';
 import { Field } from '../components/Field/Field.js';
 import { firstError } from './errors.js';
@@ -16,6 +17,9 @@ export interface FormFieldProps {
     /** "(optional)" after the label */
     optional?: boolean;
     disabled?: boolean;
+    className?: string;
+    /** Extra classes per part of the Field, e.g. { label: "…" } (see the field recipe) */
+    classes?: RecipeClasses<typeof fieldRecipe>;
     children?: ReactNode;
 }
 
@@ -29,6 +33,8 @@ export function FormField({
     required,
     optional,
     disabled,
+    className,
+    classes,
     children,
 }: FormFieldProps) {
     const meta = useStore(field.store, (state) => state.meta);
@@ -45,6 +51,8 @@ export function FormField({
             required={required}
             optional={optional}
             disabled={disabled}
+            className={className}
+            classes={classes}
         >
             {children}
         </Field>

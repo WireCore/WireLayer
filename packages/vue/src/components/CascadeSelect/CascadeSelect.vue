@@ -5,6 +5,7 @@ import { useFieldContext } from '@ark-ui/vue/field';
 import { Menu } from '@ark-ui/vue/menu';
 import { Check, ChevronDown, LoaderCircle, X } from '@lucide/vue';
 import {
+    controlIds,
     cascadeSelect as cascadeSelectRecipe,
     ChildrenLoader,
     isLazyNode,
@@ -52,6 +53,8 @@ export interface CascadeSelectProps<V = string> {
     loadChildren?: (option: CascadeOption<V>, request: { signal: AbortSignal }) => Promise<CascadeOption<V>[]>;
     /** Source of the options of lazy levels (`getChildren`) */
     dataSource?: DataSource<CascadeOption<V>>;
+    /** Id of the field (the trigger, with `filter` the search field), e.g. for a `<label for>` */
+    id?: string;
     /** Extra classes per part of the component, e.g. { base: "…" } (see the recipe) */
     classes?: RecipeClasses<typeof cascadeSelectRecipe>;
 }
@@ -81,7 +84,7 @@ const attrs = useAttrs();
 const field = useFieldContext();
 const locale = useLocale();
 const styles = computed(() => cascadeSelect({ size: props.size, clearable: props.clearable && !props.filter }));
-const id = useId();
+const uid = useId();
 type Option = CascadeOption<V>;
 const keyOf = (option: CascadeOption<unknown>) => listValueKey(option.value, props.valueKey);
 
@@ -171,6 +174,16 @@ const text = computed(() => pathText.value ?? placeholderText.value);
 const ariaLabel = computed(() => attrs['aria-label'] as string | undefined);
 const isDisabled = computed(() => props.disabled ?? field?.value.disabled);
 const isInvalid = computed(() => props.invalid ?? field?.value.invalid);
+// An own id goes to the trigger (or the search field) through Ark, which finds its parts by their ids. Named by a
+// <label for>, the trigger describes itself by the chosen path
+const menuIds = computed(() => controlIds(props.id, 'trigger'));
+const comboboxIds = computed(() =>
+    controlIds(props.id, 'input', { label: field?.value.ids.label, input: field?.value.ids.control })
+);
+const labelledBy = computed(() => (field?.value ? `${field.value.ids.label} ${uid}value` : undefined));
+const describedBy = computed(() =>
+    field?.value ? field.value.ariaDescribedby : props.id && !ariaLabel.value ? `${uid}value` : undefined
+);
 
 function choose(key: string) {
     const found = pathTo(key);
@@ -241,6 +254,7 @@ const bottomStartPositioning = { placement: 'bottom-start', gutter: 4 } as const
         :positioning="listPositioning"
         :translations="translations.combobox"
         :open-on-click="false"
+        v-bind="comboboxIds"
         lazy-mount
         unmount-on-exit
         @value-change="onPick($event.value)"
@@ -309,7 +323,7 @@ const bottomStartPositioning = { placement: 'bottom-start', gutter: 4 } as const
         </Teleport>
         <span role="status" :class="styles.status()">{{ status }}</span>
     </Combobox.Root>
-    <Menu.Root v-else :positioning="bottomStartPositioning" lazy-mount unmount-on-exit>
+    <Menu.Root v-else :positioning="bottomStartPositioning" v-bind="menuIds" lazy-mount unmount-on-exit>
         <div :class="styles.base({ class: normalizeClass(attrs.class) })" :style="attrs.style">
             <!-- No wrapper without a clear button (unchanged DOM) -->
             <div v-if="clearable" :class="styles.control()">
@@ -321,11 +335,11 @@ const bottomStartPositioning = { placement: 'bottom-start', gutter: 4 } as const
                     :aria-invalid="isInvalid || undefined"
                     :aria-busy="loading || undefined"
                     :aria-label="field ? undefined : ariaLabel ? `${ariaLabel}: ${text}` : undefined"
-                    :aria-labelledby="field ? `${field.ids.label} ${id}value` : undefined"
-                    :aria-describedby="field?.ariaDescribedby"
+                    :aria-labelledby="labelledBy"
+                    :aria-describedby="describedBy"
                     @keydown="onTriggerKeydown"
                 >
-                    <span :id="`${id}value`" :class="styles.value()" :data-placeholder-shown="!path || undefined">
+                    <span :id="`${uid}value`" :class="styles.value()" :data-placeholder-shown="!path || undefined">
                         {{ text }}
                     </span>
                     <Menu.Indicator :class="styles.indicator()">
@@ -354,10 +368,10 @@ const bottomStartPositioning = { placement: 'bottom-start', gutter: 4 } as const
                 :aria-invalid="isInvalid || undefined"
                 :aria-busy="loading || undefined"
                 :aria-label="field ? undefined : ariaLabel ? `${ariaLabel}: ${text}` : undefined"
-                :aria-labelledby="field ? `${field.ids.label} ${id}value` : undefined"
-                :aria-describedby="field?.ariaDescribedby"
+                :aria-labelledby="labelledBy"
+                :aria-describedby="describedBy"
             >
-                <span :id="`${id}value`" :class="styles.value()" :data-placeholder-shown="!path || undefined">
+                <span :id="`${uid}value`" :class="styles.value()" :data-placeholder-shown="!path || undefined">
                     {{ text }}
                 </span>
                 <Menu.Indicator :class="styles.indicator()">

@@ -10,6 +10,7 @@ import { useEffect, type ComponentProps } from 'react';
 import { SegmentedControlContext } from './context.js';
 import { useFieldStatus } from '../Field/context.js';
 import { useRecipe } from '../RecipesProvider/RecipesProvider.js';
+import { useLabelForWarning } from '../../utils/label-for.js';
 
 export interface SegmentedControlProps extends Omit<ComponentProps<'div'>, 'defaultValue' | 'dir'> {
     value?: string | null;
@@ -38,6 +39,7 @@ export function SegmentedControl({
     children,
     ...props
 }: SegmentedControlProps) {
+    useLabelForWarning('SegmentedControl', props.id);
     const segmentedControl = useRecipe('segmentedControl', segmentedControlRecipe, classes);
     const styles = segmentedControl({ size });
     // Inside a Field: its label names the group (unless it has a name of its own), its texts describe it

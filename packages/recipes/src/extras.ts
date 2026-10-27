@@ -110,7 +110,7 @@ export const nativeSelect = tv({
     slots: {
         base: 'relative flex w-full',
         select: [
-            'h-10 w-full cursor-pointer appearance-none rounded-lg border border-line-strong bg-bg pe-9 ps-3 text-[15px] text-fg outline-none',
+            'h-[var(--wc-control-h-md,2.5rem)] w-full cursor-pointer appearance-none rounded-[var(--wc-control-radius-md,0.5rem)] border border-line-strong bg-bg pe-9 ps-3 text-[length:var(--wc-control-text-md,15px)] text-fg outline-none',
             'transition-colors focus:border-primary motion-reduce:transition-none',
             'aria-[invalid=true]:border-danger disabled:cursor-not-allowed disabled:border-line disabled:bg-bg-2 disabled:text-muted',
         ],
@@ -118,9 +118,13 @@ export const nativeSelect = tv({
     },
     variants: {
         size: {
-            sm: { select: 'h-8 rounded-md ps-2.5 text-[13px]' },
+            sm: {
+                select: 'h-[var(--wc-control-h-sm,2rem)] rounded-[var(--wc-control-radius-sm,0.375rem)] ps-2.5 text-[length:var(--wc-control-text-sm,13px)]',
+            },
             md: {},
-            lg: { select: 'h-12 rounded-[10px] ps-4 text-base' },
+            lg: {
+                select: 'h-[var(--wc-control-h-lg,3rem)] rounded-[var(--wc-control-radius-lg,10px)] ps-4 text-[length:var(--wc-control-text-lg,1rem)] leading-normal',
+            },
         },
     },
     defaultVariants: {

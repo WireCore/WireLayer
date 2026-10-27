@@ -3,6 +3,7 @@ import { useFieldContext } from '@ark-ui/vue/field';
 import { NumberInput, useNumberInput } from '@ark-ui/vue/number-input';
 import { ChevronDown, ChevronUp, Minus, Plus } from '@lucide/vue';
 import {
+    controlIds,
     defaultNumberFormat,
     insertIntoTextControl,
     numberInput as numberInputRecipe,
@@ -68,6 +69,8 @@ export interface NumberInputProps {
     clearable?: boolean;
     /** Accessible name of the clear button (default "Clear input") */
     clearLabel?: string;
+    /** Id of the input, e.g. for a `<label for>` */
+    id?: string;
     /** Extra classes per part of the component, e.g. { base: "…" } (see the recipe) */
     classes?: RecipeClasses<typeof numberInputRecipe>;
 }
@@ -132,6 +135,8 @@ const api = useNumberInput(
         clampValueOnBlur: props.clampBehavior !== 'none',
         allowOverflow: props.clampBehavior !== 'strict',
         translations: translations.numberInput,
+        // An own id goes to the input through Ark (it finds the input by its id)
+        ...controlIds(props.id, 'input', { label: field?.value.ids.label, input: field?.value.ids.control }),
         onValueChange: (details: { value: string; valueAsNumber: number }) => {
             text.value = details.value;
             emitted = Number.isNaN(details.valueAsNumber) ? null : details.valueAsNumber;

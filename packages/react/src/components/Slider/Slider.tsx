@@ -3,6 +3,7 @@ import { slider as sliderRecipe, snapToMarks, type RecipeClasses } from '@wireco
 import { useId, useState, type ComponentProps } from 'react';
 import { useTranslations } from '../LocaleProvider/LocaleProvider.js';
 import { useRecipe } from '../RecipesProvider/RecipesProvider.js';
+import { useLabelForWarning } from '../../utils/label-for.js';
 
 export interface SliderProps extends Omit<
     ComponentProps<'div'>,
@@ -23,6 +24,8 @@ export interface SliderProps extends Omit<
     thumbLabels?: readonly string[];
     /** Shows the formatted value next to the label */
     showValue?: boolean;
+    /** The label for screen readers only – it stays the accessible name of the thumbs */
+    hideLabel?: boolean;
     /** Formats the shown and announced value, e.g. (v) => `${v} %` */
     formatValue?: (value: number) => string;
     disabled?: boolean;
@@ -58,6 +61,7 @@ export function Slider({
     label,
     thumbLabels,
     showValue = true,
+    hideLabel = false,
     formatValue = String,
     disabled,
     name,
@@ -68,8 +72,9 @@ export function Slider({
     className,
     ...props
 }: SliderProps) {
+    useLabelForWarning('Slider', props.id);
     const slider = useRecipe('slider', sliderRecipe, classes);
-    const styles = slider({ withMarks: !!marks?.length });
+    const styles = slider({ withMarks: !!marks?.length, hideLabel, hideHeader: hideLabel && !showValue });
     const markList = (marks ?? []).map((mark) => (typeof mark === 'number' ? { value: mark } : mark));
     // restrictToMarks: the slider is controlled here and every change snaps to a mark
     const [snapped, setSnapped] = useState(defaultValue);

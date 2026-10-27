@@ -143,6 +143,9 @@ describe('FormField (TanStack Form)', () => {
 
     async function check(framework: 'vue' | 'react') {
         const input = screen.getByLabelText('E-Mail');
+        // classes reach the parts of the Field, class/className its root
+        expect(screen.getByText('E-Mail')).toHaveClass('text-base');
+        expect(input.closest('.col-span-2')).not.toBeNull();
         expect(input).toBeValid();
         await userEvent.click(input);
         await userEvent.tab();
@@ -166,8 +169,10 @@ describe('FormField (TanStack Form)', () => {
                         { name: 'email', validators: { onBlur: required, onChange: required } },
                         {
                             default: ({ field }: { field: Parameters<typeof bindVueInput>[0] }) =>
-                                h(VueFormField, { field, label: 'E-Mail' }, () =>
-                                    h(VueInput as Component, bindVueInput(field))
+                                h(
+                                    VueFormField,
+                                    { field, label: 'E-Mail', classes: { label: 'text-base' }, class: 'col-span-2' },
+                                    () => h(VueInput as Component, bindVueInput(field))
                                 ),
                         }
                     );
@@ -186,7 +191,7 @@ describe('FormField (TanStack Form)', () => {
                 children: (field) =>
                     createElement(
                         ReactFormField,
-                        { field, label: 'E-Mail' },
+                        { field, label: 'E-Mail', classes: { label: 'text-base' }, className: 'col-span-2' },
                         createElement(ReactInput, bindReactInput(field))
                     ),
             });

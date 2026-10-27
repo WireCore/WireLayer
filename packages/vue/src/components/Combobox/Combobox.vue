@@ -1,8 +1,10 @@
 <script setup lang="ts" generic="T = SelectItem, V = ItemValueOf<T>">
 import { createListCollection } from '@ark-ui/vue/collection';
 import { Combobox } from '@ark-ui/vue/combobox';
+import { useFieldContext } from '@ark-ui/vue/field';
 import { ChevronDown, LoaderCircle, X } from '@lucide/vue';
 import {
+    controlIds,
     combobox as comboboxRecipe,
     type DataSource,
     type ItemAccessor,
@@ -76,6 +78,8 @@ export interface ComboboxProps<T = SelectItem, V = ItemValueOf<T>> {
     minSearchLength?: number;
     /** Options per request of the data source (default 50) */
     pageSize?: number;
+    /** Id of the input, e.g. for a `<label for>` */
+    id?: string;
     /** Extra classes per part of the component, e.g. { base: "…" } (see the recipe) */
     classes?: RecipeClasses<typeof comboboxRecipe>;
 }
@@ -139,6 +143,11 @@ const { selected, keys, commit, commitKeys } = useListSelection<T>({
     accessors: () => accessors.value,
     items: known,
     emit: (value) => emit('update:modelValue', value as V | null),
+    // Without a data source and loaded: a value outside the items warns in development
+    check: {
+        component: 'Combobox',
+        ready: () => !props.dataSource && !props.loading && props.items.length > 0 && !props.allowCustomValue,
+    },
 });
 // A chosen value that is not loaded gets its label from the data source
 onMounted(() => source.resolve(keys.value, known.value));
@@ -210,6 +219,11 @@ function onKeydown(event: KeyboardEvent) {
 // Fixed objects: a new literal in the template on every render makes Ark update the machine, which can re-render
 // endlessly (Vue only stops it in development)
 const listPositioning = { sameWidth: true, gutter: 4 } as const;
+// An own id goes to the input through Ark (it finds the input by its id)
+const field = useFieldContext();
+const ids = computed(() =>
+    controlIds(props.id, 'input', { label: field?.value.ids.label, input: field?.value.ids.control })
+);
 </script>
 
 <template>
@@ -229,6 +243,7 @@ const listPositioning = { sameWidth: true, gutter: 4 } as const;
         :placeholder="placeholder"
         :positioning="listPositioning"
         :translations="translations.combobox"
+        v-bind="ids"
         lazy-mount
         unmount-on-exit
         @value-change="commitKeys($event.value, $event.items as ListOption<T>[])"

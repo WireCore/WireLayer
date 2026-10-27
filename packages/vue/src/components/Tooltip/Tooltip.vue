@@ -17,13 +17,15 @@ export interface TooltipProps {
     interactive?: boolean;
     /** Follows the mouse pointer over the trigger */
     followCursor?: boolean;
+    /** Closes when the page (or a container around the trigger) scrolls – false keeps it open while scrolling */
+    closeOnScroll?: boolean;
     /** Never opens (e.g. Truncate while the text fits) – the trigger stays the same element */
     disabled?: boolean;
     /** Extra classes per part of the component, e.g. { base: "…" } (see the recipe) */
     classes?: RecipeClasses<typeof tooltipRecipe>;
 }
 
-const props = withDefaults(defineProps<TooltipProps>(), { placement: 'top', interactive: true });
+const props = withDefaults(defineProps<TooltipProps>(), { placement: 'top', interactive: true, closeOnScroll: true });
 const tooltip = useRecipe('tooltip', tooltipRecipe, () => props.classes);
 const styles = tooltip();
 const group = inject(tooltipGroupKey, null);
@@ -86,6 +88,7 @@ function onOpenChange(open: boolean) {
         :close-delay="closeDelay"
         :positioning="positioning"
         :interactive="interactive"
+        :close-on-scroll="closeOnScroll"
         :disabled="disabled"
         lazy-mount
         unmount-on-exit

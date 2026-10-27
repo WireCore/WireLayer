@@ -1,7 +1,7 @@
 import { screen, waitFor, within } from '@testing-library/dom';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
-import { button, buttonColorKey } from '@wirecore/wirelayer-recipes';
+import { button, buttonColorKey, tv, withRecipeOverrides } from '@wirecore/wirelayer-recipes';
 import { el, frameworks, icon, render } from './harness.js';
 
 // Own defaults and classes: RecipesProvider for every component below, `classes` for one component
@@ -50,10 +50,14 @@ describe.each(frameworks)('%s recipes', (framework) => {
                 el('Badge', {}, 'New')
             )
         );
-        expect(screen.getByRole('button', { name: 'Klein' })).toHaveClass('h-8', 'border', 'tracking-wide');
-        expect(screen.getByRole('button', { name: 'Large' })).toHaveClass('h-12');
+        expect(screen.getByRole('button', { name: 'Klein' })).toHaveClass(
+            'h-[var(--wc-control-h-sm,2rem)]',
+            'border',
+            'tracking-wide'
+        );
+        expect(screen.getByRole('button', { name: 'Large' })).toHaveClass('h-[var(--wc-control-h-lg,3rem)]');
         const inner = screen.getByRole('button', { name: 'Inner' });
-        expect(inner).toHaveClass('h-10', 'border', 'tracking-wide', 'italic');
+        expect(inner).toHaveClass('h-[var(--wc-control-h-md,2.5rem)]', 'border', 'tracking-wide', 'italic');
         expect(screen.getByText('New')).toHaveClass('uppercase');
     });
 
@@ -81,6 +85,137 @@ describe.each(frameworks)('%s recipes', (framework) => {
         expect(within(table).getAllByRole('row')[1]).toHaveClass('h-16');
         expect(within(table).getByRole('columnheader', { name: 'Name' })).toHaveClass('text-fg');
         expect(screen.getByRole('tab', { name: 'All' })).toHaveClass('px-8');
+    });
+});
+
+describe.each(frameworks)('%s states with overrides', (framework) => {
+    // A provider (or `classes`) changes the border of the fields – their states still show
+    const provider = (...children: ReturnType<typeof el>[]) =>
+        el(
+            'RecipesProvider',
+            {
+                recipes: {
+                    input: { classes: { base: 'border-line-2' } },
+                    textarea: { classes: { base: 'border-line-2' } },
+                    numberInput: { classes: { control: 'border-line-2' } },
+                    passwordInput: { classes: { control: 'border-line-2' } },
+                    select: { classes: { trigger: 'border-line-2' } },
+                    datePicker: { classes: { control: 'border-line-2' } },
+                },
+            },
+            ...children
+        );
+    const box = (name: string) => screen.getByRole('textbox', { name }).parentElement!;
+
+    it('Input and Textarea: the override applies, invalid, success and disabled still show', async () => {
+        await render(
+            framework,
+            provider(
+                el('Input', { 'aria-label': 'Plain' }),
+                el('Input', { 'aria-label': 'Invalid', invalid: true }),
+                el('Input', { 'aria-label': 'Success', success: true }),
+                el('Input', { 'aria-label': 'Disabled', disabled: true }),
+                el('Textarea', { 'aria-label': 'Note' }),
+                el('Textarea', { 'aria-label': 'Invalid note', invalid: true })
+            )
+        );
+        expect(box('Plain')).toHaveClass('border-line-2');
+        expect(box('Invalid')).toHaveClass('border-danger');
+        expect(box('Invalid')).not.toHaveClass('border-line-2');
+        expect(box('Success')).toHaveClass('border-success');
+        expect(box('Disabled')).toHaveClass('border-line', 'bg-bg-2');
+        expect(screen.getByRole('textbox', { name: 'Note' })).toHaveClass('border-line-2');
+        expect(screen.getByRole('textbox', { name: 'Invalid note' })).toHaveClass('border-danger');
+        expect(screen.getByRole('textbox', { name: 'Invalid note' })).not.toHaveClass('border-line-2');
+    });
+
+    it('NumberInput and PasswordInput: success shows, invalid wins by its attribute selector', async () => {
+        await render(
+            framework,
+            provider(
+                el('NumberInput', { 'aria-label': 'Count', success: true }),
+                el('NumberInput', { 'aria-label': 'Wrong count', invalid: true }),
+                el('PasswordInput', { 'aria-label': 'Password', success: true })
+            )
+        );
+        const control = (input: HTMLElement) => input.closest('[data-part=control]')!;
+        expect(control(screen.getByRole('spinbutton', { name: 'Count' }))).toHaveClass('border-success');
+        expect(control(screen.getByRole('spinbutton', { name: 'Count' }))).not.toHaveClass('border-line-2');
+        const wrong = control(screen.getByRole('spinbutton', { name: 'Wrong count' }));
+        // data-invalid:border-danger beats border-line-2 through its specificity (class + attribute)
+        expect(wrong).toHaveClass('border-line-2', 'data-invalid:border-danger');
+        expect(wrong).toHaveAttribute('data-invalid');
+        expect(control(screen.getByLabelText('Password'))).toHaveClass('border-success');
+    });
+
+    it('Select and DatePicker: invalid keeps its attribute selector next to the override', async () => {
+        await render(
+            framework,
+            provider(
+                el('Select', { items: [{ value: 'a', label: 'A' }], 'aria-label': 'Choice', invalid: true }),
+                el('DatePicker', { 'aria-label': 'Day', invalid: true })
+            )
+        );
+        const trigger = screen.getByRole('combobox', { name: 'Choice' });
+        expect(trigger).toHaveClass('border-line-2', 'data-invalid:border-danger');
+        expect(trigger).toHaveAttribute('data-invalid');
+        const control = document.querySelector('[data-scope=date-picker][data-part=control]')!;
+        expect(control).toHaveClass('border-line-2', 'data-invalid:border-danger');
+        expect(control).toHaveAttribute('data-invalid');
+    });
+
+    it('the class passed to the component still wins over a state', async () => {
+        await render(
+            framework,
+            provider(el('Input', { 'aria-label': 'Own', invalid: true, class: 'border-line-strong' }))
+        );
+        expect(box('Own')).toHaveClass('border-line-strong');
+        expect(box('Own')).not.toHaveClass('border-danger');
+    });
+});
+
+describe('withRecipeOverrides and states', () => {
+    const field = tv({
+        slots: { base: 'border border-line', label: 'text-fg' },
+        variants: {
+            size: { sm: { base: 'h-8' }, md: { base: 'h-10' } },
+            invalid: { true: { base: 'border-danger', label: 'text-danger' } },
+            disabled: { true: 'opacity-40' },
+        },
+        compoundVariants: [{ invalid: true, size: 'sm', class: { base: 'border-2' } }],
+        defaultVariants: { size: 'md' },
+    });
+    const box = tv({ base: 'border border-line', variants: { invalid: { true: 'border-danger' } } });
+
+    it('adds the active states after the override classes, the own class last', () => {
+        const styled = withRecipeOverrides(field, [
+            { classes: { base: 'border-line-2 border-0', label: 'text-muted' } },
+        ]);
+        expect(styled({}).base()).toContain('border-line-2');
+        const invalid = styled({ invalid: true });
+        expect(invalid.base()).toContain('border-danger');
+        expect(invalid.base()).not.toContain('border-line-2');
+        expect(invalid.label()).toContain('text-danger');
+        expect(invalid.base({ class: 'border-line-strong' })).toContain('border-line-strong');
+        expect(invalid.base({ class: 'border-line-strong' })).not.toContain('border-danger');
+        // A string value counts for the base part; compound variants with a state, too (default size md: no match)
+        expect(styled({ disabled: true }).base()).toContain('opacity-40');
+        expect(styled({ invalid: true, size: 'sm' }).base()).toContain('border-2');
+        expect(styled({ invalid: true }).base()).toContain('border-0');
+    });
+
+    it('leaves parts without override classes and recipes without overrides alone', () => {
+        expect(withRecipeOverrides(field, [undefined])).toBe(field);
+        const styled = withRecipeOverrides(field, [{ classes: { label: 'text-muted' } }]);
+        expect(styled({ invalid: true }).base()).toBe(field({ invalid: true }).base());
+    });
+
+    it('recipes without parts: the states join the class of the call', () => {
+        const styled = withRecipeOverrides(box, [{ classes: { base: 'border-line-2' } }]);
+        expect(styled({})).toContain('border-line-2');
+        expect(styled({ invalid: true })).toContain('border-danger');
+        expect(styled({ invalid: true })).not.toContain('border-line-2');
+        expect(styled({ invalid: true, class: 'border-fg' })).toContain('border-fg');
     });
 });
 

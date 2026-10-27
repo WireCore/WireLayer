@@ -1,7 +1,9 @@
 import { createListCollection } from '@ark-ui/react/collection';
+import { useFieldContext } from '@ark-ui/react/field';
 import { Portal } from '@ark-ui/react/portal';
 import { Select as ArkSelect } from '@ark-ui/react/select';
 import {
+    controlIds,
     allListOptionsState,
     indexListOptions,
     multiSelect as multiSelectRecipe,
@@ -142,6 +144,7 @@ export function MultiSelect<T = SelectItem, V = ItemValueOf<T>>({
     pageSize,
     renderItem,
     renderValue,
+    id,
     className,
     style,
     onKeyDown,
@@ -150,6 +153,8 @@ export function MultiSelect<T = SelectItem, V = ItemValueOf<T>>({
     const multiSelect = useRecipe('multiSelect', multiSelectRecipe, classes);
     const chips = display === 'chips';
     const styles = multiSelect({ size, clearable: clearable && !chips });
+    // An own id goes to the trigger through Ark (it finds the trigger by its id)
+    const field = useFieldContext();
     const translations = useTranslations();
     const t = translations.select;
     const accessors = { itemValue, itemLabel, itemDisabled, itemGroup, itemKeywords, valueKey };
@@ -168,6 +173,8 @@ export function MultiSelect<T = SelectItem, V = ItemValueOf<T>>({
         accessors,
         items: known,
         onChange: onValueChange,
+        // Without a data source and loaded: a value outside the items warns in development
+        check: { component: 'MultiSelect', ready: !dataSource && !loading && items.length > 0 },
     });
     // Chosen values that are not loaded get their labels from the data source
     const keyText = keys.join('\u0000');
@@ -289,6 +296,7 @@ export function MultiSelect<T = SelectItem, V = ItemValueOf<T>>({
             name={name}
             positioning={{ sameWidth: true, gutter: 4 }}
             composite={!panel}
+            {...controlIds(id, 'trigger', { label: field?.ids.label, hiddenSelect: field?.ids.control })}
             lazyMount
             unmountOnExit
         >

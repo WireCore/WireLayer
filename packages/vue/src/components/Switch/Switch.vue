@@ -1,6 +1,7 @@
 <script setup lang="ts">
+import { useFieldContext } from '@ark-ui/vue/field';
 import { Switch } from '@ark-ui/vue/switch';
-import { type RecipeClasses, switchControl as switchControlRecipe } from '@wirecore/wirelayer-recipes';
+import { controlIds, type RecipeClasses, switchControl as switchControlRecipe } from '@wirecore/wirelayer-recipes';
 import { computed, inject, useAttrs, useId, type Component } from 'vue';
 import { switchGroupKey } from '../SwitchGroup/context.js';
 import { splitAttrs } from '../../utils/attrs.js';
@@ -28,6 +29,8 @@ export interface SwitchProps {
     name?: string;
     /** Value of the switch – inside a SwitchGroup its state comes from the group's value */
     value?: string;
+    /** Id of the switch (the hidden input), e.g. for a `<label for>` */
+    id?: string;
     /** Extra classes per part of the component, e.g. { base: "…" } (see the recipe) */
     classes?: RecipeClasses<typeof switchControlRecipe>;
 }
@@ -72,6 +75,12 @@ function onChecked(checked: boolean) {
     emit('update:checked', checked);
 }
 
+// An own id goes to the hidden input through Ark (it finds the input by its id)
+const field = useFieldContext();
+const ids = computed(() =>
+    controlIds(props.id, 'hiddenInput', { label: field?.value.ids.label, hiddenInput: field?.value.ids.control })
+);
+
 const describedBy = computed(
     () =>
         [props.description && descriptionId, split.value.rest['aria-describedby']].filter(Boolean).join(' ') ||
@@ -90,13 +99,14 @@ const describedBy = computed(
         :required="required"
         :name="name"
         :value="value"
-        v-bind="groupProps"
+        v-bind="{ ...groupProps, ...ids }"
         @update:checked="onChecked"
     >
         <span :class="styles.content()">
             <component :is="icon" v-if="icon" :class="styles.icon()" aria-hidden="true" />
             <span :class="styles.text()">
-                <Switch.Label :class="styles.label()"><slot /></Switch.Label>
+                <!-- Without a text the label is left out: Ark names the input by it, an empty one would hide a <label for> -->
+                <Switch.Label v-if="$slots.default" :class="styles.label()"><slot /></Switch.Label>
                 <span v-if="description" :id="descriptionId" :class="styles.description()">{{ description }}</span>
             </span>
         </span>

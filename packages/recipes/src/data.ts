@@ -1,5 +1,16 @@
 import { popupMotion, tv } from './tv.js';
 
+/** Where the DataTable puts its pagination row: rows per page at the start and pages at the end, or both together */
+export type DataTablePaginatorAlign = 'between' | 'start' | 'center' | 'end';
+/**
+ * The recipe value of `paginatorAlign` – prefixed, so the HTML classes do not clash with the column `align`
+ * (`.wc-data-table-paginator-start`)
+ */
+export const paginatorAlignKey = (align: DataTablePaginatorAlign | undefined) =>
+    align && align !== 'between'
+        ? (`paginator${align[0]!.toUpperCase()}${align.slice(1)}` as `paginator${Capitalize<Exclude<DataTablePaginatorAlign, 'between'>>}`)
+        : undefined;
+
 // DataTable (@wirecore/wirelayer-vue/data-table, @wirecore/wirelayer-react/data-table) and virtualised lists.
 
 const focusRing = 'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fg';
@@ -210,6 +221,19 @@ export const dataTable = tv({
                 td: 'border-e border-line last:border-e-0',
                 footCell: 'border-e border-line last:border-e-0',
             },
+        },
+        /** A border around the whole table (with or without `gridlines`) */
+        bordered: {
+            true: { table: 'border border-line' },
+        },
+        /**
+         * The pagination row, both parts together (without it: rows per page at the start, the pages at the end) –
+         * the values come from paginatorAlignKey()
+         */
+        paginatorAlign: {
+            paginatorStart: { footer: 'justify-start' },
+            paginatorCenter: { footer: 'justify-center' },
+            paginatorEnd: { footer: 'justify-end' },
         },
         /** Every other row tinted */
         striped: {

@@ -8,6 +8,7 @@ import {
 } from '@wirecore/wirelayer-recipes';
 import { useId, useState, type CSSProperties, type PointerEvent } from 'react';
 import { useRecipe } from '../RecipesProvider/RecipesProvider.js';
+import { useLabelForWarning } from '../../utils/label-for.js';
 
 export interface KnobProps {
     value?: number;
@@ -19,6 +20,8 @@ export interface KnobProps {
     /** Visible label, also the accessible name */
     label?: string;
     'aria-label'?: string;
+    /** Id of the dial (the slider); a `<label for>` cannot name it, use `label`, a Field or aria-label */
+    id?: string;
     /** Formats the shown and announced value, e.g. (v) => `${v} %` */
     formatValue?: (value: number) => string;
     /** Text with the value in it, e.g. "{value} %" (when there is no formatValue) */
@@ -50,6 +53,7 @@ export function Knob({
     step = 1,
     label,
     'aria-label': ariaLabel,
+    id,
     formatValue,
     valueTemplate,
     strokeWidth = 8,
@@ -60,6 +64,7 @@ export function Knob({
     className,
     style,
 }: KnobProps) {
+    useLabelForWarning('Knob', id);
     const knob = useRecipe('knob', knobRecipe, classes);
     const styles = knob({ size, color });
     const field = useFieldContext();
@@ -90,6 +95,7 @@ export function Knob({
                 </span>
             )}
             <div
+                id={id}
                 role="slider"
                 tabIndex={disabled ? undefined : 0}
                 aria-labelledby={label ? labelId : field?.ids.label}

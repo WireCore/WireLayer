@@ -11,6 +11,7 @@ import { computed, normalizeClass, onMounted, provide, useAttrs } from 'vue';
 import { segmentedControlKey } from './context.js';
 import { useFieldStatus } from '../Field/context.js';
 import { useRecipe } from '../../recipes.js';
+import { useLabelForWarning } from '../../utils/label-for.js';
 
 export interface SegmentedControlProps {
     /** Selected value – use with v-model */
@@ -35,6 +36,7 @@ const props = withDefaults(defineProps<SegmentedControlProps>(), {
 const segmentedControl = useRecipe('segmentedControl', segmentedControlRecipe, () => props.classes);
 const emit = defineEmits<{ 'update:modelValue': [value: string | null] }>();
 const attrs = useAttrs();
+useLabelForWarning('SegmentedControl', () => attrs.id);
 const styles = computed(() => segmentedControl({ size: props.size }));
 
 // Inside a Field: its label names the group (unless it has a name of its own), its texts describe it

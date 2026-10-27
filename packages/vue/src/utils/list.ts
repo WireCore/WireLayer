@@ -1,5 +1,6 @@
 import { useFilter } from '@ark-ui/vue/locale';
 import {
+    checkListValues,
     filterListOptions,
     groupListOptions,
     indexListOptions,
@@ -9,7 +10,7 @@ import {
     type ListItemAccessors,
     type ListOption,
 } from '@wirecore/wirelayer-recipes';
-import { computed, ref, type Ref } from 'vue';
+import { computed, onMounted, ref, watch, type Ref } from 'vue';
 
 /**
  * Items of an option list, normalised (any item and value type), filtered by `query` and grouped. `ordered` is the
@@ -41,6 +42,8 @@ export function useListSelection<T>(options: {
     accessors: () => ListItemAccessors<T>;
     items: Ref<ListOption<T>[]>;
     emit: (value: unknown) => void;
+    /** Development warning for values not among the items: the component's name, and whether its items are complete */
+    check?: { component: string; ready: () => boolean };
 }) {
     const internal = ref<unknown>(options.defaultValue ?? (options.multiple ? [] : null));
     // Options chosen in this component – their labels stay known when the items change
@@ -56,6 +59,17 @@ export function useListSelection<T>(options: {
         )
     );
     const keys = computed(() => selected.value.map((option) => option.key));
+    const check = options.check;
+    if (check)
+        onMounted(() =>
+            watch(
+                [selected, check.ready],
+                ([chosen, ready]) => {
+                    if (ready) checkListValues(check.component, chosen);
+                },
+                { immediate: true }
+            )
+        );
 
     function commit(next: ListOption<T>[]) {
         picked.value = next;

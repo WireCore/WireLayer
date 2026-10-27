@@ -1,5 +1,6 @@
 import { Checkbox as ArkCheckbox } from '@ark-ui/react/checkbox';
-import { checkbox as checkboxRecipe, type RecipeClasses } from '@wirecore/wirelayer-recipes';
+import { useFieldContext } from '@ark-ui/react/field';
+import { controlIds, checkbox as checkboxRecipe, type RecipeClasses } from '@wirecore/wirelayer-recipes';
 import { Check, Minus } from 'lucide-react';
 import type { ComponentProps, ReactNode } from 'react';
 import { useRecipe } from '../RecipesProvider/RecipesProvider.js';
@@ -28,6 +29,7 @@ export function Checkbox({
     required,
     name,
     value,
+    id,
     className,
     style,
     children,
@@ -35,6 +37,8 @@ export function Checkbox({
 }: CheckboxProps) {
     const checkbox = useRecipe('checkbox', checkboxRecipe, classes);
     const styles = checkbox();
+    // An own id goes to the hidden input through Ark (it finds the input by its id)
+    const field = useFieldContext();
     return (
         <ArkCheckbox.Root
             className={styles.base({ class: className })}
@@ -47,6 +51,7 @@ export function Checkbox({
             required={required}
             name={name}
             value={value}
+            {...controlIds(id, 'hiddenInput', { label: field?.ids.label, hiddenInput: field?.ids.control })}
         >
             <ArkCheckbox.Control className={styles.control()}>
                 <ArkCheckbox.Indicator>

@@ -84,3 +84,16 @@ export const FilledIcon: Story = {
             </div>`,
     }),
 };
+
+/** `loading`: a spinner instead of the icon, the name stays; focusable, clicks are ignored (like Button) */
+export const Loading: Story = {
+    render: () => ({
+        components: { IconButton },
+        setup: () => ({ Pencil, Trash2 }),
+        template: `
+            <div class="flex items-center gap-3.5">
+                <IconButton :icon="Pencil" label="Edit" loading />
+                <IconButton :icon="Trash2" label="Delete" variant="danger" loading />
+            </div>`,
+    }),
+};

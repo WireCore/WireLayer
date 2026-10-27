@@ -1,8 +1,10 @@
 <script setup lang="ts" generic="T = string">
 import { createListCollection } from '@ark-ui/vue/collection';
 import { Combobox } from '@ark-ui/vue/combobox';
+import { useFieldContext } from '@ark-ui/vue/field';
 import { LoaderCircle, X } from '@lucide/vue';
 import {
+    controlIds,
     combobox as comboboxRecipe,
     type DataSource,
     type ItemAccessor,
@@ -63,6 +65,8 @@ export interface AutocompleteProps<T = string> {
     invalid?: boolean;
     required?: boolean;
     name?: string;
+    /** Id of the input, e.g. for a `<label for>` */
+    id?: string;
     /** Extra classes per part of the component, e.g. { base: "…" } (see the recipe) */
     classes?: RecipeClasses<typeof comboboxRecipe>;
 }
@@ -173,6 +177,11 @@ function onInput(details: { inputValue: string; reason?: string }) {
 // Fixed objects: a new literal in the template on every render makes Ark update the machine, which can re-render
 // endlessly (Vue only stops it in development)
 const listPositioning = { sameWidth: true, gutter: 4 } as const;
+// An own id goes to the input through Ark (it finds the input by its id)
+const field = useFieldContext();
+const ids = computed(() =>
+    controlIds(props.id, 'input', { label: field?.value.ids.label, input: field?.value.ids.control })
+);
 </script>
 
 <template>
@@ -180,6 +189,7 @@ const listPositioning = { sameWidth: true, gutter: 4 } as const;
     <TagsInput
         v-if="multiple"
         v-bind="attrs"
+        :id="id"
         :model-value="values"
         :default-value="defaultValues"
         :suggestions="suggestions"
@@ -214,6 +224,7 @@ const listPositioning = { sameWidth: true, gutter: 4 } as const;
         :placeholder="placeholder"
         :positioning="listPositioning"
         :translations="translations.combobox"
+        v-bind="ids"
         lazy-mount
         unmount-on-exit
         @input-value-change="onInput"

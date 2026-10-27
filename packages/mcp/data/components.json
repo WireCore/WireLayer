@@ -655,6 +655,12 @@
                     "description": ""
                 },
                 {
+                    "name": "id",
+                    "type": "string",
+                    "optional": true,
+                    "description": "Id of the root element; a `<label for>` cannot name the angle slider, use a Field or aria-label"
+                },
+                {
                     "name": "className",
                     "type": "string",
                     "optional": true,
@@ -740,6 +746,12 @@
                         "type": "string",
                         "optional": true,
                         "description": ""
+                    },
+                    {
+                        "name": "id",
+                        "type": "string",
+                        "optional": true,
+                        "description": "Id of the root element; a `<label for>` cannot name the angle slider, use a Field or aria-label"
                     },
                     {
                         "name": "classes",
@@ -1823,6 +1835,12 @@
                         "type": "string",
                         "optional": true,
                         "description": ""
+                    },
+                    {
+                        "name": "id",
+                        "type": "string",
+                        "optional": true,
+                        "description": "Id of the input, e.g. for a `<label for>`"
                     },
                     {
                         "name": "classes",
@@ -3886,6 +3904,12 @@
                     "description": "Dots below the slides, one per page"
                 },
                 {
+                    "name": "controlsPosition",
+                    "type": "'bottom' | 'sides'",
+                    "optional": true,
+                    "description": "Previous and next: in the row below the slides (`bottom`, default) or beside them, vertically centred (`sides`)"
+                },
+                {
                     "name": "page",
                     "type": "number",
                     "optional": true,
@@ -3995,6 +4019,12 @@
                         "type": "boolean",
                         "optional": true,
                         "description": "Dots below the slides, one per page"
+                    },
+                    {
+                        "name": "controlsPosition",
+                        "type": "'bottom' | 'sides'",
+                        "optional": true,
+                        "description": "Previous and next: in the row below the slides (`bottom`, default) or beside them, vertically centred (`sides`)"
                     },
                     {
                         "name": "page",
@@ -4154,6 +4184,12 @@
                     "description": ""
                 },
                 {
+                    "name": "id",
+                    "type": "string",
+                    "optional": true,
+                    "description": "Id of the field (the trigger, with `filter` the search field), e.g. for a `<label for>`"
+                },
+                {
                     "name": "className",
                     "type": "string",
                     "optional": true,
@@ -4269,6 +4305,12 @@
                         "type": "DataSource<CascadeOption<V>>",
                         "optional": true,
                         "description": "Source of the options of lazy levels (`getChildren`)"
+                    },
+                    {
+                        "name": "id",
+                        "type": "string",
+                        "optional": true,
+                        "description": "Id of the field (the trigger, with `filter` the search field), e.g. for a `<label for>`"
                     },
                     {
                         "name": "classes",
@@ -5422,6 +5464,12 @@
                         "description": ""
                     },
                     {
+                        "name": "id",
+                        "type": "string",
+                        "optional": true,
+                        "description": "Id of the check box (the hidden input), e.g. for a `<label for>`"
+                    },
+                    {
                         "name": "classes",
                         "type": "RecipeClasses<typeof checkboxRecipe>",
                         "optional": true,
@@ -5544,6 +5592,12 @@
                         "type": "string",
                         "optional": true,
                         "description": ""
+                    },
+                    {
+                        "name": "id",
+                        "type": "string",
+                        "optional": true,
+                        "description": "Id of the check box (the hidden input), e.g. for a `<label for>`"
                     },
                     {
                         "name": "classes",
@@ -6655,6 +6709,12 @@
                     "description": "Accessible name without a surrounding Field"
                 },
                 {
+                    "name": "id",
+                    "type": "string",
+                    "optional": true,
+                    "description": "Id of the field (the button), e.g. for a `<label for>`"
+                },
+                {
                     "name": "className",
                     "type": "string",
                     "optional": true,
@@ -6746,6 +6806,12 @@
                         "type": "string",
                         "optional": true,
                         "description": ""
+                    },
+                    {
+                        "name": "id",
+                        "type": "string",
+                        "optional": true,
+                        "description": "Id of the field (the button), e.g. for a `<label for>`"
                     },
                     {
                         "name": "classes",
@@ -7281,6 +7347,12 @@
                         "type": "number",
                         "optional": true,
                         "description": "Options per request of the data source (default 50)"
+                    },
+                    {
+                        "name": "id",
+                        "type": "string",
+                        "optional": true,
+                        "description": "Id of the input, e.g. for a `<label for>`"
                     },
                     {
                         "name": "classes",
@@ -8085,6 +8157,18 @@
                     "description": "Accessible name of the close button"
                 },
                 {
+                    "name": "confirmButton",
+                    "type": "ConfirmButtonOptions",
+                    "optional": true,
+                    "description": "Look of the confirm button in every request (default: size sm, `primary`, `danger` for status danger)"
+                },
+                {
+                    "name": "cancelButton",
+                    "type": "ConfirmButtonOptions",
+                    "optional": true,
+                    "description": "Look of the cancel button in every request (default: size sm, `outline`)"
+                },
+                {
                     "name": "classes",
                     "type": "RecipeClasses<typeof dialogRecipe>",
                     "optional": true,
@@ -8098,6 +8182,18 @@
                         "type": "string",
                         "optional": true,
                         "description": "Accessible name of the close button"
+                    },
+                    {
+                        "name": "confirmButton",
+                        "type": "ConfirmButtonOptions",
+                        "optional": true,
+                        "description": "Look of the confirm button in every request (default: size sm, `primary`, `danger` for status danger)"
+                    },
+                    {
+                        "name": "cancelButton",
+                        "type": "ConfirmButtonOptions",
+                        "optional": true,
+                        "description": "Look of the cancel button in every request (default: size sm, `outline`)"
                     },
                     {
                         "name": "classes",
@@ -8844,6 +8940,18 @@
                     "description": "Pagination below (default) or above the table"
                 },
                 {
+                    "name": "paginatorEdges",
+                    "type": "boolean",
+                    "optional": true,
+                    "description": "Buttons to the first and the last page in the pagination"
+                },
+                {
+                    "name": "paginatorAlign",
+                    "type": "DataTablePaginatorAlign",
+                    "optional": true,
+                    "description": "Pagination row: rows per page at the start, pages at the end (`between`, default) – or both together"
+                },
+                {
                     "name": "sorting",
                     "type": "DataTableSort | DataTableSort[] | null",
                     "optional": true,
@@ -9022,6 +9130,12 @@
                     "type": "(row: TData, index: number) => string",
                     "optional": true,
                     "description": "Names the expand button of a row"
+                },
+                {
+                    "name": "rowExpandable",
+                    "type": "(row: TData) => boolean",
+                    "optional": true,
+                    "description": "Whether a row has details (`expansion`) – rows without get no expand button (default: all rows)"
                 },
                 {
                     "name": "expansion",
@@ -9378,6 +9492,12 @@
                     "description": "Lines between the columns"
                 },
                 {
+                    "name": "bordered",
+                    "type": "boolean",
+                    "optional": true,
+                    "description": "A border around the whole table"
+                },
+                {
                     "name": "striped",
                     "type": "boolean",
                     "optional": true,
@@ -9573,6 +9693,18 @@
                         "description": "Pagination below (default) or above the table"
                     },
                     {
+                        "name": "paginatorEdges",
+                        "type": "boolean",
+                        "optional": true,
+                        "description": "Buttons to the first and the last page in the pagination"
+                    },
+                    {
+                        "name": "paginatorAlign",
+                        "type": "DataTablePaginatorAlign",
+                        "optional": true,
+                        "description": "Pagination row: rows per page at the start, pages at the end (`between`, default) – or both together"
+                    },
+                    {
                         "name": "sorting",
                         "type": "DataTableSort | DataTableSort[] | null",
                         "optional": true,
@@ -9721,6 +9853,12 @@
                         "type": "(row: T, index: number) => string",
                         "optional": true,
                         "description": "Names the expand button of a row"
+                    },
+                    {
+                        "name": "rowExpandable",
+                        "type": "(row: T) => boolean",
+                        "optional": true,
+                        "description": "Whether a row has details (#expansion) – rows without get no expand button (default: all rows)"
                     },
                     {
                         "name": "advancedFilter",
@@ -9961,6 +10099,12 @@
                         "type": "boolean",
                         "optional": true,
                         "description": "Lines between the columns"
+                    },
+                    {
+                        "name": "bordered",
+                        "type": "boolean",
+                        "optional": true,
+                        "description": "A border around the whole table"
                     },
                     {
                         "name": "striped",
@@ -10834,6 +10978,12 @@
                     "description": "Accessible name without a surrounding Field"
                 },
                 {
+                    "name": "id",
+                    "type": "string",
+                    "optional": true,
+                    "description": "Id of the field – the (first) date gets it; a `<label for>` cannot name it, use a Field or aria-label"
+                },
+                {
                     "name": "className",
                     "type": "string",
                     "optional": true,
@@ -11027,6 +11177,12 @@
                         "type": "boolean",
                         "optional": true,
                         "description": "On narrow screens the calendar opens as a sheet at the bottom"
+                    },
+                    {
+                        "name": "id",
+                        "type": "string",
+                        "optional": true,
+                        "description": "Id of the field – the (first) date gets it; a `<label for>` cannot name it, use a Field or aria-label"
                     },
                     {
                         "name": "classes",
@@ -11246,6 +11402,12 @@
                     "description": "Accessible name without a surrounding Field"
                 },
                 {
+                    "name": "id",
+                    "type": "string",
+                    "optional": true,
+                    "description": "Id of the field – the (first) date gets it; a `<label for>` cannot name it, use a Field or aria-label"
+                },
+                {
                     "name": "className",
                     "type": "string",
                     "optional": true,
@@ -11433,6 +11595,12 @@
                         "type": "boolean",
                         "optional": true,
                         "description": "On narrow screens the calendar opens as a sheet at the bottom"
+                    },
+                    {
+                        "name": "id",
+                        "type": "string",
+                        "optional": true,
+                        "description": "Id of the field – the (first) date gets it; a `<label for>` cannot name it, use a Field or aria-label"
                     },
                     {
                         "name": "classes",
@@ -11723,6 +11891,12 @@
                     "description": ""
                 },
                 {
+                    "name": "hideTitle",
+                    "type": "boolean",
+                    "optional": true,
+                    "description": "The title only for screen readers – it still names the dialog (e.g. a video in a dialog)"
+                },
+                {
                     "name": "description",
                     "type": "string",
                     "optional": true,
@@ -11850,6 +12024,12 @@
                         "type": "string",
                         "optional": false,
                         "description": ""
+                    },
+                    {
+                        "name": "hideTitle",
+                        "type": "boolean",
+                        "optional": true,
+                        "description": "The title only for screen readers – it still names the dialog (e.g. a video in a dialog)"
                     },
                     {
                         "name": "description",
@@ -12347,6 +12527,12 @@
                     "description": ""
                 },
                 {
+                    "name": "hideTitle",
+                    "type": "boolean",
+                    "optional": true,
+                    "description": "The title only for screen readers – it still names the drawer (e.g. a video in a dialog)"
+                },
+                {
                     "name": "description",
                     "type": "string",
                     "optional": true,
@@ -12402,6 +12588,12 @@
                         "type": "string",
                         "optional": false,
                         "description": ""
+                    },
+                    {
+                        "name": "hideTitle",
+                        "type": "boolean",
+                        "optional": true,
+                        "description": "The title only for screen readers – it still names the drawer (e.g. a video in a dialog)"
                     },
                     {
                         "name": "description",
@@ -12575,6 +12767,12 @@
                     "description": "Accessible name without a surrounding Field"
                 },
                 {
+                    "name": "id",
+                    "type": "string",
+                    "optional": true,
+                    "description": "Id of the field (the group of parts); a `<label for>` cannot name it, use a Field or aria-label"
+                },
+                {
                     "name": "className",
                     "type": "string",
                     "optional": true,
@@ -12678,6 +12876,12 @@
                         "type": "boolean",
                         "optional": true,
                         "description": "Clear button in the field while it has a value"
+                    },
+                    {
+                        "name": "id",
+                        "type": "string",
+                        "optional": true,
+                        "description": "Id of the field (the group of parts); a `<label for>` cannot name it, use a Field or aria-label"
                     },
                     {
                         "name": "classes",
@@ -14797,6 +15001,18 @@
                     "description": ""
                 },
                 {
+                    "name": "className",
+                    "type": "string",
+                    "optional": true,
+                    "description": ""
+                },
+                {
+                    "name": "classes",
+                    "type": "RecipeClasses<typeof fieldRecipe>",
+                    "optional": true,
+                    "description": "Extra classes per part of the Field, e.g. { label: \"…\" } (see the field recipe)"
+                },
+                {
                     "name": "children",
                     "type": "ReactNode",
                     "optional": true,
@@ -14846,6 +15062,12 @@
                         "type": "boolean",
                         "optional": true,
                         "description": ""
+                    },
+                    {
+                        "name": "classes",
+                        "type": "RecipeClasses<typeof fieldRecipe>",
+                        "optional": true,
+                        "description": "Extra classes per part of the Field, e.g. { label: \"…\" } (see the field recipe)"
                     }
                 ],
                 "slots": [
@@ -16355,6 +16577,12 @@
                     "description": "Corner shape: `pill` (round, default), `rounded` or `square`"
                 },
                 {
+                    "name": "loading",
+                    "type": "boolean",
+                    "optional": true,
+                    "description": "Shows a spinner instead of the icon and ignores clicks; stays focusable (aria-disabled + aria-busy)"
+                },
+                {
                     "name": "badge",
                     "type": "number | boolean",
                     "optional": true,
@@ -16422,6 +16650,12 @@
                         "type": "boolean",
                         "optional": true,
                         "description": ""
+                    },
+                    {
+                        "name": "loading",
+                        "type": "boolean",
+                        "optional": true,
+                        "description": "Shows a spinner instead of the icon and ignores clicks; stays focusable (aria-disabled + aria-busy)"
                     },
                     {
                         "name": "type",
@@ -18000,6 +18234,12 @@
                     "description": ""
                 },
                 {
+                    "name": "id",
+                    "type": "string",
+                    "optional": true,
+                    "description": "Id of the dial (the slider); a `<label for>` cannot name it, use `label`, a Field or aria-label"
+                },
+                {
                     "name": "formatValue",
                     "type": "(value: number) => string",
                     "optional": true,
@@ -18139,6 +18379,12 @@
                         "type": "string",
                         "optional": true,
                         "description": ""
+                    },
+                    {
+                        "name": "id",
+                        "type": "string",
+                        "optional": true,
+                        "description": "Id of the dial (the slider); a `<label for>` cannot name it, use `label`, a Field or aria-label"
                     },
                     {
                         "name": "classes",
@@ -18394,6 +18640,12 @@
                     "type": "string",
                     "optional": true,
                     "description": "Accessible name without a visible label"
+                },
+                {
+                    "name": "id",
+                    "type": "string",
+                    "optional": true,
+                    "description": "Id of the root element; a `<label for>` cannot name the list box, use a Field or aria-label"
                 },
                 {
                     "name": "multiple",
@@ -18703,6 +18955,12 @@
                         "type": "boolean",
                         "optional": true,
                         "description": "The options can be dragged (`draggable`, `data-value` is the key) – lists that exchange items (PickList)"
+                    },
+                    {
+                        "name": "id",
+                        "type": "string",
+                        "optional": true,
+                        "description": "Id of the root element; a `<label for>` cannot name the list box, use a Field or aria-label"
                     },
                     {
                         "name": "classes",
@@ -20809,6 +21067,12 @@
                     "description": "Accessible name without a surrounding Field"
                 },
                 {
+                    "name": "id",
+                    "type": "string",
+                    "optional": true,
+                    "description": "Id of the field – the (first) date gets it; a `<label for>` cannot name it, use a Field or aria-label"
+                },
+                {
                     "name": "className",
                     "type": "string",
                     "optional": true,
@@ -20918,6 +21182,12 @@
                         "type": "boolean",
                         "optional": true,
                         "description": "Clear button in the field while it has a value"
+                    },
+                    {
+                        "name": "id",
+                        "type": "string",
+                        "optional": true,
+                        "description": "Id of the field – the (first) date gets it; a `<label for>` cannot name it, use a Field or aria-label"
                     },
                     {
                         "name": "classes",
@@ -21348,6 +21618,12 @@
                         "type": "number",
                         "optional": true,
                         "description": "Options per request of the data source (default 50)"
+                    },
+                    {
+                        "name": "id",
+                        "type": "string",
+                        "optional": true,
+                        "description": "Id of the field (the trigger), e.g. for a `<label for>`"
                     },
                     {
                         "name": "classes",
@@ -22217,6 +22493,12 @@
                         "type": "string",
                         "optional": true,
                         "description": "Accessible name of the clear button (default \"Clear input\")"
+                    },
+                    {
+                        "name": "id",
+                        "type": "string",
+                        "optional": true,
+                        "description": "Id of the input, e.g. for a `<label for>`"
                     },
                     {
                         "name": "classes",
@@ -23562,6 +23844,12 @@
                         "description": "Initial value without v-model"
                     },
                     {
+                        "name": "id",
+                        "type": "string",
+                        "optional": true,
+                        "description": "Id of the input, e.g. for a `<label for>`"
+                    },
+                    {
                         "name": "classes",
                         "type": "RecipeClasses<typeof passwordInputRecipe>",
                         "optional": true,
@@ -24677,6 +24965,12 @@
                     "description": "Accessible name of the group without a surrounding Field"
                 },
                 {
+                    "name": "id",
+                    "type": "string",
+                    "optional": true,
+                    "description": "Id of the root element; a `<label for>` cannot name the PIN input, use a Field or aria-label"
+                },
+                {
                     "name": "className",
                     "type": "string",
                     "optional": true,
@@ -24756,6 +25050,12 @@
                         "type": "string",
                         "optional": true,
                         "description": ""
+                    },
+                    {
+                        "name": "id",
+                        "type": "string",
+                        "optional": true,
+                        "description": "Id of the root element; a `<label for>` cannot name the PIN input, use a Field or aria-label"
                     },
                     {
                         "name": "classes",
@@ -25498,6 +25798,12 @@
                     "description": "Accessible name without a surrounding Field"
                 },
                 {
+                    "name": "id",
+                    "type": "string",
+                    "optional": true,
+                    "description": "Id of the text field, e.g. for a `<label for>`"
+                },
+                {
                     "name": "className",
                     "type": "string",
                     "optional": true,
@@ -26064,6 +26370,12 @@
                     "description": ""
                 },
                 {
+                    "name": "id",
+                    "type": "string",
+                    "optional": true,
+                    "description": "Id of the root element; a `<label for>` cannot name the rating, use a Field or aria-label"
+                },
+                {
                     "name": "size",
                     "type": "'sm' | 'md' | 'lg'",
                     "optional": true,
@@ -26161,6 +26473,12 @@
                         "type": "string",
                         "optional": true,
                         "description": ""
+                    },
+                    {
+                        "name": "id",
+                        "type": "string",
+                        "optional": true,
+                        "description": "Id of the root element; a `<label for>` cannot name the rating, use a Field or aria-label"
                     },
                     {
                         "name": "classes",
@@ -28281,6 +28599,12 @@
                         "description": "Not labelled by a surrounding Field – for a second control inside it (e.g. PhoneInput's country)"
                     },
                     {
+                        "name": "id",
+                        "type": "string",
+                        "optional": true,
+                        "description": "Id of the field (the trigger), e.g. for a `<label for>`"
+                    },
+                    {
                         "name": "classes",
                         "type": "RecipeClasses<typeof selectRecipe>",
                         "optional": true,
@@ -29177,6 +29501,12 @@
                     "description": "Shows the formatted value next to the label"
                 },
                 {
+                    "name": "hideLabel",
+                    "type": "boolean",
+                    "optional": true,
+                    "description": "The label for screen readers only – it stays the accessible name of the thumbs"
+                },
+                {
                     "name": "formatValue",
                     "type": "(value: number) => string",
                     "optional": true,
@@ -29274,6 +29604,12 @@
                         "type": "boolean",
                         "optional": true,
                         "description": "Shows the formatted value next to the label"
+                    },
+                    {
+                        "name": "hideLabel",
+                        "type": "boolean",
+                        "optional": true,
+                        "description": "The label for screen readers only – it stays the accessible name of the thumbs"
                     },
                     {
                         "name": "formatValue",
@@ -30996,7 +31332,7 @@
         {
             "name": "Switch",
             "subpath": "",
-            "description": "Ark renders a plain checkbox; role=\"switch\" makes screen readers announce it as a switch",
+            "description": "Without a text the label is left out: Ark names the input by it, an empty one would hide a <label for>",
             "category": "Forms",
             "story": "forms-switch--playground",
             "extends": "Omit<ComponentProps<'input'>, 'checked' | 'defaultChecked' | 'value' | 'type'>",
@@ -31159,6 +31495,12 @@
                         "type": "string",
                         "optional": true,
                         "description": "Value of the switch – inside a SwitchGroup its state comes from the group's value"
+                    },
+                    {
+                        "name": "id",
+                        "type": "string",
+                        "optional": true,
+                        "description": "Id of the switch (the hidden input), e.g. for a `<label for>`"
                     },
                     {
                         "name": "classes",
@@ -31822,6 +32164,12 @@
                     "description": "Accessible name without a surrounding Field"
                 },
                 {
+                    "name": "id",
+                    "type": "string",
+                    "optional": true,
+                    "description": "Id of the input, e.g. for a `<label for>`"
+                },
+                {
                     "name": "className",
                     "type": "string",
                     "optional": true,
@@ -31943,6 +32291,12 @@
                         "type": "number",
                         "optional": true,
                         "description": "Fewest characters the typed text needs before the data source is asked (default 1)"
+                    },
+                    {
+                        "name": "id",
+                        "type": "string",
+                        "optional": true,
+                        "description": "Id of the input, e.g. for a `<label for>`"
                     },
                     {
                         "name": "classes",
@@ -32722,6 +33076,12 @@
                     "description": "Accessible name without a surrounding Field"
                 },
                 {
+                    "name": "id",
+                    "type": "string",
+                    "optional": true,
+                    "description": "Id of the field – the (first) time gets it; a `<label for>` cannot name it, use a Field or aria-label"
+                },
+                {
                     "name": "className",
                     "type": "string",
                     "optional": true,
@@ -32857,6 +33217,12 @@
                         "description": "Short zone name after the time (\"CEST\")"
                     },
                     {
+                        "name": "id",
+                        "type": "string",
+                        "optional": true,
+                        "description": "Id of the field – the (first) time gets it; a `<label for>` cannot name it, use a Field or aria-label"
+                    },
+                    {
                         "name": "classes",
                         "type": "RecipeClasses<typeof datePickerRecipe>",
                         "optional": true,
@@ -32978,6 +33344,12 @@
                     "description": "Accessible name without a surrounding Field"
                 },
                 {
+                    "name": "id",
+                    "type": "string",
+                    "optional": true,
+                    "description": "Id of the field – the (first) time gets it; a `<label for>` cannot name it, use a Field or aria-label"
+                },
+                {
                     "name": "className",
                     "type": "string",
                     "optional": true,
@@ -33081,6 +33453,12 @@
                         "type": "boolean",
                         "optional": true,
                         "description": "Clear button in the field while it has a value"
+                    },
+                    {
+                        "name": "id",
+                        "type": "string",
+                        "optional": true,
+                        "description": "Id of the field – the (first) time gets it; a `<label for>` cannot name it, use a Field or aria-label"
                     },
                     {
                         "name": "classes",
@@ -33619,6 +33997,12 @@
                     "description": "Follows the mouse pointer over the trigger"
                 },
                 {
+                    "name": "closeOnScroll",
+                    "type": "boolean",
+                    "optional": true,
+                    "description": "Closes when the page (or a container around the trigger) scrolls – false keeps it open while scrolling"
+                },
+                {
                     "name": "disabled",
                     "type": "boolean",
                     "optional": true,
@@ -33674,6 +34058,12 @@
                         "type": "boolean",
                         "optional": true,
                         "description": "Follows the mouse pointer over the trigger"
+                    },
+                    {
+                        "name": "closeOnScroll",
+                        "type": "boolean",
+                        "optional": true,
+                        "description": "Closes when the page (or a container around the trigger) scrolls – false keeps it open while scrolling"
                     },
                     {
                         "name": "disabled",
@@ -34569,6 +34959,12 @@
                     "description": "Accessible name without a surrounding Field"
                 },
                 {
+                    "name": "id",
+                    "type": "string",
+                    "optional": true,
+                    "description": "Id of the field (the trigger), e.g. for a `<label for>`"
+                },
+                {
                     "name": "className",
                     "type": "string",
                     "optional": true,
@@ -34696,6 +35092,12 @@
                         "type": "DataSource<TreeNode>",
                         "optional": true,
                         "description": "Source of the children of lazy nodes (`getChildren`)"
+                    },
+                    {
+                        "name": "id",
+                        "type": "string",
+                        "optional": true,
+                        "description": "Id of the field (the trigger), e.g. for a `<label for>`"
                     },
                     {
                         "name": "classes",
@@ -35390,6 +35792,12 @@
                         "type": "number",
                         "optional": true,
                         "description": "Fewest characters the search needs before the data source is asked"
+                    },
+                    {
+                        "name": "id",
+                        "type": "string",
+                        "optional": true,
+                        "description": "Id of the field (the trigger), e.g. for a `<label for>`"
                     }
                 ],
                 "slots": [],
@@ -36223,6 +36631,12 @@
                     "description": "Accessible name without a surrounding Field"
                 },
                 {
+                    "name": "id",
+                    "type": "string",
+                    "optional": true,
+                    "description": "Id of the field – the (first) date gets it; a `<label for>` cannot name it, use a Field or aria-label"
+                },
+                {
                     "name": "className",
                     "type": "string",
                     "optional": true,
@@ -36332,6 +36746,12 @@
                         "type": "boolean",
                         "optional": true,
                         "description": "Clear button in the field while it has a value"
+                    },
+                    {
+                        "name": "id",
+                        "type": "string",
+                        "optional": true,
+                        "description": "Id of the field – the (first) date gets it; a `<label for>` cannot name it, use a Field or aria-label"
                     },
                     {
                         "name": "classes",
@@ -36887,7 +37307,7 @@
         {
             "id": "introduction-adding-the-styles",
             "title": "Adding the styles",
-            "text": "Tailwind CSS v4.1 or newer is required. The library ships the theme, the fonts and the classes of the components:\n\n```css\n@import 'tailwindcss';\n@import '@wirecore/wirelayer-vue/styles.css'; /* or @wirecore/wirelayer-react/styles.css */\n```\n\n### Smaller CSS: only the components you use\n\n`styles.css` brings the classes of all components (about 175 kB, 28 kB gzip). A site that uses only a few imports the\ntheme and fonts with `styles-core.css` instead, and then the classes of each component it uses – one file per\ncomponent, and one per recipe for recipes it calls itself:\n\n```css\n@import 'tailwindcss';\n@import '@wirecore/wirelayer-vue/styles-core.css'; /* or @wirecore/wirelayer-react/styles-core.css */\n@import '@wirecore/wirelayer-vue/sources/Button.css';\n@import '@wirecore/wirelayer-vue/sources/Field.css';\n@import '@wirecore/wirelayer-vue/sources/Input.css';\n@import '@wirecore/wirelayer-blocks-vue/sources/SiteHeader.css';\n@import '@wirecore/wirelayer-recipes/sources/card.css'; /* card() from @wirecore/wirelayer-recipes */\n```\n\nThe file of a component also brings the classes of the components it renders (SiteHeader → IconButton); exports\nthat render components, such as `confirm` or the DataTable feature `dateInput`, have a file too. In development the\ncomponents warn in the console when the classes of a recipe they render are missing. Recipes you call yourself\n(`card()`) are not checked – add their files along with the import."
+            "text": "Tailwind CSS v4.1 or newer is required. The library ships the theme, the fonts and the classes of the components:\n\n```css\n@import 'tailwindcss';\n@import '@wirecore/wirelayer-vue/styles.css'; /* or @wirecore/wirelayer-react/styles.css */\n```\n\n### Smaller CSS: only the components you use\n\n`styles.css` brings the classes of all components (about 175 kB, 28 kB gzip). A site that uses only a few imports the\ntheme and fonts with `styles-core.css` instead, and then the classes of each component it uses – one file per\ncomponent, and one per recipe for recipes it calls itself:\n\n```css\n@import 'tailwindcss';\n@import '@wirecore/wirelayer-vue/styles-core.css'; /* or @wirecore/wirelayer-react/styles-core.css */\n@import '@wirecore/wirelayer-vue/sources/Button.css';\n@import '@wirecore/wirelayer-vue/sources/Field.css';\n@import '@wirecore/wirelayer-vue/sources/Input.css';\n@import '@wirecore/wirelayer-blocks-vue/sources/SiteHeader.css';\n@import '@wirecore/wirelayer-recipes/sources/card.css'; /* card() from @wirecore/wirelayer-recipes */\n```\n\nThe file of a component also brings the classes of the components it renders (SiteHeader → IconButton); exports\nthat render components, such as `confirm` or the DataTable feature `dateInput`, have a file too. In development the\ncomponents warn in the console when the classes of a recipe they render are missing. Recipes you call yourself\n(`card()`) are not checked – add their files along with the import.\n\n**With Vite** (Vue, React, Nuxt, Astro) the plugin `@wirecore/wirelayer-recipes/vite` adds these files itself: it reads\nthe imports from `@wirecore/wirelayer-*` in your source files and adds the files of the imported components and recipes\nto the CSS file that imports `theme.css` (or `styles-core.css`). Put it before Tailwind's plugin:\n\n```ts\n// vite.config.ts (Nuxt: vite.plugins in nuxt.config.ts, Astro: vite.plugins in astro.config.mjs)\nimport tailwindcss from '@tailwindcss/vite';\nimport { wirelayer } from '@wirecore/wirelayer-recipes/vite';\n\nexport default { plugins: [wirelayer(), tailwindcss()] };\n```\n\n```css\n@import 'tailwindcss';\n@import '@wirecore/wirelayer-vue/theme.css'; /* the plugin adds the sources files here */\n@import '@wirecore/wirelayer-vue/fonts.css'; /* the WireLayer fonts – leave it out with a font of your own */\n```\n\n`theme.css` is the theme without fonts and without component classes: an app with its own font\n(`@theme { --font-sans: … }`) does not bundle Schibsted Grotesk and JetBrains Mono. Components the plugin cannot see –\nregistered globally (`app.component(…)`) or imported automatically – trigger the warning above; import their files by\nhand. Next.js does not use Vite: there, list the files or use `styles.css`."
         },
         {
             "id": "introduction-usage",
@@ -36897,7 +37317,7 @@
         {
             "id": "introduction-nuxt",
             "title": "Nuxt",
-            "text": "```ts\n// nuxt.config.ts\nimport tailwindcss from '@tailwindcss/vite';\n\nexport default defineNuxtConfig({\n    css: ['~/assets/main.css'], // @import 'tailwindcss'; @import '@wirecore/wirelayer-vue/styles.css';\n    vite: { plugins: [tailwindcss()] },\n});\n```\n\n```vue\n<!-- app.vue: set light/dark before the first render (no flash while loading) -->\n<script setup lang=\"ts\">\nimport { modeScript } from '@wirecore/wirelayer-recipes';\n\nuseHead({ script: [{ innerHTML: modeScript() }] });\n</script>\n```"
+            "text": "```ts\n// nuxt.config.ts\nimport tailwindcss from '@tailwindcss/vite';\n\nimport { wirelayer } from '@wirecore/wirelayer-recipes/vite';\n\nexport default defineNuxtConfig({\n    // main.css: @import 'tailwindcss'; @import '@wirecore/wirelayer-vue/theme.css';\n    //           @import '@wirecore/wirelayer-vue/fonts.css'; – or styles.css with all classes, without the plugin\n    css: ['~/assets/main.css'],\n    vite: { plugins: [wirelayer(), tailwindcss()] },\n});\n```\n\n```vue\n<!-- app.vue: set light/dark before the first render (no flash while loading) -->\n<script setup lang=\"ts\">\nimport { modeScript } from '@wirecore/wirelayer-recipes';\n\nuseHead({ script: [{ innerHTML: modeScript() }] });\n</script>\n```"
         },
         {
             "id": "introduction-next-js-app-router",
@@ -36912,7 +37332,7 @@
         {
             "id": "introduction-customizing-defaults-and-classes-per-part",
             "title": "Customizing: defaults and classes per part",
-            "text": "Every component consists of named parts of its recipe (`base`, `icon`, `row`, `trigger` …, see\n`@wirecore/wirelayer-recipes`). `RecipesProvider` sets default variants and additional classes for everything below it\n(inner providers extend outer ones), the `classes` prop adds classes for a single component. Explicitly set props and\n`class`/`className` always win; classes are merged with tailwind-merge.\n\n```vue\n<RecipesProvider\n    :recipes=\"{\n        button: { defaultVariants: { size: 'sm' }, classes: { base: 'tracking-wide' } },\n        dataTable: { defaultVariants: { size: 'sm' }, classes: { th: 'bg-bg-2' } },\n    }\"\n>\n    <App />\n</RecipesProvider>\n\n<Button :classes=\"{ icon: 'text-primary' }\" :leading-icon=\"Plus\">New</Button>\n```\n\n```tsx\n<RecipesProvider recipes={{ card: { classes: { base: 'rounded-none' } } }}>\n    <App />\n</RecipesProvider>;\n\n<DataTable classes={{ row: 'h-14' }} … />;\n```\n\nThe names are the exports of the recipes (`button`, `iconButton`, `dataTable` …) and are checked by TypeScript, as are\nthe variants and parts. Your own components use the same through `useRecipe('button', button)`."
+            "text": "Every component consists of named parts of its recipe (`base`, `icon`, `row`, `trigger` …, see\n`@wirecore/wirelayer-recipes`). `RecipesProvider` sets default variants and additional classes for everything below it\n(inner providers extend outer ones), the `classes` prop adds classes for a single component. Explicitly set props and\n`class`/`className` always win; classes are merged with tailwind-merge.\n\n```vue\n<RecipesProvider\n    :recipes=\"{\n        button: { defaultVariants: { size: 'sm' }, classes: { base: 'tracking-wide' } },\n        dataTable: { defaultVariants: { size: 'sm' }, classes: { th: 'bg-bg-2' } },\n    }\"\n>\n    <App />\n</RecipesProvider>\n\n<Button :classes=\"{ icon: 'text-primary' }\" :leading-icon=\"Plus\">New</Button>\n```\n\n```tsx\n<RecipesProvider recipes={{ card: { classes: { base: 'rounded-none' } } }}>\n    <App />\n</RecipesProvider>;\n\n<DataTable classes={{ row: 'h-14' }} … />;\n```\n\nThe names are the exports of the recipes (`button`, `iconButton`, `dataTable` …) and are checked by TypeScript, as are\nthe variants and parts. Your own components use the same through `useRecipe('button', button)`.\n\n`variants` adds classes for single values of a variant, `compoundVariants` for combinations – instead of selectors on\nthe recipe's own classes, which break when they change:\n\n```ts\nconst recipes: RecipeConfig = {\n    // only the medium size: 42px high, 16px text\n    button: {\n        variants: { size: { md: { base: 'h-[2.625rem] text-base' } } },\n        compoundVariants: [{ size: ['sm', 'md'], shape: 'rounded', classes: { base: 'rounded-md' } }],\n    },\n    input: { variants: { size: { md: { base: 'h-[2.625rem]' } }, invalid: { true: { base: 'border-2' } } } },\n};\n```\n\nPer part the classes come in this order: `classes`, the matching `variants` and `compoundVariants`, the states of the\nrecipe, the overrides of states (`invalid: { true: … }`), and last the class passed to the component. Inner providers\nextend outer ones (classes of the same value are joined, the inner ones win).\n\nClasses from a provider or `classes` change the look, not the states: the classes of an active state variant\n(`invalid`, `success`, `disabled`, `readOnly`, `current`, `selected`, `checked`, `loading`) are added after them, so a\nfield with `classes: { base: 'border-line-2' }` still turns red when it is invalid. States that the components mark as\nattributes (`data-invalid:`, `data-disabled:`, `data-[state=checked]:`) win through their selector anyway. Only the\nclass passed to the component itself (`class`/`className`) comes after the states – the way out when a single field\nshould look different in every state."
         },
         {
             "id": "introduction-hooks-and-composables",
@@ -36965,9 +37385,24 @@
             "text": "WireLayer is licensed under the MIT license. The fonts shipped with `@wirecore/wirelayer-css` (Schibsted Grotesk,\nJetBrains Mono) are licensed under the SIL Open Font License 1.1 (`dist/fonts/OFL.txt`). Optional peer dependencies such\nas `pdfjs-dist` (Apache-2.0), Chart.js, Tiptap and Shiki are installed by the app itself – with their own licenses."
         },
         {
+            "id": "migration-components-and-apis-side-by-side",
+            "title": "Components and APIs side by side",
+            "text": "| PrimeVue                                                                            | WireLayer                                                                                                         |\n| ----------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |\n| `<Button label icon=\"pi pi-x\">`                                                     | the label as slot text, `:leading-icon` with a Lucide component (`@lucide/vue`)                                   |\n| `severity` / `text` / `outlined`                                                    | `color` – or `variant=\"text\"` / `variant=\"outline\"`                                                               |\n| Icon button + `v-tooltip`                                                           | `<Tooltip content><IconButton :icon label /></Tooltip>` – `label` is the accessible name (often the tooltip text) |\n| `Button :loading`                                                                   | `loading` on `Button` and `IconButton` (stays focusable, ignores clicks)                                          |\n| `Card` with `#title`/`#content`                                                     | `Card` with the default slot and an own heading                                                                   |\n| `InputText`, `Password`, `InputNumber`, `InputChips`, `SelectButton`, `RadioButton` | `Input`, `PasswordInput`, `NumberInput`, `TagsInput`, `SegmentedControl`, `RadioGroup` + `RadioGroupItem`         |\n| `IconField` + `InputIcon`                                                           | `Input :leading-icon`                                                                                             |\n| `Select :options optionLabel optionValue`                                           | `Select :items item-label item-value` (object values: `value-key`)                                                |\n| `Message severity`                                                                  | `Alert status` (`error` → `danger`)                                                                               |\n| `Tag`                                                                               | `Badge`                                                                                                           |\n| `Dialog v-model:visible header`                                                     | `Dialog v-model:open` + `DialogContent title size` (`hide-title` keeps the title for screen readers only)         |\n| `Toolbar` as a container                                                            | a plain `div` – WireLayer's `Toolbar` is `role=\"toolbar\"` (one tab stop, arrow keys)                              |\n| `useToast().add({ severity, summary, detail, life })`                               | `toast({ type, title, description, duration })`, `<Toaster />` once in the app                                    |\n| `useConfirm().require({ … })`                                                       | `await confirm({ title, description, … })`, `<ConfirmDialog />` once in the app                                   |\n| `DataTable` + `Column`                                                              | `DataTable :columns` (column objects), `#cell-<id>`, `#expansion`, `v-model:page-size`                            |\n| `expandedRows` with a row toggler on some rows                                      | `#expansion` + `row-expandable`                                                                                   |\n| `paginatorTemplate` (first/last page)                                               | `paginator-edges`, `paginator-align`                                                                              |\n| `showGridlines` (with the outer border)                                             | `gridlines` + `bordered`                                                                                          |\n| `FilterMatchMode`, `filters`                                                        | `v-model:global-filter`, column `filter`/`filterOptions`, `filter-display=\"row\"`                                  |\n| `@primevue/forms` + `zodResolver`                                                   | TanStack Form with Zod directly as a Standard Schema, `FormField` + `bindInput`/`bindValue`                       |\n| `pt` (pass-through)                                                                 | `classes` per part, `RecipesProvider` for all components below it                                                 |\n| Theme preset (`definePreset`)                                                       | `--wc-*` tokens, `defineTheme`, the component variables (_Foundations › Themes_)                                  |\n| `darkModeSelector` (a class)                                                        | `data-mode` on `<html>`                                                                                           |\n| `tailwindcss-primeui` (`bg-surface-*`, `text-muted-color`)                          | semantic tokens: `bg-card`, `bg-bg-2`, `text-muted`, `border-line` …                                              |"
+        },
+        {
+            "id": "migration-pitfalls",
+            "title": "Pitfalls",
+            "text": "- **An empty choice is `null`, not `''`.** For PrimeVue's Select `''` means \"nothing chosen\"; WireLayer's Select treats\n  `''` as a value (it warns in development that it is not among the items). Use `null`.\n- **TanStack fields start with `''`.** A required text in Zod therefore needs `.min(1)` – `z.string()` alone accepts\n  the empty field.\n- **Fonts:** set your own with `@theme { --font-sans: … }`. Import `theme.css` instead of `styles.css` (with the\n  sources files, or the Vite plugin `@wirecore/wirelayer-recipes/vite`) so the WireLayer fonts are not bundled\n  (_Getting started › Welcome › Smaller CSS_).\n- **Card spacing:** `Card` puts a `gap` between its direct children – wrap content that should sit tight in one\n  element.\n- **Overrides go per part and per variant.** `classes: { base: 'rounded-md' }` reaches every size; only the medium size\n  with `variants: { size: { md: { base: '…' } } }` – no selectors on the recipe's own classes. States such as `invalid`\n  stay visible over such classes; only `class` on the component itself replaces them.\n- **Sizes and corners in one place:** the height, text and corners of buttons and fields per size, the corners of\n  rounded buttons, the padding of cards and the backdrop of dialogs are CSS variables (`--wc-control-h-md` …).\n- **Labels:** wrap a control in `Field` (it links label, description and error). A native `<label for>` works with the\n  control's own `id`; date fields, sliders and groups need `Field` or `aria-label`.\n- **Brand colours:** `checkTheme` lists the pairs below WCAG AA, `suggestThemeFixes` the nearest colours (and `on-*`\n  colours) that meet them – an orange `primary` with white text, common in PrimeVue themes, does not."
+        },
+        {
             "id": "themes-custom-theme",
             "title": "Custom theme",
-            "text": "A theme overrides any colors per mode. `themeToCss` generates the CSS for it,\n`checkTheme` checks all contrasts against WCAG 2.2 AA – ideally as a test in your project:\n\n```ts\nimport { checkTheme, defineTheme, themeToCss } from '@wirecore/wirelayer-tokens';\n\nexport const brand = defineTheme({\n    name: 'brand',\n    label: 'Brand',\n    colors: {\n        light: { primary: 'oklch(0.5 0.18 30)', 'on-primary': '#FFFFFF' },\n        dark: { primary: 'oklch(0.75 0.14 30)', 'on-primary': '#050505' },\n    },\n});\n\n// brand.test.ts\nexpect(checkTheme(brand)).toEqual([]);\n\n// build script → brand.css, import it after @wirecore/wirelayer-vue/styles.css\nwriteFileSync('brand.css', themeToCss(brand));\n```\n\nAll bundled themes pass this check in both modes."
+            "text": "A theme overrides any colors per mode. `themeToCss` generates the CSS for it,\n`checkTheme` checks all contrasts against WCAG 2.2 AA – ideally as a test in your project:\n\n```ts\nimport { checkTheme, defineTheme, themeToCss } from '@wirecore/wirelayer-tokens';\n\nexport const brand = defineTheme({\n    name: 'brand',\n    label: 'Brand',\n    colors: {\n        light: { primary: 'oklch(0.5 0.18 30)', 'on-primary': '#FFFFFF' },\n        dark: { primary: 'oklch(0.75 0.14 30)', 'on-primary': '#050505' },\n    },\n});\n\n// brand.test.ts\nexpect(checkTheme(brand)).toEqual([]);\n\n// build script → brand.css, import it after @wirecore/wirelayer-vue/styles.css\nwriteFileSync('brand.css', themeToCss(brand));\n```\n\nAll bundled themes pass this check in both modes.\n\nWhen a pair misses its contrast, `suggestThemeFixes` says how to fix it: per pair the nearest variant of a colour that\nmeets it – its lightness moved in OKLCH, the hue kept – and, where text sits on the colour, a light or dark `on-*`\ncolour. A suggestion never breaks a pair that passed:\n\n```ts\nimport { suggestThemeFixes } from '@wirecore/wirelayer-tokens';\n\nsuggestThemeFixes(brand);\n// [{ name: 'primary: text-on-primary on bg-primary', mode: 'light', ratio: 2.6, min: 4.5,\n//    color: { token: 'primary', value: '#a35c00', ratio: 4.5 },\n//    on: { token: 'on-primary', value: '#050505', ratio: 8.1 } }, …]\n```"
+        },
+        {
+            "id": "themes-component-sizes-and-shapes",
+            "title": "Component sizes and shapes",
+            "text": "Besides the colors, a few measures that a brand usually changes are CSS variables. Without them every component looks as\nbefore – their defaults are the values of the recipes. Set them on `:root` (all pages), on a `[data-theme]` or on any\nelement (that part of the page):\n\n```css\n:root {\n    --wc-control-h-md: 2.625rem; /* buttons and fields of the medium size: 42px */\n    --wc-control-text-md: 1rem;\n    --wc-control-radius-md: 0.375rem;\n    --wc-button-radius: 0.375rem;\n    --wc-card-p: 1.25rem;\n    --wc-backdrop: rgb(0 0 0 / 0.4);\n}\n```\n\n| Variable                                              | Default                    | Applies to                                                                                                                                                                                     |\n| ----------------------------------------------------- | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |\n| `--wc-control-h-sm` / `-md` / `-lg`                   | `2rem` / `2.5rem` / `3rem` | Height of the sizes sm, md, lg: Button, IconButton, Input, NativeSelect, Select, MultiSelect, Combobox, NumberInput, PasswordInput, the date and time fields, ColorPicker, TagsInput (minimum) |\n| `--wc-control-radius-sm` / `-md` / `-lg`              | `6px` / `8px` / `10px`     | Corners of the fields above and of Textarea (not of buttons)                                                                                                                                   |\n| `--wc-control-text-sm` / `-md` / `-lg`                | `13px` / `15px` / `16px`   | Text in the fields above and in Textarea                                                                                                                                                       |\n| `--wc-button-radius`                                  | `8px`                      | Corners of Button and IconButton with `shape=\"rounded\"` (`pill` and `square` stay)                                                                                                             |\n| `--wc-card-p`                                         | `1.5rem`                   | Padding of Card                                                                                                                                                                                |\n| `--wc-backdrop`                                       | `rgb(0 0 0 / 0.6)`         | Dimming behind Dialog, Drawer and ConfirmDialog                                                                                                                                                |\n| `--radius-card` / `--radius-panel` / `--radius-popup` | `20px` / `28px` / `12px`   | Corners of cards, panels and popups (menus, lists, popovers)                                                                                                                                   |\n| `--wc-dialog-w`                                       | by `size`                  | Width of a DialogContent                                                                                                                                                                       |\n\nThe rest – the padding of a dialog or of table cells, the size of a single variant – is set per part with `classes` or\n`RecipesProvider` (_Getting started › Welcome › Customizing_). The React Native components keep their fixed sizes."
         }
     ],
     "native": {
@@ -40077,6 +40512,18 @@
                         "type": "string",
                         "optional": true,
                         "description": "Accessible name of the close button"
+                    },
+                    {
+                        "name": "confirmButton",
+                        "type": "ConfirmButtonOptions",
+                        "optional": true,
+                        "description": "Look of the confirm button in every request (default: size sm, `primary`, `danger` for status danger)"
+                    },
+                    {
+                        "name": "cancelButton",
+                        "type": "ConfirmButtonOptions",
+                        "optional": true,
+                        "description": "Look of the cancel button in every request (default: size sm, `outline`)"
                     }
                 ]
             },
@@ -42888,6 +43335,12 @@
                         "type": "ButtonShape",
                         "optional": true,
                         "description": "Corner shape: `pill` (round, default), `rounded` or `square`"
+                    },
+                    {
+                        "name": "loading",
+                        "type": "boolean",
+                        "optional": true,
+                        "description": "Shows a spinner instead of the icon and ignores presses; stays focusable (aria-disabled + aria-busy)"
                     },
                     {
                         "name": "badge",
@@ -48028,6 +48481,12 @@
                         "type": "boolean",
                         "optional": true,
                         "description": "Value next to the label"
+                    },
+                    {
+                        "name": "hideLabel",
+                        "type": "boolean",
+                        "optional": true,
+                        "description": "The label is not shown – the thumbs keep it as their accessible name"
                     },
                     {
                         "name": "formatValue",

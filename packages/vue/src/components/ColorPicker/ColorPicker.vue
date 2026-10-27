@@ -2,6 +2,7 @@
 import { ColorPicker, parseColor } from '@ark-ui/vue/color-picker';
 import { useFieldContext } from '@ark-ui/vue/field';
 import {
+    controlIds,
     colorPicker as colorPickerRecipe,
     formatColor,
     parseColorText,
@@ -36,6 +37,8 @@ export interface ColorPickerProps {
     invalid?: boolean;
     name?: string;
     /** Extra classes per part of the component, e.g. { base: "…" } (see the recipe) */
+    /** Id of the field (the button), e.g. for a `<label for>` */
+    id?: string;
     classes?: RecipeClasses<typeof colorPickerRecipe>;
 }
 
@@ -58,9 +61,9 @@ const attrs = useAttrs();
 const field = useFieldContext();
 const styles = computed(() => colorPicker({ cssText: props.format !== 'hex' }));
 const text = translations.colorPicker;
-const id = useId();
-const nameId = `${id}name`;
-const valueId = `${id}value`;
+const uid = useId();
+const nameId = `${uid}name`;
+const valueId = `${uid}value`;
 const hexFormat = computed(() => (props.alpha ? 'hexa' : 'hex'));
 // Values in other formats (oklch() …) are read here; Ark knows hex, rgb, hsl and hsb
 const toArk = (value: string) => parseColor(parseColorText(value) ?? value);
@@ -72,6 +75,12 @@ const textOf = (color: { toString(format: 'hex' | 'hexa'): string }) =>
         ? color.toString(hexFormat.value)
         : formatColor(color.toString(hexFormat.value), props.format);
 const ariaLabel = computed(() => attrs['aria-label'] as string | undefined);
+// An own id goes to the button through Ark (it finds the button by its id). Named by a <label for>, the button
+// describes itself by the value (an empty aria-label lets the label count, not Ark's text)
+const ownLabel = computed(() => !field?.value && !!props.id && !ariaLabel.value);
+const ids = computed(() =>
+    controlIds(props.id, 'trigger', { label: field?.value.ids.label, input: field?.value.ids.control })
+);
 // Fixed objects: a new literal in the template on every render makes Ark update the machine, which can re-render
 // endlessly (Vue only stops it in development)
 const bottomStartPositioning = { placement: 'bottom-start', gutter: 4 } as const;
@@ -89,6 +98,7 @@ const bottomStartPositioning = { placement: 'bottom-start', gutter: 4 } as const
         :invalid="invalid ?? field?.invalid"
         :name="name"
         :positioning="bottomStartPositioning"
+        v-bind="ids"
         lazy-mount
         unmount-on-exit
         @value-change="emit('update:modelValue', textOf($event.value))"
@@ -99,11 +109,13 @@ const bottomStartPositioning = { placement: 'bottom-start', gutter: 4 } as const
                 <!-- Named by the Field label (or aria-label) plus the current value, which is visible -->
                 <ColorPicker.Trigger
                     :class="styles.trigger()"
-                    :aria-label="text.trigger(textOf(api.value))"
-                    :aria-labelledby="`${field ? field.ids.label : nameId} ${valueId}`"
-                    :aria-describedby="field?.ariaDescribedby"
+                    :aria-label="ownLabel ? '' : text.trigger(textOf(api.value))"
+                    :aria-labelledby="ownLabel ? undefined : `${field ? field.ids.label : nameId} ${valueId}`"
+                    :aria-describedby="ownLabel ? valueId : field?.ariaDescribedby"
                 >
-                    <span v-if="!field" :id="nameId" :class="styles.hiddenName()">{{ ariaLabel ?? text.name }}</span>
+                    <span v-if="!field && !ownLabel" :id="nameId" :class="styles.hiddenName()">{{
+                        ariaLabel ?? text.name
+                    }}</span>
                     <ColorPicker.ValueSwatch :class="styles.swatch()" />
                     <span :id="valueId" :class="styles.valueText()">{{ textOf(api.value) }}</span>
                 </ColorPicker.Trigger>

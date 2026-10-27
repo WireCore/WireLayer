@@ -80,7 +80,13 @@ export { default as TooltipGroup, type TooltipGroupProps } from './components/To
 export { default as Accordion, type AccordionProps } from './components/Accordion/Accordion.vue';
 export { default as AccordionItem, type AccordionItemProps } from './components/Accordion/AccordionItem.vue';
 export { default as ConfirmDialog, type ConfirmDialogProps } from './components/Confirm/ConfirmDialog.vue';
-export { confirm, prompt, type ConfirmOptions, type PromptOptions } from './components/Confirm/confirm.js';
+export {
+    confirm,
+    prompt,
+    type ConfirmButtonOptions,
+    type ConfirmOptions,
+    type PromptOptions,
+} from './components/Confirm/confirm.js';
 export { default as Divider, type DividerProps } from './components/Divider/Divider.vue';
 export { default as Drawer, type DrawerProps } from './components/Drawer/Drawer.vue';
 export { default as DrawerClose } from './components/Drawer/DrawerClose.vue';
