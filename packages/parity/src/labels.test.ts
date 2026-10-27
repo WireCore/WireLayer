@@ -114,9 +114,12 @@ describe.each(frameworks)('%s', (framework) => {
     it('Combobox: typing filters and Enter chooses with an own id', async () => {
         const onChange = vi.fn();
         await render(framework, withLabel(el('Combobox', { items, id: 'x', [onValue]: onChange })));
-        await userEvent.type(screen.getByRole('combobox', { name: 'Name' }), 'Host', { delay: 10 });
+        // Pasted in one go: typed key by key, Ark's input sync can overwrite a key on a slow machine in jsdom ("Hot")
+        const user = userEvent.setup();
+        await user.click(screen.getByRole('combobox', { name: 'Name' }));
+        await user.paste('Host');
         await screen.findByRole('option', { name: 'Hosting' });
-        await userEvent.keyboard('{ArrowDown}{Enter}');
+        await user.keyboard('{ArrowDown}{Enter}');
         expect(onChange).toHaveBeenLastCalledWith('hosting');
     });
 
