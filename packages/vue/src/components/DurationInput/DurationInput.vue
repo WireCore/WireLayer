@@ -12,6 +12,7 @@ import {
 } from '@wirecore/wirelayer-recipes';
 import { computed, ref, useAttrs, useId, watch } from 'vue';
 import { splitAttrs } from '../../utils/attrs.js';
+import { useLabelForWarning } from '../../utils/label-for.js';
 import { useLocale, useTranslations } from '../../locale.js';
 import { useRecipe } from '../../recipes.js';
 
@@ -41,6 +42,8 @@ export interface DurationInputProps {
     /** Clear button in the field while it has a value */
     clearable?: boolean;
     /** Extra classes per part of the field (see the datePicker recipe) */
+    /** Id of the field (the group of parts); a `<label for>` cannot name it, use a Field or aria-label */
+    id?: string;
     classes?: RecipeClasses<typeof datePickerRecipe>;
 }
 
@@ -61,7 +64,8 @@ const styles = computed(() => datePicker({ size: props.size }));
 const currentLocale = computed(() => props.locale ?? localeContext.value.locale);
 const attrs = useAttrs();
 const split = computed(() => splitAttrs(attrs));
-const id = useId();
+useLabelForWarning('DurationInput', () => props.id);
+const uid = useId();
 const field = useFieldContext();
 const state = computed(() => ({
     disabled: props.disabled ?? field?.value.disabled,
@@ -198,12 +202,13 @@ function onKeydown(event: KeyboardEvent, unit: Unit, index: number) {
         >
             <div :class="styles.dateInput()">
                 <div
+                    :id="id"
                     role="group"
                     :class="styles.segments()"
                     :aria-labelledby="field ? field.ids.label : undefined"
                     :aria-label="field ? undefined : (split.rest['aria-label'] as string | undefined)"
                     :aria-describedby="
-                        [field?.ariaDescribedby, filled ? `${id}t` : undefined].filter(Boolean).join(' ') || undefined
+                        [field?.ariaDescribedby, filled ? `${uid}t` : undefined].filter(Boolean).join(' ') || undefined
                     "
                     :aria-invalid="state.invalid || undefined"
                     :aria-required="state.required || undefined"
@@ -228,7 +233,7 @@ function onKeydown(event: KeyboardEvent, unit: Unit, index: number) {
                         ><span :class="styles.unit()" aria-hidden="true">{{ unitText(unit) }}</span>
                     </template>
                 </div>
-                <span v-if="filled" :id="`${id}t`" hidden>{{ spoken }}</span>
+                <span v-if="filled" :id="`${uid}t`" hidden>{{ spoken }}</span>
             </div>
             <input v-if="name" type="hidden" :name="name" :value="current ?? ''" />
             <button

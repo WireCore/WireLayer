@@ -42,6 +42,8 @@ export interface QuarterPickerProps<T extends string | PeriodRange | null = stri
     clearable?: boolean;
     /** Accessible name without a surrounding Field */
     'aria-label'?: string;
+    /** Id of the text field, e.g. for a `<label for>` */
+    id?: string;
     className?: string;
     style?: CSSProperties;
     /** Extra classes per part of the field, e.g. { control: "…" } (see the datePicker recipe) */
@@ -74,6 +76,7 @@ export function QuarterPicker<T extends string | PeriodRange | null = string | n
     size,
     clearable = true,
     'aria-label': ariaLabel,
+    id,
     className,
     style,
     classes,
@@ -83,7 +86,7 @@ export function QuarterPicker<T extends string | PeriodRange | null = string | n
     const localeContext = useLocale();
     const locale = localeProp ?? localeContext.locale;
     const translations = useTranslations();
-    const id = useId();
+    const uid = useId();
     const field = useFieldContext();
     const state = {
         disabled: disabled ?? field?.disabled,
@@ -237,6 +240,7 @@ export function QuarterPicker<T extends string | PeriodRange | null = string | n
                         placeholder={translations.quarterPicker.placeholder}
                         autoComplete="off"
                         aria-label={ariaLabel}
+                        {...(id ? { id } : {})}
                         disabled={state.disabled || undefined}
                         readOnly={state.readOnly || undefined}
                         required={state.required || undefined}
@@ -285,7 +289,7 @@ export function QuarterPicker<T extends string | PeriodRange | null = string | n
                                 >
                                     <ChevronLeft className={styles.navIcon()} aria-hidden="true" />
                                 </button>
-                                <span id={`${id}y`} className={styles.yearLabel()} aria-live="polite">
+                                <span id={`${uid}y`} className={styles.yearLabel()} aria-live="polite">
                                     {year}
                                 </span>
                                 <button
@@ -298,7 +302,7 @@ export function QuarterPicker<T extends string | PeriodRange | null = string | n
                                     <ChevronRight className={styles.navIcon()} aria-hidden="true" />
                                 </button>
                             </div>
-                            <div role="group" aria-labelledby={`${id}y`} className={styles.quarterGrid()}>
+                            <div role="group" aria-labelledby={`${uid}y`} className={styles.quarterGrid()}>
                                 {[1, 2, 3, 4].map((quarter, index) => {
                                     const cell = cellState(quarter);
                                     return (

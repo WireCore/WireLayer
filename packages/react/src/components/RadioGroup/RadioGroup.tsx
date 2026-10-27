@@ -8,6 +8,7 @@ import {
 import type { ComponentProps, CSSProperties } from 'react';
 import { useFieldStatus } from '../Field/context.js';
 import { useRecipe } from '../RecipesProvider/RecipesProvider.js';
+import { useLabelForWarning } from '../../utils/label-for.js';
 
 export interface RadioGroupProps extends Omit<ComponentProps<'div'>, 'defaultValue' | 'dir'> {
     value?: string | null;
@@ -43,6 +44,7 @@ export function RadioGroup({
     children,
     ...props
 }: RadioGroupProps) {
+    useLabelForWarning('RadioGroup', props.id);
     const radioGroup = useRecipe('radioGroup', radioGroupRecipe, classes);
     const styles = radioGroup({ orientation, grid: columns !== undefined });
     // Inside a Field: its label names the group (unless it has a name of its own), its texts describe it

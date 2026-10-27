@@ -1,3 +1,5 @@
+import { warnInDevelopment } from './dev.js';
+
 // Shared logic of the option lists (Select, MultiSelect, Combobox, Autocomplete, Listbox, TagsInput, VirtualSelect):
 // items of any shape, values of any type, stable string keys for Ark, groups and filtering.
 
@@ -33,6 +35,8 @@ export interface ListOption<T = unknown> {
     keywords?: string[];
     /** The original item (for slots and render functions) */
     item: T;
+    /** A chosen value that is not among the items – shown as its text (see checkListValues) */
+    unknown?: boolean;
 }
 
 /** Options under one heading; `label` is undefined for items without a group */
@@ -173,8 +177,25 @@ export function listOptionsForValues<T>(
             label: String(value),
             disabled: false,
             item: value as T,
+            unknown: true,
         };
     });
+}
+
+/**
+ * Development only: warns about chosen values that are not among the loaded items – they show as raw text, e.g. a
+ * country code while the items carry country names. Call it once the items are there (not while loading, not while a
+ * data source can still resolve the value, not for free text).
+ */
+export function checkListValues(component: string, selected: readonly ListOption[]) {
+    for (const option of selected) {
+        if (!option.unknown) continue;
+        warnInDevelopment(
+            `${component}: the value ${JSON.stringify(option.value)} is not among its items and shows as text. ` +
+                'Check `itemValue`/`valueKey` against the values of the items – a value the items load later can be ' +
+                'resolved by a data source (`getItemsByKeys`).'
+        );
+    }
 }
 
 /**

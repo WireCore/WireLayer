@@ -59,9 +59,13 @@ it.each([...recipeNames])('sources/%s.css brings exactly the classes of the reci
     expect(css).toBe(optimize(compiler.build(recipeClasses(module[name] as never)), { minify: true }).code);
 });
 
-it('SiteHeader.css brings the recipes SiteHeader renders', async () => {
+it('SiteHeader.css brings the recipes SiteHeader renders (IconButton with its loading spinner)', async () => {
     const css = await build(
         `@import '${tailwind}' source(none);\n@import '@wirecore/wirelayer-blocks-vue/sources/SiteHeader.css';`
     );
-    expect(css.match(/--wc-recipe-\w+/g)?.sort()).toEqual(['--wc-recipe-iconButton', '--wc-recipe-siteHeader']);
+    expect(css.match(/--wc-recipe-\w+/g)?.sort()).toEqual([
+        '--wc-recipe-iconButton',
+        '--wc-recipe-siteHeader',
+        '--wc-recipe-spinner',
+    ]);
 });

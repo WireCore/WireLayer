@@ -1,5 +1,9 @@
 import type { DialogPosition, DialogStatus } from '@wirecore/wirelayer-recipes';
 import type { IconComponent } from '../../types.js';
+import type { ButtonProps } from '../Button/Button.js';
+
+/** Look of a button of the ConfirmDialog: variant, colour, size and shape, as on Button */
+export type ConfirmButtonOptions = Pick<ButtonProps, 'variant' | 'color' | 'size' | 'shape'>;
 
 export interface ConfirmOptions {
     title: string;
@@ -18,6 +22,10 @@ export interface ConfirmOptions {
     typeToConfirm?: string;
     /** Where the dialog sits: centred (default), top, bottom, start or end */
     position?: DialogPosition;
+    /** Look of the confirm button – wins over ConfirmDialog `confirmButton`, e.g. `{ size: 'md' }` */
+    confirmButton?: ConfirmButtonOptions;
+    /** Look of the cancel button – wins over ConfirmDialog `cancelButton` */
+    cancelButton?: ConfirmButtonOptions;
 }
 
 export interface PromptOptions extends Omit<ConfirmOptions, 'typeToConfirm'> {

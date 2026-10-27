@@ -9,6 +9,7 @@ import {
 } from '@wirecore/wirelayer-recipes';
 import { computed, normalizeClass, ref, useAttrs, useId } from 'vue';
 import { useRecipe } from '../../recipes.js';
+import { useLabelForWarning } from '../../utils/label-for.js';
 
 export interface KnobProps {
     /** Value – use with v-model */
@@ -30,6 +31,8 @@ export interface KnobProps {
     size?: 'sm' | 'md' | 'lg';
     disabled?: boolean;
     name?: string;
+    /** Id of the dial (the slider); a `<label for>` cannot name it, use `label`, a Field or aria-label */
+    id?: string;
     /** Extra classes per part of the component, e.g. { base: "…" } (see the recipe) */
     classes?: RecipeClasses<typeof knobRecipe>;
 }
@@ -49,6 +52,7 @@ const props = withDefaults(defineProps<KnobProps>(), {
 const knob = useRecipe('knob', knobRecipe, () => props.classes);
 const emit = defineEmits<{ 'update:modelValue': [value: number] }>();
 const attrs = useAttrs();
+useLabelForWarning('Knob', () => props.id);
 const field = useFieldContext();
 const styles = computed(() => knob({ size: props.size, color: props.color }));
 const labelId = `${useId()}label`;
@@ -101,6 +105,7 @@ function onPointerDown(event: PointerEvent) {
     <div :class="styles.base({ class: normalizeClass(attrs.class) })" :style="attrs.style">
         <span v-if="label" :id="labelId" :class="styles.label()">{{ label }}</span>
         <div
+            :id="id"
             role="slider"
             :tabindex="disabled ? undefined : 0"
             :aria-labelledby="label ? labelId : field?.ids.label"

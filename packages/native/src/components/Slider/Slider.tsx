@@ -24,6 +24,8 @@ export interface SliderProps {
     label: string;
     /** Value next to the label */
     showValue?: boolean;
+    /** The label is not shown – the thumbs keep it as their accessible name */
+    hideLabel?: boolean;
     formatValue?: (value: number) => string;
     /** Names of the two thumbs of a range – default "Minimum" / "Maximum" */
     thumbLabels?: [string, string];
@@ -55,6 +57,7 @@ export function Slider({
     step = 1,
     label,
     showValue = true,
+    hideLabel = false,
     formatValue,
     thumbLabels,
     orientation = 'horizontal',
@@ -68,7 +71,7 @@ export function Slider({
     const [values, setValues] = useControllable(value, defaultValue, onValueChange);
     const [length, setLength] = useState(0);
     const vertical = orientation === 'vertical';
-    const styles = slider({ disabled, orientation });
+    const styles = slider({ disabled, orientation, hideLabel });
     const format = formatValue ?? ((number: number) => number.toLocaleString(locale));
     const names = thumbLabels ?? (translations.slider.thumbs as [string, string]);
     const markList = (marks ?? []).map((mark) => (typeof mark === 'number' ? { value: mark } : mark));
@@ -153,14 +156,16 @@ export function Slider({
 
     return (
         <View className={styles.base({ class: className })}>
-            <View className={styles.header()}>
-                <Text className={styles.label()}>{label}</Text>
-                {showValue && (
-                    <Text className={styles.value()} aria-hidden>
-                        {values.map(format).join(' – ')}
-                    </Text>
-                )}
-            </View>
+            {(!hideLabel || showValue) && (
+                <View className={styles.header()}>
+                    {!hideLabel && <Text className={styles.label()}>{label}</Text>}
+                    {showValue && (
+                        <Text className={styles.value()} aria-hidden>
+                            {values.map(format).join(' – ')}
+                        </Text>
+                    )}
+                </View>
+            )}
             <View className={styles.body()}>
                 <View
                     className={styles.control()}

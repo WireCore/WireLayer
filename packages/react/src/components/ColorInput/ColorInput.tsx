@@ -114,7 +114,7 @@ export function ColorInput({
                             value={shown}
                             disabled={disabled ?? field?.disabled}
                             readOnly={readOnly ?? field?.readOnly}
-                            aria-label={field ? undefined : (props['aria-label'] ?? text.name)}
+                            aria-label={field ? undefined : (props['aria-label'] ?? (props.id ? undefined : text.name))}
                             aria-invalid={isInvalid || undefined}
                             aria-describedby={field?.ariaDescribedby}
                             spellCheck={false}

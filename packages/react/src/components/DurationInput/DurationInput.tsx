@@ -12,6 +12,7 @@ import { X } from 'lucide-react';
 import { Fragment, useId, useRef, useState, type CSSProperties, type KeyboardEvent } from 'react';
 import { useLocale, useTranslations } from '../LocaleProvider/LocaleProvider.js';
 import { useRecipe } from '../RecipesProvider/RecipesProvider.js';
+import { useLabelForWarning } from '../../utils/label-for.js';
 
 export interface DurationInputProps {
     /** Total minutes (default), total seconds or ISO 8601 ("PT2H30M") – see valueType */
@@ -38,6 +39,8 @@ export interface DurationInputProps {
     clearable?: boolean;
     /** Accessible name without a surrounding Field */
     'aria-label'?: string;
+    /** Id of the field (the group of parts); a `<label for>` cannot name it, use a Field or aria-label */
+    id?: string;
     className?: string;
     style?: CSSProperties;
     /** Extra classes per part of the field (see the datePicker recipe) */
@@ -71,16 +74,18 @@ export function DurationInput({
     size,
     clearable = true,
     'aria-label': ariaLabel,
+    id,
     className,
     style,
     classes,
 }: DurationInputProps) {
+    useLabelForWarning('DurationInput', id);
     const datePicker = useRecipe('datePicker', datePickerRecipe, classes);
     const styles = datePicker({ size });
     const localeContext = useLocale();
     const locale = localeProp ?? localeContext.locale;
     const translations = useTranslations();
-    const id = useId();
+    const uid = useId();
     const field = useFieldContext();
     const state = {
         disabled: disabled ?? field?.disabled,
@@ -207,12 +212,13 @@ export function DurationInput({
             >
                 <div className={styles.dateInput()}>
                     <div
+                        id={id}
                         role="group"
                         className={styles.segments()}
                         aria-labelledby={field ? field.ids.label : undefined}
                         aria-label={field ? undefined : ariaLabel}
                         aria-describedby={
-                            [field?.ariaDescribedby, isFilled ? `${id}t` : undefined].filter(Boolean).join(' ') ||
+                            [field?.ariaDescribedby, isFilled ? `${uid}t` : undefined].filter(Boolean).join(' ') ||
                             undefined
                         }
                         aria-invalid={state.invalid || undefined}
@@ -247,7 +253,7 @@ export function DurationInput({
                         ))}
                     </div>
                     {isFilled && (
-                        <span id={`${id}t`} hidden>
+                        <span id={`${uid}t`} hidden>
                             {spoken}
                         </span>
                     )}

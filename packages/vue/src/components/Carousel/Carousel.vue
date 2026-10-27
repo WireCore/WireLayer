@@ -8,7 +8,7 @@ import {
     type CarouselBreakpoint,
     type RecipeClasses,
 } from '@wirecore/wirelayer-recipes';
-import { computed, normalizeClass, onBeforeUnmount, onMounted, ref, useAttrs } from 'vue';
+import { computed, h, normalizeClass, onBeforeUnmount, onMounted, ref, useAttrs, type FunctionalComponent } from 'vue';
 import { useTranslations } from '../../locale.js';
 import { useRecipe } from '../../recipes.js';
 
@@ -35,6 +35,8 @@ export interface CarouselProps<T> {
     autoplay?: boolean | { delay: number };
     /** Dots below the slides, one per page */
     indicators?: boolean;
+    /** Previous and next: in the row below the slides (`bottom`, default) or beside them, vertically centred (`sides`) */
+    controlsPosition?: 'bottom' | 'sides';
     /** Current page – use with v-model:page */
     page?: number;
     defaultPage?: number;
@@ -63,7 +65,17 @@ const iconButton = useRecipe('iconButton', iconButtonRecipe);
 const emit = defineEmits<{ 'update:page': [page: number] }>();
 defineSlots<{ default(props: { item: T; index: number }): unknown }>();
 const attrs = useAttrs();
-const styles = computed(() => carousel({ vertical: props.orientation === 'vertical' }));
+const styles = computed(() =>
+    carousel({
+        vertical: props.orientation === 'vertical',
+        controlsPosition: props.controlsPosition === 'sides' ? 'sides' : undefined,
+    })
+);
+const sides = computed(() => props.controlsPosition === 'sides');
+/** Wraps its content in a div only when `wrap` is set (the row of `sides`; unchanged DOM below) */
+const Wrap: FunctionalComponent<{ wrap: boolean; class: string }> = (wrapProps, { slots }) =>
+    wrapProps.wrap ? h('div', { class: wrapProps.class }, slots.default?.()) : slots.default?.();
+Wrap.props = ['wrap', 'class'];
 // Breakpoints follow the width of the carousel itself (measured in the browser; the base settings before that)
 const root = ref<{ $el: HTMLElement } | null>(null);
 const width = ref(0);
@@ -113,11 +125,19 @@ function change(page: number) {
         :translations="translations.carousel"
         @page-change="change($event.page)"
     >
-        <Carousel.ItemGroup :class="styles.itemGroup()" tabindex="0" :style="height ? { height } : undefined">
-            <Carousel.Item v-for="(item, index) in items" :key="index" :index="index" :class="styles.item()">
-                <slot :item="item" :index="index" />
-            </Carousel.Item>
-        </Carousel.ItemGroup>
+        <Wrap :wrap="sides" :class="styles.stage()">
+            <Carousel.PrevTrigger v-if="sides" :class="button.base()">
+                <ChevronLeft :class="button.icon()" aria-hidden="true" />
+            </Carousel.PrevTrigger>
+            <Carousel.ItemGroup :class="styles.itemGroup()" tabindex="0" :style="height ? { height } : undefined">
+                <Carousel.Item v-for="(item, index) in items" :key="index" :index="index" :class="styles.item()">
+                    <slot :item="item" :index="index" />
+                </Carousel.Item>
+            </Carousel.ItemGroup>
+            <Carousel.NextTrigger v-if="sides" :class="button.base()">
+                <ChevronRight :class="button.icon()" aria-hidden="true" />
+            </Carousel.NextTrigger>
+        </Wrap>
         <Carousel.Control :class="styles.control()">
             <Carousel.AutoplayTrigger v-if="autoplay" :class="button.base()">
                 <Carousel.AutoplayIndicator>
@@ -125,7 +145,7 @@ function change(page: number) {
                     <template #fallback><Play :class="button.icon()" aria-hidden="true" /></template>
                 </Carousel.AutoplayIndicator>
             </Carousel.AutoplayTrigger>
-            <Carousel.PrevTrigger :class="button.base()">
+            <Carousel.PrevTrigger v-if="!sides" :class="button.base()">
                 <ChevronLeft :class="button.icon()" aria-hidden="true" />
             </Carousel.PrevTrigger>
             <Carousel.Context v-slot="api">
@@ -139,7 +159,7 @@ function change(page: number) {
                     />
                 </Carousel.IndicatorGroup>
             </Carousel.Context>
-            <Carousel.NextTrigger :class="button.base()">
+            <Carousel.NextTrigger v-if="!sides" :class="button.base()">
                 <ChevronRight :class="button.icon()" aria-hidden="true" />
             </Carousel.NextTrigger>
         </Carousel.Control>

@@ -36,6 +36,8 @@ export interface CarouselProps<T> {
     autoplay?: boolean | { delay: number };
     /** Dots below the slides, one per page */
     indicators?: boolean;
+    /** Previous and next: in the row below the slides (`bottom`, default) or beside them, vertically centred (`sides`) */
+    controlsPosition?: 'bottom' | 'sides';
     page?: number;
     defaultPage?: number;
     onPageChange?: (page: number) => void;
@@ -64,6 +66,7 @@ export function Carousel<T>({
     loop = false,
     autoplay = false,
     indicators = true,
+    controlsPosition = 'bottom',
     page,
     defaultPage = 0,
     onPageChange,
@@ -72,7 +75,8 @@ export function Carousel<T>({
 }: CarouselProps<T>) {
     const carousel = useRecipe('carousel', carouselRecipe, classes);
     const iconButton = useRecipe('iconButton', iconButtonRecipe);
-    const styles = carousel({ vertical: orientation === 'vertical' });
+    const sides = controlsPosition === 'sides';
+    const styles = carousel({ vertical: orientation === 'vertical', controlsPosition: sides ? 'sides' : undefined });
     const button = iconButton({ variant: 'outline', size: 'sm' });
     const translations = useTranslations();
     const [internal, setInternal] = useState(defaultPage);
@@ -87,6 +91,26 @@ export function Carousel<T>({
         return () => observer.disconnect();
     }, [watchWidth]);
     const settings = carouselBreakpoint(width, { slidesPerPage, slidesPerMove: slidesToScroll, spacing }, breakpoints);
+    const slides = (
+        <ArkCarousel.ItemGroup className={styles.itemGroup()} tabIndex={0} style={height ? { height } : undefined}>
+            {items.map((item, index) => (
+                <ArkCarousel.Item key={index} index={index} className={styles.item()}>
+                    {children(item, index)}
+                </ArkCarousel.Item>
+            ))}
+        </ArkCarousel.ItemGroup>
+    );
+    const prev = (
+        <ArkCarousel.PrevTrigger className={button.base()}>
+            <ChevronLeft className={button.icon()} aria-hidden="true" />
+        </ArkCarousel.PrevTrigger>
+    );
+    const next = (
+        <ArkCarousel.NextTrigger className={button.base()}>
+            <ChevronRight className={button.icon()} aria-hidden="true" />
+        </ArkCarousel.NextTrigger>
+    );
+
     return (
         <ArkCarousel.Root
             ref={root}
@@ -108,13 +132,16 @@ export function Carousel<T>({
                 onPageChange?.(details.page);
             }}
         >
-            <ArkCarousel.ItemGroup className={styles.itemGroup()} tabIndex={0} style={height ? { height } : undefined}>
-                {items.map((item, index) => (
-                    <ArkCarousel.Item key={index} index={index} className={styles.item()}>
-                        {children(item, index)}
-                    </ArkCarousel.Item>
-                ))}
-            </ArkCarousel.ItemGroup>
+            {sides ? (
+                // Previous, slides, next in a row
+                <div className={styles.stage()}>
+                    {prev}
+                    {slides}
+                    {next}
+                </div>
+            ) : (
+                slides
+            )}
             <ArkCarousel.Control className={styles.control()}>
                 {autoplay && (
                     <ArkCarousel.AutoplayTrigger className={button.base()}>
@@ -123,9 +150,7 @@ export function Carousel<T>({
                         </ArkCarousel.AutoplayIndicator>
                     </ArkCarousel.AutoplayTrigger>
                 )}
-                <ArkCarousel.PrevTrigger className={button.base()}>
-                    <ChevronLeft className={button.icon()} aria-hidden="true" />
-                </ArkCarousel.PrevTrigger>
+                {!sides && prev}
                 <ArkCarousel.Context>
                     {(api) => (
                         <ArkCarousel.IndicatorGroup className={styles.indicatorGroup()}>
@@ -140,9 +165,7 @@ export function Carousel<T>({
                         </ArkCarousel.IndicatorGroup>
                     )}
                 </ArkCarousel.Context>
-                <ArkCarousel.NextTrigger className={button.base()}>
-                    <ChevronRight className={button.icon()} aria-hidden="true" />
-                </ArkCarousel.NextTrigger>
+                {!sides && next}
             </ArkCarousel.Control>
         </ArkCarousel.Root>
     );

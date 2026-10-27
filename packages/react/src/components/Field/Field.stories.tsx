@@ -1,14 +1,21 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Mail, Search } from 'lucide-react';
 import { useState } from 'react';
+import { Checkbox } from '../Checkbox/Checkbox.js';
 import { Chip } from '../ChipGroup/Chip.js';
 import { ChipGroup } from '../ChipGroup/ChipGroup.js';
+import { ColorPicker } from '../ColorPicker/ColorPicker.js';
+import { Combobox } from '../Combobox/Combobox.js';
 import { Input } from '../Input/Input.js';
+import { MultiSelect } from '../MultiSelect/MultiSelect.js';
+import { NumberInput } from '../NumberInput/NumberInput.js';
 import { RadioGroup } from '../RadioGroup/RadioGroup.js';
 import { RadioGroupItem } from '../RadioGroup/RadioGroupItem.js';
 import { SegmentedControl } from '../SegmentedControl/SegmentedControl.js';
 import { SegmentedControlItem } from '../SegmentedControl/SegmentedControlItem.js';
+import { Select } from '../Select/Select.js';
 import { Textarea } from '../Textarea/Textarea.js';
+import { TreeSelect } from '../TreeSelect/TreeSelect.js';
 import { Field } from './Field.js';
 
 const meta = {
@@ -150,6 +157,72 @@ export const Groups: Story = {
                     <Chip value="ai">AI</Chip>
                 </ChipGroup>
             </Field>
+        </div>
+    ),
+};
+
+const services = [
+    { value: 'web', label: 'Software & Web' },
+    { value: 'hosting', label: 'Hosting' },
+    { value: 'support', label: 'Support' },
+];
+const folders = [
+    { id: 'documents', label: 'Documents', children: [{ id: 'report', label: 'Report.pdf' }] },
+    { id: 'notes', label: 'Notes.txt' },
+];
+const labelClass = 'text-[13px] font-medium text-fg';
+
+/**
+ * Without a Field: a native `<label for>` names the control through its own `id` – the id goes to the element the
+ * label points to (trigger or input). A Field is the better choice: it links description and error, too.
+ */
+export const NativeLabels: Story = {
+    name: 'Native labels',
+    parameters: { layout: 'padded' },
+    render: () => (
+        <div className="flex w-[380px] flex-col gap-3.5">
+            <div className="flex flex-col gap-1.5">
+                <label htmlFor="native-service" className={labelClass}>
+                    Service
+                </label>
+                <Select id="native-service" items={services} />
+            </div>
+            <div className="flex flex-col gap-1.5">
+                <label htmlFor="native-services" className={labelClass}>
+                    Services
+                </label>
+                <MultiSelect id="native-services" items={services} />
+            </div>
+            <div className="flex flex-col gap-1.5">
+                <label htmlFor="native-search" className={labelClass}>
+                    Search a service
+                </label>
+                <Combobox id="native-search" items={services} />
+            </div>
+            <div className="flex flex-col gap-1.5">
+                <label htmlFor="native-seats" className={labelClass}>
+                    Seats
+                </label>
+                <NumberInput id="native-seats" defaultValue={3} min={1} />
+            </div>
+            <div className="flex flex-col gap-1.5">
+                <label htmlFor="native-folder" className={labelClass}>
+                    Folder
+                </label>
+                <TreeSelect id="native-folder" items={folders} />
+            </div>
+            <div className="flex flex-col gap-1.5">
+                <label htmlFor="native-colour" className={labelClass}>
+                    Accent colour
+                </label>
+                <ColorPicker id="native-colour" defaultValue="#1e66f5" />
+            </div>
+            <div className="flex items-center gap-2">
+                <Checkbox id="native-terms" />
+                <label htmlFor="native-terms" className={labelClass}>
+                    I accept the terms
+                </label>
+            </div>
         </div>
     ),
 };

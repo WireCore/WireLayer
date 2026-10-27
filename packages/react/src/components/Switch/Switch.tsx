@@ -1,5 +1,6 @@
+import { useFieldContext } from '@ark-ui/react/field';
 import { Switch as ArkSwitch } from '@ark-ui/react/switch';
-import { switchControl as switchControlRecipe, type RecipeClasses } from '@wirecore/wirelayer-recipes';
+import { controlIds, switchControl as switchControlRecipe, type RecipeClasses } from '@wirecore/wirelayer-recipes';
 import { useContext, useId, type ComponentProps, type ReactNode } from 'react';
 import type { IconComponent } from '../../types.js';
 import { useRecipe } from '../RecipesProvider/RecipesProvider.js';
@@ -44,6 +45,7 @@ export function Switch({
     required,
     name,
     value,
+    id,
     className,
     style,
     children,
@@ -53,6 +55,8 @@ export function Switch({
     const withTrackLabel = !!(onLabel || offLabel);
     const styles = switchControl({ withThumbIcon: !!(CheckedIcon || UncheckedIcon), withTrackLabel });
     const descriptionId = useId();
+    // An own id goes to the hidden input through Ark (it finds the input by its id)
+    const field = useFieldContext();
     // Inside a SwitchGroup (with a value): state, name and disabled state come from the group
     const group = useContext(SwitchGroupContext);
     const grouped =
@@ -83,12 +87,14 @@ export function Switch({
             required={required}
             name={name}
             value={value}
+            {...controlIds(id, 'hiddenInput', { label: field?.ids.label, hiddenInput: field?.ids.control })}
             {...grouped}
         >
             <span className={styles.content()}>
                 {Icon && <Icon className={styles.icon()} aria-hidden="true" />}
                 <span className={styles.text()}>
-                    <ArkSwitch.Label className={styles.label()}>{children}</ArkSwitch.Label>
+                    {/* Without a text the label is left out: Ark names the input by it, an empty one would hide a <label for> */}
+                    {children && <ArkSwitch.Label className={styles.label()}>{children}</ArkSwitch.Label>}
                     {description && (
                         <span id={descriptionId} className={styles.description()}>
                             {description}

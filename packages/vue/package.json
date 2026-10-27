@@ -64,12 +64,16 @@
         },
         "./styles.css": "./styles.css",
         "./styles-core.css": "./styles-core.css",
+        "./theme.css": "./theme.css",
+        "./fonts.css": "./fonts.css",
         "./sources/*": "./dist/sources/*"
     },
     "files": [
         "dist",
         "styles.css",
         "styles-core.css",
+        "theme.css",
+        "fonts.css",
         "llms.txt",
         "llms-full.txt"
     ],
@@ -256,6 +260,8 @@
             },
             "./styles.css": "./styles.css",
             "./styles-core.css": "./styles-core.css",
+            "./theme.css": "./theme.css",
+            "./fonts.css": "./fonts.css",
             "./sources/*": "./dist/sources/*"
         }
     }

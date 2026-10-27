@@ -1,7 +1,7 @@
 import { tv } from './tv.js';
 
 export const card = tv({
-    base: 'flex flex-col gap-2.5 rounded-card border border-line bg-card p-6',
+    base: 'flex flex-col gap-2.5 rounded-card border border-line bg-card p-[var(--wc-card-p,1.5rem)]',
     variants: {
         interactive: {
             true: [

@@ -9,6 +9,7 @@ import {
 import { computed, normalizeClass, useAttrs } from 'vue';
 import { useFieldStatus } from '../Field/context.js';
 import { useRecipe } from '../../recipes.js';
+import { useLabelForWarning } from '../../utils/label-for.js';
 
 export interface RadioGroupProps {
     /** Selected value – use with v-model */
@@ -39,6 +40,7 @@ const props = withDefaults(defineProps<RadioGroupProps>(), {
 const radioGroup = useRecipe('radioGroup', radioGroupRecipe, () => props.classes);
 const emit = defineEmits<{ 'update:modelValue': [value: string | null] }>();
 const attrs = useAttrs();
+useLabelForWarning('RadioGroup', () => attrs.id);
 const styles = computed(() => radioGroup({ orientation: props.orientation, grid: props.columns !== undefined }));
 
 // Inside a Field: its label names the group (unless it has a name of its own), its texts describe it

@@ -22,6 +22,7 @@ import { DateSegments } from '../DatePicker/DatePickerBase.js';
 import { fromTime, timeSlots, toTime } from '../DatePicker/dates.js';
 import { useLocale, useTranslations } from '../LocaleProvider/LocaleProvider.js';
 import { useRecipe } from '../RecipesProvider/RecipesProvider.js';
+import { useLabelForWarning } from '../../utils/label-for.js';
 
 // Only hour and minute: the date input edits a date-time on a fixed day
 const placeholder = fromTime('00:00');
@@ -64,6 +65,8 @@ export interface TimePickerProps {
     showTimeZone?: boolean;
     /** Accessible name without a surrounding Field */
     'aria-label'?: string;
+    /** Id of the field – the (first) time gets it; a `<label for>` cannot name it, use a Field or aria-label */
+    id?: string;
     className?: string;
     style?: CSSProperties;
     /** Extra classes per part of the component, e.g. { base: "…" } (see the recipe) */
@@ -97,9 +100,11 @@ export function TimePicker({
     referenceDate,
     showTimeZone,
     'aria-label': ariaLabel,
+    id,
     className,
     style,
 }: TimePickerProps) {
+    useLabelForWarning('TimePicker', id);
     const datePicker = useRecipe('datePicker', datePickerRecipe, classes);
     const select = useRecipe('select', selectRecipe);
     const styles = datePicker({ size });
@@ -107,7 +112,7 @@ export function TimePicker({
     const localeContext = useLocale();
     const locale = localeProp ?? localeContext.locale;
     const translations = useTranslations();
-    const id = useId();
+    const uid = useId();
     const field = useFieldContext();
     const state = {
         disabled: disabled ?? field?.disabled,
@@ -157,7 +162,7 @@ export function TimePicker({
             long: translations.calendar.timeZone(timeZoneLongLabel(timeZone, locale, instant)),
         };
     }
-    const describedby = [field?.ariaDescribedby, zone ? `${id}tz` : undefined].filter(Boolean).join(' ') || undefined;
+    const describedby = [field?.ariaDescribedby, zone ? `${uid}tz` : undefined].filter(Boolean).join(' ') || undefined;
     // Pasting "14:30", "2:30 PM" or "14.30 Uhr" sets the time (Ark reads ISO dates only)
     const pasteText = (text: string) => {
         const time = parseTimeText(text, withSeconds);
@@ -175,7 +180,16 @@ export function TimePicker({
             >
                 <ArkDateInput.Root
                     className={styles.dateInput()}
-                    ids={field ? { label: () => field.ids.label } : undefined}
+                    ids={
+                        field || id
+                            ? {
+                                  ...(field ? { label: () => field.ids.label } : {}),
+                                  ...(id
+                                      ? { segmentGroup: (index: number) => (index === 0 ? id : undefined) as string }
+                                      : {}),
+                              }
+                            : undefined
+                    }
                     value={wall ? [fromTime(wall)] : []}
                     onValueChange={(details) => set(toTime(details.value[0], withSeconds))}
                     granularity={withSeconds ? 'second' : 'minute'}
@@ -203,7 +217,7 @@ export function TimePicker({
                         <span className={styles.timeZone()} aria-hidden="true">
                             {zone.short}
                         </span>
-                        <span id={`${id}tz`} hidden>
+                        <span id={`${uid}tz`} hidden>
                             {zone.long}
                         </span>
                     </>
@@ -225,7 +239,7 @@ export function TimePicker({
                     value={wall ? [wall] : []}
                     onValueChange={(details) => set(details.value[0] ?? null)}
                     disabled={state.disabled || state.readOnly}
-                    ids={{ label: `${id}list` }}
+                    ids={{ label: `${uid}list` }}
                     positioning={{ placement: 'bottom-end', gutter: 4 }}
                     lazyMount
                     unmountOnExit

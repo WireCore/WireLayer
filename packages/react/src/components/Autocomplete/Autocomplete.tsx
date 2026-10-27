@@ -1,7 +1,9 @@
 import { Combobox as ArkCombobox } from '@ark-ui/react/combobox';
 import { createListCollection } from '@ark-ui/react/collection';
+import { useFieldContext } from '@ark-ui/react/field';
 import { Portal } from '@ark-ui/react/portal';
 import {
+    controlIds,
     combobox as comboboxRecipe,
     type DataSource,
     type ItemAccessor,
@@ -106,12 +108,15 @@ export function Autocomplete<T = string>({
     invalid,
     required,
     name,
+    id,
     className,
     style,
     ...props
 }: AutocompleteProps<T>) {
     const combobox = useRecipe('combobox', comboboxRecipe, classes);
     const styles = combobox({ size });
+    // An own id goes to the input through Ark (it finds the input by its id)
+    const field = useFieldContext();
     const translations = useTranslations();
     const [internal, setInternal] = useState(defaultValue);
     const text = value ?? internal;
@@ -174,6 +179,7 @@ export function Autocomplete<T = string>({
                 invalid={invalid}
                 name={name}
                 aria-label={props['aria-label']}
+                id={id}
                 className={className}
                 style={style}
             />
@@ -185,6 +191,7 @@ export function Autocomplete<T = string>({
             className={styles.base({ class: className })}
             style={style}
             collection={collection}
+            {...controlIds(id, 'input', { label: field?.ids.label, input: field?.ids.control })}
             inputValue={text}
             onInputValueChange={(details) => {
                 if (details.inputValue === text) return;

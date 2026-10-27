@@ -14,6 +14,8 @@ export const carousel = tv({
         control:
             'flex items-center gap-2 rtl:[&_[data-part=prev-trigger]_svg]:-scale-x-100 rtl:[&_[data-part=next-trigger]_svg]:-scale-x-100',
         indicatorGroup: 'flex flex-1 flex-wrap items-center justify-center',
+        /** `controlsPosition: 'sides'`: previous button, slides and next button in a row */
+        stage: 'flex min-w-0 items-center gap-2 rtl:[&_[data-part=prev-trigger]_svg]:-scale-x-100 rtl:[&_[data-part=next-trigger]_svg]:-scale-x-100',
         // 24 × 24 px target (WCAG 2.5.8) around a small dot; the current one is wider, not only coloured
         indicator: [
             'flex size-6 cursor-pointer items-center justify-center rounded-full',
@@ -34,7 +36,20 @@ export const carousel = tv({
                     '[&_[data-part=prev-trigger]_svg]:rotate-90 [&_[data-part=next-trigger]_svg]:rotate-90 rtl:[&_[data-part=prev-trigger]_svg]:scale-x-100 rtl:[&_[data-part=next-trigger]_svg]:scale-x-100',
             },
         },
+        /** Previous and next beside the slides (`controlsPosition: 'sides'`) – without it in the row below them */
+        controlsPosition: {
+            sides: { itemGroup: 'min-w-0 flex-1' },
+        },
     },
+    compoundVariants: [
+        {
+            vertical: true,
+            controlsPosition: 'sides',
+            class: {
+                stage: 'flex-col [&_[data-part=prev-trigger]_svg]:rotate-90 [&_[data-part=next-trigger]_svg]:rotate-90 rtl:[&_[data-part=prev-trigger]_svg]:scale-x-100 rtl:[&_[data-part=next-trigger]_svg]:scale-x-100',
+            },
+        },
+    ],
 });
 
 export const gallery = tv({

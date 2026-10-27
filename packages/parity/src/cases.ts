@@ -379,6 +379,7 @@ export const cases: [string, El][] = [
     ['IconButton', el('IconButton', { icon: icon('Plus'), label: 'Add' })],
     ['IconButton primary sm', el('IconButton', { icon: icon('Plus'), label: 'Add', variant: 'primary', size: 'sm' })],
     ['IconButton disabled', el('IconButton', { icon: icon('Plus'), label: 'Add', disabled: true })],
+    ['IconButton loading', el('IconButton', { icon: icon('Plus'), label: 'Add', loading: true })],
     ['IconButton badge count', el('IconButton', { icon: icon('Bell'), label: 'Alerts', badge: 4 })],
     ['IconButton badge 99+', el('IconButton', { icon: icon('Bell'), label: 'Alerts', badge: 120 })],
     ['IconButton badge dot', el('IconButton', { icon: icon('Mail'), label: 'Mailbox', badge: true })],
@@ -912,6 +913,11 @@ export const cases: [string, El][] = [
         }),
     ],
     ['Slider', el('Slider', { label: 'Volume', defaultValue: [40] })],
+    ['Slider hidden label', el('Slider', { label: 'Volume', defaultValue: [40], hideLabel: true })],
+    [
+        'Slider hidden label without value',
+        el('Slider', { label: 'Volume', defaultValue: [40], hideLabel: true, showValue: false }),
+    ],
     [
         'Slider range',
         el('Slider', { label: 'Price', defaultValue: [20, 80], formatValue: (value: number) => `${value} €` }),
@@ -1434,6 +1440,15 @@ export const cases: [string, El][] = [
                 },
             ],
             defaultPage: 3,
+        }),
+    ],
+    [
+        'Carousel controls at the sides',
+        el('Carousel', {
+            items: ['One', 'Two', 'Three'],
+            label: 'News',
+            controlsPosition: 'sides',
+            children: () => null,
         }),
     ],
     [
@@ -2651,6 +2666,19 @@ export const cases: [string, El][] = [
             ],
             contextMenu: true,
             defaultExpanded: ['web-01'],
+            $render: { expansion: (row: { name: string }) => el('p', {}, `Details for ${row.name}`) },
+        }),
+    ],
+    [
+        'DataTable details on some rows',
+        el('DataTable', {
+            data: fleet,
+            columns: fleetColumns.slice(0, 2),
+            caption: 'Server',
+            getRowId,
+            rowLabel: (row: { name: string }) => row.name,
+            rowExpandable: (row: { name: string }) => row.name !== 'web-01',
+            defaultExpanded: ['db-primary'],
             $render: { expansion: (row: { name: string }) => el('p', {}, `Details for ${row.name}`) },
         }),
     ],

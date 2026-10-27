@@ -19,6 +19,20 @@ export function warnInDevelopment(message: string) {
     console.warn(`[WireLayer] ${message}`);
 }
 
+/**
+ * Development only: warns when a `<label for>` points at a control that no label element can name – a date field of
+ * spin buttons, a slider, a group of stars … Such controls are named by a surrounding Field or an aria-label.
+ */
+export function warnLabelFor(component: string, id: string | undefined) {
+    if (!id || typeof document === 'undefined' || !isDevelopment()) return;
+    const labels = document.querySelectorAll('label[for]');
+    if (![...labels].some((label) => (label as HTMLLabelElement).htmlFor === id)) return;
+    warnInDevelopment(
+        `<label for="${id}"> does not name the ${component}: a label element cannot point at it. Put a Field ` +
+            `around it (it links label, description and error) or give it an aria-label.`
+    );
+}
+
 const checkedSources = new Set<string>();
 
 /**

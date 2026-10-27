@@ -73,3 +73,18 @@ export const FollowCursor: Story = {
         </Tooltip>
     ),
 };
+
+/** `closeOnScroll={false}`: the tooltip stays open while the list around the trigger scrolls */
+export const StaysOpenWhileScrolling: Story = {
+    name: 'Stays open while scrolling',
+    render: () => (
+        <div className="h-40 w-72 overflow-y-auto rounded-xl border border-line p-4">
+            <div className="flex h-80 flex-col gap-3">
+                <Tooltip content="Copies the settings" closeOnScroll={false}>
+                    <Button variant="outline">Copy</Button>
+                </Tooltip>
+                <p className="text-sm text-muted">Focus the button, then scroll this box.</p>
+            </div>
+        </div>
+    ),
+};

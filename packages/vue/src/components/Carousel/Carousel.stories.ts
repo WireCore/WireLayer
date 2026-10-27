@@ -62,3 +62,6 @@ export const Breakpoints: Story = {
         allowMouseDrag: true,
     },
 };
+
+/** `controls-position="sides"`: previous and next beside the slides, vertically centred; the dots stay below */
+export const ControlsAtTheSides: Story = { name: 'Controls at the sides', args: { controlsPosition: 'sides' } };

@@ -1,8 +1,10 @@
 <script setup lang="ts" generic="T = SelectItem, V = ItemValueOf<T>">
 import { createListCollection } from '@ark-ui/vue/collection';
+import { useFieldContext } from '@ark-ui/vue/field';
 import { Select } from '@ark-ui/vue/select';
 import { Check, ChevronDown, LoaderCircle, Minus, X } from '@lucide/vue';
 import {
+    controlIds,
     allListOptionsState,
     multiSelect as multiSelectRecipe,
     toggleAllListOptions,
@@ -84,6 +86,8 @@ export interface MultiSelectProps<T = SelectItem, V = ItemValueOf<T>> {
     minSearchLength?: number;
     /** Options per request of the data source (default 50) */
     pageSize?: number;
+    /** Id of the field (the trigger), e.g. for a `<label for>` */
+    id?: string;
     /** Extra classes per part of the component, e.g. { base: "…" } (see the recipe) */
     classes?: RecipeClasses<typeof multiSelectRecipe>;
 }
@@ -149,6 +153,8 @@ const { selected, keys, commit, commitKeys } = useListSelection<T>({
     accessors: () => accessors.value,
     items: known,
     emit: (value) => emit('update:modelValue', value as V[]),
+    // Without a data source and loaded: a value outside the items warns in development
+    check: { component: 'MultiSelect', ready: () => !props.dataSource && !props.loading && props.items.length > 0 },
 });
 // Chosen values that are not loaded get their labels from the data source
 onMounted(() => source.resolve(keys.value, known.value));
@@ -274,6 +280,11 @@ const activeId = (api: Api) => (api.highlightedItem ? api.getItemProps({ item: a
 // Fixed objects: a new literal in the template on every render makes Ark update the machine, which can re-render
 // endlessly (Vue only stops it in development)
 const listPositioning = { sameWidth: true, gutter: 4 } as const;
+// An own id goes to the trigger through Ark (it finds the trigger by its id)
+const field = useFieldContext();
+const ids = computed(() =>
+    controlIds(props.id, 'trigger', { label: field?.value.ids.label, hiddenSelect: field?.value.ids.control })
+);
 </script>
 
 <template>
@@ -291,6 +302,7 @@ const listPositioning = { sameWidth: true, gutter: 4 } as const;
         :name="name"
         :positioning="listPositioning"
         :composite="!panel"
+        v-bind="ids"
         lazy-mount
         unmount-on-exit
         @value-change="onValueChange($event.value, $event.items as ListOption<T>[])"

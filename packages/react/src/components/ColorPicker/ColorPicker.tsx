@@ -1,6 +1,7 @@
 import { ColorPicker as ArkColorPicker, parseColor } from '@ark-ui/react/color-picker';
 import { useFieldContext } from '@ark-ui/react/field';
 import {
+    controlIds,
     colorPicker as colorPickerRecipe,
     formatColor,
     parseColorText,
@@ -37,6 +38,8 @@ export interface ColorPickerProps {
     name?: string;
     /** Accessible name without a surrounding Field */
     'aria-label'?: string;
+    /** Id of the field (the button), e.g. for a `<label for>` */
+    id?: string;
     className?: string;
     style?: CSSProperties;
     /** Extra classes per part of the component, e.g. { base: "…" } (see the recipe) */
@@ -61,6 +64,7 @@ export function ColorPicker({
     invalid,
     name,
     'aria-label': ariaLabel,
+    id,
     className,
     style,
 }: ColorPickerProps) {
@@ -69,9 +73,12 @@ export function ColorPicker({
     const translations = useTranslations();
     const text = translations.colorPicker;
     const field = useFieldContext();
-    const id = useId();
-    const nameId = `${id}name`;
-    const valueId = `${id}value`;
+    const uid = useId();
+    const nameId = `${uid}name`;
+    const valueId = `${uid}value`;
+    // An own id goes to the button through Ark (it finds the button by its id). Named by a <label for>, the button
+    // describes itself by the value (an empty aria-label lets the label count, not Ark's text)
+    const ownLabel = !field && !!id && !ariaLabel;
     const hexFormat = alpha ? 'hexa' : 'hex';
     // Values in other formats (oklch() …) are read here; Ark knows hex, rgb, hsl and hsb
     const parsed = useMemo(
@@ -96,6 +103,7 @@ export function ColorPicker({
             invalid={invalid ?? field?.invalid}
             name={name}
             positioning={{ placement: 'bottom-start', gutter: 4 }}
+            {...controlIds(id, 'trigger', { label: field?.ids.label, input: field?.ids.control })}
             lazyMount
             unmountOnExit
         >
@@ -107,11 +115,13 @@ export function ColorPicker({
                             {/* Named by the Field label (or aria-label) plus the current value, which is visible */}
                             <ArkColorPicker.Trigger
                                 className={styles.trigger()}
-                                aria-label={text.trigger(current)}
-                                aria-labelledby={`${field ? field.ids.label : nameId} ${valueId}`}
-                                aria-describedby={field?.ariaDescribedby}
+                                aria-label={ownLabel ? '' : text.trigger(current)}
+                                aria-labelledby={
+                                    ownLabel ? undefined : `${field ? field.ids.label : nameId} ${valueId}`
+                                }
+                                aria-describedby={ownLabel ? valueId : field?.ariaDescribedby}
                             >
-                                {!field && (
+                                {!field && !ownLabel && (
                                     <span id={nameId} className={styles.hiddenName()}>
                                         {ariaLabel ?? text.name}
                                     </span>

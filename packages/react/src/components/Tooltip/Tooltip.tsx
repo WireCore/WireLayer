@@ -52,6 +52,8 @@ export interface TooltipProps {
     interactive?: boolean;
     /** Follows the mouse pointer over the trigger */
     followCursor?: boolean;
+    /** Closes when the page (or a container around the trigger) scrolls – false keeps it open while scrolling */
+    closeOnScroll?: boolean;
     /** Never opens (e.g. Truncate while the text fits) – the trigger stays the same element */
     disabled?: boolean;
     /**
@@ -70,6 +72,7 @@ export function Tooltip({
     openDelay,
     closeDelay,
     interactive = true,
+    closeOnScroll = true,
     followCursor,
     disabled,
     children,
@@ -115,6 +118,7 @@ export function Tooltip({
             closeDelay={closeDelay ?? group?.closeDelay ?? 150}
             positioning={positioning}
             interactive={interactive}
+            closeOnScroll={closeOnScroll}
             disabled={disabled}
             lazyMount
             unmountOnExit

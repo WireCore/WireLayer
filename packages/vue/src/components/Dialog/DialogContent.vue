@@ -19,6 +19,8 @@ const translations = useTranslations();
 
 export interface DialogContentProps {
     title: string;
+    /** The title only for screen readers – it still names the dialog (e.g. a video in a dialog) */
+    hideTitle?: boolean;
     description?: string;
     /** Icon component in the coloured box at the top */
     icon?: Component;
@@ -101,6 +103,7 @@ const styles = computed(() =>
         responsive: props.responsive,
         draggable: props.draggable && !isMaximized.value,
         maximizable: props.maximizable,
+        hideTitle: props.hideTitle,
     })
 );
 </script>

@@ -59,11 +59,16 @@ ${themeRules}
     --font-sans: ${fonts.sans.join(', ')};
     --font-mono: ${fonts.mono.join(', ')};
 ${colorTokens.map((token) => `    --color-${token}: var(--wc-${token});`).join('\n')}
-${Object.entries(radius)
-    .map(([name, value]) => `    --radius-${name}: ${value};`)
-    .join('\n')}
 ${Object.entries(tracking)
     .map(([name, value]) => `    --tracking-${name}: ${value};`)
+    .join('\n')}
+}
+
+/* Radii of cards, panels and popups: not inline, so the utilities read the variable and a theme (or :root) can change
+   them at runtime */
+@theme {
+${Object.entries(radius)
+    .map(([name, value]) => `    --radius-${name}: ${value};`)
     .join('\n')}
 }
 

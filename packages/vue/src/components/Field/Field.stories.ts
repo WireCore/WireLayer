@@ -2,13 +2,20 @@ import { Mail, Search } from '@lucide/vue';
 import type { Meta, StoryObj } from '@storybook/vue3-vite';
 import { ref } from 'vue';
 import ChipGroup from '../ChipGroup/ChipGroup.vue';
+import Checkbox from '../Checkbox/Checkbox.vue';
 import Chip from '../ChipGroup/Chip.vue';
+import ColorPicker from '../ColorPicker/ColorPicker.vue';
+import Combobox from '../Combobox/Combobox.vue';
 import Input from '../Input/Input.vue';
+import MultiSelect from '../MultiSelect/MultiSelect.vue';
+import NumberInput from '../NumberInput/NumberInput.vue';
 import RadioGroup from '../RadioGroup/RadioGroup.vue';
 import RadioGroupItem from '../RadioGroup/RadioGroupItem.vue';
 import SegmentedControl from '../SegmentedControl/SegmentedControl.vue';
 import SegmentedControlItem from '../SegmentedControl/SegmentedControlItem.vue';
+import Select from '../Select/Select.vue';
 import Textarea from '../Textarea/Textarea.vue';
+import TreeSelect from '../TreeSelect/TreeSelect.vue';
 import Field from './Field.vue';
 
 const meta = {
@@ -143,6 +150,61 @@ export const Groups: Story = {
                         <Chip value="ai">AI</Chip>
                     </ChipGroup>
                 </Field>
+            </div>`,
+    }),
+};
+
+const services = [
+    { value: 'web', label: 'Software & Web' },
+    { value: 'hosting', label: 'Hosting' },
+    { value: 'support', label: 'Support' },
+];
+const folders = [
+    { id: 'documents', label: 'Documents', children: [{ id: 'report', label: 'Report.pdf' }] },
+    { id: 'notes', label: 'Notes.txt' },
+];
+const labelClass = 'text-[13px] font-medium text-fg';
+
+/**
+ * Without a Field: a native `<label for>` names the control through its own `id` – the id goes to the element the
+ * label points to (trigger or input). A Field is the better choice: it links description and error, too.
+ */
+export const NativeLabels: Story = {
+    name: 'Native labels',
+    parameters: { layout: 'padded' },
+    render: () => ({
+        components: { Select, MultiSelect, Combobox, NumberInput, TreeSelect, ColorPicker, Checkbox },
+        setup: () => ({ services, folders, labelClass }),
+        template: `
+            <div class="flex w-[380px] flex-col gap-3.5">
+                <div class="flex flex-col gap-1.5">
+                    <label for="native-service" :class="labelClass">Service</label>
+                    <Select id="native-service" :items="services" />
+                </div>
+                <div class="flex flex-col gap-1.5">
+                    <label for="native-services" :class="labelClass">Services</label>
+                    <MultiSelect id="native-services" :items="services" />
+                </div>
+                <div class="flex flex-col gap-1.5">
+                    <label for="native-search" :class="labelClass">Search a service</label>
+                    <Combobox id="native-search" :items="services" />
+                </div>
+                <div class="flex flex-col gap-1.5">
+                    <label for="native-seats" :class="labelClass">Seats</label>
+                    <NumberInput id="native-seats" :default-value="3" :min="1" />
+                </div>
+                <div class="flex flex-col gap-1.5">
+                    <label for="native-folder" :class="labelClass">Folder</label>
+                    <TreeSelect id="native-folder" :items="folders" />
+                </div>
+                <div class="flex flex-col gap-1.5">
+                    <label for="native-colour" :class="labelClass">Accent colour</label>
+                    <ColorPicker id="native-colour" default-value="#1e66f5" />
+                </div>
+                <div class="flex items-center gap-2">
+                    <Checkbox id="native-terms" />
+                    <label for="native-terms" :class="labelClass">I accept the terms</label>
+                </div>
             </div>`,
     }),
 };

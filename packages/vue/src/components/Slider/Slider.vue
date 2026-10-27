@@ -4,6 +4,7 @@ import { type RecipeClasses, slider as sliderRecipe, snapToMarks } from '@wireco
 import { computed, normalizeClass, ref, useAttrs, useId } from 'vue';
 import { useTranslations } from '../../locale.js';
 import { useRecipe } from '../../recipes.js';
+import { useLabelForWarning } from '../../utils/label-for.js';
 
 const translations = useTranslations();
 
@@ -20,6 +21,8 @@ export interface SliderProps {
     thumbLabels?: readonly string[];
     /** Shows the formatted value next to the label */
     showValue?: boolean;
+    /** The label for screen readers only – it stays the accessible name of the thumbs */
+    hideLabel?: boolean;
     /** Formats the shown and announced value, e.g. (v) => `${v} %` */
     formatValue?: (value: number) => string;
     disabled?: boolean;
@@ -60,7 +63,14 @@ const props = withDefaults(defineProps<SliderProps>(), {
 const slider = useRecipe('slider', sliderRecipe, () => props.classes);
 const emit = defineEmits<{ 'update:modelValue': [value: number[]]; valueChangeEnd: [value: number[]] }>();
 const attrs = useAttrs();
-const styles = computed(() => slider({ withMarks: !!props.marks?.length }));
+useLabelForWarning('Slider', () => attrs.id);
+const styles = computed(() =>
+    slider({
+        withMarks: !!props.marks?.length,
+        hideLabel: props.hideLabel,
+        hideHeader: props.hideLabel && !props.showValue,
+    })
+);
 const markList = computed(() => (props.marks ?? []).map((mark) => (typeof mark === 'number' ? { value: mark } : mark)));
 // restrictToMarks: the slider is controlled here and every change snaps to a mark
 const snapped = ref(props.defaultValue);

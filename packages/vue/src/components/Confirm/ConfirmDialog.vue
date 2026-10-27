@@ -6,7 +6,7 @@ import { computed, ref, shallowRef, watch, type ComponentPublicInstance } from '
 import Button from '../Button/Button.vue';
 import Field from '../Field/Field.vue';
 import Input from '../Input/Input.vue';
-import { confirmRequest, type ConfirmRequest } from './confirm.js';
+import { confirmRequest, type ConfirmButtonOptions, type ConfirmRequest } from './confirm.js';
 import { useTranslations } from '../../locale.js';
 import { useRecipe } from '../../recipes.js';
 
@@ -15,6 +15,10 @@ const translations = useTranslations();
 export interface ConfirmDialogProps {
     /** Accessible name of the close button */
     closeLabel?: string;
+    /** Look of the confirm button in every request (default: size sm, `primary`, `danger` for status danger) */
+    confirmButton?: ConfirmButtonOptions;
+    /** Look of the cancel button in every request (default: size sm, `outline`) */
+    cancelButton?: ConfirmButtonOptions;
     /** Extra classes per part of the component, e.g. { base: "…" } (see the recipe) */
     classes?: RecipeClasses<typeof dialogRecipe>;
 }
@@ -37,6 +41,19 @@ watch(
     { immediate: true }
 );
 const styles = computed(() => dialog({ status: content.value?.status, position: content.value?.position }));
+// The look of the buttons: the defaults, then the props, then the request
+const confirmProps = computed<ConfirmButtonOptions>(() => ({
+    variant: content.value?.status === 'danger' ? 'danger' : 'primary',
+    size: 'sm',
+    ...props.confirmButton,
+    ...content.value?.confirmButton,
+}));
+const cancelProps = computed<ConfirmButtonOptions>(() => ({
+    variant: 'outline',
+    size: 'sm',
+    ...props.cancelButton,
+    ...content.value?.cancelButton,
+}));
 const typeToConfirm = computed(() => (content.value?.kind === 'confirm' ? content.value.typeToConfirm : undefined));
 const inputLabel = computed(() => {
     if (content.value?.kind === 'prompt') return content.value.label;
@@ -56,11 +73,11 @@ function submit() {
     if (!error.value) confirmRequest.value?.settle(true, value.value);
 }
 
-const cancelButton = ref<ComponentPublicInstance | null>(null);
+const cancelButtonRef = ref<ComponentPublicInstance | null>(null);
 const inputBox = ref<HTMLElement | null>(null);
 // The text field gets the focus when there is one, otherwise cancelling (the safe choice)
 const initialFocus = () =>
-    inputBox.value?.querySelector('input') ?? (cancelButton.value?.$el as HTMLElement | undefined) ?? null;
+    inputBox.value?.querySelector('input') ?? (cancelButtonRef.value?.$el as HTMLElement | undefined) ?? null;
 </script>
 
 <template>
@@ -106,10 +123,10 @@ const initialFocus = () =>
                         </div>
                     </div>
                     <div :class="styles.footer()">
-                        <Button ref="cancelButton" variant="outline" size="sm" @click="confirmRequest?.settle(false)">
+                        <Button ref="cancelButtonRef" v-bind="cancelProps" @click="confirmRequest?.settle(false)">
                             {{ content.cancelLabel ?? translations.common.cancel }}
                         </Button>
-                        <Button :variant="content.status === 'danger' ? 'danger' : 'primary'" size="sm" @click="submit">
+                        <Button v-bind="confirmProps" @click="submit">
                             {{ content.confirmLabel ?? translations.common.confirm }}
                         </Button>
                     </div>

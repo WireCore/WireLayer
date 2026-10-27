@@ -79,3 +79,33 @@ export const PromptAndTypeToConfirm: Story = {
             </div>`,
     }),
 };
+
+/**
+ * `confirm-button` / `cancel-button` set the look of the buttons for every request (variant, color, size, shape);
+ * `confirmButton` / `cancelButton` in `confirm()` win for one request
+ */
+export const ButtonLooks: Story = {
+    name: 'Button looks',
+    render: () => ({
+        components: { Button, ConfirmDialog },
+        setup() {
+            const result = ref('');
+            const archive = async () => {
+                const confirmed = await confirm({
+                    title: 'Archive project?',
+                    description: 'It moves to the archive and can be restored there.',
+                    confirmLabel: 'Archive',
+                    confirmButton: { shape: 'rounded' },
+                });
+                result.value = confirmed ? 'Archived' : 'Canceled';
+            };
+            return { archive, result, confirmLook: { size: 'md' }, cancelLook: { size: 'md', variant: 'text' } };
+        },
+        template: `
+            <div class="flex items-center gap-3">
+                <Button variant="outline" @click="archive">Archive project</Button>
+                <span class="text-sm text-muted" aria-live="polite">{{ result }}</span>
+                <ConfirmDialog :confirm-button="confirmLook" :cancel-button="cancelLook" />
+            </div>`,
+    }),
+};

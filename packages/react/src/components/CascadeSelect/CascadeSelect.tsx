@@ -4,6 +4,7 @@ import { useFieldContext } from '@ark-ui/react/field';
 import { Menu as ArkMenu } from '@ark-ui/react/menu';
 import { Portal } from '@ark-ui/react/portal';
 import {
+    controlIds,
     cascadeSelect as cascadeSelectRecipe,
     ChildrenLoader,
     isLazyNode,
@@ -82,6 +83,8 @@ export interface CascadeSelectProps<V = string> {
     /** Source of the options of lazy levels (`getChildren`) */
     dataSource?: DataSource<CascadeOption<V>>;
     'aria-label'?: string;
+    /** Id of the field (the trigger, with `filter` the search field), e.g. for a `<label for>` */
+    id?: string;
     className?: string;
     style?: CSSProperties;
     /** Extra classes per part of the component, e.g. { base: "…" } (see the recipe) */
@@ -116,6 +119,7 @@ export function CascadeSelect<V = string>({
     onLoadChildren,
     dataSource,
     'aria-label': ariaLabel,
+    id,
     className,
     style,
 }: CascadeSelectProps<V>) {
@@ -124,7 +128,7 @@ export function CascadeSelect<V = string>({
     const styles = cascadeSelect({ size, clearable: clearable && !filter });
     const { translations, locale } = useLocale();
     const field = useFieldContext();
-    const id = useId();
+    const uid = useId();
     const keyOf = (option: Option) => listValueKey(option.value, valueKey);
     const [status, setStatus] = useState('');
 
@@ -343,6 +347,7 @@ export function CascadeSelect<V = string>({
                 positioning={{ sameWidth: true, gutter: 4 }}
                 translations={translations.combobox}
                 openOnClick={false}
+                {...controlIds(id, 'input', { label: field?.ids.label, input: field?.ids.control })}
                 lazyMount
                 unmountOnExit
                 onValueChange={(details) => {
@@ -427,12 +432,13 @@ export function CascadeSelect<V = string>({
         'aria-invalid': isInvalid || undefined,
         'aria-busy': loading || undefined,
         'aria-label': field ? undefined : ariaLabel ? `${ariaLabel}: ${text}` : undefined,
-        'aria-labelledby': field ? `${field.ids.label} ${id}value` : undefined,
-        'aria-describedby': field?.ariaDescribedby,
+        'aria-labelledby': field ? `${field.ids.label} ${uid}value` : undefined,
+        // Named by a <label for>: the chosen value as the description
+        'aria-describedby': field ? field.ariaDescribedby : id && !ariaLabel ? `${uid}value` : undefined,
     };
     const triggerContent = (
         <>
-            <span id={`${id}value`} className={styles.value()} data-placeholder-shown={!path || undefined}>
+            <span id={`${uid}value`} className={styles.value()} data-placeholder-shown={!path || undefined}>
                 {text}
             </span>
             <ArkMenu.Indicator className={styles.indicator()}>
@@ -445,7 +451,12 @@ export function CascadeSelect<V = string>({
         </>
     );
     return (
-        <ArkMenu.Root positioning={{ placement: 'bottom-start', gutter: 4 }} lazyMount unmountOnExit>
+        <ArkMenu.Root
+            positioning={{ placement: 'bottom-start', gutter: 4 }}
+            {...controlIds(id, 'trigger')}
+            lazyMount
+            unmountOnExit
+        >
             <div className={styles.base({ class: className })} style={style}>
                 {/* No wrapper without a clear button (unchanged DOM) */}
                 {clearable ? (

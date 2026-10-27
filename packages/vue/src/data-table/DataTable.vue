@@ -45,6 +45,8 @@ import {
     type Updater,
 } from '@tanstack/vue-table';
 import {
+    type DataTablePaginatorAlign,
+    paginatorAlignKey,
     aggregateValues,
     applyPending,
     changesByRow,
@@ -219,6 +221,10 @@ export interface DataTableProps<T> {
     first?: number;
     /** Pagination below (default) or above the table */
     paginatorPosition?: 'top' | 'bottom';
+    /** Buttons to the first and the last page in the pagination */
+    paginatorEdges?: boolean;
+    /** Pagination row: rows per page at the start, pages at the end (`between`, default) – or both together */
+    paginatorAlign?: DataTablePaginatorAlign;
     /** Current sorting – use with v-model:sorting; an array in the multiple mode */
     sorting?: DataTableSort | DataTableSort[] | null;
     /** Sorting at the start, without v-model */
@@ -268,6 +274,8 @@ export interface DataTableProps<T> {
     defaultExpanded?: string[];
     /** Names the expand button of a row */
     expandLabel?: (row: T, index: number) => string;
+    /** Whether a row has details (#expansion) – rows without get no expand button (default: all rows) */
+    rowExpandable?: (row: T) => boolean;
     /**
      * Advanced filter: the rows pass a condition tree (nested and/or rules; v-model:advanced-filter-value). `true`
      * offers every column with a filter type; or pass the fields. A toolbar button opens the editor from the
@@ -367,6 +375,8 @@ export interface DataTableProps<T> {
     densityToggle?: boolean;
     /** Lines between the columns */
     gridlines?: boolean;
+    /** A border around the whole table */
+    bordered?: boolean;
     /** Every other row tinted */
     striped?: boolean;
     /** Button above the table to show it on the whole screen */
@@ -825,7 +835,9 @@ function toDef(column: DataTableColumn<TData>): ColumnDef<Features, TData> {
         id: column.id,
         header: column.header,
         accessorFn: (row: TData) => rawValue(column, row),
-        enableSorting: !!column.sortable,
+        // TanStack only sorts by columns it may sort (a defaultSorting on another column was dropped): every column
+        // can be sorted by the state, the controls ask `sortable` (canSort)
+        enableSorting: true,
         // Always ascending first – TanStack would start numeric columns descending
         sortDescFirst: false,
         sortUndefined: 'last',
@@ -876,8 +888,9 @@ const table = useTable({
     getSubRows: props.getSubRows,
     // Lenient tree filter: a match in a child keeps its parents
     filterFromLeafRows: computed(() => props.treeFilterMode === 'lenient'),
-    // Details (#expansion) can be opened on every row
-    getRowCanExpand: (row: TableRow) => !!slots.expansion || !!row.subRows?.length,
+    // Details (#expansion) can be opened on every row – or on those rowExpandable allows
+    getRowCanExpand: (row: TableRow) =>
+        (!!slots.expansion && (props.rowExpandable?.(row.original) ?? true)) || !!row.subRows?.length,
     // Moved or pasted rows change `data`: groups and tree rows stay open (TanStack would close them all)
     autoResetExpanded: computed(() => (props.reorderableRows || props.cellSelection ? false : undefined)),
     onExpandedChange: (updater: Updater<ExpandedState>) => setExpanded(resolve(updater, expanded.value)),
@@ -996,6 +1009,8 @@ function setDensity(next: Density) {
 const look = computed(() => ({
     size: density.value,
     gridlines: !!props.gridlines,
+    bordered: !!props.bordered,
+    paginatorAlign: paginatorAlignKey(props.paginatorAlign),
     striped: !!props.striped,
     scrollable: !!props.scrollHeight,
     wrapHeaders: !!props.wrapHeaders,
@@ -1129,10 +1144,12 @@ const headLabelClass = (column: TableColumn) =>
     columnById.value.get(column.id)?.headerHidden ? styles.value.srOnly() : styles.value.headLabel();
 
 // Sorting
+/** Whether the user can sort by the column (its header button, the column menu) */
+const canSort = (columnId: string) => !!columnById.value.get(columnId)?.sortable;
 const ariaSort = (columnId: string) => {
     const first = sorting.value[0];
     if (first?.id === columnId) return first.desc ? 'descending' : 'ascending';
-    return table.getColumn(columnId)?.getCanSort() ? 'none' : undefined;
+    return canSort(columnId) ? 'none' : undefined;
 };
 const sortPosition = (columnId: string) => sorting.value.findIndex((sort) => sort.id === columnId) + 1;
 function onSort(columnId: string, event: MouseEvent) {
@@ -1158,7 +1175,7 @@ function columnMenuItems(column: TableColumn): MenuEntry[] {
     const visible = leafColumns.value.map((item) => item.id);
     const position = visible.indexOf(column.id);
     const sections: MenuEntry[][] = [
-        column.getCanSort()
+        canSort(column.id)
             ? [
                   { value: 'sort-asc', label: t.sortAscending, icon: ArrowUp, disabled: sorted === 'asc' },
                   { value: 'sort-desc', label: t.sortDescending, icon: ArrowDown, disabled: sorted === 'desc' },
@@ -1470,7 +1487,8 @@ const items = computed(() =>
             ? [{ kind: 'group', row, key: row.id }]
             : [
                   { kind: 'row', row, key: row.id },
-                  ...(slots.expansion && row.getIsExpanded()
+                  // "Expand all" marks every row expanded – details only for the rows that have them
+                  ...(slots.expansion && row.getCanExpand() && row.getIsExpanded()
                       ? [{ kind: 'expansion' as const, row, key: `${row.id}:details` }]
                       : []),
               ]
@@ -3309,6 +3327,7 @@ const bottomEndPositioning = { placement: 'bottom-end', gutter: 4 } as const;
                     :page-size="pagination.pageSize"
                     :page="pagination.pageIndex + 1"
                     :translations="{ rootLabel: `${caption}: ${translations.pagination.rootLabel}` }"
+                    :with-edges="paginatorEdges"
                     @update:page="table.setPageIndex($event - 1)"
                 />
             </div>
@@ -3418,7 +3437,7 @@ const bottomEndPositioning = { placement: 'bottom-end', gutter: 4 } as const;
                                 >
                                     <div :class="styleFor(cell.header.column.id).headContent()">
                                         <button
-                                            v-if="cell.header.column.getCanSort()"
+                                            v-if="canSort(cell.header.column.id)"
                                             type="button"
                                             :class="styles.sortButton()"
                                             @click="onSort(cell.header.column.id, $event)"
@@ -3971,7 +3990,7 @@ const bottomEndPositioning = { placement: 'bottom-end', gutter: 4 } as const;
                                             @change="selectRow(item.row, true)"
                                         />
                                         <button
-                                            v-else-if="utility === 'expand'"
+                                            v-else-if="utility === 'expand' && item.row.getCanExpand()"
                                             type="button"
                                             :class="styles.expander()"
                                             :aria-expanded="item.row.getIsExpanded()"
@@ -3985,6 +4004,8 @@ const bottomEndPositioning = { placement: 'bottom-end', gutter: 4 } as const;
                                                 aria-hidden="true"
                                             />
                                         </button>
+                                        <!-- A row without details keeps the room of the button (columns stay aligned) -->
+                                        <span v-else-if="utility === 'expand'" :class="styles.expanderSpacer()" />
                                         <span v-else :class="styles.rowNumber()">{{
                                             rowNumberById.get(item.row.id)
                                         }}</span>
@@ -4309,6 +4330,7 @@ const bottomEndPositioning = { placement: 'bottom-end', gutter: 4 } as const;
                     :page-size="pagination.pageSize"
                     :page="pagination.pageIndex + 1"
                     :translations="{ rootLabel: `${caption}: ${translations.pagination.rootLabel}` }"
+                    :with-edges="paginatorEdges"
                     @update:page="table.setPageIndex($event - 1)"
                 />
             </div>

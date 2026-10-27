@@ -48,6 +48,8 @@ export interface TagsInputProps {
     minSearchLength?: number;
     /** Accessible name without a surrounding Field */
     'aria-label'?: string;
+    /** Id of the input, e.g. for a `<label for>` */
+    id?: string;
     className?: string;
     style?: CSSProperties;
     /** Extra classes per part of the component, e.g. { base: "…" } (see the recipe) */
@@ -89,13 +91,14 @@ export function TagsInput({
     dataSource,
     minSearchLength = 1,
     'aria-label': ariaLabel,
+    id,
     className,
     style,
 }: TagsInputProps) {
     const tagsInput = useRecipe('tagsInput', tagsInputRecipe, classes);
     const styles = tagsInput();
     const translations = useTranslations();
-    // The input gets the Field's control id, so the Field label names it
+    // The input gets the Field's control id, so the Field label names it – or an own id (Ark finds the input by it)
     const field = useFieldContext();
     // Suggestions: a listbox below the field; the input is its combobox (Ark leaves Enter to it while an option is
     // highlighted)
@@ -169,7 +172,7 @@ export function TagsInput({
             disabled={disabled}
             invalid={invalid}
             name={name}
-            ids={field ? { input: field.ids.control } : undefined}
+            ids={id || field ? { input: id ?? field?.ids.control } : undefined}
             addOnPaste
             translations={translations.tagsInput}
         >

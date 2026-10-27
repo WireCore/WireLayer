@@ -6,6 +6,7 @@ import { X } from '@lucide/vue';
 import { datePicker as datePickerRecipe, parseTimeText, type RecipeClasses } from '@wirecore/wirelayer-recipes';
 import { computed, ref, useAttrs, useId } from 'vue';
 import { splitAttrs } from '../../utils/attrs.js';
+import { useLabelForWarning } from '../../utils/label-for.js';
 import DateSegments from '../DatePicker/DateSegments.vue';
 import { fromTime, toTime } from '../DatePicker/dates.js';
 import { useLocale, useTranslations } from '../../locale.js';
@@ -43,6 +44,8 @@ export interface TimeRangePickerProps {
     /** Clear button in the field while it has a value */
     clearable?: boolean;
     /** Extra classes per part of the component (see the datePicker recipe) */
+    /** Id of the field – the (first) time gets it; a `<label for>` cannot name it, use a Field or aria-label */
+    id?: string;
     classes?: RecipeClasses<typeof datePickerRecipe>;
 }
 
@@ -61,8 +64,9 @@ const currentLocale = computed(() => props.locale ?? localeContext.value.locale)
 const emit = defineEmits<{ 'update:modelValue': [value: TimeRange | null] }>();
 const attrs = useAttrs();
 const split = computed(() => splitAttrs(attrs));
+useLabelForWarning('TimeRangePicker', () => props.id);
 const styles = computed(() => datePicker({ size: props.size }));
-const id = useId();
+const uid = useId();
 const field = useFieldContext();
 const state = computed(() => ({
     disabled: props.disabled ?? field?.value.disabled,
@@ -71,9 +75,14 @@ const state = computed(() => ({
     required: props.required ?? field?.value.required,
 }));
 const rangeNames = [translations.dateRange.start, translations.dateRange.end];
-// The field label names the times, followed by "Start"/"End"
+// The field label names the times, followed by "Start"/"End"; an own id goes to the first time through Ark
 const ids = computed(() =>
-    field?.value ? { label: (index: number) => `${field.value.ids.label} ${id}r${index}` } : undefined
+    field?.value || props.id
+        ? {
+              ...(field?.value ? { label: (index: number) => `${field.value.ids.label} ${uid}r${index}` } : {}),
+              ...(props.id ? { segmentGroup: (index: number) => (index === 0 ? props.id : undefined) as string } : {}),
+          }
+        : undefined
 );
 const ariaLabel = computed(() => split.value.rest['aria-label'] as string | undefined);
 const groupLabel = (index: number) =>
@@ -148,7 +157,7 @@ function pasteText(text: string, index: number) {
                 <DateInput.Control :class="styles.dateControl()">
                     <template v-for="index in [0, 1]" :key="index">
                         <span v-if="index === 1" :class="styles.rangeSeparator()" aria-hidden="true">–</span>
-                        <span v-if="field" :id="`${id}r${index}`" :class="styles.rangeLabel()">
+                        <span v-if="field" :id="`${uid}r${index}`" :class="styles.rangeLabel()">
                             {{ rangeNames[index] }}
                         </span>
                         <DateSegments

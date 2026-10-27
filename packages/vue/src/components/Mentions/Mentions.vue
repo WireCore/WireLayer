@@ -214,7 +214,7 @@ watch(options, () => {
             </div>
             <textarea
                 v-bind="{ ...attrs, class: undefined, style: undefined }"
-                :id="field?.ids.control"
+                :id="field?.ids.control ?? (attrs.id as string | undefined)"
                 ref="textarea"
                 :class="styles.textarea()"
                 :value="parsed.text"

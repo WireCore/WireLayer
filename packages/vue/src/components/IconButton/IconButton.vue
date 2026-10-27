@@ -1,8 +1,10 @@
 <script setup lang="ts">
+import { LoaderCircle } from '@lucide/vue';
 import {
     buttonColorKey,
     formatCount,
     iconButton as iconButtonRecipe,
+    spinner as spinnerRecipe,
     type ButtonColor,
     type ButtonShape,
     type ButtonSize,
@@ -27,6 +29,8 @@ export interface IconButtonProps {
     /** Corner shape: `pill` (round, default), `rounded` or `square` */
     shape?: ButtonShape;
     disabled?: boolean;
+    /** Shows a spinner instead of the icon and ignores clicks; stays focusable (aria-disabled + aria-busy) */
+    loading?: boolean;
     type?: 'button' | 'submit' | 'reset';
     /** Counter (number > 0) or dot (true) in the top-right corner */
     badge?: number | boolean;
@@ -46,6 +50,7 @@ const props = withDefaults(defineProps<IconButtonProps>(), {
     badgeLabel: (count: string | null) => (count === null ? 'new' : `${count} new`),
 });
 const iconButton = useRecipe('iconButton', iconButtonRecipe, () => props.classes);
+const spinner = useRecipe('spinner', spinnerRecipe);
 const attrs = useAttrs();
 const styles = computed(() =>
     iconButton({ variant: props.variant, color: buttonColorKey(props.color), size: props.size, shape: props.shape })
@@ -57,16 +62,30 @@ const accessibleName = computed(() => {
     if (props.badge === true) return `${props.label}, ${props.badgeLabel(null)}`;
     return props.label;
 });
+
+// Only while loading – otherwise an aria-disabled passed in stays
+const busy = computed(() => (props.loading ? { 'aria-disabled': true, 'aria-busy': true } : {}));
+
+type ClickHandler = (event: MouseEvent) => void;
+
+function onClick(event: MouseEvent) {
+    if (props.loading) {
+        event.preventDefault();
+        return;
+    }
+    [attrs.onClick as ClickHandler | ClickHandler[] | undefined].flat().forEach((handler) => handler?.(event));
+}
 </script>
 
 <template>
     <button
-        v-bind="{ ...attrs, class: styles.base({ class: normalizeClass(attrs.class) }) }"
+        v-bind="{ ...attrs, class: styles.base({ class: normalizeClass(attrs.class) }), onClick, ...busy }"
         :type="type"
         :disabled="disabled"
         :aria-label="accessibleName"
     >
-        <component :is="icon" v-bind="iconProps" :class="styles.icon()" aria-hidden="true" />
+        <LoaderCircle v-if="loading" :class="spinner().icon({ class: styles.icon() })" aria-hidden="true" />
+        <component :is="icon" v-else v-bind="iconProps" :class="styles.icon()" aria-hidden="true" />
         <span v-if="count" :class="styles.badge()" aria-hidden="true">{{ formatCount(count) }}</span>
         <span v-else-if="badge === true" :class="styles.dot()" aria-hidden="true" />
     </button>

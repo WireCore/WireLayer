@@ -435,6 +435,48 @@ function RowsTable() {
 /** Details per row, row numbers, actions (menu and right click), rows by drag and drop or arrow keys, one choice */
 export const Rows: Story = { render: () => <RowsTable /> };
 
+/** `bordered` frames the table (here with `gridlines`); `paginatorEdges` adds first/last page, `paginatorAlign` centres */
+export const BorderAndPagination: Story = {
+    name: 'Border and pagination',
+    render: () => (
+        <DataTable<MachineRow>
+            className="max-w-[900px]"
+            data={machines(12)}
+            columns={rowColumns}
+            caption="Machines"
+            getRowId={machineId}
+            gridlines
+            bordered
+            pageSize={4}
+            paginatorEdges
+            paginatorAlign="center"
+        />
+    ),
+};
+
+/** Details on some rows only (`rowExpandable`): the others have no button, their cell keeps its width */
+export const RowDetails: Story = {
+    name: 'Details on some rows',
+    render: () => (
+        <DataTable<MachineRow>
+            data={machines(4)}
+            columns={rowColumns}
+            caption="Machines"
+            getRowId={machineId}
+            rowLabel={machineName}
+            rowExpandable={(row) => row.id !== 'vm-0002'}
+            defaultExpanded={['vm-0001']}
+            className={`max-w-[900px] ${card}`}
+            expansion={(row) => (
+                <dl className="grid grid-cols-[max-content_1fr] gap-x-6 gap-y-1">
+                    <dt className="text-muted">System</dt>
+                    <dd>{row.os}</dd>
+                </dl>
+            )}
+        />
+    ),
+};
+
 const editColumns: DataTableColumn<MachineRow>[] = [
     {
         id: 'name',

@@ -44,3 +44,47 @@ writeFileSync('brand.css', themeToCss(brand));
 ```
 
 All bundled themes pass this check in both modes.
+
+When a pair misses its contrast, `suggestThemeFixes` says how to fix it: per pair the nearest variant of a colour that
+meets it – its lightness moved in OKLCH, the hue kept – and, where text sits on the colour, a light or dark `on-*`
+colour. A suggestion never breaks a pair that passed:
+
+```ts
+import { suggestThemeFixes } from '@wirecore/wirelayer-tokens';
+
+suggestThemeFixes(brand);
+// [{ name: 'primary: text-on-primary on bg-primary', mode: 'light', ratio: 2.6, min: 4.5,
+//    color: { token: 'primary', value: '#a35c00', ratio: 4.5 },
+//    on: { token: 'on-primary', value: '#050505', ratio: 8.1 } }, …]
+```
+
+## Component sizes and shapes
+
+Besides the colors, a few measures that a brand usually changes are CSS variables. Without them every component looks as
+before – their defaults are the values of the recipes. Set them on `:root` (all pages), on a `[data-theme]` or on any
+element (that part of the page):
+
+```css
+:root {
+    --wc-control-h-md: 2.625rem; /* buttons and fields of the medium size: 42px */
+    --wc-control-text-md: 1rem;
+    --wc-control-radius-md: 0.375rem;
+    --wc-button-radius: 0.375rem;
+    --wc-card-p: 1.25rem;
+    --wc-backdrop: rgb(0 0 0 / 0.4);
+}
+```
+
+| Variable                                              | Default                    | Applies to                                                                                                                                                                                     |
+| ----------------------------------------------------- | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `--wc-control-h-sm` / `-md` / `-lg`                   | `2rem` / `2.5rem` / `3rem` | Height of the sizes sm, md, lg: Button, IconButton, Input, NativeSelect, Select, MultiSelect, Combobox, NumberInput, PasswordInput, the date and time fields, ColorPicker, TagsInput (minimum) |
+| `--wc-control-radius-sm` / `-md` / `-lg`              | `6px` / `8px` / `10px`     | Corners of the fields above and of Textarea (not of buttons)                                                                                                                                   |
+| `--wc-control-text-sm` / `-md` / `-lg`                | `13px` / `15px` / `16px`   | Text in the fields above and in Textarea                                                                                                                                                       |
+| `--wc-button-radius`                                  | `8px`                      | Corners of Button and IconButton with `shape="rounded"` (`pill` and `square` stay)                                                                                                             |
+| `--wc-card-p`                                         | `1.5rem`                   | Padding of Card                                                                                                                                                                                |
+| `--wc-backdrop`                                       | `rgb(0 0 0 / 0.6)`         | Dimming behind Dialog, Drawer and ConfirmDialog                                                                                                                                                |
+| `--radius-card` / `--radius-panel` / `--radius-popup` | `20px` / `28px` / `12px`   | Corners of cards, panels and popups (menus, lists, popovers)                                                                                                                                   |
+| `--wc-dialog-w`                                       | by `size`                  | Width of a DialogContent                                                                                                                                                                       |
+
+The rest – the padding of a dialog or of table cells, the size of a single variant – is set per part with `classes` or
+`RecipesProvider` (_Getting started › Welcome › Customizing_). The React Native components keep their fixed sizes.

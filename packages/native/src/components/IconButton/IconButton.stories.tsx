@@ -45,3 +45,13 @@ export const Colors: Story = {
         </View>
     ),
 };
+
+/** `loading`: a spinner instead of the icon, the name stays; presses are ignored (like Button) */
+export const Loading: Story = {
+    render: () => (
+        <View className="flex-row items-center gap-2">
+            <IconButton icon={Plus} label="Add" loading />
+            <IconButton icon={Trash2} label="Delete" variant="outline" color="danger" loading />
+        </View>
+    ),
+};

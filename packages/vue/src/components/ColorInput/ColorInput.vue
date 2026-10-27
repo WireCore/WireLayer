@@ -108,7 +108,7 @@ const bottomStartPositioning = { placement: 'bottom-start', gutter: 4 } as const
                 </ColorPicker.Trigger>
                 <input
                     v-bind="{ ...attrs, class: undefined, style: undefined }"
-                    :id="field?.ids.control"
+                    :id="field?.ids.control ?? (attrs.id as string | undefined)"
                     type="text"
                     :class="styles.textInput()"
                     :value="shown"
@@ -116,7 +116,11 @@ const bottomStartPositioning = { placement: 'bottom-start', gutter: 4 } as const
                     :placeholder="placeholder"
                     :disabled="(disabled ?? field?.disabled) || undefined"
                     :readonly="readOnly ?? field?.readOnly"
-                    :aria-label="field ? undefined : ((attrs['aria-label'] as string | undefined) ?? text.name)"
+                    :aria-label="
+                        field
+                            ? undefined
+                            : ((attrs['aria-label'] as string | undefined) ?? (attrs.id ? undefined : text.name))
+                    "
                     :aria-invalid="isInvalid || undefined"
                     :aria-describedby="field?.ariaDescribedby"
                     spellcheck="false"

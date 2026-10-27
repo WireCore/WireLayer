@@ -130,6 +130,72 @@ describe.each(frameworks)('%s', (framework) => {
         });
     });
 
+    describe('Tooltip closeOnScroll', () => {
+        const open = async (props: Record<string, unknown>) => {
+            await render(
+                framework,
+                el('Tooltip', { content: 'Copy configuration', openDelay: 0, ...props }, el('Button', {}, 'Copy'))
+            );
+            const trigger = screen.getByRole('button', { name: 'Copy' });
+            await userEvent.tab();
+            await waitFor(() => expect(trigger).toHaveAccessibleDescription('Copy configuration'));
+            await act(async () => {
+                window.dispatchEvent(new Event('scroll'));
+            });
+            return trigger;
+        };
+
+        it('closes when the page scrolls (default)', async () => {
+            const trigger = await open({});
+            await waitFor(() => expect(trigger).not.toHaveAccessibleDescription('Copy configuration'));
+        });
+
+        it('stays open while the page scrolls with closeOnScroll false', async () => {
+            const trigger = await open({ closeOnScroll: false });
+            await new Promise((done) => setTimeout(done, 50));
+            expect(trigger).toHaveAccessibleDescription('Copy configuration');
+        });
+    });
+
+    describe('Slider hideLabel', () => {
+        it('the label still names the thumb, shown for screen readers only', async () => {
+            await render(
+                framework,
+                el(
+                    'div',
+                    {},
+                    el('Slider', { label: 'Volume', defaultValue: [40], hideLabel: true }),
+                    el('Slider', { label: 'Balance', defaultValue: [50], hideLabel: true, showValue: false })
+                )
+            );
+            expect(screen.getByRole('slider', { name: 'Volume' })).toBeInTheDocument();
+            expect(screen.getByText('Volume')).toHaveClass('sr-only');
+            // Without a value the whole header takes no room
+            expect(screen.getByRole('slider', { name: 'Balance' })).toBeInTheDocument();
+            expect(screen.getByText('Balance').parentElement).toHaveClass('sr-only');
+        });
+    });
+
+    describe('Carousel controlsPosition', () => {
+        it('sides: previous and next beside the slides, the dots below', async () => {
+            await render(
+                framework,
+                el('Carousel', {
+                    items: ['One', 'Two', 'Three'],
+                    label: 'Pictures',
+                    controlsPosition: 'sides',
+                    children: () => null,
+                })
+            );
+            const previous = screen.getByRole('button', { name: /previous/i });
+            const next = screen.getByRole('button', { name: /next/i });
+            const row = previous.parentElement!;
+            expect(row).toBe(next.parentElement);
+            expect(row.querySelector('[data-part=item-group]')).not.toBeNull();
+            expect(document.querySelector('[data-part=control]')!.contains(previous)).toBe(false);
+        });
+    });
+
     describe('Toaster', () => {
         it('shows toasts in a named live region', async () => {
             const toast = framework === 'vue' ? vueToast : reactToast;
@@ -383,6 +449,29 @@ describe.each(frameworks)('%s', (framework) => {
         it('uses the label as accessible name', async () => {
             await render(framework, el('IconButton', { icon: icon('Plus'), label: 'Add' }));
             expect(screen.getByRole('button', { name: 'Add' })).toBeInTheDocument();
+        });
+
+        it('loading: spinner instead of the icon, same name, focusable, ignores clicks and does not submit', async () => {
+            const onClick = vi.fn();
+            const onSubmit = vi.fn((event: Event) => event.preventDefault());
+            await render(
+                framework,
+                el(
+                    'form',
+                    { onSubmit },
+                    el('IconButton', { icon: icon('Plus'), label: 'Add', loading: true, type: 'submit', onClick })
+                )
+            );
+            const button = screen.getByRole('button', { name: 'Add' });
+            expect(button).toHaveAttribute('aria-busy', 'true');
+            expect(button).toHaveAttribute('aria-disabled', 'true');
+            expect(button).toBeEnabled();
+            expect(button.querySelector('svg')).toHaveClass('lucide-loader-circle');
+            button.focus();
+            expect(button).toHaveFocus();
+            await userEvent.click(button);
+            expect(onClick).not.toHaveBeenCalled();
+            expect(onSubmit).not.toHaveBeenCalled();
         });
 
         it('iconProps reach the icon of IconButton, Button and Badge – e.g. a filled icon', async () => {

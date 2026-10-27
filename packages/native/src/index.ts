@@ -187,7 +187,13 @@ export { Breadcrumb, type BreadcrumbEntry, type BreadcrumbProps } from './compon
 export { Carousel, type CarouselProps } from './components/Carousel/Carousel.js';
 export { Center, type CenterProps } from './components/Center/Center.js';
 export { Collapse, type CollapseProps } from './components/Collapse/Collapse.js';
-export { confirm, prompt, type ConfirmOptions, type PromptOptions } from './components/Confirm/confirm.js';
+export {
+    confirm,
+    prompt,
+    type ConfirmButtonOptions,
+    type ConfirmOptions,
+    type PromptOptions,
+} from './components/Confirm/confirm.js';
 export { ConfirmDialog, type ConfirmDialogProps } from './components/Confirm/ConfirmDialog.js';
 export { Container, type ContainerProps } from './components/Container/Container.js';
 export { ContextMenu, type ContextMenuProps } from './components/ContextMenu/ContextMenu.js';

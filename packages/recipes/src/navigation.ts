@@ -67,7 +67,7 @@ export const select = tv({
     slots: {
         base: 'flex w-full flex-col',
         trigger: [
-            'flex h-10 w-full cursor-pointer items-center justify-between gap-2.5 rounded-lg border border-line-strong bg-bg pe-2.5 ps-3 text-start text-[15px] text-fg',
+            'flex h-[var(--wc-control-h-md,2.5rem)] w-full cursor-pointer items-center justify-between gap-2.5 rounded-[var(--wc-control-radius-md,0.5rem)] border border-line-strong bg-bg pe-2.5 ps-3 text-start text-[length:var(--wc-control-text-md,15px)] text-fg',
             'outline-none transition-colors motion-reduce:transition-none focus-visible:border-primary data-[state=open]:border-primary',
             'data-invalid:border-danger data-disabled:cursor-not-allowed data-disabled:border-line data-disabled:bg-bg-2 data-disabled:text-muted',
         ],
@@ -90,9 +90,15 @@ export const select = tv({
     },
     variants: {
         size: {
-            sm: { trigger: 'h-8 rounded-md ps-2.5 pe-2 text-[13px]' },
+            sm: {
+                trigger:
+                    'h-[var(--wc-control-h-sm,2rem)] rounded-[var(--wc-control-radius-sm,0.375rem)] ps-2.5 pe-2 text-[length:var(--wc-control-text-sm,13px)]',
+            },
             md: {},
-            lg: { trigger: 'h-12 rounded-[10px] ps-4 pe-3 text-base' },
+            lg: {
+                trigger:
+                    'h-[var(--wc-control-h-lg,3rem)] rounded-[var(--wc-control-radius-lg,10px)] ps-4 pe-3 text-[length:var(--wc-control-text-lg,1rem)] leading-normal',
+            },
         },
         // Room for the clear button between value and arrow
         clearable: {

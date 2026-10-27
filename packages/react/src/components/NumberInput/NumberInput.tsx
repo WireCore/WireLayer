@@ -1,6 +1,7 @@
 import { useFieldContext } from '@ark-ui/react/field';
 import { NumberInput as ArkNumberInput } from '@ark-ui/react/number-input';
 import {
+    controlIds,
     defaultNumberFormat,
     insertIntoTextControl,
     numberInput as numberInputRecipe,
@@ -100,6 +101,7 @@ export function NumberInput({
     loading = false,
     clearable = false,
     clearLabel,
+    id,
     className,
     style,
     onKeyDown,
@@ -157,6 +159,7 @@ export function NumberInput({
             style={style}
             value={controlled}
             defaultValue={toNumberInputValue(defaultValue, locale, format)}
+            {...controlIds(id, 'input', { label: field?.ids.label, input: field?.ids.control })}
             onValueChange={(details) => {
                 const number = Number.isNaN(details.valueAsNumber) ? null : details.valueAsNumber;
                 setTyped({ text: details.value, number });

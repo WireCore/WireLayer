@@ -84,3 +84,33 @@ function PromptDemo() {
  * a deletion only go through after typing the name.
  */
 export const PromptAndTypeToConfirm: Story = { render: () => <PromptDemo /> };
+
+function ButtonLooksDemo() {
+    const [result, setResult] = useState('');
+    const archive = async () => {
+        const confirmed = await confirm({
+            title: 'Archive project?',
+            description: 'It moves to the archive and can be restored there.',
+            confirmLabel: 'Archive',
+            confirmButton: { shape: 'rounded' },
+        });
+        setResult(confirmed ? 'Archived' : 'Canceled');
+    };
+    return (
+        <div className="flex items-center gap-3">
+            <Button variant="outline" onClick={archive}>
+                Archive project
+            </Button>
+            <span className="text-sm text-muted" aria-live="polite">
+                {result}
+            </span>
+            <ConfirmDialog confirmButton={{ size: 'md' }} cancelButton={{ size: 'md', variant: 'text' }} />
+        </div>
+    );
+}
+
+/**
+ * `confirmButton` / `cancelButton` set the look of the buttons for every request (variant, color, size, shape);
+ * `confirmButton` / `cancelButton` in `confirm()` win for one request
+ */
+export const ButtonLooks: Story = { name: 'Button looks', render: () => <ButtonLooksDemo /> };

@@ -75,6 +75,8 @@ export interface DatePickerBaseProps extends CalendarViewOptions {
     required?: boolean;
     name?: string;
     label?: string;
+    /** Own id of the field: the (first) date gets it */
+    ownId?: string;
     /** Text of the empty field, shown until it gets the focus */
     placeholder?: string;
     className?: string;
@@ -113,6 +115,7 @@ export function DatePickerBase({
     required,
     name,
     label,
+    ownId,
     placeholder,
     className,
     style,
@@ -143,10 +146,17 @@ export function DatePickerBase({
     const multiple = mode === 'multiple';
     const groups = range ? [0, 1] : [0];
     const rangeNames = [translations.dateRange.start, translations.dateRange.end];
-    // The field label names the date; in a range followed by "Start"/"End"
-    const ids = field
-        ? { label: (index: number) => (range ? `${field.ids.label} ${id}r${index}` : field.ids.label) }
-        : undefined;
+    // The field label names the date; in a range followed by "Start"/"End". An own id goes to the (first) date
+    // through Ark – undefined leaves Ark its own id
+    const ids =
+        field || ownId
+            ? {
+                  ...(field
+                      ? { label: (index: number) => (range ? `${field.ids.label} ${id}r${index}` : field.ids.label) }
+                      : {}),
+                  ...(ownId ? { segmentGroup: (index: number) => (index === 0 ? ownId : undefined) as string } : {}),
+              }
+            : undefined;
     const groupLabel = (index: number) =>
         field ? undefined : range ? [label, rangeNames[index]].filter(Boolean).join(', ') : label;
     const calendarTranslations = range

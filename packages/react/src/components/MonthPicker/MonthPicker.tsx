@@ -9,6 +9,7 @@ import { parseDate, type DateValue } from '@internationalized/date';
 import { useState, type CSSProperties } from 'react';
 import { DatePickerBase, type CalendarPreset } from '../DatePicker/DatePickerBase.js';
 import { useLocale, useTranslations } from '../LocaleProvider/LocaleProvider.js';
+import { useLabelForWarning } from '../../utils/label-for.js';
 
 export interface MonthPickerProps<T extends string | PeriodRange | null = string | null> {
     /** Month as "2026-10"; with range { start, end } */
@@ -37,6 +38,8 @@ export interface MonthPickerProps<T extends string | PeriodRange | null = string
     clearable?: boolean;
     /** Accessible name without a surrounding Field */
     'aria-label'?: string;
+    /** Id of the field – the (first) date gets it; a `<label for>` cannot name it, use a Field or aria-label */
+    id?: string;
     className?: string;
     style?: CSSProperties;
     /** Extra classes per part of the date field, e.g. { control: "…" } (the calendar: RecipesProvider) */
@@ -59,8 +62,10 @@ export function MonthPicker<T extends string | PeriodRange | null = string | nul
     locale: localeProp,
     clearable = true,
     'aria-label': ariaLabel,
+    id,
     ...rest
 }: MonthPickerProps<T>) {
+    useLabelForWarning('MonthPicker', id);
     const localeContext = useLocale();
     const locale = localeProp ?? localeContext.locale;
     const translations = useTranslations();
@@ -103,6 +108,7 @@ export function MonthPicker<T extends string | PeriodRange | null = string | nul
             locale={locale}
             presets={calendarPresets}
             label={ariaLabel}
+            ownId={id}
             hideClear={!clearable}
         />
     );

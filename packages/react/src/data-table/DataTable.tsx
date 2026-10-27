@@ -21,6 +21,8 @@ import {
     type Updater,
 } from '@tanstack/react-table';
 import {
+    type DataTablePaginatorAlign,
+    paginatorAlignKey,
     aggregateValues,
     applyPending,
     changesByRow,
@@ -257,6 +259,10 @@ export interface DataTableProps<TData> extends Omit<
     onFirstChange?: (first: number) => void;
     /** Pagination below (default) or above the table */
     paginatorPosition?: 'top' | 'bottom';
+    /** Buttons to the first and the last page in the pagination */
+    paginatorEdges?: boolean;
+    /** Pagination row: rows per page at the start, pages at the end (`between`, default) – or both together */
+    paginatorAlign?: DataTablePaginatorAlign;
     /** Current sorting; controlled together with onSortingChange – an array in the multiple mode */
     sorting?: DataTableSort | DataTableSort[] | null;
     onSortingChange?: (sorting: DataTableSort | DataTableSort[] | null) => void;
@@ -312,6 +318,8 @@ export interface DataTableProps<TData> extends Omit<
     onExpandedChange?: (expanded: string[]) => void;
     /** Names the expand button of a row */
     expandLabel?: (row: TData, index: number) => string;
+    /** Whether a row has details (`expansion`) – rows without get no expand button (default: all rows) */
+    rowExpandable?: (row: TData) => boolean;
     /** Details below an expanded row – adds the expand column */
     expansion?: (row: TData, rowId: string) => ReactNode;
     /**
@@ -441,6 +449,8 @@ export interface DataTableProps<TData> extends Omit<
     densityToggle?: boolean;
     /** Lines between the columns */
     gridlines?: boolean;
+    /** A border around the whole table */
+    bordered?: boolean;
     /** Every other row tinted */
     striped?: boolean;
     /** Button above the table to show it on the whole screen */
@@ -561,6 +571,8 @@ export function DataTable<TData extends object>({
     first,
     onFirstChange,
     paginatorPosition = 'bottom',
+    paginatorEdges,
+    paginatorAlign,
     sorting: sortingProp,
     onSortingChange,
     defaultSorting,
@@ -591,6 +603,7 @@ export function DataTable<TData extends object>({
     defaultExpanded,
     onExpandedChange,
     expandLabel: expandLabelProp,
+    rowExpandable,
     expansion,
     advancedFilter,
     advancedFilterValue,
@@ -650,6 +663,7 @@ export function DataTable<TData extends object>({
     onSizeChange,
     densityToggle = false,
     gridlines = false,
+    bordered = false,
     striped = false,
     fullscreenToggle = false,
     scrollHeight,
@@ -971,7 +985,9 @@ export function DataTable<TData extends object>({
                     typeof column.accessor === 'function'
                         ? column.accessor(row)
                         : row[(column.accessor ?? column.id) as keyof TData],
-                enableSorting: !!column.sortable,
+                // TanStack only sorts by columns it may sort (a defaultSorting on another column was dropped): every
+                // column can be sorted by the state, the controls ask `sortable` (canSort)
+                enableSorting: true,
                 // Always ascending first – TanStack would start numeric columns descending
                 sortDescFirst: false,
                 sortUndefined: 'last',
@@ -1025,8 +1041,9 @@ export function DataTable<TData extends object>({
         getSubRows,
         // Lenient tree filter: a match in a child keeps its parents
         filterFromLeafRows: treeFilterMode === 'lenient',
-        // Details (`expansion`) can be opened on every row
-        getRowCanExpand: (row: TableRow) => !!expansion || !!row.subRows?.length,
+        // Details (`expansion`) can be opened on every row – or on those rowExpandable allows
+        getRowCanExpand: (row: TableRow) =>
+            (!!expansion && (rowExpandable?.(row.original) ?? true)) || !!row.subRows?.length,
         // Moved or pasted rows change `data`: groups and tree rows stay open (TanStack would close them all)
         ...(reorderableRows || cellSelection ? { autoResetExpanded: false } : {}),
         onExpandedChange: (updater: Updater<ExpandedState>) => setExpanded(resolve(updater, expanded)),
@@ -1089,7 +1106,16 @@ export function DataTable<TData extends object>({
 
     // Styles
     const [fullscreen, setFullscreen] = useState(false);
-    const look = { size: density, gridlines, striped, scrollable: !!scrollHeight, wrapHeaders, verticalHeaders };
+    const look = {
+        size: density,
+        gridlines,
+        bordered,
+        paginatorAlign: paginatorAlignKey(paginatorAlign),
+        striped,
+        scrollable: !!scrollHeight,
+        wrapHeaders,
+        verticalHeaders,
+    };
     const grid = navigation === 'grid';
     // A tree table with grid keys is a treegrid: rows with level and open state, left/right close and open them
     const treeGrid = grid && !!getSubRows;
@@ -1207,10 +1233,12 @@ export function DataTable<TData extends object>({
         columnById.get(column.id)?.headerHidden ? styles.srOnly() : styles.headLabel();
 
     // Sorting
+    /** Whether the user can sort by the column (its header button, the column menu) */
+    const canSort = (columnId: string) => !!columnById.get(columnId)?.sortable;
     const ariaSort = (columnId: string) => {
         const first = sorting[0];
         if (first?.id === columnId) return first.desc ? 'descending' : 'ascending';
-        return table.getColumn(columnId)?.getCanSort() ? 'none' : undefined;
+        return canSort(columnId) ? 'none' : undefined;
     };
     const sortPosition = (columnId: string) => sorting.findIndex((sort) => sort.id === columnId) + 1;
 
@@ -1246,7 +1274,7 @@ export function DataTable<TData extends object>({
         const visible = leafColumns.map((item) => item.id);
         const position = visible.indexOf(column.id);
         const sections: MenuEntry[][] = [
-            column.getCanSort()
+            canSort(column.id)
                 ? [
                       { value: 'sort-asc', label: t.sortAscending, icon: ArrowUp, disabled: sorted === 'asc' },
                       { value: 'sort-desc', label: t.sortDescending, icon: ArrowDown, disabled: sorted === 'desc' },
@@ -1540,7 +1568,8 @@ export function DataTable<TData extends object>({
             ? [{ kind: 'group', row, key: row.id }]
             : [
                   { kind: 'row', row, key: row.id },
-                  ...(expansion && row.getIsExpanded()
+                  // "Expand all" marks every row expanded – details only for the rows that have them
+                  ...(expansion && row.getCanExpand() && row.getIsExpanded()
                       ? [{ kind: 'expansion' as const, row, key: `${row.id}:details` }]
                       : []),
               ]
@@ -2999,6 +3028,7 @@ export function DataTable<TData extends object>({
                 pageSize={pagination.pageSize}
                 page={pagination.pageIndex + 1}
                 translations={{ rootLabel: `${caption}: ${translations.pagination.rootLabel}` }}
+                withEdges={paginatorEdges}
                 onPageChange={(next) => table.setPageIndex(next - 1)}
             />
         </div>
@@ -3341,7 +3371,7 @@ export function DataTable<TData extends object>({
                                         aria-label={t.selectRow(rowName)}
                                         onChange={() => selectRow(row, true)}
                                     />
-                                ) : utility === 'expand' ? (
+                                ) : utility === 'expand' && row.getCanExpand() ? (
                                     <button
                                         type="button"
                                         className={styles.expander()}
@@ -3356,6 +3386,9 @@ export function DataTable<TData extends object>({
                                             aria-hidden="true"
                                         />
                                     </button>
+                                ) : utility === 'expand' ? (
+                                    // A row without details keeps the room of the button (columns stay aligned)
+                                    <span className={styles.expanderSpacer()} />
                                 ) : (
                                     <span className={styles.rowNumber()}>{rowNumbers.get(row.id)}</span>
                                 )}
@@ -3875,7 +3908,7 @@ export function DataTable<TData extends object>({
                                             onDragEnd={onColumnDragEnd}
                                         >
                                             <div className={styleFor(column.id).headContent()}>
-                                                {column.getCanSort() ? (
+                                                {canSort(column.id) ? (
                                                     <button
                                                         type="button"
                                                         className={styles.sortButton()}

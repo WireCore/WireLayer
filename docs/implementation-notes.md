@@ -62,6 +62,11 @@ Worth reading before changing the affected areas.
   the pause itself; Ark knows no reduced motion (the animation only runs with `motion-safe:`). Ark's `Select` and
   `ColorPicker` take over the IDs of a surrounding `Field` – second controls inside it (the country of the PhoneInput)
   get `standalone`, the color button of the ColorInput its own name.
+- **Own ids on Ark controls:** Ark finds its parts by the ids it generates – an `id` attribute on the Select trigger
+  replaced that id, the list opened at the top left and the focus did not return. An own `id` goes through Ark's `ids`
+  (`controlIds()` in `@wirecore/wirelayer-recipes`); Ark replaces `ids` as a whole, so the Field's ids it would take are
+  passed along. A button that lists itself in `aria-labelledby` (`id value`) does not pull in its `<label for>` in
+  Chrome (jsdom does) – menu buttons named by a `<label for>` describe themselves by their value instead.
 - **Focus after Ark dialogs:** `finalFocusEl` is only called on close – the function looks the element up again at
   that point. That way the focus lands on the (re-rendered) event after the recurrence prompt instead of on a removed
   element.
@@ -119,6 +124,9 @@ Worth reading before changing the affected areas.
 - **Vue `v-model` with `undefined`:** a `v-model` without a value writes `''` into the textarea on mount and thereby
   overwrites `defaultValue` (jsdom did not show it, the browser test did). `defaultValue` is therefore a prop that
   initializes the internal text.
+- **States as attributes only while they apply:** `:aria-disabled="loading || undefined"` after the attrs replaced an
+  `aria-disabled` the parent passed (ChatPrompt's send button) – IconButton spreads `aria-disabled`/`aria-busy` only
+  while `loading`.
 - **Explicit `undefined` in props:** `aria-label={undefined}` after spreading the field props overwrites the field name.
   Fields only pass their own names on when they are set.
 - **React Compiler rules:** refs may neither be read nor written during render – “latest props” for later callbacks
@@ -226,6 +234,12 @@ Worth reading before changing the affected areas.
 - **The CSS generator test** reads `packages/css/dist`, and its build takes `@wirecore/wirelayer-recipes` from `dist`.
   After changing recipes, build `recipes` first and then `css` – otherwise the test checks the old state and does not
   report new variants.
+- **Variant values name the HTML classes:** `.wc-<recipe>-<value>` – two variants of a recipe with the same value
+  (`align: 'start'`, `paginatorAlign: 'start'`) stop the CSS build ("class name … is used twice"). Such values get a
+  prefix in the recipe (`paginatorStart`, mapped by `paginatorAlignKey()`, like `buttonColorKey()`).
+- **Component variables keep the old values as fallbacks:** `h-[var(--wc-control-h-md,2.5rem)]` instead of `h-10`
+  renders the same pixels without the variable; a selector on the old class (`[&.h-10]:…`) no longer matches – per
+  variant there are `variants` in `RecipesProvider`.
 - **Marker groups and the CSS generator:** `group-open/<name>:` cannot be translated into `.wc-*` rules (only pseudo
   classes like `:hover`). For `<details>`, `in-open:` sits on the child.
 - **Tailwind `grid-cols-(--x)`** sets the value unchanged as `grid-template-columns` – a number needs

@@ -138,7 +138,7 @@ export const tagsInput = tv({
         // relative: the suggestions open below the field
         base: 'relative flex w-full flex-col',
         control: [
-            'flex min-h-10 w-full flex-wrap items-center gap-1.5 rounded-lg border border-line-strong bg-bg px-2 py-1.5 text-fg',
+            'flex min-h-[var(--wc-control-h-md,2.5rem)] w-full flex-wrap items-center gap-1.5 rounded-[var(--wc-control-radius-md,0.5rem)] border border-line-strong bg-bg px-2 py-1.5 text-fg',
             'transition-colors focus-within:border-primary motion-reduce:transition-none',
             'data-invalid:border-danger data-disabled:cursor-not-allowed data-disabled:border-line data-disabled:bg-bg-2',
         ],
@@ -153,7 +153,7 @@ export const tagsInput = tv({
         ],
         deleteIcon: 'size-3.5',
         itemInput: 'h-7 rounded-md border border-primary bg-bg px-2 text-sm outline-none',
-        input: 'h-7 min-w-24 flex-1 bg-transparent px-1 text-[15px] outline-none placeholder:text-muted',
+        input: 'h-7 min-w-24 flex-1 bg-transparent px-1 text-[length:var(--wc-control-text-md,15px)] outline-none placeholder:text-muted',
         clear: [
             'ms-auto flex size-7 cursor-pointer items-center justify-center rounded-full text-muted hover:text-fg',
             focusRing,

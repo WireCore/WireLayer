@@ -7,12 +7,12 @@ import { tv } from './tv.js';
 
 /** The bordered box around a text control – like Input */
 const box = [
-    'flex w-full items-stretch overflow-hidden rounded-lg border border-line-strong bg-bg text-fg',
+    'flex w-full items-stretch overflow-hidden rounded-[var(--wc-control-radius-md,0.5rem)] border border-line-strong bg-bg text-fg',
     'transition-colors motion-reduce:transition-none focus-within:border-primary',
     'data-invalid:border-danger data-disabled:cursor-not-allowed data-disabled:border-line data-disabled:bg-bg-2 data-disabled:text-muted',
 ];
 const boxInput =
-    'h-full min-w-0 flex-1 bg-transparent px-3 text-[15px] text-inherit outline-none placeholder:text-muted disabled:cursor-not-allowed';
+    'h-full min-w-0 flex-1 bg-transparent px-3 text-[length:var(--wc-control-text-md,15px)] text-inherit outline-none placeholder:text-muted disabled:cursor-not-allowed';
 /** Square button inside the box (password toggle, calendar, clear) */
 const boxButton = [
     'flex w-10 shrink-0 cursor-pointer items-center justify-center text-muted transition-colors hover:text-fg motion-reduce:transition-none',
@@ -32,7 +32,7 @@ const boxSuccess = { true: { control: 'border-success focus-within:border-succes
 export const numberInput = tv({
     slots: {
         base: 'flex w-full flex-col',
-        control: [...box, 'h-10'],
+        control: [...box, 'h-[var(--wc-control-h-md,2.5rem)]'],
         input: [boxInput, 'tabular-nums'],
         // Side by side, the full height: 24 × 24 px touch targets at least (WCAG 2.5.8)
         button: [
@@ -49,9 +49,17 @@ export const numberInput = tv({
     },
     variants: {
         size: {
-            sm: { control: 'h-8 rounded-md', input: 'px-2.5 text-[13px]', button: 'w-8' },
+            sm: {
+                control: 'h-[var(--wc-control-h-sm,2rem)] rounded-[var(--wc-control-radius-sm,0.375rem)]',
+                input: 'px-2.5 text-[length:var(--wc-control-text-sm,13px)]',
+                button: 'w-8',
+            },
             md: {},
-            lg: { control: 'h-12 rounded-[10px]', input: 'px-4 text-base', button: 'w-11' },
+            lg: {
+                control: 'h-[var(--wc-control-h-lg,3rem)] rounded-[var(--wc-control-radius-lg,10px)]',
+                input: 'px-4 text-[length:var(--wc-control-text-lg,1rem)] leading-normal',
+                button: 'w-11',
+            },
         },
         // Up above down at the end; the field is 48px high so both keep a 24px target (WCAG 2.5.8)
         stacked: {
@@ -67,7 +75,7 @@ export const numberInput = tv({
 export const passwordInput = tv({
     slots: {
         base: 'flex w-full flex-col',
-        control: [...box, 'h-10'],
+        control: [...box, 'h-[var(--wc-control-h-md,2.5rem)]'],
         input: boxInput,
         toggle: boxButton,
         toggleIcon: 'size-4',
@@ -90,9 +98,17 @@ export const passwordInput = tv({
     },
     variants: {
         size: {
-            sm: { control: 'h-8 rounded-md', input: 'px-2.5 text-[13px]', toggle: 'w-8' },
+            sm: {
+                control: 'h-[var(--wc-control-h-sm,2rem)] rounded-[var(--wc-control-radius-sm,0.375rem)]',
+                input: 'px-2.5 text-[length:var(--wc-control-text-sm,13px)]',
+                toggle: 'w-8',
+            },
             md: {},
-            lg: { control: 'h-12 rounded-[10px]', input: 'px-4 text-base', toggle: 'w-12' },
+            lg: {
+                control: 'h-[var(--wc-control-h-lg,3rem)] rounded-[var(--wc-control-radius-lg,10px)]',
+                input: 'px-4 text-[length:var(--wc-control-text-lg,1rem)] leading-normal',
+                toggle: 'w-12',
+            },
         },
         success: boxSuccess,
     },
@@ -143,6 +159,14 @@ export const slider = tv({
                 control: 'mb-6 data-[orientation=vertical]:mb-0 data-[orientation=vertical]:me-14',
             },
         },
+        /** The label for screen readers only (`hideLabel`) – it still names the thumbs; the value stays at the end */
+        hideLabel: {
+            true: { header: 'justify-end', label: 'sr-only' },
+        },
+        /** Neither label nor value visible: the header takes no room */
+        hideHeader: {
+            true: { header: 'sr-only' },
+        },
     },
 });
 
@@ -150,7 +174,7 @@ export const multiSelect = tv({
     slots: {
         base: 'flex w-full flex-col',
         trigger: [
-            'flex h-10 w-full cursor-pointer items-center justify-between gap-2.5 rounded-lg border border-line-strong bg-bg pe-2.5 ps-3 text-start text-[15px] text-fg',
+            'flex h-[var(--wc-control-h-md,2.5rem)] w-full cursor-pointer items-center justify-between gap-2.5 rounded-[var(--wc-control-radius-md,0.5rem)] border border-line-strong bg-bg pe-2.5 ps-3 text-start text-[length:var(--wc-control-text-md,15px)] text-fg',
             'outline-none transition-colors motion-reduce:transition-none focus-visible:border-primary data-[state=open]:border-primary',
             'data-invalid:border-danger data-disabled:cursor-not-allowed data-disabled:border-line data-disabled:bg-bg-2 data-disabled:text-muted',
         ],
@@ -175,13 +199,13 @@ export const multiSelect = tv({
         /** Wraps trigger and clear button (clearable); with chips the bordered box around chips and trigger */
         control: 'relative flex',
         chipsControl: [
-            'relative flex min-h-10 w-full flex-wrap items-center gap-1 rounded-lg border border-line-strong bg-bg py-[5px] pe-2.5 ps-1.5 text-fg',
+            'relative flex min-h-[var(--wc-control-h-md,2.5rem)] w-full flex-wrap items-center gap-1 rounded-[var(--wc-control-radius-md,0.5rem)] border border-line-strong bg-bg py-[5px] pe-2.5 ps-1.5 text-fg',
             'transition-colors motion-reduce:transition-none focus-within:border-primary data-[state=open]:border-primary',
             'data-invalid:border-danger data-disabled:cursor-not-allowed data-disabled:border-line data-disabled:bg-bg-2 data-disabled:text-muted',
         ],
         /** The trigger next to the chips: fills the rest of the row, no border of its own */
         chipsTrigger: [
-            'flex h-7 min-w-16 flex-1 cursor-pointer items-center justify-between gap-2.5 ps-1.5 text-start text-[15px] text-fg outline-none',
+            'flex h-7 min-w-16 flex-1 cursor-pointer items-center justify-between gap-2.5 ps-1.5 text-start text-[length:var(--wc-control-text-md,15px)] text-fg outline-none',
             'data-disabled:cursor-not-allowed data-disabled:text-muted',
         ],
         chip: 'inline-flex h-7 max-w-full min-w-0 items-center gap-1 rounded-md bg-line pe-0.5 ps-2 text-sm text-fg',
@@ -213,15 +237,18 @@ export const multiSelect = tv({
     variants: {
         size: {
             sm: {
-                trigger: 'h-8 rounded-md ps-2.5 pe-2 text-[13px]',
-                chipsControl: 'min-h-8 rounded-md py-0.5',
-                chipsTrigger: 'text-[13px]',
+                trigger:
+                    'h-[var(--wc-control-h-sm,2rem)] rounded-[var(--wc-control-radius-sm,0.375rem)] ps-2.5 pe-2 text-[length:var(--wc-control-text-sm,13px)]',
+                chipsControl:
+                    'min-h-[var(--wc-control-h-sm,2rem)] rounded-[var(--wc-control-radius-sm,0.375rem)] py-0.5',
+                chipsTrigger: 'text-[length:var(--wc-control-text-sm,13px)]',
             },
             md: {},
             lg: {
-                trigger: 'h-12 rounded-[10px] ps-4 pe-3 text-base',
-                chipsControl: 'min-h-12 rounded-[10px] py-[9px]',
-                chipsTrigger: 'text-base',
+                trigger:
+                    'h-[var(--wc-control-h-lg,3rem)] rounded-[var(--wc-control-radius-lg,10px)] ps-4 pe-3 text-[length:var(--wc-control-text-lg,1rem)] leading-normal',
+                chipsControl: 'min-h-[var(--wc-control-h-lg,3rem)] rounded-[var(--wc-control-radius-lg,10px)] py-[9px]',
+                chipsTrigger: 'text-[length:var(--wc-control-text-lg,1rem)] leading-normal',
             },
         },
         // Room for the clear button between value and arrow
@@ -237,7 +264,7 @@ export const multiSelect = tv({
 export const combobox = tv({
     slots: {
         base: 'flex w-full flex-col',
-        control: [...box, 'h-10'],
+        control: [...box, 'h-[var(--wc-control-h-md,2.5rem)]'],
         input: boxInput,
         clear: [...boxButton, 'w-8'],
         clearIcon: 'size-3.5',
@@ -257,9 +284,18 @@ export const combobox = tv({
     },
     variants: {
         size: {
-            sm: { control: 'h-8 rounded-md', input: 'px-2.5 text-[13px]', trigger: 'w-8', clear: 'w-7' },
+            sm: {
+                control: 'h-[var(--wc-control-h-sm,2rem)] rounded-[var(--wc-control-radius-sm,0.375rem)]',
+                input: 'px-2.5 text-[length:var(--wc-control-text-sm,13px)]',
+                trigger: 'w-8',
+                clear: 'w-7',
+            },
             md: {},
-            lg: { control: 'h-12 rounded-[10px]', input: 'px-4 text-base', trigger: 'w-11' },
+            lg: {
+                control: 'h-[var(--wc-control-h-lg,3rem)] rounded-[var(--wc-control-radius-lg,10px)]',
+                input: 'px-4 text-[length:var(--wc-control-text-lg,1rem)] leading-normal',
+                trigger: 'w-11',
+            },
         },
     },
     defaultVariants: {
@@ -270,15 +306,15 @@ export const combobox = tv({
 export const datePicker = tv({
     slots: {
         base: 'flex w-full flex-col',
-        control: [...box, 'h-10'],
+        control: [...box, 'h-[var(--wc-control-h-md,2.5rem)]'],
         // Segmented date field (DateInput): one spin button per part, separators come from the locale
         dateInput: 'relative flex min-w-0 flex-1 items-center px-3',
         // Holds one date, or start – end of a range, in a row; invisible (still usable) while the placeholder shows
         dateControl: 'flex min-w-0 items-center data-placeholder-shown:opacity-0',
         /** Own placeholder of the empty field (`placeholder`) – gives way to the parts on focus */
         placeholder:
-            'absolute inset-0 flex cursor-text items-center overflow-hidden px-3 text-[15px] whitespace-nowrap text-muted data-hidden:pointer-events-none data-hidden:opacity-0',
-        segments: 'flex items-center text-[15px]',
+            'absolute inset-0 flex cursor-text items-center overflow-hidden px-3 text-[length:var(--wc-control-text-md,15px)] whitespace-nowrap text-muted data-hidden:pointer-events-none data-hidden:opacity-0',
+        segments: 'flex items-center text-[length:var(--wc-control-text-md,15px)]',
         segment: [
             'rounded-sm px-px text-fg tabular-nums outline-none data-placeholder-shown:text-muted',
             // Tabular figures would make the separators as wide as a digit
@@ -364,7 +400,8 @@ export const datePicker = tv({
             'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fg',
         ],
         /** Chosen dates as text in the field (selectionMode multiple), muted while empty */
-        multiValue: 'min-w-0 flex-1 truncate px-3 text-[15px] data-placeholder:text-muted',
+        multiValue:
+            'min-w-0 flex-1 truncate px-3 text-[length:var(--wc-control-text-md,15px)] data-placeholder:text-muted',
         /** Short zone name after the time (showTimeZone) */
         timeZone: 'shrink-0 self-center pe-1 text-xs text-muted',
         /** Narrow screens (responsive): the calendar as a sheet at the bottom over a backdrop */
@@ -372,34 +409,34 @@ export const datePicker = tv({
         backdrop: 'fixed inset-0 z-40 bg-black/40 motion-safe:animate-fade-in',
         /** QuarterPicker: typed quarter ("Q4 2026"), the year above the quarters, the quarters */
         textInput:
-            'h-full min-w-0 flex-1 bg-transparent px-3 text-[15px] text-inherit outline-none placeholder:text-muted disabled:cursor-not-allowed',
+            'h-full min-w-0 flex-1 bg-transparent px-3 text-[length:var(--wc-control-text-md,15px)] text-inherit outline-none placeholder:text-muted disabled:cursor-not-allowed',
         yearLabel: 'text-sm font-semibold tabular-nums',
         quarterGrid: 'grid grid-cols-2 gap-1',
         /** DurationInput: unit after a part ("hr") */
-        unit: 'px-1 text-[15px] text-muted',
+        unit: 'px-1 text-[length:var(--wc-control-text-md,15px)] text-muted',
     },
     variants: {
         size: {
             sm: {
-                control: 'h-8 rounded-md',
+                control: 'h-[var(--wc-control-h-sm,2rem)] rounded-[var(--wc-control-radius-sm,0.375rem)]',
                 dateInput: 'px-2.5',
-                placeholder: 'px-2.5 text-[13px]',
-                segments: 'text-[13px]',
-                multiValue: 'px-2.5 text-[13px]',
-                textInput: 'px-2.5 text-[13px]',
-                unit: 'text-[13px]',
+                placeholder: 'px-2.5 text-[length:var(--wc-control-text-sm,13px)]',
+                segments: 'text-[length:var(--wc-control-text-sm,13px)]',
+                multiValue: 'px-2.5 text-[length:var(--wc-control-text-sm,13px)]',
+                textInput: 'px-2.5 text-[length:var(--wc-control-text-sm,13px)]',
+                unit: 'text-[length:var(--wc-control-text-sm,13px)]',
                 trigger: 'w-8',
                 clear: 'w-7',
             },
             md: {},
             lg: {
-                control: 'h-12 rounded-[10px]',
+                control: 'h-[var(--wc-control-h-lg,3rem)] rounded-[var(--wc-control-radius-lg,10px)]',
                 dateInput: 'px-4',
-                placeholder: 'px-4 text-base',
-                segments: 'text-base',
-                multiValue: 'px-4 text-base',
-                textInput: 'px-4 text-base',
-                unit: 'text-base',
+                placeholder: 'px-4 text-[length:var(--wc-control-text-lg,1rem)] leading-normal',
+                segments: 'text-[length:var(--wc-control-text-lg,1rem)] leading-normal',
+                multiValue: 'px-4 text-[length:var(--wc-control-text-lg,1rem)] leading-normal',
+                textInput: 'px-4 text-[length:var(--wc-control-text-lg,1rem)] leading-normal',
+                unit: 'text-[length:var(--wc-control-text-lg,1rem)] leading-normal',
                 trigger: 'w-11',
             },
         },
@@ -630,9 +667,9 @@ export const knob = tv({
 export const colorPicker = tv({
     slots: {
         base: 'flex w-full flex-col',
-        control: [...box, 'h-10'],
+        control: [...box, 'h-[var(--wc-control-h-md,2.5rem)]'],
         trigger: [
-            'flex min-w-0 flex-1 cursor-pointer items-center gap-2.5 px-3 text-start text-[15px] text-fg outline-none',
+            'flex min-w-0 flex-1 cursor-pointer items-center gap-2.5 px-3 text-start text-[length:var(--wc-control-text-md,15px)] text-fg outline-none',
             'focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-fg',
         ],
         swatch: 'size-5 shrink-0 rounded-md shadow-[inset_0_0_0_1px_rgba(0,0,0,.15)]',

@@ -152,6 +152,8 @@ function useDialogDrag(enabled: boolean, open: boolean) {
 
 export interface DialogContentProps extends Omit<ComponentProps<'div'>, 'title'> {
     title: string;
+    /** The title only for screen readers – it still names the dialog (e.g. a video in a dialog) */
+    hideTitle?: boolean;
     description?: string;
     /** Icon component in the coloured box at the top */
     icon?: IconComponent;
@@ -197,6 +199,7 @@ export interface DialogContentProps extends Omit<ComponentProps<'div'>, 'title'>
 export function DialogContent({
     classes,
     title,
+    hideTitle,
     description,
     icon: Icon,
     status,
@@ -243,6 +246,7 @@ export function DialogContent({
         responsive,
         draggable: draggable && !isMaximized,
         maximizable,
+        hideTitle,
     });
     const MaximizeIcon = isMaximized ? Minimize2 : Maximize2;
 

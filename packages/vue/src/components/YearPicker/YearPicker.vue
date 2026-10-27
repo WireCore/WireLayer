@@ -9,6 +9,7 @@ import {
 import { parseDate, type DateValue } from '@internationalized/date';
 import { computed, ref, useAttrs } from 'vue';
 import { splitAttrs } from '../../utils/attrs.js';
+import { useLabelForWarning } from '../../utils/label-for.js';
 import DatePickerBase from '../DatePicker/DatePickerBase.vue';
 import type { CalendarPreset } from '../DatePicker/DatePickerViews.vue';
 import { useLocale, useTranslations } from '../../locale.js';
@@ -38,6 +39,8 @@ export interface YearPickerProps<T extends string | PeriodRange | null = string 
     /** Clear button in the field while it has a value */
     clearable?: boolean;
     /** Extra classes per part of the date field, e.g. { control: "…" } (the calendar: RecipesProvider) */
+    /** Id of the field – the (first) date gets it; a `<label for>` cannot name it, use a Field or aria-label */
+    id?: string;
     classes?: RecipeClasses<typeof datePicker>;
 }
 
@@ -58,6 +61,7 @@ const emit = defineEmits<{ 'update:modelValue': [value: T] }>();
 const attrs = useAttrs();
 const split = computed(() => splitAttrs(attrs));
 const ariaLabel = computed(() => split.value.rest['aria-label'] as string | undefined);
+useLabelForWarning('YearPicker', () => props.id);
 
 // The value is the first day of the year; the field and calendar show the year only
 const toYear = (value: DateValue | undefined) => (value ? String(value.year) : null);
@@ -114,6 +118,7 @@ const calendarPresets = computed<CalendarPreset[] | undefined>(() =>
         :name="name"
         :presets="calendarPresets"
         :label="ariaLabel"
+        :own-id="id"
         :placeholder="placeholder"
         :classes="classes"
         :class-name="split.className"

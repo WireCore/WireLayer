@@ -163,6 +163,10 @@ export const slider = tv({
                 markLabel: 'mt-0',
             },
         },
+        /** Without the visible label (`hideLabel`): the value stays at the end */
+        hideLabel: {
+            true: { header: 'justify-end' },
+        },
     },
     defaultVariants: {
         orientation: 'horizontal',

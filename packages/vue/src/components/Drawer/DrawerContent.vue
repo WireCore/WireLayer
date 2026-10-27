@@ -16,6 +16,8 @@ const translations = useTranslations();
 
 export interface DrawerContentProps {
     title: string;
+    /** The title only for screen readers – it still names the drawer (e.g. a video in a dialog) */
+    hideTitle?: boolean;
     description?: string;
     placement?: DrawerPlacement;
     /**
@@ -44,7 +46,9 @@ defineSlots<{
 const drawer = useRecipe('drawer', drawerRecipe, () => props.classes);
 const attrs = useAttrs();
 const root = inject(dialogRootKey, null);
-const styles = computed(() => drawer({ placement: props.placement, size: props.size, offset: props.offset }));
+const styles = computed(() =>
+    drawer({ placement: props.placement, size: props.size, offset: props.offset, hideTitle: props.hideTitle })
+);
 </script>
 
 <template>

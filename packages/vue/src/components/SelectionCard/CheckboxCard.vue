@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { Checkbox } from '@ark-ui/vue/checkbox';
+import { useFieldContext } from '@ark-ui/vue/field';
 import { Check } from '@lucide/vue';
-import { selectionCard as selectionCardRecipe, type RecipeClasses } from '@wirecore/wirelayer-recipes';
+import { controlIds, selectionCard as selectionCardRecipe, type RecipeClasses } from '@wirecore/wirelayer-recipes';
 import { computed, useAttrs, useId, type Component } from 'vue';
 import { splitAttrs } from '../../utils/attrs.js';
 import { useRecipe } from '../../recipes.js';
@@ -25,6 +26,8 @@ export interface CheckboxCardProps {
     invalid?: boolean;
     required?: boolean;
     name?: string;
+    /** Id of the check box (the hidden input), e.g. for a `<label for>` */
+    id?: string;
     /** Extra classes per part of the component, e.g. { base: "…" } (see the recipe) */
     classes?: RecipeClasses<typeof selectionCardRecipe>;
 }
@@ -42,9 +45,15 @@ const emit = defineEmits<{ 'update:checked': [checked: CheckedState] }>();
 const attrs = useAttrs();
 const split = computed(() => splitAttrs(attrs));
 const styles = selectionCard({ type: 'checkbox' });
-const id = useId();
+const uid = useId();
 const describedBy = computed(
-    () => [props.description && `${id}description`, props.price && `${id}price`].filter(Boolean).join(' ') || undefined
+    () =>
+        [props.description && `${uid}description`, props.price && `${uid}price`].filter(Boolean).join(' ') || undefined
+);
+// An own id goes to the hidden input through Ark (it finds the input by its id)
+const field = useFieldContext();
+const ids = computed(() =>
+    controlIds(props.id, 'hiddenInput', { label: field?.value.ids.label, hiddenInput: field?.value.ids.control })
 );
 </script>
 
@@ -60,6 +69,7 @@ const describedBy = computed(
         :required="required"
         :name="name"
         :value="value"
+        v-bind="ids"
         @update:checked="emit('update:checked', $event)"
     >
         <span v-if="icon" :class="styles.icon()"
@@ -68,9 +78,9 @@ const describedBy = computed(
         <span :class="styles.body()">
             <span :class="styles.heading()">
                 <Checkbox.Label :class="styles.title()">{{ title }}</Checkbox.Label>
-                <span v-if="price" :id="`${id}price`" :class="styles.price()">{{ price }}</span>
+                <span v-if="price" :id="`${uid}price`" :class="styles.price()">{{ price }}</span>
             </span>
-            <span v-if="description" :id="`${id}description`" :class="styles.description()">{{ description }}</span>
+            <span v-if="description" :id="`${uid}description`" :class="styles.description()">{{ description }}</span>
             <slot />
         </span>
         <Checkbox.Control :class="styles.control()">

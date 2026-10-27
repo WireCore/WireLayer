@@ -195,3 +195,28 @@ export const AsyncValidation: Story = {
             </component>`,
     }),
 };
+
+/** `classes` per part of the Field (here the labels) and `class` for the field as a whole (here a grid span) */
+export const Classes: Story = {
+    name: 'Classes per part',
+    render: () => ({
+        components: { FormField, Input },
+        setup() {
+            const form = useForm({ defaultValues: { company: '', city: '' } });
+            return { form, bindInput, label: { label: 'text-base font-semibold' } };
+        },
+        template: `
+            <div class="grid w-[380px] grid-cols-2 gap-3.5">
+                <component :is="form.Field" name="company" v-slot="{ field }">
+                    <FormField :field="field" label="Company" :classes="label" class="col-span-2">
+                        <Input v-bind="bindInput(field)" />
+                    </FormField>
+                </component>
+                <component :is="form.Field" name="city" v-slot="{ field }">
+                    <FormField :field="field" label="City" :classes="label">
+                        <Input v-bind="bindInput(field)" />
+                    </FormField>
+                </component>
+            </div>`,
+    }),
+};
