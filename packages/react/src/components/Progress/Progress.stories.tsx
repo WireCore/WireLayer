@@ -49,3 +49,36 @@ export const Vertical: Story = {
         </div>
     ),
 };
+
+const transfers = [
+    { name: 'backup.tar.gz', value: 42, text: '42 %' },
+    { name: 'logs.zip', value: 0, text: 'waiting' },
+    { name: 'db.dump', value: 77, text: 'failed', status: 'danger' as const },
+    { name: 'site.zip', value: 100, text: 'done', status: 'success' as const },
+];
+
+/**
+ * Compact bars for lists and status bars: `size="xs"`, `hideLabel` (the label still names the bar for screen readers),
+ * `barText` in the bar and `status` for the colour
+ */
+export const Compact: Story = {
+    name: 'Compact',
+    render: () => (
+        <div className="flex w-[380px] flex-col gap-3">
+            {transfers.map((transfer) => (
+                <div key={transfer.name} className="flex items-center gap-3 text-xs">
+                    <span className="w-28 truncate font-mono">{transfer.name}</span>
+                    <Progress
+                        value={transfer.value}
+                        label={transfer.name}
+                        hideLabel
+                        showValue={false}
+                        barText={transfer.text}
+                        status={transfer.status}
+                    />
+                </div>
+            ))}
+            <Progress value={81} label="Disk" size="xs" status="warn" className="w-40" />
+        </div>
+    ),
+};

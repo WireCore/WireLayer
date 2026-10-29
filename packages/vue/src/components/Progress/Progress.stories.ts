@@ -56,3 +56,34 @@ export const Vertical: Story = {
             </div>`,
     }),
 };
+
+/**
+ * Compact bars for lists and status bars: `size="xs"`, `hide-label` (the label still names the bar for screen readers),
+ * `bar-text` in the bar and `status` for the colour
+ */
+export const Compact: Story = {
+    name: 'Compact',
+    render: () => ({
+        components: { Progress },
+        template: `
+            <div class="flex w-[380px] flex-col gap-3">
+                <div class="flex items-center gap-3 text-xs">
+                    <span class="w-28 truncate font-mono">backup.tar.gz</span>
+                    <Progress :value="42" label="backup.tar.gz" hide-label :show-value="false" bar-text="42 %" />
+                </div>
+                <div class="flex items-center gap-3 text-xs">
+                    <span class="w-28 truncate font-mono">logs.zip</span>
+                    <Progress :value="0" label="logs.zip" hide-label :show-value="false" bar-text="waiting" />
+                </div>
+                <div class="flex items-center gap-3 text-xs">
+                    <span class="w-28 truncate font-mono">db.dump</span>
+                    <Progress :value="77" label="db.dump" hide-label :show-value="false" bar-text="failed" status="danger" />
+                </div>
+                <div class="flex items-center gap-3 text-xs">
+                    <span class="w-28 truncate font-mono">site.zip</span>
+                    <Progress :value="100" label="site.zip" hide-label :show-value="false" bar-text="done" status="success" />
+                </div>
+                <Progress :value="81" label="Disk" size="xs" status="warn" class="w-40" />
+            </div>`,
+    }),
+};

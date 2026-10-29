@@ -27,6 +27,8 @@ export interface AlertProps extends Omit<ComponentProps<'div'>, 'title'> {
      */
     duration?: number;
     onDismiss?: () => void;
+    /** Buttons in the message, e.g. "Unlock" or "Reconnect" – beside the text, below it when there is little room */
+    actions?: ReactNode;
     /** Extra classes per part of the component, e.g. { base: "…" } (see the recipe) */
     classes?: RecipeClasses<typeof alertRecipe>;
 }
@@ -44,6 +46,7 @@ export function Alert({
     dismissLabel,
     duration,
     onDismiss,
+    actions,
     className,
     children,
     onMouseEnter,
@@ -54,7 +57,7 @@ export function Alert({
 }: AlertProps) {
     const alert = useRecipe('alert', alertRecipe, classes);
     const translations = useTranslations();
-    const styles = alert({ status, variant, size });
+    const styles = alert({ status, variant, size, hasActions: !!actions });
     const Icon = icons[status];
 
     // Auto-dismiss: paused while hovered or focused
@@ -103,10 +106,21 @@ export function Alert({
             <span className={styles.iconBox()}>
                 <Icon className={styles.icon()} aria-hidden="true" />
             </span>
-            <div className={styles.content()}>
-                {title && <div className={styles.title()}>{title}</div>}
-                {children && <div className={styles.description()}>{children}</div>}
-            </div>
+            {actions ? (
+                // With actions: the texts in their own column, the buttons beside them
+                <div className={styles.content()}>
+                    <div className={styles.text()}>
+                        {title && <div className={styles.title()}>{title}</div>}
+                        {children && <div className={styles.description()}>{children}</div>}
+                    </div>
+                    <div className={styles.actions()}>{actions}</div>
+                </div>
+            ) : (
+                <div className={styles.content()}>
+                    {title && <div className={styles.title()}>{title}</div>}
+                    {children && <div className={styles.description()}>{children}</div>}
+                </div>
+            )}
             {dismissible && (
                 <button
                     type="button"

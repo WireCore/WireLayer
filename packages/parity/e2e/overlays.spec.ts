@@ -31,6 +31,13 @@ test.describe('Menu', () => {
 });
 
 test.describe('Dialog', () => {
+    test('a field marked data-autofocus gets the focus when the dialog opens', async ({ page }) => {
+        await openStory(page, 'overlays-dialog--initial-focus');
+        await page.getByRole('button', { name: 'Rename connection' }).click();
+        await expect(page.getByRole('dialog', { name: 'Rename connection' })).toBeVisible();
+        await expect(page.getByRole('textbox', { name: 'Name' })).toBeFocused();
+    });
+
     test('traps focus while open and returns it to the trigger on Escape', async ({ page }) => {
         await openStory(page, 'overlays-dialog--playground');
         const trigger = page.getByRole('button', { name: 'Delete server' });

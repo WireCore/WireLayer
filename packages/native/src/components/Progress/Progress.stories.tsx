@@ -38,3 +38,16 @@ export const Variants: Story = {
         </View>
     ),
 };
+
+/** Compact bars for lists: `size="xs"`, `hideLabel`, `barText` in the bar and `status` for the colour */
+export const Compact: Story = {
+    name: 'Compact',
+    render: () => (
+        <View className="gap-3">
+            <Progress value={42} label="backup.tar.gz" hideLabel showValue={false} barText="42 %" />
+            <Progress value={0} label="logs.zip" hideLabel showValue={false} barText="waiting" />
+            <Progress value={77} label="db.dump" hideLabel showValue={false} barText="failed" status="danger" />
+            <Progress value={81} label="Disk" size="xs" status="warn" />
+        </View>
+    ),
+};

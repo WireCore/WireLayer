@@ -495,6 +495,12 @@
                     "description": ""
                 },
                 {
+                    "name": "actions",
+                    "type": "ReactNode",
+                    "optional": true,
+                    "description": "Buttons in the message, e.g. \"Unlock\" or \"Reconnect\" – beside the text, below it when there is little room"
+                },
+                {
                     "name": "classes",
                     "type": "RecipeClasses<typeof alertRecipe>",
                     "optional": true,
@@ -552,7 +558,18 @@
                         "description": "Extra classes per part of the component, e.g. { base: \"…\" } (see the recipe)"
                     }
                 ],
-                "slots": [],
+                "slots": [
+                    {
+                        "name": "default",
+                        "props": "",
+                        "description": "The message text"
+                    },
+                    {
+                        "name": "actions",
+                        "props": "",
+                        "description": "Buttons in the message, e.g. \"Unlock\" or \"Reconnect\" – beside the text, below it when there is little room"
+                    }
+                ],
                 "events": [
                     {
                         "name": "dismiss",
@@ -5374,23 +5391,23 @@
             "description": "Checkbox with label (also indeterminate), works inside Field",
             "category": "Forms",
             "story": "forms-checkbox--playground",
-            "extends": "Omit<ComponentProps<'input'>, 'checked' | 'defaultChecked' | 'value' | 'type'>",
+            "extends": "Omit<\n    ComponentProps<'input'>,\n    'checked' | 'defaultChecked' | 'value' | 'type'\n>",
             "props": [
                 {
                     "name": "checked",
-                    "type": "CheckedState",
+                    "type": "C",
                     "optional": true,
                     "description": ""
                 },
                 {
                     "name": "defaultChecked",
-                    "type": "CheckedState",
+                    "type": "C",
                     "optional": true,
                     "description": ""
                 },
                 {
                     "name": "onCheckedChange",
-                    "type": "(checked: CheckedState) => void",
+                    "type": "(checked: C) => void",
                     "optional": true,
                     "description": ""
                 },
@@ -5423,13 +5440,13 @@
                 "props": [
                     {
                         "name": "checked",
-                        "type": "CheckedState",
+                        "type": "C",
                         "optional": true,
                         "description": "Controlled state – use with v-model:checked"
                     },
                     {
                         "name": "defaultChecked",
-                        "type": "CheckedState",
+                        "type": "C",
                         "optional": true,
                         "description": ""
                     },
@@ -5480,7 +5497,7 @@
                 "events": [
                     {
                         "name": "update:checked",
-                        "payload": "checked: CheckedState",
+                        "payload": "checked: C",
                         "description": ""
                     }
                 ]
@@ -7172,6 +7189,24 @@
                     "description": "Options per request of the data source (default 50)"
                 },
                 {
+                    "name": "open",
+                    "type": "boolean",
+                    "optional": true,
+                    "description": "Whether the list is open (controlled, with onOpenChange)"
+                },
+                {
+                    "name": "onOpenChange",
+                    "type": "(open: boolean) => void",
+                    "optional": true,
+                    "description": "The list opened or closed"
+                },
+                {
+                    "name": "stopKeyPropagation",
+                    "type": "boolean",
+                    "optional": true,
+                    "description": "Keeps the keys the open list handles itself (Enter choosing, Escape closing, Tab leaving) from bubbling up – e.g. in a dialog with window shortcuts for Enter (save) and Escape (cancel)"
+                },
+                {
                     "name": "renderItem",
                     "type": "(item: T, state: ListItemState) => ReactNode",
                     "optional": true,
@@ -7355,6 +7390,18 @@
                         "description": "Id of the input, e.g. for a `<label for>`"
                     },
                     {
+                        "name": "open",
+                        "type": "boolean",
+                        "optional": true,
+                        "description": "Whether the list is open – use with v-model:open, or listen to update:open"
+                    },
+                    {
+                        "name": "stopKeyPropagation",
+                        "type": "boolean",
+                        "optional": true,
+                        "description": "Keeps the keys the open list handles itself (Enter choosing, Escape closing, Tab leaving) from bubbling up – e.g. in a dialog with window shortcuts for Enter (save) and Escape (cancel)"
+                    },
+                    {
                         "name": "classes",
                         "type": "RecipeClasses<typeof comboboxRecipe>",
                         "optional": true,
@@ -7388,6 +7435,11 @@
                         "name": "loadMore",
                         "payload": "",
                         "description": "The end of the list was scrolled into view (hasMore)"
+                    },
+                    {
+                        "name": "update:open",
+                        "payload": "open: boolean",
+                        "description": "The list opened or closed"
                     }
                 ]
             }
@@ -8381,7 +8433,7 @@
             "description": "Opens at the pointer on right click, on touch screens with a long press (and with Shift+F10 or the menu key on the focused area). The actions should also be reachable another way.",
             "category": "Overlays",
             "story": "overlays-contextmenu--playground",
-            "extends": "MenuItemOptions",
+            "extends": "MenuItemOptions, MenuBehaviorOptions",
             "props": [
                 {
                     "name": "items",
@@ -8394,6 +8446,24 @@
                     "type": "string",
                     "optional": true,
                     "description": "Accessible name of the menu – without it the menu is named by the area's content"
+                },
+                {
+                    "name": "open",
+                    "type": "boolean",
+                    "optional": true,
+                    "description": "Whether the menu is open (controlled, with onOpenChange)"
+                },
+                {
+                    "name": "onOpenChange",
+                    "type": "(open: boolean) => void",
+                    "optional": true,
+                    "description": "The menu opened or closed – e.g. to pause list shortcuts while it is open"
+                },
+                {
+                    "name": "onBeforeOpen",
+                    "type": "(target: Element) => void",
+                    "optional": true,
+                    "description": "A right click, long press or the menu key is opening the menu, on this element (e.g. the row under the pointer – select it before the menu shows)"
                 },
                 {
                     "name": "ref",
@@ -8435,6 +8505,36 @@
                         "description": "Component for link items, e.g. RouterLink or NuxtLink (gets `to` for items with `to`, else `href`); default <a>"
                     },
                     {
+                        "name": "open",
+                        "type": "boolean",
+                        "optional": true,
+                        "description": "Whether the menu is open – use with v-model:open, or listen to update:open (e.g. to pause list shortcuts)"
+                    },
+                    {
+                        "name": "closeOnScroll",
+                        "type": "boolean",
+                        "optional": true,
+                        "description": "Closes when the page (or a container) scrolls"
+                    },
+                    {
+                        "name": "closeOnResize",
+                        "type": "boolean",
+                        "optional": true,
+                        "description": "Closes when the window is resized"
+                    },
+                    {
+                        "name": "closeOnBlur",
+                        "type": "boolean",
+                        "optional": true,
+                        "description": "Closes when the window loses the focus (switching to another window)"
+                    },
+                    {
+                        "name": "highlightFirst",
+                        "type": "boolean",
+                        "optional": true,
+                        "description": "Highlights the first item when the menu opens, so Enter takes it (as in desktop context menus)"
+                    },
+                    {
                         "name": "classes",
                         "type": "RecipeClasses<typeof menuRecipe>",
                         "optional": true,
@@ -8468,6 +8568,16 @@
                         "name": "value-change",
                         "payload": "name: string, value: string",
                         "description": "A radio group got a new value"
+                    },
+                    {
+                        "name": "update:open",
+                        "payload": "open: boolean",
+                        "description": ""
+                    },
+                    {
+                        "name": "before-open",
+                        "payload": "target: Element",
+                        "description": "A right click, long press or the menu key is opening the menu, on this element (e.g. the row under the pointer – select it before the menu shows)"
                     }
                 ]
             }
@@ -11897,6 +12007,12 @@
                     "description": "The title only for screen readers – it still names the dialog (e.g. a video in a dialog)"
                 },
                 {
+                    "name": "titlePosition",
+                    "type": "'body' | 'header'",
+                    "optional": true,
+                    "description": "`body` (default): the title below the header row; `header`: in the row of the close button, after a smaller icon, the header separated by a line (as on the Drawer)"
+                },
+                {
                     "name": "description",
                     "type": "string",
                     "optional": true,
@@ -12030,6 +12146,12 @@
                         "type": "boolean",
                         "optional": true,
                         "description": "The title only for screen readers – it still names the dialog (e.g. a video in a dialog)"
+                    },
+                    {
+                        "name": "titlePosition",
+                        "type": "'body' | 'header'",
+                        "optional": true,
+                        "description": "`body` (default): the title below the header row; `header`: in the row of the close button, after a smaller icon, the header separated by a line (as on the Drawer)"
                     },
                     {
                         "name": "description",
@@ -17320,7 +17442,7 @@
         {
             "name": "Input",
             "subpath": "",
-            "description": "Text field with sizes, leading icon, prefix and suffix; works inside Field",
+            "description": "Text field with sizes, leading icon, prefix and suffix; works inside Field. `ref` reaches the native input (focus, select, setSelectionRange)",
             "category": "",
             "story": null,
             "extends": "Omit<ComponentProps<'input'>, 'size' | 'prefix'>",
@@ -17378,6 +17500,12 @@
                     "type": "string",
                     "optional": true,
                     "description": "Static text segment after the input, e.g. `.de`"
+                },
+                {
+                    "name": "mono",
+                    "type": "boolean",
+                    "optional": true,
+                    "description": "Monospace font of the theme (JetBrains Mono) – for paths, tokens, codes, URLs and keys"
                 },
                 {
                     "name": "classes",
@@ -17453,6 +17581,12 @@
                         "type": "string",
                         "optional": true,
                         "description": "Static text segment after the input, e.g. `.de`"
+                    },
+                    {
+                        "name": "mono",
+                        "type": "boolean",
+                        "optional": true,
+                        "description": "Monospace font of the theme (JetBrains Mono) – for paths, tokens, codes, URLs and keys"
                     },
                     {
                         "name": "classes",
@@ -20259,7 +20393,7 @@
             "description": "The trigger is the slotted element (e.g. a Button or IconButton)",
             "category": "Overlays",
             "story": "overlays-menu--playground",
-            "extends": "MenuItemOptions",
+            "extends": "MenuItemOptions, MenuBehaviorOptions",
             "props": [
                 {
                     "name": "items",
@@ -20389,6 +20523,30 @@
                         "type": "Component | string",
                         "optional": true,
                         "description": "Component for link items, e.g. RouterLink or NuxtLink (gets `to` for items with `to`, else `href`); default <a>"
+                    },
+                    {
+                        "name": "closeOnScroll",
+                        "type": "boolean",
+                        "optional": true,
+                        "description": "Closes when the page (or a container) scrolls – e.g. for a menu opened at a point"
+                    },
+                    {
+                        "name": "closeOnResize",
+                        "type": "boolean",
+                        "optional": true,
+                        "description": "Closes when the window is resized"
+                    },
+                    {
+                        "name": "closeOnBlur",
+                        "type": "boolean",
+                        "optional": true,
+                        "description": "Closes when the window loses the focus (switching to another window)"
+                    },
+                    {
+                        "name": "highlightFirst",
+                        "type": "boolean",
+                        "optional": true,
+                        "description": "Highlights the first item also when the menu opens by pointer, so Enter takes it (as in desktop menus)"
                     },
                     {
                         "name": "classes",
@@ -21669,19 +21827,19 @@
             "description": "The browser's select: its own keyboard and mobile pickers; inside a Field it is labelled and described",
             "category": "Forms",
             "story": "forms-nativeselect--playground",
-            "extends": "Omit<ComponentProps<'select'>, 'size' | 'onChange'>",
+            "extends": "Omit<\n    ComponentProps<'select'>,\n    'size' | 'onChange'\n>",
             "props": [
                 {
                     "name": "items",
-                    "type": "readonly NativeSelectOption[]",
+                    "type": "readonly NativeSelectOption<V>[]",
                     "optional": false,
                     "description": ""
                 },
                 {
                     "name": "onValueChange",
-                    "type": "(value: string) => void",
+                    "type": "(value: V | '') => void",
                     "optional": true,
-                    "description": ""
+                    "description": "The chosen option's value with its type; the placeholder option gives an empty string"
                 },
                 {
                     "name": "placeholder",
@@ -21712,15 +21870,15 @@
                 "props": [
                     {
                         "name": "items",
-                        "type": "readonly NativeSelectOption[]",
+                        "type": "readonly NativeSelectOption<V>[]",
                         "optional": false,
                         "description": ""
                     },
                     {
                         "name": "modelValue",
-                        "type": "string",
+                        "type": "V | ''",
                         "optional": true,
-                        "description": "Chosen value – use with v-model"
+                        "description": "Chosen value – use with v-model; the placeholder option gives an empty string"
                     },
                     {
                         "name": "placeholder",
@@ -21757,7 +21915,7 @@
                 "events": [
                     {
                         "name": "update:modelValue",
-                        "payload": "value: string",
+                        "payload": "value: V | ''",
                         "description": ""
                     }
                 ]
@@ -22162,7 +22320,7 @@
         {
             "name": "NumberInput",
             "subpath": "",
-            "description": "Number field with − / + buttons, arrow keys and locale formatting (\"1,234.5\")",
+            "description": "Number field with − / + buttons, arrow keys and locale formatting (\"1,234.5\"); `ref` reaches the native input",
             "category": "Forms",
             "story": "forms-numberinput--playground",
             "extends": "Omit<\n    ComponentProps<'input'>,\n    'value' | 'defaultValue' | 'size' | 'min' | 'max' | 'step' | 'onChange' | 'prefix'\n>",
@@ -23661,7 +23819,7 @@
         {
             "name": "PasswordInput",
             "subpath": "",
-            "description": "Password field with a button that shows/hides the password (named \"Show/Hide password\")",
+            "description": "Password field with a button that shows/hides the password (named \"Show/Hide password\"); `ref` reaches the native input",
             "category": "Forms",
             "story": "forms-passwordinput--playground",
             "extends": "Omit<ComponentProps<'input'>, 'size' | 'type'>",
@@ -23731,6 +23889,12 @@
                     "type": "string",
                     "optional": true,
                     "description": "Accessible name of the clear button (default \"Clear input\")"
+                },
+                {
+                    "name": "mono",
+                    "type": "boolean",
+                    "optional": true,
+                    "description": "Monospace font of the theme (JetBrains Mono) – for tokens, passphrases and keys"
                 },
                 {
                     "name": "classes",
@@ -23803,9 +23967,9 @@
                     },
                     {
                         "name": "autocomplete",
-                        "type": "'current-password' | 'new-password'",
+                        "type": "'current-password' | 'new-password' | 'off' | 'one-time-code'",
                         "optional": true,
-                        "description": ""
+                        "description": "`current-password` (default) or `new-password` for the browser's password manager; `off` or `one-time-code` for secrets it should not offer to save (tokens, passphrases, master passwords, one-time codes)"
                     },
                     {
                         "name": "strength",
@@ -23848,6 +24012,12 @@
                         "type": "string",
                         "optional": true,
                         "description": "Id of the input, e.g. for a `<label for>`"
+                    },
+                    {
+                        "name": "mono",
+                        "type": "boolean",
+                        "optional": true,
+                        "description": "Monospace font of the theme (JetBrains Mono) – for tokens, passphrases and keys"
                     },
                     {
                         "name": "classes",
@@ -25378,6 +25548,30 @@
                     "description": "Vertical bar (fills the height of its parent)"
                 },
                 {
+                    "name": "size",
+                    "type": "'xs' | 'md'",
+                    "optional": true,
+                    "description": "`xs`: a thin bar with small text, e.g. in a list or a status bar"
+                },
+                {
+                    "name": "status",
+                    "type": "'info' | 'success' | 'warn' | 'danger'",
+                    "optional": true,
+                    "description": "Colour of the filled part by its state, e.g. `danger` for a failed transfer"
+                },
+                {
+                    "name": "hideLabel",
+                    "type": "boolean",
+                    "optional": true,
+                    "description": "The label only for screen readers – it still names the progress bar"
+                },
+                {
+                    "name": "barText",
+                    "type": "string",
+                    "optional": true,
+                    "description": "Short text in the bar, e.g. \"42 %\", \"waiting\" or \"failed\" (a taller bar; horizontal, without segments or steps) – screen readers get it after the value"
+                },
+                {
                     "name": "classes",
                     "type": "RecipeClasses<typeof progressRecipe>",
                     "optional": true,
@@ -25445,6 +25639,30 @@
                         "type": "'horizontal' | 'vertical'",
                         "optional": true,
                         "description": "Vertical bar (fills the height of its parent)"
+                    },
+                    {
+                        "name": "size",
+                        "type": "'xs' | 'md'",
+                        "optional": true,
+                        "description": "`xs`: a thin bar with small text, e.g. in a list or a status bar"
+                    },
+                    {
+                        "name": "status",
+                        "type": "'info' | 'success' | 'warn' | 'danger'",
+                        "optional": true,
+                        "description": "Colour of the filled part by its state, e.g. `danger` for a failed transfer"
+                    },
+                    {
+                        "name": "hideLabel",
+                        "type": "boolean",
+                        "optional": true,
+                        "description": "The label only for screen readers – it still names the progress bar"
+                    },
+                    {
+                        "name": "barText",
+                        "type": "string",
+                        "optional": true,
+                        "description": "Short text in the bar, e.g. \"42 %\", \"waiting\" or \"failed\" (a taller bar; horizontal, without segments or steps) – screen readers get it after the value"
                     },
                     {
                         "name": "classes",
@@ -26101,23 +26319,23 @@
             "description": "One choice out of several (role=\"radiogroup\", arrow keys), horizontal or vertical",
             "category": "Forms",
             "story": "forms-radiogroup--playground",
-            "extends": "Omit<ComponentProps<'div'>, 'defaultValue' | 'dir'>",
+            "extends": "Omit<\n    ComponentProps<'div'>,\n    'defaultValue' | 'dir'\n>",
             "props": [
                 {
                     "name": "value",
-                    "type": "string | null",
+                    "type": "V | null",
                     "optional": true,
-                    "description": ""
+                    "description": "Selected value; numbers when the items have number values"
                 },
                 {
                     "name": "defaultValue",
-                    "type": "string | null",
+                    "type": "V | null",
                     "optional": true,
                     "description": ""
                 },
                 {
                     "name": "onValueChange",
-                    "type": "(value: string | null) => void",
+                    "type": "(value: V | null) => void",
                     "optional": true,
                     "description": ""
                 },
@@ -26174,13 +26392,13 @@
                 "props": [
                     {
                         "name": "modelValue",
-                        "type": "string | null",
+                        "type": "V | null",
                         "optional": true,
-                        "description": "Selected value – use with v-model"
+                        "description": "Selected value – use with v-model; numbers when the items have number values"
                     },
                     {
                         "name": "defaultValue",
-                        "type": "string | null",
+                        "type": "V | null",
                         "optional": true,
                         "description": ""
                     },
@@ -26237,7 +26455,7 @@
                 "events": [
                     {
                         "name": "update:modelValue",
-                        "payload": "value: string | null",
+                        "payload": "value: V | null",
                         "description": ""
                     }
                 ]
@@ -26253,9 +26471,9 @@
             "props": [
                 {
                     "name": "value",
-                    "type": "string",
+                    "type": "string | number",
                     "optional": false,
-                    "description": ""
+                    "description": "Value of the option – a number makes the group's value a number"
                 },
                 {
                     "name": "disabled",
@@ -26274,9 +26492,9 @@
                 "props": [
                     {
                         "name": "value",
-                        "type": "string",
+                        "type": "string | number",
                         "optional": false,
-                        "description": ""
+                        "description": "Value of the option – a number makes the group's v-model a number"
                     },
                     {
                         "name": "disabled",
@@ -28075,23 +28293,23 @@
             "description": "Few exclusive options as a segmented switch (radio group)",
             "category": "Buttons",
             "story": "buttons-segmentedcontrol--playground",
-            "extends": "Omit<ComponentProps<'div'>, 'defaultValue' | 'dir'>",
+            "extends": "Omit<\n    ComponentProps<'div'>,\n    'defaultValue' | 'dir'\n>",
             "props": [
                 {
                     "name": "value",
-                    "type": "string | null",
+                    "type": "V | null",
                     "optional": true,
                     "description": ""
                 },
                 {
                     "name": "defaultValue",
-                    "type": "string",
+                    "type": "V",
                     "optional": true,
                     "description": ""
                 },
                 {
                     "name": "onValueChange",
-                    "type": "(value: string | null) => void",
+                    "type": "(value: V | null) => void",
                     "optional": true,
                     "description": ""
                 },
@@ -28130,13 +28348,13 @@
                 "props": [
                     {
                         "name": "modelValue",
-                        "type": "string | null",
+                        "type": "V | null",
                         "optional": true,
                         "description": "Selected value – use with v-model"
                     },
                     {
                         "name": "defaultValue",
-                        "type": "string",
+                        "type": "V",
                         "optional": true,
                         "description": ""
                     },
@@ -28175,7 +28393,7 @@
                 "events": [
                     {
                         "name": "update:modelValue",
-                        "payload": "value: string | null",
+                        "payload": "value: V | null",
                         "description": ""
                     }
                 ]
@@ -28422,6 +28640,24 @@
                     "description": "Not labelled by a surrounding Field – for a second control inside it (e.g. PhoneInput's country)"
                 },
                 {
+                    "name": "open",
+                    "type": "boolean",
+                    "optional": true,
+                    "description": "Whether the list is open (controlled, with onOpenChange)"
+                },
+                {
+                    "name": "onOpenChange",
+                    "type": "(open: boolean) => void",
+                    "optional": true,
+                    "description": "The list opened or closed"
+                },
+                {
+                    "name": "stopKeyPropagation",
+                    "type": "boolean",
+                    "optional": true,
+                    "description": "Keeps the keys the list handles itself (Enter choosing or opening, Escape closing, Tab leaving) from bubbling up – e.g. in a dialog with window shortcuts for Enter (save) and Escape (cancel)"
+                },
+                {
                     "name": "renderItem",
                     "type": "(item: T, state: ListItemState) => ReactNode",
                     "optional": true,
@@ -28599,6 +28835,18 @@
                         "description": "Not labelled by a surrounding Field – for a second control inside it (e.g. PhoneInput's country)"
                     },
                     {
+                        "name": "open",
+                        "type": "boolean",
+                        "optional": true,
+                        "description": "Whether the list is open – use with v-model:open, or listen to update:open"
+                    },
+                    {
+                        "name": "stopKeyPropagation",
+                        "type": "boolean",
+                        "optional": true,
+                        "description": "Keeps the keys the list handles itself (Enter choosing or opening, Escape closing, Tab leaving) from bubbling up – e.g. in a dialog with window shortcuts for Enter (save) and Escape (cancel)"
+                    },
+                    {
                         "name": "id",
                         "type": "string",
                         "optional": true,
@@ -28638,6 +28886,11 @@
                         "name": "loadMore",
                         "payload": "",
                         "description": "The end of the list was scrolled into view (hasMore)"
+                    },
+                    {
+                        "name": "update:open",
+                        "payload": "open: boolean",
+                        "description": "The list opened or closed"
                     }
                 ]
             }
@@ -32328,7 +32581,7 @@
         {
             "name": "Textarea",
             "subpath": "",
-            "description": "Multi-line text field, optionally growing with the text (autoResize) and with a counter; works inside Field",
+            "description": "Multi-line text field, optionally growing with the text (autoResize) and with a counter; works inside Field. `ref` reaches the native textarea",
             "category": "Forms",
             "story": "forms-textarea--auto-resize",
             "extends": "ComponentProps<'textarea'>",
@@ -32392,6 +32645,12 @@
                     "type": "string",
                     "optional": true,
                     "description": "Accessible name of the clear button (default \"Clear input\")"
+                },
+                {
+                    "name": "mono",
+                    "type": "boolean",
+                    "optional": true,
+                    "description": "Monospace font of the theme (JetBrains Mono) – for keys, codes and logs"
                 },
                 {
                     "name": "classes",
@@ -32479,6 +32738,12 @@
                         "type": "string",
                         "optional": true,
                         "description": "Accessible name of the clear button (default \"Clear input\")"
+                    },
+                    {
+                        "name": "mono",
+                        "type": "boolean",
+                        "optional": true,
+                        "description": "Monospace font of the theme (JetBrains Mono) – for keys, codes and logs"
                     },
                     {
                         "name": "classes",
@@ -37395,6 +37660,11 @@
             "text": "- **An empty choice is `null`, not `''`.** For PrimeVue's Select `''` means \"nothing chosen\"; WireLayer's Select treats\n  `''` as a value (it warns in development that it is not among the items). Use `null`.\n- **TanStack fields start with `''`.** A required text in Zod therefore needs `.min(1)` – `z.string()` alone accepts\n  the empty field.\n- **Fonts:** set your own with `@theme { --font-sans: … }`. Import `theme.css` instead of `styles.css` (with the\n  sources files, or the Vite plugin `@wirecore/wirelayer-recipes/vite`) so the WireLayer fonts are not bundled\n  (_Getting started › Welcome › Smaller CSS_).\n- **Card spacing:** `Card` puts a `gap` between its direct children – wrap content that should sit tight in one\n  element.\n- **Overrides go per part and per variant.** `classes: { base: 'rounded-md' }` reaches every size; only the medium size\n  with `variants: { size: { md: { base: '…' } } }` – no selectors on the recipe's own classes. States such as `invalid`\n  stay visible over such classes; only `class` on the component itself replaces them.\n- **Sizes and corners in one place:** the height, text and corners of buttons and fields per size, the corners of\n  rounded buttons, the padding of cards and the backdrop of dialogs are CSS variables (`--wc-control-h-md` …).\n- **Labels:** wrap a control in `Field` (it links label, description and error). A native `<label for>` works with the\n  control's own `id`; date fields, sliders and groups need `Field` or `aria-label`.\n- **Brand colours:** `checkTheme` lists the pairs below WCAG AA, `suggestThemeFixes` the nearest colours (and `on-*`\n  colours) that meet them – an orange `primary` with white text, common in PrimeVue themes, does not."
         },
         {
+            "id": "migration-desktop-apps-dense-ui-many-dialogs",
+            "title": "Desktop apps (dense UI, many dialogs)",
+            "text": "- **Focus from code:** the text fields expose `focus()`, `select()`, `setSelectionRange()` and the native input\n  (`element`) through a template ref – no `$el.querySelector('input')`. In a dialog, mark the first field with\n  `data-autofocus`: a `focus()` in `onMounted` is overridden by the dialog's focus trap.\n- **Window shortcuts in dialogs:** Enter/Escape listeners on `window` also get the keys of an open list. `Select` and\n  `Combobox` take `stop-key-propagation` and report `v-model:open`; `ContextMenu` reports `v-model:open` and the\n  right-clicked element (`@before-open`).\n- **Menus at a point:** `close-on-scroll`, `close-on-resize`, `close-on-blur`, and `highlight-first` so Enter takes the\n  first item.\n- **Closable tabs** are built in: `TabsTrigger closable @close` – the close button is not nested in the tab, Delete\n  closes the focused tab and the focus moves to its neighbour.\n- **Typed values:** `RadioGroup`, `SegmentedControl` and `NativeSelect` keep the type of the bound value (unions,\n  numbers); `Checkbox` with a boolean model gives booleans.\n- **Compact parts:** `Progress size=\"xs\"` with `hide-label`, `bar-text` and `status`; `Alert #actions`; `mono` on text\n  fields; `DialogContent title-position=\"header\"` puts the title next to the close button."
+        },
+        {
             "id": "themes-custom-theme",
             "title": "Custom theme",
             "text": "A theme overrides any colors per mode. `themeToCss` generates the CSS for it,\n`checkTheme` checks all contrasts against WCAG 2.2 AA – ideally as a test in your project:\n\n```ts\nimport { checkTheme, defineTheme, themeToCss } from '@wirecore/wirelayer-tokens';\n\nexport const brand = defineTheme({\n    name: 'brand',\n    label: 'Brand',\n    colors: {\n        light: { primary: 'oklch(0.5 0.18 30)', 'on-primary': '#FFFFFF' },\n        dark: { primary: 'oklch(0.75 0.14 30)', 'on-primary': '#050505' },\n    },\n});\n\n// brand.test.ts\nexpect(checkTheme(brand)).toEqual([]);\n\n// build script → brand.css, import it after @wirecore/wirelayer-vue/styles.css\nwriteFileSync('brand.css', themeToCss(brand));\n```\n\nAll bundled themes pass this check in both modes.\n\nWhen a pair misses its contrast, `suggestThemeFixes` says how to fix it: per pair the nearest variant of a colour that\nmeets it – its lightness moved in OKLCH, the hue kept – and, where text sits on the colour, a light or dark `on-*`\ncolour. A suggestion never breaks a pair that passed:\n\n```ts\nimport { suggestThemeFixes } from '@wirecore/wirelayer-tokens';\n\nsuggestThemeFixes(brand);\n// [{ name: 'primary: text-on-primary on bg-primary', mode: 'light', ratio: 2.6, min: 4.5,\n//    color: { token: 'primary', value: '#a35c00', ratio: 4.5 },\n//    on: { token: 'on-primary', value: '#050505', ratio: 8.1 } }, …]\n```"
@@ -37670,6 +37940,12 @@
                         "type": "number",
                         "optional": true,
                         "description": "Calls `onDismiss` after this many milliseconds"
+                    },
+                    {
+                        "name": "actions",
+                        "type": "ReactNode",
+                        "optional": true,
+                        "description": "Buttons in the message, e.g. \"Unlock\" or \"Reconnect\" – below the text"
                     },
                     {
                         "name": "children",
@@ -39477,19 +39753,19 @@
                 "props": [
                     {
                         "name": "checked",
-                        "type": "CheckedState",
+                        "type": "C",
                         "optional": true,
                         "description": ""
                     },
                     {
                         "name": "defaultChecked",
-                        "type": "CheckedState",
+                        "type": "C",
                         "optional": true,
                         "description": ""
                     },
                     {
                         "name": "onCheckedChange",
-                        "type": "(checked: CheckedState) => void",
+                        "type": "(checked: C) => void",
                         "optional": true,
                         "description": ""
                     },
@@ -41680,6 +41956,12 @@
                         "description": ""
                     },
                     {
+                        "name": "titlePosition",
+                        "type": "'body' | 'header'",
+                        "optional": true,
+                        "description": "`body` (default): the title below the header row; `header`: in the row of the close button, after a smaller icon, the header separated by a line (as on the Drawer)"
+                    },
+                    {
                         "name": "size",
                         "type": "OverlaySize",
                         "optional": true,
@@ -43583,6 +43865,12 @@
                         "description": "Static text segment after the input, e.g. `.de`"
                     },
                     {
+                        "name": "mono",
+                        "type": "boolean",
+                        "optional": true,
+                        "description": "Monospace font of the theme (JetBrains Mono) – for paths, tokens, codes, URLs and keys"
+                    },
+                    {
                         "name": "ref",
                         "type": "Ref<ComponentRef<typeof TextInput>>",
                         "optional": true,
@@ -44387,6 +44675,12 @@
                         "type": "string",
                         "optional": true,
                         "description": "Static text segment after the input, e.g. `.de`"
+                    },
+                    {
+                        "name": "mono",
+                        "type": "boolean",
+                        "optional": true,
+                        "description": "Monospace font of the theme (JetBrains Mono) – for paths, tokens, codes, URLs and keys"
                     },
                     {
                         "name": "ref",
@@ -46041,6 +46335,12 @@
                         "description": "Accessible name of the clear button (default \"Clear input\")"
                     },
                     {
+                        "name": "mono",
+                        "type": "boolean",
+                        "optional": true,
+                        "description": "Monospace font of the theme (JetBrains Mono) – for paths, tokens, codes, URLs and keys"
+                    },
+                    {
                         "name": "ref",
                         "type": "Ref<ComponentRef<typeof TextInput>>",
                         "optional": true,
@@ -46791,6 +47091,30 @@
                         "type": "'horizontal' | 'vertical'",
                         "optional": true,
                         "description": "`vertical`: the bar fills from the bottom"
+                    },
+                    {
+                        "name": "size",
+                        "type": "'xs' | 'md'",
+                        "optional": true,
+                        "description": "`xs`: a thin bar with small text, e.g. in a list or a status bar"
+                    },
+                    {
+                        "name": "status",
+                        "type": "'info' | 'success' | 'warn' | 'danger'",
+                        "optional": true,
+                        "description": "Colour of the filled part by its state, e.g. `danger` for a failed transfer"
+                    },
+                    {
+                        "name": "hideLabel",
+                        "type": "boolean",
+                        "optional": true,
+                        "description": "The label only for screen readers – it still names the progress bar"
+                    },
+                    {
+                        "name": "barText",
+                        "type": "string",
+                        "optional": true,
+                        "description": "Short text in the bar, e.g. \"42 %\", \"waiting\" or \"failed\" (a taller bar; horizontal, without segments or steps) – screen readers get it after the value"
                     }
                 ]
             },
@@ -47112,19 +47436,19 @@
                 "props": [
                     {
                         "name": "value",
-                        "type": "string | null",
+                        "type": "V | null",
                         "optional": true,
-                        "description": ""
+                        "description": "Selected value; numbers when the items have number values"
                     },
                     {
                         "name": "defaultValue",
-                        "type": "string | null",
+                        "type": "V | null",
                         "optional": true,
                         "description": ""
                     },
                     {
                         "name": "onValueChange",
-                        "type": "(value: string | null) => void",
+                        "type": "(value: V | null) => void",
                         "optional": true,
                         "description": ""
                     },
@@ -47182,9 +47506,9 @@
                 "props": [
                     {
                         "name": "value",
-                        "type": "string",
+                        "type": "string | number",
                         "optional": false,
-                        "description": ""
+                        "description": "Value of the option – a number makes the group's value a number"
                     },
                     {
                         "name": "disabled",
@@ -47880,25 +48204,25 @@
                 "props": [
                     {
                         "name": "items",
-                        "type": "SegmentedControlItem[]",
+                        "type": "SegmentedControlItem<V>[]",
                         "optional": false,
                         "description": ""
                     },
                     {
                         "name": "value",
-                        "type": "string",
+                        "type": "V",
                         "optional": true,
                         "description": ""
                     },
                     {
                         "name": "defaultValue",
-                        "type": "string",
+                        "type": "V",
                         "optional": true,
                         "description": ""
                     },
                     {
                         "name": "onValueChange",
-                        "type": "(value: string) => void",
+                        "type": "(value: V) => void",
                         "optional": true,
                         "description": ""
                     },
@@ -49555,6 +49879,12 @@
                         "type": "string",
                         "optional": true,
                         "description": "Accessible name of the clear button (default \"Clear input\")"
+                    },
+                    {
+                        "name": "mono",
+                        "type": "boolean",
+                        "optional": true,
+                        "description": "Monospace font of the theme (JetBrains Mono) – for keys, codes and logs"
                     },
                     {
                         "name": "ref",

@@ -154,6 +154,11 @@ export interface DialogContentProps extends Omit<ComponentProps<'div'>, 'title'>
     title: string;
     /** The title only for screen readers – it still names the dialog (e.g. a video in a dialog) */
     hideTitle?: boolean;
+    /**
+     * `body` (default): the title below the header row; `header`: in the row of the close button, after a smaller
+     * icon, the header separated by a line (as on the Drawer)
+     */
+    titlePosition?: 'body' | 'header';
     description?: string;
     /** Icon component in the coloured box at the top */
     icon?: IconComponent;
@@ -200,6 +205,7 @@ export function DialogContent({
     classes,
     title,
     hideTitle,
+    titlePosition = 'body',
     description,
     icon: Icon,
     status,
@@ -247,7 +253,9 @@ export function DialogContent({
         draggable: draggable && !isMaximized,
         maximizable,
         hideTitle,
+        titleInHeader: titlePosition === 'header',
     });
+    const titleElement = <ArkDialog.Title className={styles.title()}>{title}</ArkDialog.Title>;
     const MaximizeIcon = isMaximized ? Minimize2 : Maximize2;
 
     return (
@@ -270,6 +278,7 @@ export function DialogContent({
                                 <Icon className={styles.icon()} aria-hidden="true" />
                             </span>
                         )}
+                        {titlePosition === 'header' && titleElement}
                         {maximizable && (
                             <button
                                 type="button"
@@ -294,7 +303,7 @@ export function DialogContent({
                         )}
                     </div>
                     <div className={styles.body()}>
-                        <ArkDialog.Title className={styles.title()}>{title}</ArkDialog.Title>
+                        {titlePosition === 'body' && titleElement}
                         {description && (
                             <ArkDialog.Description className={styles.description()}>
                                 {description}

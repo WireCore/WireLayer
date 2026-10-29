@@ -22,6 +22,7 @@ export {
 } from './components/FormErrorSummary/FormErrorSummary.vue';
 export { default as IconButton, type IconButtonProps } from './components/IconButton/IconButton.vue';
 export { default as Input, type InputProps } from './components/Input/Input.vue';
+export type { TextFieldHandle } from './utils/text-field.js';
 export { default as RadioGroup, type RadioGroupProps } from './components/RadioGroup/RadioGroup.vue';
 export { default as RadioGroupItem, type RadioGroupItemProps } from './components/RadioGroup/RadioGroupItem.vue';
 export {

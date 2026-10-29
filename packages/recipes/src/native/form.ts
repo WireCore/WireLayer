@@ -67,6 +67,10 @@ export const input = tv({
         hasIcon: {
             true: { control: 'pl-2' },
         },
+        /** Monospace font of the theme – for paths, tokens, codes and keys */
+        mono: {
+            true: { control: 'font-mono' },
+        },
     },
     defaultVariants: {
         size: 'md',
@@ -92,6 +96,10 @@ export const textarea = tv({
             sm: 'rounded-md px-2.5 py-1.5 text-[13px] leading-5',
             md: {},
             lg: 'rounded-[10px] px-4 py-3 text-base',
+        },
+        /** Monospace font of the theme – for keys, codes and logs */
+        mono: {
+            true: 'font-mono',
         },
     },
 });

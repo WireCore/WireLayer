@@ -31,6 +31,8 @@ export interface TextareaProps extends TextInputProps {
     clearable?: boolean;
     /** Accessible name of the clear button (default "Clear input") */
     clearLabel?: string;
+    /** Monospace font of the theme (JetBrains Mono) – for keys, codes and logs */
+    mono?: boolean;
     ref?: Ref<ComponentRef<typeof TextInput>>;
 }
 
@@ -54,6 +56,7 @@ export function Textarea({
     loading = false,
     clearable = false,
     clearLabel,
+    mono = false,
     className,
     onFocus,
     onBlur,
@@ -112,6 +115,7 @@ export function Textarea({
                 success: control.success,
                 disabled: control.disabled,
                 size,
+                mono,
                 class: [corner ? parts.withCorner() : undefined, className],
             })}
             scrollEnabled={!autoResize || !!(maxHeight && height === maxHeight)}

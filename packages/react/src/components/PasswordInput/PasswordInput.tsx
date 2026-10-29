@@ -40,11 +40,16 @@ export interface PasswordInputProps extends Omit<ComponentProps<'input'>, 'size'
     clearable?: boolean;
     /** Accessible name of the clear button (default "Clear input") */
     clearLabel?: string;
+    /** Monospace font of the theme (JetBrains Mono) – for tokens, passphrases and keys */
+    mono?: boolean;
     /** Extra classes per part of the component, e.g. { base: "…" } (see the recipe) */
     classes?: RecipeClasses<typeof passwordInputRecipe>;
 }
 
-/** Password field with a button that shows/hides the password (named "Show/Hide password") */
+/**
+ * Password field with a button that shows/hides the password (named "Show/Hide password"); `ref` reaches the native
+ * input
+ */
 export function PasswordInput({
     classes,
     size,
@@ -63,6 +68,7 @@ export function PasswordInput({
     loading = false,
     clearable = false,
     clearLabel,
+    mono = false,
     id,
     className,
     style,
@@ -74,7 +80,7 @@ export function PasswordInput({
     const fieldStatus = useFieldStatus();
     const isInvalid = !!invalid || !!field?.invalid;
     const isSuccess = !isInvalid && (!!success || fieldStatus.success);
-    const styles = passwordInput({ size, success: isSuccess });
+    const styles = passwordInput({ size, success: isSuccess, mono });
 
     // Strength: 4 bars and a word, announced politely and linked to the input
     const uid = useId();
@@ -110,6 +116,7 @@ export function PasswordInput({
             defaultVisible={defaultVisible}
             visible={visible}
             onVisibilityChange={(details) => onVisibleChange?.(details.visible)}
+            // Also `off` or `one-time-code` (secrets the browser should not save): Ark only types the password values
             autoComplete={autoComplete as 'current-password' | 'new-password'}
             translations={translations.passwordInput}
             {...controlIds(id, 'input', { input: field?.ids.control })}

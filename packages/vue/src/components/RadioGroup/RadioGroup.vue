@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script setup lang="ts" generic="V extends string | number = string">
 import { useFieldContext } from '@ark-ui/vue/field';
 import { RadioGroup } from '@ark-ui/vue/radio-group';
 import {
@@ -6,15 +6,17 @@ import {
     type RadioGroupOrientation,
     type RecipeClasses,
 } from '@wirecore/wirelayer-recipes';
-import { computed, normalizeClass, useAttrs } from 'vue';
+import { computed, normalizeClass, provide, useAttrs } from 'vue';
+import { radioGroupValuesKey } from './context.js';
 import { useFieldStatus } from '../Field/context.js';
 import { useRecipe } from '../../recipes.js';
 import { useLabelForWarning } from '../../utils/label-for.js';
 
-export interface RadioGroupProps {
-    /** Selected value – use with v-model */
-    modelValue?: string | null;
-    defaultValue?: string | null;
+/** `V`: the type of the values – a union like `'ssh' | 'sftp'` or numbers (default string) */
+export interface RadioGroupProps<V extends string | number = string> {
+    /** Selected value – use with v-model; numbers when the items have number values */
+    modelValue?: V | null;
+    defaultValue?: V | null;
     /** Visible group label (otherwise pass aria-label – or place the group in a Field with a label) */
     label?: string;
     orientation?: RadioGroupOrientation;
@@ -29,7 +31,7 @@ export interface RadioGroupProps {
 }
 
 defineOptions({ inheritAttrs: false });
-const props = withDefaults(defineProps<RadioGroupProps>(), {
+const props = withDefaults(defineProps<RadioGroupProps<V>>(), {
     modelValue: undefined,
     defaultValue: undefined,
     orientation: 'horizontal',
@@ -38,7 +40,7 @@ const props = withDefaults(defineProps<RadioGroupProps>(), {
     required: undefined,
 });
 const radioGroup = useRecipe('radioGroup', radioGroupRecipe, () => props.classes);
-const emit = defineEmits<{ 'update:modelValue': [value: string | null] }>();
+const emit = defineEmits<{ 'update:modelValue': [value: V | null] }>();
 const attrs = useAttrs();
 useLabelForWarning('RadioGroup', () => attrs.id);
 const styles = computed(() => radioGroup({ orientation: props.orientation, grid: props.columns !== undefined }));
@@ -50,6 +52,13 @@ const fieldLabelled = computed(
     () => !props.label && !attrs['aria-label'] && !attrs['aria-labelledby'] && !!field && fieldStatus.value.labelled
 );
 const ids = computed(() => (fieldLabelled.value ? { label: field!.value.ids.label } : undefined));
+
+// Ark works with strings: number values go in as text and come back as the item's value
+const values = new Map<string, string | number>();
+provide(radioGroupValuesKey, values);
+const toText = (value: V | null | undefined) => (value == null ? value : String(value));
+const onValueChange = (value: string | null) =>
+    emit('update:modelValue', (value === null ? null : (values.get(value) ?? value)) as V | null);
 </script>
 
 <template>
@@ -60,14 +69,14 @@ const ids = computed(() => (fieldLabelled.value ? { label: field!.value.ids.labe
             class: styles.base({ class: normalizeClass(attrs.class) }),
         }"
         :ids="ids"
-        :model-value="modelValue"
-        :default-value="defaultValue"
+        :model-value="toText(modelValue)"
+        :default-value="toText(defaultValue)"
         :orientation="orientation"
         :disabled="disabled ?? field?.disabled"
         :invalid="invalid ?? field?.invalid"
         :required="required ?? field?.required"
         :name="name"
-        @update:model-value="emit('update:modelValue', $event)"
+        @update:model-value="onValueChange"
     >
         <RadioGroup.Label v-if="label" :class="styles.label()">{{ label }}</RadioGroup.Label>
         <div :class="styles.items()" v-bind="columns ? { style: { '--wc-columns': String(columns) } } : {}">

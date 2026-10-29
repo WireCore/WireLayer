@@ -63,3 +63,64 @@ export const ItemTypes: Story = {
         ],
     },
 };
+
+/**
+ * A list as in a desktop app: `before-open` gets the right-clicked element – select its row before the menu shows;
+ * `v-model:open` tells whether the menu is open (e.g. to pause Delete or F2 on the list). `highlight-first` and the
+ * close props as on Menu
+ */
+export const DesktopList: Story = {
+    name: 'Desktop list',
+    render: () => ({
+        components: { ContextMenu },
+        setup() {
+            const hosts = ['web-01', 'web-02', 'db-01'];
+            const current = ref('web-01');
+            const open = ref(false);
+            const select = (target: Element) => {
+                const row = target.closest<HTMLElement>('[data-host]');
+                if (row) current.value = row.dataset.host!;
+            };
+            return {
+                hosts,
+                current,
+                open,
+                select,
+                hostItems: [
+                    { value: 'connect', label: 'Connect' },
+                    { value: 'rename', label: 'Rename', shortcut: 'F2' },
+                    { type: 'separator' as const },
+                    { value: 'delete', label: 'Delete', shortcut: 'Del', danger: true },
+                ],
+            };
+        },
+        template: `
+            <div class="flex w-72 flex-col gap-3">
+                <ContextMenu
+                    v-model:open="open"
+                    :items="hostItems"
+                    label="Host actions"
+                    highlight-first
+                    close-on-scroll
+                    close-on-resize
+                    close-on-blur
+                    @before-open="select"
+                >
+                    <ul class="m-0 flex list-none flex-col rounded-lg border border-line p-1" aria-label="Hosts">
+                        <li
+                            v-for="host in hosts"
+                            :key="host"
+                            :data-host="host"
+                            class="rounded-md px-2.5 py-1.5 text-sm text-fg"
+                            :class="host === current ? 'bg-line font-medium' : ''"
+                            :aria-current="host === current || undefined"
+                            @click="current = host"
+                        >
+                            {{ host }}
+                        </li>
+                    </ul>
+                </ContextMenu>
+                <span class="text-xs text-muted">Selected: {{ current }} · Menu open: {{ open }}</span>
+            </div>`,
+    }),
+};

@@ -84,6 +84,10 @@ export const input = tv({
         hasStatusIcon: {
             true: { control: 'pe-2' },
         },
+        /** Monospace font of the theme – for paths, tokens, codes and keys */
+        mono: {
+            true: { control: 'font-mono' },
+        },
     },
     defaultVariants: {
         size: 'md',
@@ -118,6 +122,10 @@ export const textarea = tv({
         /** Room for the spinner or clear button in the top corner */
         hasTrailing: {
             true: 'pe-10',
+        },
+        /** Monospace font of the theme – for keys, codes and logs */
+        mono: {
+            true: 'font-mono',
         },
     },
 });

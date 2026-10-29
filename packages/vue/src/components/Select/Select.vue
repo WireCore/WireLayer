@@ -74,6 +74,13 @@ export interface SelectProps<T = SelectItem, V = ItemValueOf<T>> {
     pageSize?: number;
     /** Not labelled by a surrounding Field – for a second control inside it (e.g. PhoneInput's country) */
     standalone?: boolean;
+    /** Whether the list is open – use with v-model:open, or listen to update:open */
+    open?: boolean;
+    /**
+     * Keeps the keys the list handles itself (Enter choosing or opening, Escape closing, Tab leaving) from bubbling
+     * up – e.g. in a dialog with window shortcuts for Enter (save) and Escape (cancel)
+     */
+    stopKeyPropagation?: boolean;
     /** Id of the field (the trigger), e.g. for a `<label for>` */
     id?: string;
     /** Extra classes per part of the component, e.g. { base: "…" } (see the recipe) */
@@ -88,6 +95,7 @@ const props = withDefaults(defineProps<SelectProps<T, V>>(), {
     disabled: undefined,
     invalid: undefined,
     required: undefined,
+    open: undefined,
 });
 const select = useRecipe('select', selectRecipe, () => props.classes);
 const emit = defineEmits<{
@@ -96,6 +104,8 @@ const emit = defineEmits<{
     filterChange: [text: string];
     /** The end of the list was scrolled into view (hasMore) */
     loadMore: [];
+    /** The list opened or closed */
+    'update:open': [open: boolean];
 }>();
 defineSlots<{
     /** Content of an option (instead of icon and label) */
@@ -191,6 +201,8 @@ function clear(api: Api) {
     api.focus();
 }
 function onTriggerKeydown(event: KeyboardEvent) {
+    // Enter opens the list
+    if (props.stopKeyPropagation && event.key === 'Enter') event.stopPropagation();
     if (!props.clearable || !selected.value.length || (event.key !== 'Backspace' && event.key !== 'Delete')) return;
     event.preventDefault();
     commit([]);
@@ -210,7 +222,12 @@ function onFilterInput(api: Api, event: Event) {
 function onFilterKeydown(event: KeyboardEvent) {
     if (event.key === ' ' || event.key === 'Home' || event.key === 'End') event.stopPropagation();
 }
+// Keys in the open list (the list is only rendered while open)
+function onContentKeydown(event: KeyboardEvent) {
+    if (props.stopKeyPropagation && ['Enter', 'Escape', 'Tab'].includes(event.key)) event.stopPropagation();
+}
 function onOpenChange(open: boolean) {
+    emit('update:open', open);
     if (open) source.open();
     if (open || !query.value) return;
     query.value = '';
@@ -246,6 +263,7 @@ const ids = computed(() =>
         :name="name"
         :positioning="listPositioning"
         :composite="!filter"
+        :open="open"
         v-bind="ids"
         lazy-mount
         unmount-on-exit
@@ -294,6 +312,7 @@ const ids = computed(() =>
                     :class="styles.content()"
                     :aria-busy="listLoading || undefined"
                     :aria-label="filter ? (split.rest['aria-label'] as string | undefined) : undefined"
+                    @keydown="onContentKeydown"
                 >
                     <!-- With a search field the popup is a dialog: search field, then the list -->
                     <template v-if="filter">

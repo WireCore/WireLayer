@@ -237,3 +237,32 @@ export const UserMenu: Story = {
             </div>`,
     }),
 };
+
+/**
+ * A menu at a point stays where it opened: `close-on-scroll`, `close-on-resize` and `close-on-blur` close it when the
+ * content below scrolls, the window is resized or loses the focus. `highlight-first` highlights the first item also
+ * when it opens by pointer, so Enter takes it
+ */
+export const ClosesWithThePage: Story = {
+    name: 'Closes with the page',
+    render: () => ({
+        components: { Menu },
+        setup: () => ({ menu: ref<InstanceType<typeof Menu> | null>(null), items, selected: ref('') }),
+        template: `
+            <div class="flex flex-col items-center gap-3">
+                <button type="button" class="w-72 rounded-lg border border-line p-4 text-sm text-fg" @click="menu?.open($event)">
+                    Row web-01 – click opens at the pointer
+                </button>
+                <Menu
+                    ref="menu"
+                    :items="items"
+                    close-on-scroll
+                    close-on-resize
+                    close-on-blur
+                    highlight-first
+                    @select="selected = $event"
+                />
+                <p class="h-4 text-xs text-muted" aria-live="polite">{{ selected && 'Selected: ' + selected }}</p>
+            </div>`,
+    }),
+};

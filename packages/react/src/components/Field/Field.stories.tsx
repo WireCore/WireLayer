@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Mail, Search } from 'lucide-react';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
+import { Button } from '../Button/Button.js';
 import { Checkbox } from '../Checkbox/Checkbox.js';
 import { Chip } from '../ChipGroup/Chip.js';
 import { ChipGroup } from '../ChipGroup/ChipGroup.js';
@@ -9,6 +10,7 @@ import { Combobox } from '../Combobox/Combobox.js';
 import { Input } from '../Input/Input.js';
 import { MultiSelect } from '../MultiSelect/MultiSelect.js';
 import { NumberInput } from '../NumberInput/NumberInput.js';
+import { PasswordInput } from '../PasswordInput/PasswordInput.js';
 import { RadioGroup } from '../RadioGroup/RadioGroup.js';
 import { RadioGroupItem } from '../RadioGroup/RadioGroupItem.js';
 import { SegmentedControl } from '../SegmentedControl/SegmentedControl.js';
@@ -223,6 +225,60 @@ export const NativeLabels: Story = {
                     I accept the terms
                 </label>
             </div>
+        </div>
+    ),
+};
+
+function FocusFromCodeDemo() {
+    const path = useRef<HTMLInputElement>(null);
+    return (
+        <div className="flex w-[380px] flex-col gap-3">
+            <Field label="Key file">
+                <Input ref={path} defaultValue="~/.ssh/id_ed25519.pub" mono />
+            </Field>
+            <div className="flex gap-2">
+                <Button size="sm" variant="outline" onClick={() => path.current?.select()}>
+                    Select all
+                </Button>
+                <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                        path.current?.focus();
+                        path.current?.setSelectionRange(6, 16);
+                    }}
+                >
+                    Select the file name
+                </Button>
+            </div>
+        </div>
+    );
+}
+
+/**
+ * Input, PasswordInput, NumberInput, Textarea and MaskInput pass `ref` to the native input – `focus()`, `blur()`,
+ * `select()` and `setSelectionRange()` work on it directly. In a dialog, mark the field with `data-autofocus` instead
+ * of focusing it in an effect (see Dialog › Initial focus).
+ */
+export const FocusFromCode: Story = { name: 'Focus from code', render: () => <FocusFromCodeDemo /> };
+
+/** `mono`: the monospace font of the theme (JetBrains Mono) – for paths, tokens, recovery codes, URLs and keys */
+export const Monospace: Story = {
+    render: () => (
+        <div className="flex w-[380px] flex-col gap-3.5">
+            <Field label="Server URL">
+                <Input defaultValue="ssh://deploy@10.0.4.12:2222" mono />
+            </Field>
+            <Field label="API token">
+                <PasswordInput defaultValue="wl_9f2c41d7e0b8" mono autoComplete="off" />
+            </Field>
+            <Field label="Public key">
+                <Textarea
+                    mono
+                    rows={3}
+                    defaultValue="ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIK0wmN/Cr3JXqmLW7u+g9pTh+wyqDHpSQEQnBAEcu8w0 deploy@web-01"
+                />
+            </Field>
         </div>
     ),
 };

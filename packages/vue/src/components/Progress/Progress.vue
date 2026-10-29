@@ -32,6 +32,17 @@ export interface ProgressProps {
     animated?: boolean;
     /** Vertical bar (fills the height of its parent) */
     orientation?: 'horizontal' | 'vertical';
+    /** `xs`: a thin bar with small text, e.g. in a list or a status bar */
+    size?: 'xs' | 'md';
+    /** Colour of the filled part by its state, e.g. `danger` for a failed transfer */
+    status?: 'info' | 'success' | 'warn' | 'danger';
+    /** The label only for screen readers – it still names the progress bar */
+    hideLabel?: boolean;
+    /**
+     * Short text in the bar, e.g. "42 %", "waiting" or "failed" (a taller bar; horizontal, without segments or steps)
+     * – screen readers get it after the value
+     */
+    barText?: string;
     /** Extra classes per part of the component, e.g. { base: "…" } (see the recipe) */
     classes?: RecipeClasses<typeof progressRecipe>;
 }
@@ -49,16 +60,26 @@ const palette: MeterColor[] = ['primary', 'info', 'success', 'warn', 'danger', '
 const total = computed(() =>
     props.segments ? props.segments.reduce((sum, segment) => sum + Math.max(0, segment.value), 0) : props.value
 );
+const showBarText = computed(
+    () => !!props.barText && !props.segments?.length && !props.steps && props.orientation !== 'vertical'
+);
 const styles = computed(() =>
     progress({
         orientation: props.orientation,
         striped: props.striped,
         animated: props.animated,
         stepped: !!props.steps && !props.segments,
+        size: props.size,
+        color: props.status,
+        hideLabel: props.hideLabel,
+        hasText: showBarText.value,
     })
 );
 const percentOf = (value: number) => Math.round((value / props.max) * 100);
 const text = computed(() => props.valueText(percentOf(total.value)));
+const announced = computed(() =>
+    showBarText.value && props.barText !== text.value ? `${text.value}, ${props.barText}` : text.value
+);
 const filled = computed(() => (props.steps ? Math.round((total.value / props.max) * props.steps) : 0));
 const sizeKey = computed(() => (props.orientation === 'vertical' ? 'height' : 'width'));
 const colorOf = (segment: ProgressSegment, index: number) => segment.color ?? palette[index % palette.length]!;
@@ -71,15 +92,15 @@ const colorOf = (segment: ProgressSegment, index: number) => segment.color ?? pa
         :max="max"
         :orientation="orientation === 'vertical' ? 'vertical' : undefined"
     >
-        <div v-if="label || showValue" :class="styles.header()">
-            <Progress.Label v-if="label" :class="styles.label()">{{ label }}</Progress.Label>
+        <div v-if="(label && !hideLabel) || showValue" :class="styles.header()">
+            <Progress.Label v-if="label && !hideLabel" :class="styles.label()">{{ label }}</Progress.Label>
             <Progress.ValueText v-if="showValue" :class="styles.value()">{{ text }}</Progress.ValueText>
         </div>
         <!-- Ark names the progressbar after its value; the label is the name, the value its valuetext -->
         <Progress.Track
             :class="styles.track()"
             :aria-label="label ?? (attrs['aria-label'] as string | undefined)"
-            :aria-valuetext="text"
+            :aria-valuetext="announced"
         >
             <div v-if="segments?.length" :class="styles.segments()">
                 <span
@@ -98,6 +119,12 @@ const colorOf = (segment: ProgressSegment, index: number) => segment.color ?? pa
                     :data-state="step <= filled ? 'complete' : undefined"
                 />
             </div>
+            <template v-else-if="showBarText">
+                <span :class="styles.barText()" aria-hidden="true">{{ barText }}</span>
+                <Progress.Range :class="styles.range()">
+                    <span :class="styles.barTextFill()" aria-hidden="true">{{ barText }}</span>
+                </Progress.Range>
+            </template>
             <Progress.Range v-else :class="styles.range()" />
         </Progress.Track>
         <ul v-if="segments?.some((segment) => segment.label)" :class="styles.legend()">

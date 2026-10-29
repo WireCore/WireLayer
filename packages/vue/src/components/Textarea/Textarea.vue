@@ -23,6 +23,7 @@ import { useTranslations } from '../../locale.js';
 import { useRecipe } from '../../recipes.js';
 import { useFieldStatus } from '../Field/context.js';
 import InputStatus from '../Input/InputStatus.vue';
+import { textFieldHandle } from '../../utils/text-field.js';
 
 export interface TextareaProps {
     /** Start value without v-model (uncontrolled) */
@@ -51,6 +52,8 @@ export interface TextareaProps {
     clearable?: boolean;
     /** Accessible name of the clear button (default "Clear input") */
     clearLabel?: string;
+    /** Monospace font of the theme (JetBrains Mono) – for keys, codes and logs */
+    mono?: boolean;
     /** Extra classes per part of the component, e.g. { base: "…" } (see the recipes textarea and textareaParts) */
     classes?: RecipeClasses<typeof textareaRecipe> & RecipeClasses<typeof textareaPartsRecipe>;
 }
@@ -139,6 +142,8 @@ function clear() {
     setTextControlValue(area);
     area.focus();
 }
+// focus(), blur(), select(), setSelectionRange() and the native textarea (`element`) for template refs
+defineExpose(textFieldHandle(() => element.value?.$el));
 </script>
 
 <template>
@@ -154,6 +159,7 @@ function clear() {
                 success: isSuccess,
                 disabled: isDisabled,
                 autoResize,
+                mono,
                 class: normalizeClass(attrs.class),
             }),
         }"
@@ -175,6 +181,7 @@ function clear() {
                     disabled: isDisabled,
                     autoResize,
                     hasTrailing: trailing,
+                    mono,
                 })
             "
             :rows="(attrs.rows as number | undefined) ?? minRows"

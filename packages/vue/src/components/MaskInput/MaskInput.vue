@@ -7,8 +7,9 @@ import {
     unmaskValue,
     type MaskTokens,
 } from '@wirecore/wirelayer-recipes';
-import { computed, nextTick, ref } from 'vue';
+import { computed, nextTick, ref, useTemplateRef } from 'vue';
 import Input from '../Input/Input.vue';
+import { textFieldHandle, type TextFieldHandle } from '../../utils/text-field.js';
 
 /** Further Input props (size, leadingIcon, prefix, invalid, clearable, loading …) are passed through */
 export interface MaskInputProps {
@@ -79,11 +80,15 @@ function onBlur(event: FocusEvent) {
     update('');
     (event.target as HTMLInputElement).value = '';
 }
+// focus(), blur(), select(), setSelectionRange() and the native input (`element`) for template refs
+const field = useTemplateRef<TextFieldHandle>('field');
+defineExpose(textFieldHandle(() => field.value?.element));
 </script>
 
 <template>
     <!-- Text input with a fixed format (IBAN, phone, postcode …): separators are added while typing -->
     <Input
+        ref="field"
         :inputmode="maskIsNumeric(mask, tokens) ? 'numeric' : undefined"
         :model-value="current"
         :placeholder="placeholder ?? maskPlaceholder(mask, slotChar, tokens)"

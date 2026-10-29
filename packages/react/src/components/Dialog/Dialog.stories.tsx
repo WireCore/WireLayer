@@ -2,6 +2,8 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Trash2 } from 'lucide-react';
 import { useState, type CSSProperties } from 'react';
 import { Button } from '../Button/Button.js';
+import { Field } from '../Field/Field.js';
+import { Input } from '../Input/Input.js';
 import { Dialog, DialogClose, DialogContent, DialogTrigger } from './Dialog.js';
 
 const meta = {
@@ -236,5 +238,103 @@ export const ScrollInside: Story = {
                 ))}
             </DialogContent>
         </Dialog>
+    ),
+};
+
+/**
+ * The field to start in: mark it with `data-autofocus`. The dialog moves the focus inside once it opened – after the
+ * content's effects, so a `focus()` there (or React's `autoFocus`) is overridden. Without a mark the first focusable
+ * element gets the focus; an `alertdialog` starts on its close button.
+ */
+export const InitialFocus: Story = {
+    name: 'Initial focus',
+    render: () => (
+        <Dialog>
+            <DialogTrigger>
+                <Button variant="outline">Rename connection</Button>
+            </DialogTrigger>
+            <DialogContent
+                title="Rename connection"
+                size="sm"
+                footer={
+                    <>
+                        <DialogClose>
+                            <Button variant="outline" size="sm">
+                                Cancel
+                            </Button>
+                        </DialogClose>
+                        <DialogClose>
+                            <Button size="sm">Save</Button>
+                        </DialogClose>
+                    </>
+                }
+            >
+                <Field label="Name">
+                    <Input defaultValue="web-01 (production)" data-autofocus />
+                </Field>
+            </DialogContent>
+        </Dialog>
+    ),
+};
+
+/** `titlePosition="header"`: the title in the row of the close button, after a smaller icon (as on the Drawer) */
+export const TitleInTheHeader: Story = {
+    name: 'Title in the header',
+    render: () => (
+        <div className="flex flex-wrap justify-center gap-2">
+            <Dialog>
+                <DialogTrigger>
+                    <Button variant="outline">Edit connection</Button>
+                </DialogTrigger>
+                <DialogContent
+                    title="Edit connection"
+                    description="web-01 · production"
+                    titlePosition="header"
+                    maximizable
+                    footer={
+                        <>
+                            <DialogClose>
+                                <Button variant="outline" size="sm">
+                                    Cancel
+                                </Button>
+                            </DialogClose>
+                            <DialogClose>
+                                <Button size="sm">Save</Button>
+                            </DialogClose>
+                        </>
+                    }
+                >
+                    <Field label="Host">
+                        <Input defaultValue="10.0.4.12" mono data-autofocus />
+                    </Field>
+                </DialogContent>
+            </Dialog>
+            <Dialog role="alertdialog">
+                <DialogTrigger>
+                    <Button variant="outline">With icon</Button>
+                </DialogTrigger>
+                <DialogContent
+                    title="Delete server?"
+                    description="This cannot be undone."
+                    icon={Trash2}
+                    status="danger"
+                    titlePosition="header"
+                    footer={
+                        <>
+                            <DialogClose>
+                                <Button variant="outline" size="sm">
+                                    Cancel
+                                </Button>
+                            </DialogClose>
+                            <DialogClose>
+                                <Button variant="danger" size="sm">
+                                    Delete
+                                </Button>
+                            </DialogClose>
+                        </>
+                    }
+                />
+            </Dialog>
+        </div>
     ),
 };

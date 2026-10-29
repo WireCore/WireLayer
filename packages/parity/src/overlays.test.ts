@@ -47,6 +47,21 @@ const menuItems = [
 describe('open overlays render the same DOM', () => {
     const cases: [string, El, string][] = [
         [
+            'Dialog: title in the header, with icon and maximize button',
+            el(
+                'Dialog',
+                { defaultOpen: true },
+                el('DialogContent', {
+                    title: 'Edit connection',
+                    description: 'web-01',
+                    titlePosition: 'header',
+                    icon: icon('Mail'),
+                    maximizable: true,
+                })
+            ),
+            '[role=dialog]',
+        ],
+        [
             'Dialog: size, position, maximize, drag, inside scrolling, footer',
             el(
                 'Dialog',

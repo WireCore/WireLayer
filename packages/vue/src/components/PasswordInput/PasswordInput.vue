@@ -14,6 +14,7 @@ import {
 } from '@wirecore/wirelayer-recipes';
 import { computed, ref, useAttrs, useId, useTemplateRef } from 'vue';
 import { splitAttrs } from '../../utils/attrs.js';
+import { textFieldHandle } from '../../utils/text-field.js';
 import { useTranslations } from '../../locale.js';
 import { useRecipe } from '../../recipes.js';
 import { useFieldStatus } from '../Field/context.js';
@@ -34,7 +35,11 @@ export interface PasswordInputProps {
     defaultVisible?: boolean;
     /** Whether the password is shown in plain text – use with v-model:visible */
     visible?: boolean;
-    autocomplete?: 'current-password' | 'new-password';
+    /**
+     * `current-password` (default) or `new-password` for the browser's password manager; `off` or `one-time-code` for
+     * secrets it should not offer to save (tokens, passphrases, master passwords, one-time codes)
+     */
+    autocomplete?: 'current-password' | 'new-password' | 'off' | 'one-time-code';
     /** Strength meter below the field – for choosing a new password */
     strength?: boolean;
     /**
@@ -52,6 +57,8 @@ export interface PasswordInputProps {
     defaultValue?: string;
     /** Id of the input, e.g. for a `<label for>` */
     id?: string;
+    /** Monospace font of the theme (JetBrains Mono) – for tokens, passphrases and keys */
+    mono?: boolean;
     /** Extra classes per part of the component, e.g. { base: "…" } (see the recipe) */
     classes?: RecipeClasses<typeof passwordInputRecipe>;
 }
@@ -79,7 +86,7 @@ const field = useFieldContext();
 const fieldStatus = useFieldStatus();
 const isInvalid = computed(() => !!props.invalid || !!field?.value.invalid);
 const isSuccess = computed(() => !isInvalid.value && (!!props.success || fieldStatus.value.success));
-const styles = computed(() => passwordInput({ size: props.size, success: isSuccess.value }));
+const styles = computed(() => passwordInput({ size: props.size, success: isSuccess.value, mono: props.mono }));
 
 // Strength: 4 bars and a word, announced politely and linked to the input
 const uid = useId();
@@ -114,6 +121,10 @@ function clear() {
     setTextControlValue(input);
     input.focus();
 }
+// focus(), blur(), select(), setSelectionRange() and the native input (`element`) for template refs
+defineExpose(textFieldHandle(() => control.value?.$el.querySelector('input')));
+// Also `off` or `one-time-code` (secrets the browser should not save): Ark only types the password values
+const autoComplete = computed(() => props.autocomplete as 'current-password' | 'new-password');
 // An own id goes to the input through Ark (it finds the input by its id)
 const ids = computed(() => controlIds(props.id, 'input', { input: field?.value.ids.control }));
 </script>
@@ -130,7 +141,7 @@ const ids = computed(() => controlIds(props.id, 'input', { input: field?.value.i
         :name="name"
         :default-visible="defaultVisible"
         :visible="visible"
-        :auto-complete="autocomplete"
+        :auto-complete="autoComplete"
         :translations="translations.passwordInput"
         v-bind="ids"
         @visibility-change="emit('update:visible', $event.visible)"

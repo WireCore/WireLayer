@@ -1,7 +1,11 @@
 import { LayoutGrid, List, Map as MapIcon } from '@lucide/vue';
 import type { Meta, StoryObj } from '@storybook/vue3-vite';
-import SegmentedControl from './SegmentedControl.vue';
+import type { ConcreteComponent } from 'vue';
+import SegmentedControlComponent from './SegmentedControl.vue';
 import SegmentedControlItem from './SegmentedControlItem.vue';
+
+// Generic component: Storybook's Vue types can't infer args here
+const SegmentedControl = SegmentedControlComponent as unknown as ConcreteComponent;
 
 const meta = {
     title: 'Buttons/SegmentedControl',

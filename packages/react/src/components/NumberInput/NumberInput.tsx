@@ -71,7 +71,7 @@ export interface NumberInputProps extends Omit<
     classes?: RecipeClasses<typeof numberInputRecipe>;
 }
 
-/** Number field with − / + buttons, arrow keys and locale formatting ("1,234.5") */
+/** Number field with − / + buttons, arrow keys and locale formatting ("1,234.5"); `ref` reaches the native input */
 export function NumberInput({
     classes,
     value,

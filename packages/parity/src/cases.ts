@@ -448,6 +448,15 @@ export const cases: [string, El][] = [
     ['Switch track labels', el('Switch', { onLabel: 'On', offLabel: 'Off' }, 'Notifications')],
 
     [
+        'RadioGroup number values',
+        el(
+            'RadioGroup',
+            { label: 'Port', defaultValue: 22, name: 'port' },
+            el('RadioGroupItem', { value: 22 }, 'SSH'),
+            el('RadioGroupItem', { value: 443 }, 'HTTPS')
+        ),
+    ],
+    [
         'RadioGroup',
         el(
             'RadioGroup',
@@ -693,6 +702,20 @@ export const cases: [string, El][] = [
     ['Progress', el('Progress', { value: 68, label: 'BUILD' })],
     ['Progress custom', el('Progress', { value: 3, max: 4, label: 'Steps', valueText: (p: number) => `${p} percent` })],
     ['Progress no header', el('Progress', { value: 20, showValue: false, 'aria-label': 'Upload' })],
+    ['Progress hidden label', el('Progress', { value: 42, label: 'Upload', hideLabel: true })],
+    [
+        'Progress xs, text in the bar, danger',
+        el('Progress', {
+            value: 42,
+            label: 'backup.tar',
+            hideLabel: true,
+            showValue: false,
+            size: 'xs',
+            status: 'danger',
+            barText: 'failed',
+        }),
+    ],
+    ['Progress text in the bar', el('Progress', { value: 42, label: 'Upload', barText: '42 %', status: 'success' })],
 
     ['Menu closed', el('Menu', { items: menuItems }, el('IconButton', { icon: icon('Ellipsis'), label: 'Actions' }))],
     ['ContextMenu closed', el('ContextMenu', { items: menuItems }, el('div', {}, 'Area'))],
@@ -886,6 +909,7 @@ export const cases: [string, El][] = [
     ],
     ['PasswordInput', el('Field', { label: 'Password', required: true }, el('PasswordInput', {}))],
     ['PasswordInput lg, visible', el('PasswordInput', { size: 'lg', defaultVisible: true, 'aria-label': 'Password' })],
+    ['PasswordInput mono', el('PasswordInput', { mono: true, 'aria-label': 'API token' })],
     [
         'PasswordInput requirements',
         el(
@@ -2387,6 +2411,16 @@ export const cases: [string, El][] = [
         'NativeSelect sm invalid',
         el('NativeSelect', { 'aria-label': 'City', size: 'sm', invalid: true, items: [{ value: 'a', label: 'A' }] }),
     ],
+    [
+        'NativeSelect number values',
+        el('NativeSelect', {
+            'aria-label': 'Timeout',
+            items: [
+                { value: 10, label: '10 s' },
+                { value: 30, label: '30 s' },
+            ],
+        }),
+    ],
     ['Spoiler', el('Spoiler', { maxHeight: 60 }, el('p', {}, 'Long text'))],
     ['Highlight', el('p', {}, el('Highlight', { text: 'Server web-01, Backup-Server', query: 'server' }))],
     [
@@ -3131,6 +3165,19 @@ export const cases: [string, El][] = [
     ['Alert neutral', el('Alert', { status: 'neutral', title: 'Draft' }, 'Not published yet')],
     ['Alert simple danger', el('Alert', { variant: 'simple', status: 'danger' }, 'Please enter a valid email')],
     ['Alert simple success sm', el('Alert', { variant: 'simple', status: 'success', size: 'sm', title: 'Saved' })],
+    [
+        'Alert with actions',
+        el(
+            'Alert',
+            {
+                status: 'warn',
+                title: 'Workspace locked',
+                dismissible: true,
+                $slots: { actions: el('Button', { size: 'sm' }, 'Unlock') },
+            },
+            'Unlock it to see the connections.'
+        ),
+    ],
     ['Alert sm, duration', el('Alert', { size: 'sm', title: 'Copied', duration: 5000, dismissible: true })],
 
     ['Input', el('Input', { 'aria-label': 'Name', placeholder: 'John Doe' })],
@@ -3146,6 +3193,7 @@ export const cases: [string, El][] = [
     ['Input loading', el('Input', { 'aria-label': 'Domain', loading: true, size: 'sm' })],
     ['Input clearable empty', el('Input', { 'aria-label': 'Search', clearable: true })],
     ['Input clearable lg', el('Input', { 'aria-label': 'Search', clearable: true, size: 'lg' })],
+    ['Input mono', el('Input', { 'aria-label': 'Path', mono: true })],
     [
         'Input clearable disabled, invalid',
         el('Input', {
@@ -3163,6 +3211,7 @@ export const cases: [string, El][] = [
         el('Textarea', { 'aria-label': 'Message', size }),
     ]),
     ['Textarea success', el('Textarea', { 'aria-label': 'Message', success: true })],
+    ['Textarea mono', el('Textarea', { 'aria-label': 'Public key', mono: true, rows: 3 })],
     [
         'Textarea counter',
         el('Field', { label: 'Message' }, el('Textarea', { showCount: true, maxLength: 200, defaultValue: 'Hello' })),

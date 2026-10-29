@@ -12,10 +12,14 @@ import { useFieldStatus } from '../Field/context.js';
 import { useRecipe } from '../RecipesProvider/RecipesProvider.js';
 import { useLabelForWarning } from '../../utils/label-for.js';
 
-export interface SegmentedControlProps extends Omit<ComponentProps<'div'>, 'defaultValue' | 'dir'> {
-    value?: string | null;
-    defaultValue?: string;
-    onValueChange?: (value: string | null) => void;
+/** `V`: the type of the values, e.g. a union like `'ssh' | 'sftp'` (default string) */
+export interface SegmentedControlProps<V extends string = string> extends Omit<
+    ComponentProps<'div'>,
+    'defaultValue' | 'dir'
+> {
+    value?: V | null;
+    defaultValue?: V;
+    onValueChange?: (value: V | null) => void;
     /** Accessible name of the group (visually hidden) – inside a Field with a label, the Field's label names it */
     label?: string;
     size?: SegmentedControlSize;
@@ -26,7 +30,7 @@ export interface SegmentedControlProps extends Omit<ComponentProps<'div'>, 'defa
 }
 
 /** Few exclusive options as a segmented switch (radio group) */
-export function SegmentedControl({
+export function SegmentedControl<V extends string = string>({
     classes,
     value,
     defaultValue,
@@ -38,7 +42,7 @@ export function SegmentedControl({
     className,
     children,
     ...props
-}: SegmentedControlProps) {
+}: SegmentedControlProps<V>) {
     useLabelForWarning('SegmentedControl', props.id);
     const segmentedControl = useRecipe('segmentedControl', segmentedControlRecipe, classes);
     const styles = segmentedControl({ size });
@@ -63,7 +67,7 @@ export function SegmentedControl({
                 ids={fieldLabelled ? { label: field.ids.label } : undefined}
                 value={value}
                 defaultValue={defaultValue}
-                onValueChange={(details) => onValueChange?.(details.value)}
+                onValueChange={(details) => onValueChange?.(details.value as V | null)}
                 orientation="horizontal"
                 disabled={disabled ?? field?.disabled}
                 name={name}

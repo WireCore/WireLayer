@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useState } from 'react';
 import { fn } from 'storybook/test';
+import { Button } from '../Button/Button.js';
 import { Alert } from './Alert.js';
 
 const meta = {
@@ -110,3 +111,39 @@ function DurationDemo() {
 
 /** Dismisses itself after 8 seconds – the time stops while the pointer is over it or the focus is in it */
 export const Duration: Story = { render: () => <DurationDemo /> };
+
+/** `actions`: buttons in the message – beside the text, below it when there is little room */
+export const WithActions: Story = {
+    name: 'With actions',
+    render: () => (
+        <div className="flex w-[480px] flex-col gap-2.5">
+            <Alert status="warn" title="Workspace locked" actions={<Button size="sm">Unlock</Button>}>
+                Unlock it to see the connections.
+            </Alert>
+            <Alert
+                status="danger"
+                title="Connection lost"
+                dismissible
+                actions={
+                    <Button size="sm" variant="outline">
+                        Reconnect
+                    </Button>
+                }
+            >
+                web-01 stopped answering.
+            </Alert>
+            <div className="w-64">
+                <Alert
+                    status="info"
+                    size="sm"
+                    title="Update ready"
+                    actions={
+                        <Button size="sm" variant="outline">
+                            Restart
+                        </Button>
+                    }
+                />
+            </div>
+        </div>
+    ),
+};

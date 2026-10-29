@@ -293,7 +293,30 @@ export const progressParts = tv({
         filled: {
             true: { step: 'bg-primary' },
         },
+        /** `xs`: a thin bar, e.g. in a list */
+        size: {
+            xs: { track: 'h-1', steps: 'h-1', verticalTrack: 'w-1' },
+            md: {},
+        },
+        /** Colour of the filled part by its state */
+        status: {
+            info: { verticalRange: 'bg-info' },
+            success: { verticalRange: 'bg-success' },
+            warn: { verticalRange: 'bg-warn' },
+            danger: { verticalRange: 'bg-danger' },
+        },
+        /** Text in the bar: a taller track */
+        hasText: {
+            true: { track: 'relative h-4' },
+        },
     },
+    compoundVariants: [
+        { filled: true, status: 'info', class: { step: 'bg-info' } },
+        { filled: true, status: 'success', class: { step: 'bg-success' } },
+        { filled: true, status: 'warn', class: { step: 'bg-warn' } },
+        { filled: true, status: 'danger', class: { step: 'bg-danger' } },
+        { size: 'xs', hasText: true, class: { track: 'h-3.5' } },
+    ],
 });
 
 /** Colours of meters and segments (`MeterColor`) */

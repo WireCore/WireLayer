@@ -2,6 +2,8 @@ import { Trash2 } from '@lucide/vue';
 import type { Meta, StoryObj } from '@storybook/vue3-vite';
 import { ref } from 'vue';
 import Button from '../Button/Button.vue';
+import Field from '../Field/Field.vue';
+import Input from '../Input/Input.vue';
 import Dialog from './Dialog.vue';
 import DialogClose from './DialogClose.vue';
 import DialogContent from './DialogContent.vue';
@@ -185,5 +187,59 @@ export const ScrollInside: Story = {
                     </template>
                 </DialogContent>
             </Dialog>`,
+    }),
+};
+
+/**
+ * The field to start in: mark it with `data-autofocus` (or `autofocus`). The dialog moves the focus inside once it
+ * opened – after the content's `onMounted`, so a `focus()` there is overridden. Without a mark the first focusable
+ * element gets the focus; an `alertdialog` starts on its close button.
+ */
+export const InitialFocus: Story = {
+    name: 'Initial focus',
+    render: () => ({
+        components: { Button, Dialog, DialogClose, DialogContent, DialogTrigger, Field, Input },
+        template: `
+            <Dialog>
+                <DialogTrigger><Button variant="outline">Rename connection</Button></DialogTrigger>
+                <DialogContent title="Rename connection" size="sm">
+                    <Field label="Name"><Input model-value="web-01 (production)" data-autofocus /></Field>
+                    <template #footer>
+                        <DialogClose><Button variant="outline" size="sm">Cancel</Button></DialogClose>
+                        <DialogClose><Button size="sm">Save</Button></DialogClose>
+                    </template>
+                </DialogContent>
+            </Dialog>`,
+    }),
+};
+
+/** `title-position="header"`: the title in the row of the close button, after a smaller icon (as on the Drawer) */
+export const TitleInTheHeader: Story = {
+    name: 'Title in the header',
+    render: () => ({
+        components: { Button, Dialog, DialogClose, DialogContent, DialogTrigger, Field, Input },
+        setup: () => ({ Trash2 }),
+        template: `
+            <div class="flex flex-wrap justify-center gap-2">
+                <Dialog>
+                    <DialogTrigger><Button variant="outline">Edit connection</Button></DialogTrigger>
+                    <DialogContent title="Edit connection" description="web-01 · production" title-position="header" maximizable>
+                        <Field label="Host"><Input model-value="10.0.4.12" mono data-autofocus /></Field>
+                        <template #footer>
+                            <DialogClose><Button variant="outline" size="sm">Cancel</Button></DialogClose>
+                            <DialogClose><Button size="sm">Save</Button></DialogClose>
+                        </template>
+                    </DialogContent>
+                </Dialog>
+                <Dialog role="alertdialog">
+                    <DialogTrigger><Button variant="outline">With icon</Button></DialogTrigger>
+                    <DialogContent title="Delete server?" description="This cannot be undone." :icon="Trash2" status="danger" title-position="header">
+                        <template #footer>
+                            <DialogClose><Button variant="outline" size="sm">Cancel</Button></DialogClose>
+                            <DialogClose><Button variant="danger" size="sm">Delete</Button></DialogClose>
+                        </template>
+                    </DialogContent>
+                </Dialog>
+            </div>`,
     }),
 };

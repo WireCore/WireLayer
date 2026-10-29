@@ -4,6 +4,7 @@ import { CircleAlert } from '@lucide/vue';
 import { input as inputRecipe, setTextControlValue, type RecipeClasses, type Size } from '@wirecore/wirelayer-recipes';
 import { computed, ref, useAttrs, useId, useTemplateRef, type Component } from 'vue';
 import { splitAttrs } from '../../utils/attrs.js';
+import { textFieldHandle } from '../../utils/text-field.js';
 import { useTranslations } from '../../locale.js';
 import { useRecipe } from '../../recipes.js';
 import { useFieldStatus } from '../Field/context.js';
@@ -29,6 +30,8 @@ export interface InputProps {
     prefix?: string;
     /** Static text segment after the input, e.g. `.de` */
     suffix?: string;
+    /** Monospace font of the theme (JetBrains Mono) – for paths, tokens, codes, URLs and keys */
+    mono?: boolean;
     /** Extra classes per part of the component, e.g. { base: "…" } (see the recipe) */
     classes?: RecipeClasses<typeof inputRecipe>;
 }
@@ -54,6 +57,7 @@ const styles = computed(() =>
         disabled: isDisabled.value,
         hasIcon: !!props.leadingIcon,
         hasStatusIcon: isInvalid.value || isSuccess.value || props.loading || props.clearable,
+        mono: props.mono,
     })
 );
 const split = computed(() => splitAttrs(attrs));
@@ -85,6 +89,8 @@ function clear() {
     setTextControlValue(element);
     element.focus();
 }
+// focus(), blur(), select(), setSelectionRange() and the native input (`element`) for template refs
+defineExpose(textFieldHandle(() => control.value?.$el));
 </script>
 
 <template>

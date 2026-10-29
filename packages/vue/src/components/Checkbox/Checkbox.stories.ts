@@ -1,5 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite';
-import Checkbox from './Checkbox.vue';
+import type { ConcreteComponent } from 'vue';
+import CheckboxComponent from './Checkbox.vue';
+
+// Generic component: Storybook's Vue types can't infer args here
+const Checkbox = CheckboxComponent as unknown as ConcreteComponent;
 
 const meta = {
     title: 'Forms/Checkbox',

@@ -1,6 +1,9 @@
 import { Mail, Search } from '@lucide/vue';
 import type { Meta, StoryObj } from '@storybook/vue3-vite';
-import { ref } from 'vue';
+import { ref, useTemplateRef } from 'vue';
+import Button from '../Button/Button.vue';
+import PasswordInput from '../PasswordInput/PasswordInput.vue';
+import type { TextFieldHandle } from '../../utils/text-field.js';
 import ChipGroup from '../ChipGroup/ChipGroup.vue';
 import Checkbox from '../Checkbox/Checkbox.vue';
 import Chip from '../ChipGroup/Chip.vue';
@@ -205,6 +208,56 @@ export const NativeLabels: Story = {
                     <Checkbox id="native-terms" />
                     <label for="native-terms" :class="labelClass">I accept the terms</label>
                 </div>
+            </div>`,
+    }),
+};
+
+/**
+ * Input, PasswordInput, NumberInput, Textarea and MaskInput expose `focus()`, `blur()`, `select()`,
+ * `setSelectionRange()` and the native input as `element` – a template ref is enough, no `$el.querySelector`.
+ * In a dialog, mark the field with `data-autofocus` instead of focusing it in `onMounted` (see Dialog › Initial focus).
+ */
+export const FocusFromCode: Story = {
+    name: 'Focus from code',
+    render: () => ({
+        components: { Field, Input, Button },
+        setup() {
+            const path = useTemplateRef<TextFieldHandle>('path');
+            const selectAll = () => path.value?.select();
+            const selectName = () => {
+                path.value?.focus();
+                path.value?.setSelectionRange(6, 16);
+            };
+            return { selectAll, selectName };
+        },
+        template: `
+            <div class="flex w-[380px] flex-col gap-3">
+                <Field label="Key file">
+                    <Input ref="path" model-value="~/.ssh/id_ed25519.pub" mono />
+                </Field>
+                <div class="flex gap-2">
+                    <Button size="sm" variant="outline" @click="selectAll">Select all</Button>
+                    <Button size="sm" variant="outline" @click="selectName">Select the file name</Button>
+                </div>
+            </div>`,
+    }),
+};
+
+/** `mono`: the monospace font of the theme (JetBrains Mono) – for paths, tokens, recovery codes, URLs and keys */
+export const Monospace: Story = {
+    render: () => ({
+        components: { Field, Input, PasswordInput, Textarea },
+        template: `
+            <div class="flex w-[380px] flex-col gap-3.5">
+                <Field label="Server URL"><Input model-value="ssh://deploy@10.0.4.12:2222" mono /></Field>
+                <Field label="API token"><PasswordInput default-value="wl_9f2c41d7e0b8" mono autocomplete="off" /></Field>
+                <Field label="Public key">
+                    <Textarea
+                        mono
+                        :rows="3"
+                        default-value="ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIK0wmN/Cr3JXqmLW7u+g9pTh+wyqDHpSQEQnBAEcu8w0 deploy@web-01"
+                    />
+                </Field>
             </div>`,
     }),
 };

@@ -66,3 +66,19 @@ export const ControlledVisibility: Story = {
             </div>`,
     }),
 };
+
+/**
+ * Secrets the browser should not offer to save (tokens, passphrases, vault master passwords): `autocomplete="off"`;
+ * `one-time-code` for one-time codes. `mono` sets the monospace font
+ */
+export const NotSaved: Story = {
+    name: 'Not saved by the browser',
+    render: () => ({
+        components: { Field, PasswordInput },
+        template: `
+            <div class="flex w-[380px] flex-col gap-3.5">
+                <Field label="Vault master password"><PasswordInput autocomplete="off" /></Field>
+                <Field label="Access token"><PasswordInput autocomplete="off" mono /></Field>
+            </div>`,
+    }),
+};

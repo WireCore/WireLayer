@@ -6,9 +6,9 @@ import {
     type OverlayHandle,
     type RecipeClasses,
 } from '@wirecore/wirelayer-recipes';
-import { computed, onBeforeUnmount, type Component } from 'vue';
+import { computed, onBeforeUnmount, useTemplateRef, type Component } from 'vue';
 import MenuEntries from '../Menu/MenuEntries.vue';
-import { provideMenuState } from '../Menu/state.js';
+import { provideMenuState, useMenuBehavior } from '../Menu/state.js';
 import type { MenuCheckboxItem, MenuEntry, MenuItem, MenuRadioItem } from '../Menu/types.js';
 import { useAnchoredOverlay } from '../../overlay.js';
 import { useRecipe } from '../../recipes.js';
@@ -20,11 +20,21 @@ export interface ContextMenuProps {
     label?: string;
     /** Component for link items, e.g. RouterLink or NuxtLink (gets `to` for items with `to`, else `href`); default <a> */
     linkAs?: Component | string;
+    /** Whether the menu is open – use with v-model:open, or listen to update:open (e.g. to pause list shortcuts) */
+    open?: boolean;
+    /** Closes when the page (or a container) scrolls */
+    closeOnScroll?: boolean;
+    /** Closes when the window is resized */
+    closeOnResize?: boolean;
+    /** Closes when the window loses the focus (switching to another window) */
+    closeOnBlur?: boolean;
+    /** Highlights the first item when the menu opens, so Enter takes it (as in desktop context menus) */
+    highlightFirst?: boolean;
     /** Extra classes per part of the component, e.g. { base: "…" } (see the recipe) */
     classes?: RecipeClasses<typeof menuRecipe>;
 }
 
-const props = defineProps<ContextMenuProps>();
+const props = withDefaults(defineProps<ContextMenuProps>(), { open: undefined });
 const menu = useRecipe('menu', menuRecipe, () => props.classes);
 const emit = defineEmits<{
     select: [value: string];
@@ -32,6 +42,12 @@ const emit = defineEmits<{
     'checked-change': [value: string, checked: boolean];
     /** A radio group got a new value */
     'value-change': [name: string, value: string];
+    'update:open': [open: boolean];
+    /**
+     * A right click, long press or the menu key is opening the menu, on this element (e.g. the row under the pointer –
+     * select it before the menu shows)
+     */
+    'before-open': [target: Element];
 }>();
 defineSlots<{
     /** The area that opens the menu */
@@ -47,15 +63,33 @@ provideMenuState({
     onValueChange: (name, value) => emit('value-change', name, value),
 });
 const overlay = useAnchoredOverlay({
-    open: () => undefined,
+    open: () => props.open,
     anchor: () => undefined,
-    onOpenChange: () => {},
+    onOpenChange: (next) => emit('update:open', next),
     restoreFocus: true,
 });
 defineExpose<OverlayHandle>(overlay.handle);
+const content = useTemplateRef<{ $el: HTMLElement }>('content');
+const highlight = useMenuBehavior({
+    open: () => overlay.isOpen.value,
+    close: overlay.handle.close,
+    content: () => content.value?.$el,
+    closeOnScroll: () => props.closeOnScroll,
+    closeOnResize: () => props.closeOnResize,
+    closeOnBlur: () => props.closeOnBlur,
+    highlightFirst: () => props.highlightFirst,
+});
 
 // Touch and pen: holding still for half a second opens the menu at the finger
-const longPress = createLongPress((point) => overlay.handle.open(point));
+let pressed: Element | null = null;
+const longPress = createLongPress((point) => {
+    if (pressed) emit('before-open', pressed);
+    overlay.handle.open(point);
+});
+function onPointerDown(event: PointerEvent) {
+    pressed = event.target as Element | null;
+    longPress.down(event);
+}
 onBeforeUnmount(longPress.cancel);
 // One object until the inputs change – a new one on every render can make Ark re-render endlessly
 const positioning = computed(() => overlay.positioning({}));
@@ -70,6 +104,7 @@ const positioning = computed(() => overlay.positioning({}));
         :open="overlay.isOpen.value"
         :positioning="positioning"
         :anchor-point="overlay.anchorPoint.value"
+        v-bind="highlight"
         lazy-mount
         unmount-on-exit
         @update:open="overlay.onOpenChange($event)"
@@ -77,7 +112,8 @@ const positioning = computed(() => overlay.positioning({}));
     >
         <Menu.ContextTrigger
             as-child
-            @pointerdown="longPress.down($event)"
+            @pointerdown="onPointerDown"
+            @contextmenu="emit('before-open', $event.target as Element)"
             @pointermove="longPress.move($event)"
             @pointerup="longPress.cancel()"
             @pointercancel="longPress.cancel()"
@@ -87,6 +123,7 @@ const positioning = computed(() => overlay.positioning({}));
         <Teleport to="body">
             <Menu.Positioner>
                 <Menu.Content
+                    ref="content"
                     :class="styles.content()"
                     v-bind="label ? { 'aria-label': label, 'aria-labelledby': undefined } : {}"
                 >

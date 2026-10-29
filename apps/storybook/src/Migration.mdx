@@ -57,3 +57,20 @@ by side, then the places where the two behave differently. The React package has
   control's own `id`; date fields, sliders and groups need `Field` or `aria-label`.
 - **Brand colours:** `checkTheme` lists the pairs below WCAG AA, `suggestThemeFixes` the nearest colours (and `on-*`
   colours) that meet them – an orange `primary` with white text, common in PrimeVue themes, does not.
+
+## Desktop apps (dense UI, many dialogs)
+
+- **Focus from code:** the text fields expose `focus()`, `select()`, `setSelectionRange()` and the native input
+  (`element`) through a template ref – no `$el.querySelector('input')`. In a dialog, mark the first field with
+  `data-autofocus`: a `focus()` in `onMounted` is overridden by the dialog's focus trap.
+- **Window shortcuts in dialogs:** Enter/Escape listeners on `window` also get the keys of an open list. `Select` and
+  `Combobox` take `stop-key-propagation` and report `v-model:open`; `ContextMenu` reports `v-model:open` and the
+  right-clicked element (`@before-open`).
+- **Menus at a point:** `close-on-scroll`, `close-on-resize`, `close-on-blur`, and `highlight-first` so Enter takes the
+  first item.
+- **Closable tabs** are built in: `TabsTrigger closable @close` – the close button is not nested in the tab, Delete
+  closes the focused tab and the focus moves to its neighbour.
+- **Typed values:** `RadioGroup`, `SegmentedControl` and `NativeSelect` keep the type of the bound value (unions,
+  numbers); `Checkbox` with a boolean model gives booleans.
+- **Compact parts:** `Progress size="xs"` with `hide-label`, `bar-text` and `status`; `Alert #actions`; `mono` on text
+  fields; `DialogContent title-position="header"` puts the title next to the close button.
