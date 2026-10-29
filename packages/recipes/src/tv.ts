@@ -3,8 +3,8 @@ import { createTV } from 'tailwind-variants';
 /** tailwind-merge knows the custom WireLayer utilities (also used by the @wirecore/wirelayer-css generator). */
 export const twMergeConfig = {
     extend: {
-        // rounded-popup is a radius, so `classes` like rounded-none replace it
-        theme: { radius: ['popup'] },
+        // rounded-popup, -card and -panel are radii, so `classes` like rounded-none (or a Card's size) replace them
+        theme: { radius: ['popup', 'card', 'panel'] },
         classGroups: {
             'bg-image': ['bg-glow'],
             'text-gradient': ['text-gradient'],

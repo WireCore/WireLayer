@@ -4,8 +4,10 @@ import { ref } from 'vue';
 import { bindInput } from '../../form/bind.js';
 import FormField from '../../form/FormField.vue';
 import { useValidators, validateFields } from '../../form/validators.js';
+import Checkbox from '../Checkbox/Checkbox.vue';
 import DataList from '../DataList/DataList.vue';
 import DataListItem from '../DataList/DataListItem.vue';
+import Field from '../Field/Field.vue';
 import Input from '../Input/Input.vue';
 import Result from '../Result/Result.vue';
 import Wizard from './Wizard.vue';
@@ -74,3 +76,43 @@ type Story = StoryObj<typeof meta>;
  * summary before finishing
  */
 export const Playground: Story = {};
+
+/**
+ * `finish-label` names the last button, `focus-on-step-change` moves the focus into each new step (here: the user
+ * name, selected with data-autoselect), and `validate` returns a text – shown as the error of the step instead of the
+ * general one
+ */
+export const OwnTexts: Story = {
+    name: 'Own texts and focus',
+    render: () => ({
+        components: { Checkbox, Field, Input, Wizard },
+        setup() {
+            const signIn = ref(false);
+            const steps = [
+                { label: 'Server' },
+                {
+                    label: 'Sign-in',
+                    validate: async () => {
+                        await new Promise((done) => setTimeout(done, 400));
+                        return signIn.value || 'Sign-in was cancelled – try again';
+                    },
+                },
+            ];
+            return { signIn, steps };
+        },
+        template: `
+            <Wizard :steps="steps" finish-label="Create" focus-on-step-change class="max-w-2xl">
+                <template #step="{ index }">
+                    <div v-if="index === 0" class="flex flex-col gap-3">
+                        <Field label="Host"><Input mono /></Field>
+                        <Field label="Port"><Input model-value="22" mono /></Field>
+                    </div>
+                    <div v-else class="flex flex-col gap-3">
+                        <Field label="User"><Input model-value="root" data-autoselect /></Field>
+                        <Checkbox v-model:checked="signIn">Sign-in succeeds</Checkbox>
+                    </div>
+                </template>
+                <template #completed><p class="text-sm">Connection created.</p></template>
+            </Wizard>`,
+    }),
+};

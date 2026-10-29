@@ -34,8 +34,11 @@ export interface ProgressProps {
     orientation?: 'horizontal' | 'vertical';
     /** `xs`: a thin bar with small text, e.g. in a list or a status bar */
     size?: 'xs' | 'md';
-    /** Colour of the filled part by its state, e.g. `danger` for a failed transfer */
-    status?: 'info' | 'success' | 'warn' | 'danger';
+    /**
+     * Colour of the filled part by its state, e.g. `danger` for a failed transfer, `neutral` (grey) for a cancelled
+     * one
+     */
+    status?: 'info' | 'success' | 'warn' | 'danger' | 'neutral';
     /** The label only for screen readers – it still names the progress bar */
     hideLabel?: boolean;
     /**
@@ -70,7 +73,7 @@ const styles = computed(() =>
         animated: props.animated,
         stepped: !!props.steps && !props.segments,
         size: props.size,
-        color: props.status,
+        color: props.status === 'neutral' ? 'muted' : props.status,
         hideLabel: props.hideLabel,
         hasText: showBarText.value,
     })

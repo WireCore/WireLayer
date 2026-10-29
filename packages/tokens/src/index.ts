@@ -11,3 +11,4 @@ export {
 export { colorDeclarations, themeToCss } from './css.js';
 export { nativeExtraThemes, nativeFonts, nativeThemeName, themeToNativeCss } from './native.js';
 export { contrast, inGamut, luminance, oklchToRgb, over, parse, rgbToOklch, toHex, type Rgba } from './color.js';
+export { resolveTokens, watchTokens } from './resolve.js';

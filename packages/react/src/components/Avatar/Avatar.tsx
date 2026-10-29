@@ -18,6 +18,8 @@ import { useRecipe } from '../RecipesProvider/RecipesProvider.js';
 export interface AvatarProps extends Omit<ComponentProps<'div'>, 'children'> {
     /** Person or organisation – accessible name of the avatar and source of the initials */
     name?: string;
+    /** Own initials instead of the ones taken from `name`, e.g. "MS" for "my-server" */
+    initials?: string;
     /** Image URL; initials (or the icon) are shown while it loads or if it fails */
     src?: string;
     /** Icon shown when there is neither an image nor a name (default: user icon) */
@@ -41,6 +43,7 @@ export interface AvatarProps extends Omit<ComponentProps<'div'>, 'children'> {
 export function Avatar({
     classes,
     name,
+    initials: ownInitials,
     src,
     icon: Icon = User,
     variant,
@@ -61,7 +64,7 @@ export function Avatar({
         grouped: groupSize !== null,
         interactive: Tag === 'button',
     });
-    const initials = name ? getInitials(name) : '';
+    const initials = ownInitials ?? (name ? getInitials(name) : '');
 
     const content = (
         <>

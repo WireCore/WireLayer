@@ -310,3 +310,29 @@ export const KeysInADialog: Story = {
             </div>`,
     }),
 };
+
+/**
+ * A model that uses `""` for "nothing chosen" (e.g. from a form or an API): `empty-value=""` shows the placeholder for
+ * it, and clearing gives `""` back instead of null
+ */
+export const EmptyStringValue: Story = {
+    name: 'Empty string as no value',
+    render: () => ({
+        components: { Field, Select },
+        setup() {
+            const jumpHost = ref('');
+            const hosts = [
+                { value: 'bastion-1', label: 'bastion-1' },
+                { value: 'bastion-2', label: 'bastion-2' },
+            ];
+            return { jumpHost, hosts };
+        },
+        template: `
+            <div class="flex w-[380px] flex-col gap-3.5">
+                <Field label="Jump host">
+                    <Select v-model="jumpHost" :items="hosts" placeholder="None" empty-value="" clearable />
+                </Field>
+                <span class="text-xs text-muted">Value: {{ JSON.stringify(jumpHost) }}</span>
+            </div>`,
+    }),
+};

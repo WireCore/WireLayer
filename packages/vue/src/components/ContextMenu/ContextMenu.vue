@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { Menu } from '@ark-ui/vue/menu';
 import {
+    createContextMenuSource,
     createLongPress,
     menu as menuRecipe,
+    type ContextMenuOpenDetails,
     type OverlayHandle,
     type RecipeClasses,
 } from '@wirecore/wirelayer-recipes';
@@ -45,9 +47,10 @@ const emit = defineEmits<{
     'update:open': [open: boolean];
     /**
      * A right click, long press or the menu key is opening the menu, on this element (e.g. the row under the pointer –
-     * select it before the menu shows)
+     * select it before the menu shows); `details.source` tells pointer from keyboard, with the keyboard
+     * `details.focused` is the focused element (e.g. the row with the focus)
      */
-    'before-open': [target: Element];
+    'before-open': [target: Element, details: ContextMenuOpenDetails];
 }>();
 defineSlots<{
     /** The area that opens the menu */
@@ -83,11 +86,14 @@ const highlight = useMenuBehavior({
 // Touch and pen: holding still for half a second opens the menu at the finger
 let pressed: Element | null = null;
 const longPress = createLongPress((point) => {
-    if (pressed) emit('before-open', pressed);
+    if (pressed) emit('before-open', pressed, { source: 'pointer', focused: null });
     overlay.handle.open(point);
 });
+// Shift+F10 and the menu key open it as well (the browser's contextmenu event)
+const source = createContextMenuSource();
 function onPointerDown(event: PointerEvent) {
     pressed = event.target as Element | null;
+    source.pointerdown();
     longPress.down(event);
 }
 onBeforeUnmount(longPress.cancel);
@@ -113,7 +119,8 @@ const positioning = computed(() => overlay.positioning({}));
         <Menu.ContextTrigger
             as-child
             @pointerdown="onPointerDown"
-            @contextmenu="emit('before-open', $event.target as Element)"
+            @keydown="source.keydown($event)"
+            @contextmenu="emit('before-open', $event.target as Element, source.contextmenu())"
             @pointermove="longPress.move($event)"
             @pointerup="longPress.cancel()"
             @pointercancel="longPress.cancel()"

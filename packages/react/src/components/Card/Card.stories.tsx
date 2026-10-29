@@ -92,3 +92,29 @@ export const Horizontal: Story = {
         </Card>
     ),
 };
+
+const hosts = [
+    { name: 'web-01', detail: 'Ubuntu 24.04 · SSH', state: 'Online' },
+    { name: 'db-primary', detail: 'Debian 12 · SSH', state: 'Online' },
+    { name: 'backup', detail: 'FreeBSD 14 · SFTP', state: 'Offline' },
+];
+
+/** `size="sm"`: smaller radius, padding and title – for lists of cards, e.g. inside a dialog */
+export const Small: Story = {
+    name: 'Small',
+    render: () => (
+        <ul className="flex w-80 flex-col gap-2">
+            {hosts.map((host) => (
+                <li key={host.name}>
+                    <Card
+                        size="sm"
+                        title={host.name}
+                        subtitle={host.detail}
+                        titleTag="p"
+                        header={<Badge variant={host.state === 'Online' ? 'success' : 'outline'}>{host.state}</Badge>}
+                    />
+                </li>
+            ))}
+        </ul>
+    ),
+};

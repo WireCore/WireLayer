@@ -1,5 +1,17 @@
 import { matchesMedia, watchMedia } from '@wirecore/wirelayer-recipes';
-import { computed, onMounted, onScopeDispose, ref, toValue, watch, type MaybeRefOrGetter, type Ref } from 'vue';
+import { colors, resolveTokens, watchTokens, type ColorSet } from '@wirecore/wirelayer-tokens';
+import {
+    computed,
+    onMounted,
+    onScopeDispose,
+    ref,
+    shallowRef,
+    toValue,
+    watch,
+    type MaybeRefOrGetter,
+    type Ref,
+    type ShallowRef,
+} from 'vue';
 
 export interface UseMediaQueryOptions {
     /** Value on the server and before mounting (default false) */
@@ -33,4 +45,20 @@ export function useReducedMotion(): Ref<boolean> {
 export function useColorScheme(initialValue: 'light' | 'dark' = 'light') {
     const dark = useMediaQuery('(prefers-color-scheme: dark)', { initialValue: initialValue === 'dark' });
     return computed<'light' | 'dark'>(() => (dark.value ? 'dark' : 'light'));
+}
+
+/**
+ * The token colours as fixed values (hex, see resolveTokens) – for canvas libraries like xterm.js that cannot read CSS
+ * variables; new values when the mode, the theme or the system colour scheme changes. On the server: the light base
+ * colours as written
+ */
+export function useResolvedTokens(): Readonly<ShallowRef<ColorSet>> {
+    const tokens = shallowRef(typeof document === 'undefined' ? colors.light : resolveTokens());
+    let stop = () => {};
+    onMounted(() => {
+        tokens.value = resolveTokens();
+        stop = watchTokens(() => (tokens.value = resolveTokens()));
+    });
+    onScopeDispose(() => stop());
+    return tokens;
 }

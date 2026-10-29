@@ -126,7 +126,11 @@ export { DatePicker, type DatePickerProps, type DatePickerValue } from './compon
 export type { RenderDay } from './components/DatePicker/DatePickerBase.js';
 export { FileUpload, type FileUploadHandle, type FileUploadProps } from './components/FileUpload/FileUpload.js';
 export { MultiSelect, type MultiSelectProps } from './components/MultiSelect/MultiSelect.js';
-export { NumberInput, type NumberInputProps } from './components/NumberInput/NumberInput.js';
+export {
+    NumberInput,
+    type NumberInputEmptyFallback,
+    type NumberInputProps,
+} from './components/NumberInput/NumberInput.js';
 export { PasswordInput, type PasswordInputProps } from './components/PasswordInput/PasswordInput.js';
 export { Slider, type SliderMark, type SliderProps } from './components/Slider/Slider.js';
 export { ColorPicker, type ColorPickerProps } from './components/ColorPicker/ColorPicker.js';
@@ -219,6 +223,7 @@ export {
 export { CopyButton, type CopyButtonProps } from './components/CopyButton/CopyButton.js';
 export { HoverCard, type HoverCardProps } from './components/HoverCard/HoverCard.js';
 export { Kbd, type KbdProps } from './components/Kbd/Kbd.js';
+export { Code, type CodeProps } from './components/Code/Code.js';
 export { MonthPicker, type MonthPickerProps } from './components/MonthPicker/MonthPicker.js';
 export { TagsInput, type TagsInputProps } from './components/TagsInput/TagsInput.js';
 export { Highlight, type HighlightProps } from './components/Highlight/Highlight.js';
@@ -337,7 +342,12 @@ export {
     type MegaMenuLink,
     type MegaMenuProps,
 } from './components/MegaMenu/MegaMenu.js';
-export type { OverlayAnchor, OverlayHandle, SaveStatusState } from '@wirecore/wirelayer-recipes';
+export type {
+    ContextMenuOpenDetails,
+    OverlayAnchor,
+    OverlayHandle,
+    SaveStatusState,
+} from '@wirecore/wirelayer-recipes';
 export type { AnchorProp } from './overlay.js';
 export { Statistic, type StatisticProps } from './components/Statistic/Statistic.js';
 export { Truncate, type TruncateProps } from './components/Truncate/Truncate.js';
@@ -354,7 +364,8 @@ export { SwitchGroup, type SwitchGroupProps } from './components/SwitchGroup/Swi
 export { VisuallyHidden, type VisuallyHiddenProps } from './components/VisuallyHidden/VisuallyHidden.js';
 export { LiveAnnouncer, type LiveAnnouncerProps } from './components/LiveAnnouncer/LiveAnnouncer.js';
 /** Announces a text to screen readers through the page's live regions (a LiveAnnouncer or regions on <body>) */
-export { announce, type AnnounceOptions, type Politeness } from '@wirecore/wirelayer-recipes';
+export { announce, focusFirst, type AnnounceOptions, type Politeness } from '@wirecore/wirelayer-recipes';
+export { resolveTokens, watchTokens, type ColorSet } from '@wirecore/wirelayer-tokens';
 export {
     LandmarkNavigation,
     type LandmarkNavigationProps,

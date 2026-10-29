@@ -1,5 +1,6 @@
 import { ClipboardPaste, Copy, Scissors } from '@lucide/vue';
 import type { Meta, StoryObj } from '@storybook/vue3-vite';
+import type { ContextMenuOpenDetails } from '@wirecore/wirelayer-recipes';
 import { ref } from 'vue';
 import ContextMenu from './ContextMenu.vue';
 
@@ -65,7 +66,8 @@ export const ItemTypes: Story = {
 };
 
 /**
- * A list as in a desktop app: `before-open` gets the right-clicked element – select its row before the menu shows;
+ * A list as in a desktop app: `before-open` gets the right-clicked element – select its row before the menu shows (with
+ * Shift+F10 or the menu key its second argument has `source: 'keyboard'` and the `focused` element);
  * `v-model:open` tells whether the menu is open (e.g. to pause Delete or F2 on the list). `highlight-first` and the
  * close props as on Menu
  */
@@ -77,8 +79,8 @@ export const DesktopList: Story = {
             const hosts = ['web-01', 'web-02', 'db-01'];
             const current = ref('web-01');
             const open = ref(false);
-            const select = (target: Element) => {
-                const row = target.closest<HTMLElement>('[data-host]');
+            const select = (target: Element, details: ContextMenuOpenDetails) => {
+                const row = (details.focused ?? target).closest<HTMLElement>('[data-host]');
                 if (row) current.value = row.dataset.host!;
             };
             return {

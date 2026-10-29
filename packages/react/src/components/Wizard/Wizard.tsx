@@ -1,4 +1,4 @@
-import { wizard as wizardRecipe, type RecipeClasses } from '@wirecore/wirelayer-recipes';
+import { focusFirst, wizard as wizardRecipe, type RecipeClasses } from '@wirecore/wirelayer-recipes';
 import { useEffect, useRef, useState, type ComponentProps, type ReactNode } from 'react';
 import { useTranslations } from '../LocaleProvider/LocaleProvider.js';
 import { useRecipe } from '../RecipesProvider/RecipesProvider.js';
@@ -9,9 +9,10 @@ export interface WizardStep {
     description?: string;
     /**
      * Checks the step before going on ("Next"): false keeps it open (e.g. `() => validateFields(form, ['name'])`
-     * from the form subpath); may be async – the step shows a spinner meanwhile. Going back never checks
+     * from the form subpath), a text keeps it open and shows the text as the step's error (e.g. "Sign-in was
+     * cancelled"); may be async – the step shows a spinner meanwhile. Going back never checks
      */
-    validate?: () => boolean | Promise<boolean>;
+    validate?: () => boolean | string | Promise<boolean | string>;
 }
 
 export interface WizardProps extends Omit<ComponentProps<'div'>, 'children'> {
@@ -32,6 +33,13 @@ export interface WizardProps extends Omit<ComponentProps<'div'>, 'children'> {
     completed?: ReactNode;
     /** Steps listed top to bottom beside the content */
     orientation?: 'horizontal' | 'vertical';
+    /** Text of the last button, e.g. "Create" (default "Finish") */
+    finishLabel?: string;
+    /**
+     * Moves the focus into a new step when the step changes: to the element marked data-autoselect (text selected),
+     * data-autofocus or autofocus, otherwise to the step's first field
+     */
+    focusOnStepChange?: boolean;
     /** Extra classes per part of the component, e.g. { base: "…" } (see the recipe) */
     classes?: RecipeClasses<typeof wizardRecipe>;
 }
@@ -52,6 +60,8 @@ export function Wizard({
     summaryLabel,
     completed,
     orientation = 'horizontal',
+    finishLabel,
+    focusOnStepChange = false,
     className,
     ...props
 }: WizardProps) {
@@ -62,6 +72,8 @@ export function Wizard({
     const current = step ?? internal;
     const [checking, setChecking] = useState<number | null>(null);
     const [invalidAt, setInvalidAt] = useState<number | null>(null);
+    // The text a step's check gave instead of false
+    const [invalidText, setInvalidText] = useState<string | null>(null);
     const root = useRef<HTMLDivElement>(null);
     // After a failed check: the first invalid control of the step gets the focus
     const focusInvalid = useRef(false);
@@ -70,6 +82,14 @@ export function Wizard({
         focusInvalid.current = false;
         root.current?.querySelector<HTMLElement>('[role=tabpanel]:not([hidden]) [aria-invalid=true]')?.focus();
     });
+    // The new step's field gets the focus (not after a failed check: then its invalid field has it)
+    const shownStep = useRef(current);
+    useEffect(() => {
+        if (shownStep.current === current) return;
+        shownStep.current = current;
+        if (focusOnStepChange && invalidAt === null)
+            focusFirst(root.current?.querySelector('[role=tabpanel]:not([hidden])'));
+    }, [current, focusOnStepChange, invalidAt]);
     const items = [
         ...steps.map((entry, index) => ({
             label: entry.label,
@@ -87,19 +107,21 @@ export function Wizard({
     const change = async (next: number) => {
         if (checking !== null) return;
         setInvalidAt(null);
+        setInvalidText(null);
         for (let index = current; index < next; index++) {
             const validate = steps[index]?.validate;
             if (!validate) continue;
             setChecking(index);
-            let valid: boolean;
+            let result: boolean | string;
             try {
-                valid = await validate();
+                result = await validate();
             } finally {
                 setChecking(null);
             }
-            if (!valid) {
+            if (!result || typeof result === 'string') {
                 if (index !== current) set(index);
                 setInvalidAt(index);
+                setInvalidText(typeof result === 'string' && result ? result : null);
                 focusInvalid.current = true;
                 return;
             }
@@ -113,6 +135,7 @@ export function Wizard({
                 step={current}
                 linear
                 orientation={orientation}
+                finishLabel={finishLabel}
                 onStepChange={(next) => void change(next)}
                 completed={completed}
             >
@@ -120,7 +143,7 @@ export function Wizard({
                     <>
                         {invalidAt === index && (
                             <p className={styles.error()} role="alert">
-                                {translations.wizard.invalid}
+                                {invalidText ?? translations.wizard.invalid}
                             </p>
                         )}
                         {index === steps.length ? (

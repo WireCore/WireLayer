@@ -1,12 +1,16 @@
 <script setup lang="ts">
 import { Tabs } from '@ark-ui/vue/tabs';
 import { type RecipeClasses, tabs as tabsRecipe } from '@wirecore/wirelayer-recipes';
-import { normalizeClass, useAttrs } from 'vue';
+import { computed, normalizeClass, provide, useAttrs } from 'vue';
+import { tabsNoneSelectedKey } from './context.js';
 import { useRecipe } from '../../recipes.js';
 
 export interface TabsProps {
-    /** Selected tab – use with v-model */
-    modelValue?: string;
+    /**
+     * Selected tab – use with v-model; `null`: no tab selected (e.g. tabs of panels that live elsewhere – the first
+     * tab stays reachable with Tab)
+     */
+    modelValue?: string | null;
     defaultValue?: string;
     /** Accessible name of the tab list */
     label?: string;
@@ -35,12 +39,18 @@ const tabs = useRecipe('tabs', tabsRecipe, () => props.classes);
 const emit = defineEmits<{ 'update:modelValue': [value: string | null] }>();
 const attrs = useAttrs();
 const styles = tabs();
+// null: no tab selected (Ark's type has no null, its machine takes it)
+const value = computed(() => props.modelValue as string | undefined);
+provide(
+    tabsNoneSelectedKey,
+    computed(() => props.modelValue === null)
+);
 </script>
 
 <template>
     <Tabs.Root
         v-bind="{ ...attrs, class: styles.base({ class: normalizeClass(attrs.class) }) }"
-        :model-value="modelValue"
+        :model-value="value"
         :default-value="defaultValue"
         :orientation="orientation"
         :activation-mode="activationMode"

@@ -31,6 +31,28 @@ test.describe('Menu', () => {
 });
 
 test.describe('Dialog', () => {
+    test('a field marked data-autoselect gets the focus with its text selected', async ({ page }) => {
+        await openStory(page, 'overlays-dialog--selected-on-open');
+        await page.getByRole('button', { name: 'Duplicate connection' }).click();
+        const name = page.getByRole('textbox', { name: 'Name' });
+        await expect(name).toBeFocused();
+        await expect
+            .poll(() => name.evaluate((el: HTMLInputElement) => [el.selectionStart, el.selectionEnd]))
+            .toEqual([0, 'web-01 (copy)'.length]);
+    });
+
+    test('focusFirst() focuses the new step of the content like opening does', async ({ page }) => {
+        await openStory(page, 'overlays-dialog--own-steps');
+        await page.getByRole('button', { name: 'New connection' }).click();
+        await expect(page.getByRole('textbox', { name: 'Host' })).toBeFocused();
+        await page.getByRole('button', { name: 'Next' }).click();
+        const user = page.getByRole('textbox', { name: 'User' });
+        await expect(user).toBeFocused();
+        await expect
+            .poll(() => user.evaluate((el: HTMLInputElement) => [el.selectionStart, el.selectionEnd]))
+            .toEqual([0, 4]);
+    });
+
     test('a field marked data-autofocus gets the focus when the dialog opens', async ({ page }) => {
         await openStory(page, 'overlays-dialog--initial-focus');
         await page.getByRole('button', { name: 'Rename connection' }).click();

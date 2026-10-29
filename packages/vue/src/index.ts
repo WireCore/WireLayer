@@ -106,7 +106,11 @@ export {
 } from './components/DatePicker/DatePicker.vue';
 export { default as FileUpload, type FileUploadProps } from './components/FileUpload/FileUpload.vue';
 export { default as MultiSelect, type MultiSelectProps } from './components/MultiSelect/MultiSelect.vue';
-export { default as NumberInput, type NumberInputProps } from './components/NumberInput/NumberInput.vue';
+export {
+    default as NumberInput,
+    type NumberInputEmptyFallback,
+    type NumberInputProps,
+} from './components/NumberInput/NumberInput.vue';
 export { default as PasswordInput, type PasswordInputProps } from './components/PasswordInput/PasswordInput.vue';
 export { default as Slider, type SliderMark, type SliderProps } from './components/Slider/Slider.vue';
 export { default as ColorPicker, type ColorPickerProps } from './components/ColorPicker/ColorPicker.vue';
@@ -199,6 +203,7 @@ export {
 export { default as CopyButton, type CopyButtonProps } from './components/CopyButton/CopyButton.vue';
 export { default as HoverCard, type HoverCardProps } from './components/HoverCard/HoverCard.vue';
 export { default as Kbd, type KbdProps } from './components/Kbd/Kbd.vue';
+export { default as Code, type CodeProps } from './components/Code/Code.vue';
 export { default as MonthPicker, type MonthPickerProps } from './components/MonthPicker/MonthPicker.vue';
 export { default as TagsInput, type TagsInputProps } from './components/TagsInput/TagsInput.vue';
 export { default as Highlight, type HighlightProps } from './components/Highlight/Highlight.vue';
@@ -324,7 +329,12 @@ export type {
     MegaMenuItem,
     MegaMenuLink,
 } from './components/MegaMenu/types.js';
-export type { OverlayAnchor, OverlayHandle, SaveStatusState } from '@wirecore/wirelayer-recipes';
+export type {
+    ContextMenuOpenDetails,
+    OverlayAnchor,
+    OverlayHandle,
+    SaveStatusState,
+} from '@wirecore/wirelayer-recipes';
 export { default as Statistic, type StatisticProps } from './components/Statistic/Statistic.vue';
 export { default as Truncate, type TruncateProps } from './components/Truncate/Truncate.vue';
 export { default as OverflowList, type OverflowListProps } from './components/OverflowList/OverflowList.vue';
@@ -336,7 +346,8 @@ export { default as SwitchGroup, type SwitchGroupProps } from './components/Swit
 export { default as VisuallyHidden, type VisuallyHiddenProps } from './components/VisuallyHidden/VisuallyHidden.vue';
 export { default as LiveAnnouncer, type LiveAnnouncerProps } from './components/LiveAnnouncer/LiveAnnouncer.vue';
 /** Announces a text to screen readers through the page's live regions (a LiveAnnouncer or regions on <body>) */
-export { announce, type AnnounceOptions, type Politeness } from '@wirecore/wirelayer-recipes';
+export { announce, focusFirst, type AnnounceOptions, type Politeness } from '@wirecore/wirelayer-recipes';
+export { resolveTokens, watchTokens, type ColorSet } from '@wirecore/wirelayer-tokens';
 export {
     default as LandmarkNavigation,
     type LandmarkNavigationProps,

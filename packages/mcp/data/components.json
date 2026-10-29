@@ -1912,6 +1912,12 @@
                     "description": "Person or organisation – accessible name of the avatar and source of the initials"
                 },
                 {
+                    "name": "initials",
+                    "type": "string",
+                    "optional": true,
+                    "description": "Own initials instead of the ones taken from `name`, e.g. \"MS\" for \"my-server\""
+                },
+                {
                     "name": "src",
                     "type": "string",
                     "optional": true,
@@ -1967,6 +1973,12 @@
                         "type": "string",
                         "optional": true,
                         "description": "Person or organisation – accessible name of the avatar and source of the initials"
+                    },
+                    {
+                        "name": "initials",
+                        "type": "string",
+                        "optional": true,
+                        "description": "Own initials instead of the ones taken from `name`, e.g. \"MS\" for \"my-server\""
                     },
                     {
                         "name": "src",
@@ -3730,6 +3742,12 @@
                     "description": "`horizontal`: media at the start, the content beside it"
                 },
                 {
+                    "name": "size",
+                    "type": "'sm' | 'md'",
+                    "optional": true,
+                    "description": "`sm`: smaller radius, padding and title, e.g. for cards in a list inside a dialog"
+                },
+                {
                     "name": "media",
                     "type": "ReactNode",
                     "optional": true,
@@ -3791,6 +3809,12 @@
                         "type": "'vertical' | 'horizontal'",
                         "optional": true,
                         "description": "`horizontal`: media at the start, the content beside it"
+                    },
+                    {
+                        "name": "size",
+                        "type": "'sm' | 'md'",
+                        "optional": true,
+                        "description": "`sm`: smaller radius, padding and title, e.g. for cards in a list inside a dialog"
                     },
                     {
                         "name": "classes",
@@ -6009,6 +6033,46 @@
                         "description": ""
                     }
                 ]
+            }
+        },
+        {
+            "name": "Code",
+            "subpath": "",
+            "description": "Code inside a sentence, without syntax colours: the look of InlineCode (/code) without shiki",
+            "category": "Data",
+            "story": "data-code--playground",
+            "extends": "ComponentProps<'code'>",
+            "props": [
+                {
+                    "name": "code",
+                    "type": "string",
+                    "optional": true,
+                    "description": "The code (one line) – or pass it as the content"
+                },
+                {
+                    "name": "classes",
+                    "type": "RecipeClasses<typeof inlineCodeRecipe>",
+                    "optional": true,
+                    "description": "Extra classes of the recipe (see the recipe inlineCode)"
+                }
+            ],
+            "vue": {
+                "props": [
+                    {
+                        "name": "code",
+                        "type": "string",
+                        "optional": true,
+                        "description": "The code (one line) – or pass it as the content"
+                    },
+                    {
+                        "name": "classes",
+                        "type": "RecipeClasses<typeof inlineCodeRecipe>",
+                        "optional": true,
+                        "description": "Extra classes of the recipe (see the recipe inlineCode)"
+                    }
+                ],
+                "slots": [],
+                "events": []
             }
         },
         {
@@ -8461,9 +8525,9 @@
                 },
                 {
                     "name": "onBeforeOpen",
-                    "type": "(target: Element) => void",
+                    "type": "(target: Element, details: ContextMenuOpenDetails) => void",
                     "optional": true,
-                    "description": "A right click, long press or the menu key is opening the menu, on this element (e.g. the row under the pointer – select it before the menu shows)"
+                    "description": "A right click, long press or the menu key is opening the menu, on this element (e.g. the row under the pointer – select it before the menu shows); `details.source` tells pointer from keyboard, with the keyboard `details.focused` is the focused element (e.g. the row with the focus)"
                 },
                 {
                     "name": "ref",
@@ -8576,8 +8640,8 @@
                     },
                     {
                         "name": "before-open",
-                        "payload": "target: Element",
-                        "description": "A right click, long press or the menu key is opening the menu, on this element (e.g. the row under the pointer – select it before the menu shows)"
+                        "payload": "target: Element, details: ContextMenuOpenDetails",
+                        "description": "A right click, long press or the menu key is opening the menu, on this element (e.g. the row under the pointer – select it before the menu shows); `details.source` tells pointer from keyboard, with the keyboard `details.focused` is the focused element (e.g. the row with the focus)"
                     }
                 ]
             }
@@ -21827,7 +21891,7 @@
             "description": "The browser's select: its own keyboard and mobile pickers; inside a Field it is labelled and described",
             "category": "Forms",
             "story": "forms-nativeselect--playground",
-            "extends": "Omit<\n    ComponentProps<'select'>,\n    'size' | 'onChange'\n>",
+            "extends": "Omit<ComponentProps<'select'>, 'size' | 'onChange'>",
             "props": [
                 {
                     "name": "items",
@@ -21837,15 +21901,15 @@
                 },
                 {
                     "name": "onValueChange",
-                    "type": "(value: V | '') => void",
+                    "type": "(value: P extends string ? V | '' : V) => void",
                     "optional": true,
                     "description": "The chosen option's value with its type; the placeholder option gives an empty string"
                 },
                 {
                     "name": "placeholder",
-                    "type": "string",
+                    "type": "P",
                     "optional": true,
-                    "description": "First, empty option, e.g. \"Please choose\""
+                    "description": "First, empty option, e.g. \"Please choose\" – without it onValueChange only gets values (typed `V`, not `V | ''`)"
                 },
                 {
                     "name": "size",
@@ -21882,9 +21946,9 @@
                     },
                     {
                         "name": "placeholder",
-                        "type": "string",
+                        "type": "P",
                         "optional": true,
-                        "description": "First, empty option, e.g. \"Please choose\""
+                        "description": "First, empty option, e.g. \"Please choose\" – without it v-model only gets values (typed `V`, not `V | ''`)"
                     },
                     {
                         "name": "size",
@@ -21915,7 +21979,7 @@
                 "events": [
                     {
                         "name": "update:modelValue",
-                        "payload": "value: V | ''",
+                        "payload": "value: P extends string ? V | '' : V",
                         "description": ""
                     }
                 ]
@@ -22339,7 +22403,7 @@
                 },
                 {
                     "name": "onValueChange",
-                    "type": "(value: number | null) => void",
+                    "type": "(value: F extends string ? number : number | null) => void",
                     "optional": true,
                     "description": ""
                 },
@@ -22462,6 +22526,12 @@
                     "type": "'blur' | 'strict' | 'none'",
                     "optional": true,
                     "description": "Out of min/max: `blur` corrects the value when the field is left (default), `strict` does not let it leave the range, `none` keeps it (mark it invalid yourself)"
+                },
+                {
+                    "name": "emptyFallback",
+                    "type": "F",
+                    "optional": true,
+                    "description": "A number is always set: an emptied field falls back to `min` (or 0) or to the last valid number (`previous`) when it is left or Enter is pressed – onValueChange then only gets numbers (typed `number`, not `number | null`)"
                 },
                 {
                     "name": "selectOnFocus",
@@ -22629,6 +22699,12 @@
                         "description": "Out of min/max: `blur` corrects the value when the field is left (default), `strict` does not let it leave the range, `none` keeps it (mark it invalid yourself)"
                     },
                     {
+                        "name": "emptyFallback",
+                        "type": "F",
+                        "optional": true,
+                        "description": "A number is always set: an emptied field falls back to `min` (or 0) or to the last valid number (`previous`) when it is left or Enter is pressed – v-model then only gets numbers (typed `number`, not `number | null`)"
+                    },
+                    {
                         "name": "selectOnFocus",
                         "type": "boolean",
                         "optional": true,
@@ -22669,7 +22745,7 @@
                 "events": [
                     {
                         "name": "update:modelValue",
-                        "payload": "value: number | null",
+                        "payload": "value: F extends string ? number : number | null",
                         "description": ""
                     }
                 ]
@@ -25555,9 +25631,9 @@
                 },
                 {
                     "name": "status",
-                    "type": "'info' | 'success' | 'warn' | 'danger'",
+                    "type": "'info' | 'success' | 'warn' | 'danger' | 'neutral'",
                     "optional": true,
-                    "description": "Colour of the filled part by its state, e.g. `danger` for a failed transfer"
+                    "description": "Colour of the filled part by its state, e.g. `danger` for a failed transfer, `neutral` (grey) for a cancelled one"
                 },
                 {
                     "name": "hideLabel",
@@ -25648,9 +25724,9 @@
                     },
                     {
                         "name": "status",
-                        "type": "'info' | 'success' | 'warn' | 'danger'",
+                        "type": "'info' | 'success' | 'warn' | 'danger' | 'neutral'",
                         "optional": true,
-                        "description": "Colour of the filled part by its state, e.g. `danger` for a failed transfer"
+                        "description": "Colour of the filled part by its state, e.g. `danger` for a failed transfer, `neutral` (grey) for a cancelled one"
                     },
                     {
                         "name": "hideLabel",
@@ -26335,7 +26411,7 @@
                 },
                 {
                     "name": "onValueChange",
-                    "type": "(value: V | null) => void",
+                    "type": "(value: R extends true ? V : V | null) => void",
                     "optional": true,
                     "description": ""
                 },
@@ -26371,9 +26447,9 @@
                 },
                 {
                     "name": "required",
-                    "type": "boolean",
+                    "type": "R",
                     "optional": true,
-                    "description": ""
+                    "description": "A choice is required (aria-required). onValueChange then only gets values (typed `V`, not `V | null`): a form reset back to an empty start is not passed on"
                 },
                 {
                     "name": "name",
@@ -26434,9 +26510,9 @@
                     },
                     {
                         "name": "required",
-                        "type": "boolean",
+                        "type": "R & boolean",
                         "optional": true,
-                        "description": ""
+                        "description": "A choice is required (aria-required). v-model then only gets values (typed `V`, not `V | null`): a form reset back to an empty start is not passed on"
                     },
                     {
                         "name": "name",
@@ -26455,7 +26531,7 @@
                 "events": [
                     {
                         "name": "update:modelValue",
-                        "payload": "value: V | null",
+                        "payload": "value: R extends true ? V : V | null",
                         "description": ""
                     }
                 ]
@@ -28309,7 +28385,7 @@
                 },
                 {
                     "name": "onValueChange",
-                    "type": "(value: V | null) => void",
+                    "type": "(value: R extends true ? V : V | null) => void",
                     "optional": true,
                     "description": ""
                 },
@@ -28330,6 +28406,12 @@
                     "type": "boolean",
                     "optional": true,
                     "description": ""
+                },
+                {
+                    "name": "required",
+                    "type": "R",
+                    "optional": true,
+                    "description": "A value is required (aria-required). onValueChange then only gets values (typed `V`, not `V | null`): a form reset back to an empty start is not passed on"
                 },
                 {
                     "name": "name",
@@ -28377,6 +28459,12 @@
                         "description": ""
                     },
                     {
+                        "name": "required",
+                        "type": "R & boolean",
+                        "optional": true,
+                        "description": "A value is required (aria-required). v-model then only gets values (typed `V`, not `V | null`): a form reset back to an empty start is not passed on"
+                    },
+                    {
                         "name": "name",
                         "type": "string",
                         "optional": true,
@@ -28393,7 +28481,7 @@
                 "events": [
                     {
                         "name": "update:modelValue",
-                        "payload": "value: V | null",
+                        "payload": "value: R extends true ? V : V | null",
                         "description": ""
                     }
                 ]
@@ -28479,21 +28567,27 @@
                 },
                 {
                     "name": "value",
-                    "type": "V | null",
+                    "type": "V | NoInfer<E> | null",
                     "optional": true,
                     "description": "Selected value; any type (string, number, boolean, object)"
                 },
                 {
                     "name": "defaultValue",
-                    "type": "V | null",
+                    "type": "V | NoInfer<E> | null",
                     "optional": true,
                     "description": ""
                 },
                 {
                     "name": "onValueChange",
-                    "type": "(value: V | null) => void",
+                    "type": "(value: V | NoInfer<E>) => void",
                     "optional": true,
                     "description": ""
+                },
+                {
+                    "name": "emptyValue",
+                    "type": "E",
+                    "optional": true,
+                    "description": "The value that means \"nothing chosen\" instead of null, e.g. `\"\"`: it shows the placeholder, and clearing gives it back (onValueChange is then typed `V | E`, without null)"
                 },
                 {
                     "name": "placeholder",
@@ -28686,15 +28780,21 @@
                     },
                     {
                         "name": "modelValue",
-                        "type": "V | null",
+                        "type": "V | NoInfer<E> | null",
                         "optional": true,
                         "description": "Selected value – use with v-model; any type (string, number, boolean, object)"
                     },
                     {
                         "name": "defaultValue",
-                        "type": "V | null",
+                        "type": "V | NoInfer<E> | null",
                         "optional": true,
                         "description": ""
+                    },
+                    {
+                        "name": "emptyValue",
+                        "type": "E",
+                        "optional": true,
+                        "description": "The value that means \"nothing chosen\" instead of null, e.g. `\"\"`: it shows the placeholder, and clearing gives it back (v-model is then typed `V | E`, without null)"
                     },
                     {
                         "name": "placeholder",
@@ -28874,7 +28974,7 @@
                 "events": [
                     {
                         "name": "update:modelValue",
-                        "payload": "value: V | null",
+                        "payload": "value: V | NoInfer<E>",
                         "description": ""
                     },
                     {
@@ -31328,6 +31428,12 @@
                     "description": "Label beside the number (default) or below it"
                 },
                 {
+                    "name": "finishLabel",
+                    "type": "string",
+                    "optional": true,
+                    "description": "Text of the last \"Next\" button, e.g. \"Create\" (default \"Finish\")"
+                },
+                {
                     "name": "children",
                     "type": "(index: number) => ReactNode",
                     "optional": false,
@@ -31401,6 +31507,12 @@
                         "type": "'end' | 'bottom'",
                         "optional": true,
                         "description": "Label beside the number (default) or below it"
+                    },
+                    {
+                        "name": "finishLabel",
+                        "type": "string",
+                        "optional": true,
+                        "description": "Text of the last \"Next\" button, e.g. \"Create\" (default \"Finish\")"
                     },
                     {
                         "name": "classes",
@@ -32018,9 +32130,9 @@
             "props": [
                 {
                     "name": "value",
-                    "type": "string",
+                    "type": "string | null",
                     "optional": true,
-                    "description": ""
+                    "description": "Selected tab; `null`: no tab selected (e.g. tabs of panels that live elsewhere – the first tab stays reachable with Tab)"
                 },
                 {
                     "name": "defaultValue",
@@ -32075,9 +32187,9 @@
                 "props": [
                     {
                         "name": "modelValue",
-                        "type": "string",
+                        "type": "string | null",
                         "optional": true,
-                        "description": "Selected tab – use with v-model"
+                        "description": "Selected tab – use with v-model; `null`: no tab selected (e.g. tabs of panels that live elsewhere – the first tab stays reachable with Tab)"
                     },
                     {
                         "name": "defaultValue",
@@ -32233,6 +32345,12 @@
                     "description": ""
                 },
                 {
+                    "name": "controls",
+                    "type": "string | null",
+                    "optional": true,
+                    "description": "Id of the element the tab shows, when it is not a TabsContent of these Tabs (e.g. a pane elsewhere, hidden while not selected) – `null`: none (tabs without panels)"
+                },
+                {
                     "name": "classes",
                     "type": "RecipeClasses<typeof tabsRecipe>",
                     "optional": true,
@@ -32264,6 +32382,12 @@
                         "type": "boolean",
                         "optional": true,
                         "description": "Shows a close button (pointer) and closes with the Delete key; `close` reports it – remove the tab (and select another one) yourself. The focus moves to the neighbouring tab"
+                    },
+                    {
+                        "name": "controls",
+                        "type": "string | null",
+                        "optional": true,
+                        "description": "Id of the element the tab shows, when it is not a TabsContent of these Tabs (e.g. a pane elsewhere shown with v-show) – `null`: none (tabs without panels)"
                     },
                     {
                         "name": "classes",
@@ -36709,6 +36833,18 @@
                     "description": "Steps listed top to bottom beside the content"
                 },
                 {
+                    "name": "finishLabel",
+                    "type": "string",
+                    "optional": true,
+                    "description": "Text of the last button, e.g. \"Create\" (default \"Finish\")"
+                },
+                {
+                    "name": "focusOnStepChange",
+                    "type": "boolean",
+                    "optional": true,
+                    "description": "Moves the focus into a new step when the step changes: to the element marked data-autoselect (text selected), data-autofocus or autofocus, otherwise to the step's first field"
+                },
+                {
                     "name": "classes",
                     "type": "RecipeClasses<typeof wizardRecipe>",
                     "optional": true,
@@ -36746,6 +36882,18 @@
                         "type": "'horizontal' | 'vertical'",
                         "optional": true,
                         "description": "Steps listed top to bottom beside the content"
+                    },
+                    {
+                        "name": "finishLabel",
+                        "type": "string",
+                        "optional": true,
+                        "description": "Text of the last button, e.g. \"Create\" (default \"Finish\")"
+                    },
+                    {
+                        "name": "focusOnStepChange",
+                        "type": "boolean",
+                        "optional": true,
+                        "description": "Moves the focus into a new step when the step changes: to the element marked data-autoselect (text selected), data-autofocus or autofocus, otherwise to the step's first field"
                     },
                     {
                         "name": "classes",
@@ -37153,6 +37301,11 @@
             "description": "First readable message of TanStack Form errors (strings or Standard Schema issues)."
         },
         {
+            "name": "focusFirst",
+            "subpath": "",
+            "description": ""
+        },
+        {
             "name": "formatColor",
             "subpath": "",
             "description": ""
@@ -37304,6 +37457,11 @@
         },
         {
             "name": "removeTreeNode",
+            "subpath": "",
+            "description": ""
+        },
+        {
+            "name": "resolveTokens",
             "subpath": "",
             "description": ""
         },
@@ -37493,6 +37651,11 @@
             "description": "The content box of an element as it changes (pass `ref` to it)"
         },
         {
+            "name": "useResolvedTokens",
+            "subpath": "",
+            "description": "The token colours as fixed values (hex, see resolveTokens) – for canvas libraries like xterm.js that cannot read CSS variables; new values when the mode, the theme or the system colour scheme changes. On the server: the light base colours as written"
+        },
+        {
             "name": "useScrollSpy",
             "subpath": "",
             "description": "The id of the section being read: the last of `ids` whose top passed `offset` px (e.g. a sticky header) – for a table of contents"
@@ -37546,6 +37709,11 @@
             "name": "virtualRows",
             "subpath": "/virtual",
             "description": "DataTable feature: only the visible rows are rendered with `virtual` – `<DataTable features={[virtualRows]} virtual>`"
+        },
+        {
+            "name": "watchTokens",
+            "subpath": "",
+            "description": ""
         }
     ],
     "guides": [
@@ -37662,7 +37830,7 @@
         {
             "id": "migration-desktop-apps-dense-ui-many-dialogs",
             "title": "Desktop apps (dense UI, many dialogs)",
-            "text": "- **Focus from code:** the text fields expose `focus()`, `select()`, `setSelectionRange()` and the native input\n  (`element`) through a template ref – no `$el.querySelector('input')`. In a dialog, mark the first field with\n  `data-autofocus`: a `focus()` in `onMounted` is overridden by the dialog's focus trap.\n- **Window shortcuts in dialogs:** Enter/Escape listeners on `window` also get the keys of an open list. `Select` and\n  `Combobox` take `stop-key-propagation` and report `v-model:open`; `ContextMenu` reports `v-model:open` and the\n  right-clicked element (`@before-open`).\n- **Menus at a point:** `close-on-scroll`, `close-on-resize`, `close-on-blur`, and `highlight-first` so Enter takes the\n  first item.\n- **Closable tabs** are built in: `TabsTrigger closable @close` – the close button is not nested in the tab, Delete\n  closes the focused tab and the focus moves to its neighbour.\n- **Typed values:** `RadioGroup`, `SegmentedControl` and `NativeSelect` keep the type of the bound value (unions,\n  numbers); `Checkbox` with a boolean model gives booleans.\n- **Compact parts:** `Progress size=\"xs\"` with `hide-label`, `bar-text` and `status`; `Alert #actions`; `mono` on text\n  fields; `DialogContent title-position=\"header\"` puts the title next to the close button."
+            "text": "- **Focus from code:** the text fields expose `focus()`, `select()`, `setSelectionRange()` and the native input\n  (`element`) through a template ref – no `$el.querySelector('input')`. In a dialog, mark the first field with\n  `data-autofocus`: a `focus()` in `onMounted` is overridden by the dialog's focus trap.\n- **Window shortcuts in dialogs:** Enter/Escape listeners on `window` also get the keys of an open list. `Select` and\n  `Combobox` take `stop-key-propagation` and report `v-model:open`; `ContextMenu` reports `v-model:open` and the\n  right-clicked element (`@before-open`).\n- **Menus at a point:** `close-on-scroll`, `close-on-resize`, `close-on-blur`, and `highlight-first` so Enter takes the\n  first item.\n- **Closable tabs** are built in: `TabsTrigger closable @close` – the close button is not nested in the tab, Delete\n  closes the focused tab and the focus moves to its neighbour.\n- **Typed values:** `RadioGroup`, `SegmentedControl` and `NativeSelect` keep the type of the bound value (unions,\n  numbers); `Checkbox` with a boolean model gives booleans.\n- **Compact parts:** `Progress size=\"xs\"` with `hide-label`, `bar-text` and `status`; `Alert #actions`; `mono` on text\n  fields; `DialogContent title-position=\"header\"` puts the title next to the close button.\n- **Values that are never empty:** with `required`, `RadioGroup` and `SegmentedControl` give v-model `V` instead of\n  `V | null`; `NativeSelect` without `placeholder` gives `V` instead of `V | ''`; `NumberInput empty-fallback=\"min\"` or\n  `\"previous\"` refills an emptied field when it is left (typed `number`). `Select empty-value=\"\"` treats an empty string\n  like null – the placeholder shows, clearing gives `\"\"` back.\n- **Focus in dialogs and wizards:** `data-autoselect` focuses a field and selects its text when the dialog opens (e.g. a\n  prefilled name). For content that changes while it is open, `DialogContent` exposes `focusFirst()` (React:\n  `focusFirst(element)`), and `Wizard focus-on-step-change` moves the focus into each new step. `Wizard finish-label`\n  names the last button; `validate` may return a text, shown as the step's error.\n- **Panels elsewhere:** `TabsTrigger controls=\"pane-id\"` points a tab at a pane outside the Tabs (`:controls=\"null\"`\n  for none); `Tabs` takes `null` for \"no tab selected\" – the first tab stays reachable with Tab.\n- **Context menus by keyboard:** `@before-open` gets a second argument `{ source: 'pointer' | 'keyboard', focused }` –\n  with Shift+F10 or the menu key `focused` is the element with the focus (e.g. the list row).\n- **Canvas libraries** (xterm.js, charts): `resolveTokens()` gives the token colours of the current mode and theme as hex;\n  `useResolvedTokens()` updates when the mode, the theme or the system colour scheme changes.\n- **More compact parts:** `Card size=\"sm\"` for lists in dialogs, `Progress status=\"neutral\"` for cancelled work,\n  `Avatar initials=\"MS\"`, and `Code` for code in a sentence without shiki (the look of `InlineCode` from `/code`)."
         },
         {
             "id": "themes-custom-theme",
@@ -38232,6 +38400,12 @@
                         "type": "string",
                         "optional": true,
                         "description": "Person or organisation – accessible name of the avatar and source of the initials"
+                    },
+                    {
+                        "name": "initials",
+                        "type": "string",
+                        "optional": true,
+                        "description": "Own initials instead of the ones taken from `name`, e.g. \"MS\" for \"my-server\""
                     },
                     {
                         "name": "src",
@@ -47100,9 +47274,9 @@
                     },
                     {
                         "name": "status",
-                        "type": "'info' | 'success' | 'warn' | 'danger'",
+                        "type": "'info' | 'success' | 'warn' | 'danger' | 'neutral'",
                         "optional": true,
-                        "description": "Colour of the filled part by its state, e.g. `danger` for a failed transfer"
+                        "description": "Colour of the filled part by its state, e.g. `danger` for a failed transfer, `neutral` (grey) for a cancelled one"
                     },
                     {
                         "name": "hideLabel",
@@ -47448,7 +47622,7 @@
                     },
                     {
                         "name": "onValueChange",
-                        "type": "(value: V | null) => void",
+                        "type": "(value: R extends true ? V : V | null) => void",
                         "optional": true,
                         "description": ""
                     },
@@ -47484,9 +47658,9 @@
                     },
                     {
                         "name": "required",
-                        "type": "boolean",
+                        "type": "R",
                         "optional": true,
-                        "description": "Shows the required mark after the label"
+                        "description": "Shows the required mark after the label; onValueChange is then typed `V` (a choice is never undone)"
                     },
                     {
                         "name": "children",
@@ -51648,6 +51822,11 @@
                 "description": "First readable message of TanStack Form errors (strings or Standard Schema issues)."
             },
             {
+                "name": "focusFirst",
+                "subpath": "",
+                "description": ""
+            },
+            {
                 "name": "formatColor",
                 "subpath": "",
                 "description": ""
@@ -51804,6 +51983,11 @@
             },
             {
                 "name": "removeTreeNode",
+                "subpath": "",
+                "description": ""
+            },
+            {
+                "name": "resolveTokens",
                 "subpath": "",
                 "description": ""
             },
@@ -51993,6 +52177,11 @@
                 "description": "The content box of an element as it changes (bind `ref` to it)"
             },
             {
+                "name": "useResolvedTokens",
+                "subpath": "",
+                "description": "The token colours as fixed values (hex, see resolveTokens) – for canvas libraries like xterm.js that cannot read CSS variables; new values when the mode, the theme or the system colour scheme changes. On the server: the light base colours as written"
+            },
+            {
                 "name": "useScrollSpy",
                 "subpath": "",
                 "description": "The id of the section being read: the last of `ids` whose top passed `offset` px (e.g. a sticky header) – for a table of contents"
@@ -52046,6 +52235,11 @@
                 "name": "virtualRows",
                 "subpath": "/virtual",
                 "description": "DataTable feature: only the visible rows are rendered with `virtual` – `<DataTable :features=\"[virtualRows]\" virtual>`"
+            },
+            {
+                "name": "watchTokens",
+                "subpath": "",
+                "description": ""
             }
         ]
     }

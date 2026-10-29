@@ -1,9 +1,12 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useForm, useStore } from '@tanstack/react-form';
+import { useState } from 'react';
 import { bindInput } from '../../form/bind.js';
 import { FormField } from '../../form/FormField.js';
 import { useValidators, validateFields } from '../../form/validators.js';
+import { Checkbox } from '../Checkbox/Checkbox.js';
 import { DataList, DataListItem } from '../DataList/DataList.js';
+import { Field } from '../Field/Field.js';
 import { Input } from '../Input/Input.js';
 import { Result } from '../Result/Result.js';
 import { Wizard } from './Wizard.js';
@@ -90,3 +93,55 @@ type Story = StoryObj<typeof meta>;
  * summary before finishing
  */
 export const Playground: Story = {};
+
+function OwnTextsDemo() {
+    const [signIn, setSignIn] = useState(false);
+    // New steps on every render: the check reads the current state
+    const steps = [
+        { label: 'Server' },
+        {
+            label: 'Sign-in',
+            validate: async () => {
+                await new Promise((done) => setTimeout(done, 400));
+                return signIn || 'Sign-in was cancelled – try again';
+            },
+        },
+    ];
+    return (
+        <Wizard
+            steps={steps}
+            finishLabel="Create"
+            focusOnStepChange
+            className="max-w-2xl"
+            renderStep={(index) =>
+                index === 0 ? (
+                    <div className="flex flex-col gap-3">
+                        <Field label="Host">
+                            <Input mono />
+                        </Field>
+                        <Field label="Port">
+                            <Input defaultValue="22" mono />
+                        </Field>
+                    </div>
+                ) : (
+                    <div className="flex flex-col gap-3">
+                        <Field label="User">
+                            <Input defaultValue="root" data-autoselect />
+                        </Field>
+                        <Checkbox checked={signIn} onCheckedChange={setSignIn}>
+                            Sign-in succeeds
+                        </Checkbox>
+                    </div>
+                )
+            }
+            completed={<p className="text-sm">Connection created.</p>}
+        />
+    );
+}
+
+/**
+ * `finishLabel` names the last button, `focusOnStepChange` moves the focus into each new step (here: the user name,
+ * selected with data-autoselect), and `validate` returns a text – shown as the error of the step instead of the
+ * general one
+ */
+export const OwnTexts: Story = { name: 'Own texts and focus', render: () => <OwnTextsDemo /> };

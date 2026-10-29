@@ -18,6 +18,8 @@ import { useRecipe } from '../../recipes.js';
 export interface AvatarProps {
     /** Person or organisation – accessible name of the avatar and source of the initials */
     name?: string;
+    /** Own initials instead of the ones taken from `name`, e.g. "MS" for "my-server" */
+    initials?: string;
     /** Image URL; initials (or the icon) are shown while it loads or if it fails */
     src?: string;
     /** Icon shown when there is neither an image nor a name (default: user icon) */
@@ -53,7 +55,7 @@ const styles = computed(() =>
         interactive: props.as === 'button',
     })
 );
-const initials = computed(() => (props.name ? getInitials(props.name) : ''));
+const initials = computed(() => props.initials ?? (props.name ? getInitials(props.name) : ''));
 </script>
 
 <template>

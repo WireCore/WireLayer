@@ -1,4 +1,4 @@
-<script setup lang="ts" generic="T = SelectItem, V = ItemValueOf<T>">
+<script setup lang="ts" generic="T = SelectItem, V = ItemValueOf<T>, E = null">
 import { createListCollection } from '@ark-ui/vue/collection';
 import { useFieldContext } from '@ark-ui/vue/field';
 import { Select } from '@ark-ui/vue/select';
@@ -21,12 +21,18 @@ import { useRecipe } from '../../recipes.js';
 import ListOptions from './ListOptions.vue';
 import type { ListItemState, SelectItem, SelectSize } from './types.js';
 
-export interface SelectProps<T = SelectItem, V = ItemValueOf<T>> {
+/** `T`: the items, `V`: their values, `E`: the type of `emptyValue` (default null) */
+export interface SelectProps<T = SelectItem, V = ItemValueOf<T>, E = null> {
     /** Options: SelectItem objects – or any objects or values, read with itemValue/itemLabel/itemDisabled/itemGroup */
     items: readonly T[];
     /** Selected value – use with v-model; any type (string, number, boolean, object) */
-    modelValue?: V | null;
-    defaultValue?: V | null;
+    modelValue?: V | NoInfer<E> | null;
+    defaultValue?: V | NoInfer<E> | null;
+    /**
+     * The value that means "nothing chosen" instead of null, e.g. `""`: it shows the placeholder, and clearing gives it
+     * back (v-model is then typed `V | E`, without null)
+     */
+    emptyValue?: E;
     placeholder?: string;
     disabled?: boolean;
     invalid?: boolean;
@@ -89,17 +95,18 @@ export interface SelectProps<T = SelectItem, V = ItemValueOf<T>> {
 
 defineOptions({ inheritAttrs: false });
 const translations = useTranslations();
-const props = withDefaults(defineProps<SelectProps<T, V>>(), {
+const props = withDefaults(defineProps<SelectProps<T, V, E>>(), {
     modelValue: undefined,
     defaultValue: undefined,
     disabled: undefined,
     invalid: undefined,
     required: undefined,
     open: undefined,
+    emptyValue: undefined,
 });
 const select = useRecipe('select', selectRecipe, () => props.classes);
 const emit = defineEmits<{
-    'update:modelValue': [value: V | null];
+    'update:modelValue': [value: V | NoInfer<E>];
     /** Text of the search field (filter) – e.g. to load matching items from a server (manualFilter) */
     filterChange: [text: string];
     /** The end of the list was scrolled into view (hasMore) */
@@ -140,13 +147,15 @@ const { options, groups, ordered } = useListOptions(
     () => (props.filter && !props.manualFilter && !props.dataSource ? query.value : '')
 );
 const known = computed(() => [...options.value, ...source.resolvedOptions.value]);
+// emptyValue (e.g. "") counts as null: nothing chosen, the placeholder shows
+const withoutEmpty = (value: unknown) => (props.emptyValue !== undefined && value === props.emptyValue ? null : value);
 const { selected, keys, commit, commitKeys } = useListSelection<T>({
     multiple: false,
-    model: () => props.modelValue,
-    defaultValue: props.defaultValue,
+    model: () => withoutEmpty(props.modelValue),
+    defaultValue: withoutEmpty(props.defaultValue),
     accessors: () => accessors.value,
     items: known,
-    emit: (value) => emit('update:modelValue', value as V | null),
+    emit: (value) => emit('update:modelValue', (value === null ? (props.emptyValue ?? null) : value) as V | E),
     // Without a data source and loaded: a value outside the items warns in development
     check: { component: 'Select', ready: () => !props.dataSource && !props.loading && props.items.length > 0 },
 });

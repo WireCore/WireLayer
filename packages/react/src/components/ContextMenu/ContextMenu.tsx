@@ -1,12 +1,14 @@
 import { Menu as ArkMenu } from '@ark-ui/react/menu';
 import { Portal } from '@ark-ui/react/portal';
 import {
+    createContextMenuSource,
     createLongPress,
     menu as menuRecipe,
+    type ContextMenuOpenDetails,
     type OverlayHandle,
     type RecipeClasses,
 } from '@wirecore/wirelayer-recipes';
-import { useEffect, useRef, type ReactElement, type Ref } from 'react';
+import { useEffect, useRef, useState, type ReactElement, type Ref } from 'react';
 import {
     MenuEntries,
     MenuStateProvider,
@@ -29,9 +31,10 @@ export interface ContextMenuProps extends MenuItemOptions, MenuBehaviorOptions {
     onOpenChange?: (open: boolean) => void;
     /**
      * A right click, long press or the menu key is opening the menu, on this element (e.g. the row under the pointer –
-     * select it before the menu shows)
+     * select it before the menu shows); `details.source` tells pointer from keyboard, with the keyboard
+     * `details.focused` is the focused element (e.g. the row with the focus)
      */
-    onBeforeOpen?: (target: Element) => void;
+    onBeforeOpen?: (target: Element, details: ContextMenuOpenDetails) => void;
     /** open(anchor), close(), toggle(anchor) – e.g. open(event) from your own handler */
     ref?: Ref<OverlayHandle>;
     /** The area that opens the menu */
@@ -76,6 +79,8 @@ export function ContextMenu({
     // Touch and pen: holding still for half a second opens the menu at the finger (open() only uses state setters);
     // one per press, which knows the pressed element
     const longPress = useRef<ReturnType<typeof createLongPress>>(null);
+    // Shift+F10 and the menu key open it as well (the browser's contextmenu event)
+    const [source] = useState(createContextMenuSource);
     useEffect(() => {
         const press = longPress;
         return () => press.current?.cancel();
@@ -102,14 +107,16 @@ export function ContextMenu({
                     asChild
                     onPointerDown={(event) => {
                         const target = event.target as Element;
+                        source.pointerdown();
                         longPress.current?.cancel();
                         longPress.current = createLongPress((point) => {
-                            onBeforeOpen?.(target);
+                            onBeforeOpen?.(target, { source: 'pointer', focused: null });
                             state.handle.open(point);
                         });
                         longPress.current.down(event);
                     }}
-                    onContextMenu={(event) => onBeforeOpen?.(event.target as Element)}
+                    onKeyDown={(event) => source.keydown(event)}
+                    onContextMenu={(event) => onBeforeOpen?.(event.target as Element, source.contextmenu())}
                     onPointerMove={(event) => longPress.current?.move(event)}
                     onPointerUp={() => longPress.current?.cancel()}
                     onPointerCancel={() => longPress.current?.cancel()}

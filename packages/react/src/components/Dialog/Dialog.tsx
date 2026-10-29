@@ -1,6 +1,7 @@
 import { Dialog as ArkDialog, useDialogContext } from '@ark-ui/react/dialog';
 import { Portal } from '@ark-ui/react/portal';
 import {
+    autoselectElement,
     clampDialogOffset,
     dialog as dialogRecipe,
     dialogMoveForKey,
@@ -21,13 +22,19 @@ import {
     type PointerEvent,
     type ReactElement,
     type ReactNode,
+    type RefObject,
 } from 'react';
 import type { IconComponent } from '../../types.js';
 import { useTranslations } from '../LocaleProvider/LocaleProvider.js';
 import { useRecipe } from '../RecipesProvider/RecipesProvider.js';
 
-/** Settings of the surrounding Dialog/Drawer that its content needs (no backdrop when non-modal) */
-export const DialogRootContext = createContext<{ modal: boolean }>({ modal: true });
+/**
+ * Settings of the surrounding Dialog/Drawer that its content needs (no backdrop when non-modal); the Dialog's initial
+ * focus looks for `data-autoselect` in `contentRef`
+ */
+export const DialogRootContext = createContext<{ modal: boolean; contentRef?: RefObject<HTMLElement | null> }>({
+    modal: true,
+});
 
 export interface DialogProps {
     open?: boolean;
@@ -58,8 +65,15 @@ export function Dialog({
     closeOnInteractOutside,
     children,
 }: DialogProps) {
+    const contentRef = useRef<HTMLElement | null>(null);
+    // A field marked data-autoselect gets the focus with its text selected; otherwise Ark's own choice (an
+    // alertdialog's close button, data-autofocus, the first tabbable element)
+    const initialFocus = () =>
+        autoselectElement(contentRef.current) ??
+        (role === 'alertdialog' ? contentRef.current?.querySelector<HTMLElement>('[data-part=close-trigger]') : null) ??
+        null;
     return (
-        <DialogRootContext.Provider value={{ modal }}>
+        <DialogRootContext.Provider value={{ modal, contentRef }}>
             <ArkDialog.Root
                 open={open}
                 defaultOpen={defaultOpen}
@@ -68,6 +82,7 @@ export function Dialog({
                 modal={modal}
                 closeOnEscape={closeOnEscape}
                 closeOnInteractOutside={closeOnInteractOutside}
+                initialFocusEl={initialFocus}
                 lazyMount
                 unmountOnExit
             >
@@ -229,11 +244,12 @@ export function DialogContent({
     style,
     onKeyDown,
     children,
+    ref,
     ...props
 }: DialogContentProps) {
     const dialog = useRecipe('dialog', dialogRecipe, classes);
     const translations = useTranslations();
-    const { modal } = useContext(DialogRootContext);
+    const { modal, contentRef } = useContext(DialogRootContext);
     const context = useDialogContext();
     const [internalMaximized, setInternalMaximized] = useState(defaultMaximized ?? false);
     const isMaximized = maximized ?? internalMaximized;
@@ -264,6 +280,12 @@ export function DialogContent({
             <ArkDialog.Positioner className={styles.positioner()}>
                 <ArkDialog.Content
                     {...props}
+                    ref={(element: HTMLDivElement | null) => {
+                        // The Dialog looks for data-autoselect in the content when it opens
+                        if (contentRef) contentRef.current = element;
+                        if (typeof ref === 'function') return ref(element);
+                        if (ref) ref.current = element;
+                    }}
                     {...(draggable ? { 'aria-keyshortcuts': dialogMoveKeys } : {})}
                     className={styles.content({ class: className })}
                     style={drag.style ? { ...style, ...drag.style } : style}

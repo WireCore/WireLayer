@@ -29,6 +29,8 @@ export interface StepperProps {
     orientation?: 'horizontal' | 'vertical';
     /** Label beside the number (default) or below it */
     labelPlacement?: 'end' | 'bottom';
+    /** Text of the last "Next" button, e.g. "Create" (default "Finish") */
+    finishLabel?: string;
     /** Extra classes per part of the component, e.g. { base: "…" } (see the recipe) */
     classes?: RecipeClasses<typeof stepperRecipe>;
 }
@@ -105,7 +107,7 @@ const noCurrent = null as unknown as undefined;
                 <!-- With linear, an invalid step blocks going on – shown as a disabled button -->
                 <Steps.NextTrigger as-child>
                     <Button :disabled="linear && !api.isStepValid(api.value)">{{
-                        api.value === api.count - 1 ? t.finish : t.next
+                        api.value === api.count - 1 ? (finishLabel ?? t.finish) : t.next
                     }}</Button>
                 </Steps.NextTrigger>
             </div>

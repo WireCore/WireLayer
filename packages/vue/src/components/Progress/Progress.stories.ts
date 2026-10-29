@@ -59,7 +59,7 @@ export const Vertical: Story = {
 
 /**
  * Compact bars for lists and status bars: `size="xs"`, `hide-label` (the label still names the bar for screen readers),
- * `bar-text` in the bar and `status` for the colour
+ * `bar-text` in the bar and `status` for the colour – `neutral` (grey) for a cancelled transfer
  */
 export const Compact: Story = {
     name: 'Compact',
@@ -82,6 +82,10 @@ export const Compact: Story = {
                 <div class="flex items-center gap-3 text-xs">
                     <span class="w-28 truncate font-mono">site.zip</span>
                     <Progress :value="100" label="site.zip" hide-label :show-value="false" bar-text="done" status="success" />
+                </div>
+                <div class="flex items-center gap-3 text-xs">
+                    <span class="w-28 truncate font-mono">media.tar</span>
+                    <Progress :value="30" label="media.tar" hide-label :show-value="false" bar-text="cancelled" status="neutral" />
                 </div>
                 <Progress :value="81" label="Disk" size="xs" status="warn" class="w-40" />
             </div>`,

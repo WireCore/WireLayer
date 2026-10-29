@@ -4,13 +4,14 @@ import { Maximize2, Minimize2, X } from '@lucide/vue';
 import {
     dialog as dialogRecipe,
     dialogMoveKeys,
+    focusFirst,
     type DialogPosition,
     type DialogStatus,
     type OverlaySize,
     type RecipeClasses,
 } from '@wirecore/wirelayer-recipes';
-import { computed, inject, normalizeClass, ref, useAttrs, watch, type Component } from 'vue';
-import { dialogRootKey } from './context.js';
+import { computed, inject, normalizeClass, ref, useAttrs, useTemplateRef, watch, type Component } from 'vue';
+import { dialogContentKey, dialogRootKey } from './context.js';
 import { useDialogDrag } from './drag.js';
 import { useTranslations } from '../../locale.js';
 import { useRecipe } from '../../recipes.js';
@@ -81,6 +82,23 @@ const dialog = useRecipe('dialog', dialogRecipe, () => props.classes);
 const attrs = useAttrs();
 const root = inject(dialogRootKey, null);
 const modal = computed(() => root?.value.modal ?? true);
+// The Dialog looks for data-autoselect in the content when it opens
+const contentHolder = inject(dialogContentKey, null);
+const content = useTemplateRef<{ $el: HTMLElement }>('content');
+watch(
+    () => content.value?.$el ?? null,
+    (element) => {
+        if (contentHolder) contentHolder.value = element;
+    },
+    { immediate: true, flush: 'sync' }
+);
+defineExpose({
+    /**
+     * Focuses the content like opening does – for content that changes while the dialog is open (own steps): the
+     * element marked data-autoselect (text selected), data-autofocus or autofocus, otherwise the first field
+     */
+    focusFirst: () => focusFirst(content.value?.$el),
+});
 
 const internalMaximized = ref(props.defaultMaximized ?? false);
 const isMaximized = computed(() => props.maximized ?? internalMaximized.value);
@@ -119,6 +137,7 @@ const styles = computed(() =>
         <Dialog.Backdrop v-if="modal" :class="styles.backdrop()" />
         <Dialog.Positioner :class="styles.positioner()">
             <Dialog.Content
+                ref="content"
                 v-bind="{
                     ...attrs,
                     class: styles.content({ class: normalizeClass(attrs.class) }),

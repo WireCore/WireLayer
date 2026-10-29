@@ -91,8 +91,8 @@ function DesktopListDemo() {
                 closeOnScroll
                 closeOnResize
                 closeOnBlur
-                onBeforeOpen={(target) => {
-                    const row = target.closest<HTMLElement>('[data-host]');
+                onBeforeOpen={(target, details) => {
+                    const row = (details.focused ?? target).closest<HTMLElement>('[data-host]');
                     if (row) setCurrent(row.dataset.host!);
                 }}
             >
@@ -118,7 +118,8 @@ function DesktopListDemo() {
 }
 
 /**
- * A list as in a desktop app: `onBeforeOpen` gets the right-clicked element – select its row before the menu shows;
+ * A list as in a desktop app: `onBeforeOpen` gets the right-clicked element – select its row before the menu shows
+ * (with Shift+F10 or the menu key its second argument has `source: 'keyboard'` and the `focused` element);
  * `open`/`onOpenChange` tell whether the menu is open (e.g. to pause Delete or F2 on the list). `highlightFirst` and
  * the close props as on Menu
  */

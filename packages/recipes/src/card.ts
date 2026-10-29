@@ -13,7 +13,14 @@ export const card = tv({
         horizontal: {
             true: 'flex-row items-stretch gap-5',
         },
+        /** `sm`: smaller radius and padding, e.g. for cards in a list inside a dialog */
+        size: {
+            sm: 'gap-1.5 rounded-xl p-[var(--wc-card-p,0.75rem)]',
+            md: '',
+        },
     },
+    compoundVariants: [{ horizontal: true, size: 'sm', class: 'gap-3' }],
+    defaultVariants: { size: 'md' },
 });
 
 /**
@@ -37,5 +44,18 @@ export const cardParts = tv({
         horizontal: {
             true: { media: 'w-2/5 max-w-64 shrink-0 self-stretch' },
         },
+        /** `sm`: the denser card of the `card` recipe */
+        size: {
+            sm: {
+                media: 'rounded-lg',
+                content: 'gap-1.5',
+                header: 'gap-2',
+                title: 'text-sm',
+                subtitle: 'text-xs',
+                footer: 'pt-1',
+            },
+            md: {},
+        },
     },
+    defaultVariants: { size: 'md' },
 });

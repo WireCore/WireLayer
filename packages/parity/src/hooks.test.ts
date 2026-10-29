@@ -120,6 +120,20 @@ describe.each(frameworks)('%s', (framework) => {
         }
     });
 
+    it('useResolvedTokens: the token colours as hex, new ones when the page changes', async () => {
+        const root = document.documentElement;
+        root.style.setProperty('--wc-bg', '#ffffff');
+        try {
+            const hook = await mountHook(framework, (l) => l.useResolvedTokens());
+            expect(read(hook.current()).bg).toBe('#ffffff');
+            await act(async () => root.style.setProperty('--wc-bg', '#0a0a0a'));
+            await waitFor(() => expect(read(hook.current()).bg).toBe('#0a0a0a'));
+            hook.unmount();
+        } finally {
+            root.removeAttribute('style');
+        }
+    });
+
     it('useClipboard: copies, reports copied for a while, keeps errors', async () => {
         const writeText = vi.fn().mockResolvedValue(undefined);
         Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText } });

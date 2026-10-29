@@ -1,5 +1,5 @@
 /// <reference types="node" />
-import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
+import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { dirname, extname, join, relative } from 'node:path';
 import type { Plugin, ViteDevServer } from 'vite';
@@ -95,6 +95,18 @@ export function wirelayer(options: WireLayerSourcesOptions = {}): Plugin {
     const perFile = new Map<string, Map<string, Set<string>>>();
     let imports = '';
     const entries = new Set<string>();
+    let cacheDir = join(root, 'node_modules/.vite');
+    /**
+     * In the dev server the imports live in a file of their own: Tailwind's Vite plugin only builds a CSS file again
+     * when one of the files it imports changed on disk – imports added to the code alone would be ignored until a
+     * restart
+     */
+    let devFile: string | undefined;
+    const writeDevFile = () => {
+        if (!devFile) return;
+        mkdirSync(dirname(devFile), { recursive: true });
+        writeFileSync(devFile, `${imports}\n`);
+    };
 
     const read = (file: string) => {
         try {
@@ -126,9 +138,11 @@ export function wirelayer(options: WireLayerSourcesOptions = {}): Plugin {
         enforce: 'pre',
         configResolved(config) {
             root = config.root;
+            cacheDir = config.cacheDir ?? join(root, 'node_modules/.vite');
         },
         buildStart() {
             scan();
+            writeDevFile();
         },
         transform(code, id) {
             const entry = id.split('?')[0]!.endsWith('.css') ? ENTRY.exec(code) : null;
@@ -136,12 +150,14 @@ export function wirelayer(options: WireLayerSourcesOptions = {}): Plugin {
             entries.add(id);
             // Right after the theme import – @import rules come before all others
             const end = code.indexOf(';', entry.index) + 1;
+            const added = devFile ? `@import '${devFile.replaceAll('\\', '/')}';` : imports;
             return {
-                code: `${code.slice(0, end)}\n/* added by wirelayer() */\n${imports}\n${code.slice(end)}`,
+                code: `${code.slice(0, end)}\n/* added by wirelayer() */\n${added}\n${code.slice(end)}`,
                 map: null,
             };
         },
         configureServer(server: ViteDevServer) {
+            devFile = join(cacheDir, 'wirelayer-sources.css');
             // A new or changed import adds its sources file: the CSS is built again
             const update = (file: string) => {
                 if (!SOURCE_FILES.has(extname(file)) || relative(root, file).startsWith('..')) return;
@@ -150,6 +166,7 @@ export function wirelayer(options: WireLayerSourcesOptions = {}): Plugin {
                 const next = collect();
                 if (next === imports) return;
                 imports = next;
+                writeDevFile();
                 for (const id of entries) {
                     const module = server.moduleGraph.getModuleById(id);
                     if (module) void server.reloadModule(module);

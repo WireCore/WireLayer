@@ -247,6 +247,8 @@ export const progress = tv({
             success: { range: 'bg-success', barTextFillLabel: 'text-on-success' },
             warn: { range: 'bg-warn', barTextFillLabel: 'text-on-warn' },
             danger: { range: 'bg-danger', barTextFillLabel: 'text-on-danger' },
+            /** Grey, e.g. a cancelled transfer */
+            neutral: { range: 'bg-muted', barTextFillLabel: 'text-bg' },
         },
         /** The label only names the bar; the value stays at the end */
         hideLabel: {

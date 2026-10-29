@@ -1,4 +1,4 @@
-<script setup lang="ts" generic="V extends string = string">
+<script setup lang="ts" generic="V extends string = string, R extends boolean = false">
 import { useFieldContext } from '@ark-ui/vue/field';
 import { SegmentGroup } from '@ark-ui/vue/segment-group';
 import {
@@ -13,8 +13,11 @@ import { useFieldStatus } from '../Field/context.js';
 import { useRecipe } from '../../recipes.js';
 import { useLabelForWarning } from '../../utils/label-for.js';
 
-/** `V`: the type of the values, e.g. a union like `'ssh' | 'sftp'` (default string) */
-export interface SegmentedControlProps<V extends string = string> {
+/**
+ * `V`: the type of the values, e.g. a union like `'ssh' | 'sftp'` (default string); `R`: whether `required` is set
+ * (then v-model only gets values, never null)
+ */
+export interface SegmentedControlProps<V extends string = string, R extends boolean = false> {
     /** Selected value – use with v-model */
     modelValue?: V | null;
     defaultValue?: V;
@@ -22,20 +25,26 @@ export interface SegmentedControlProps<V extends string = string> {
     label?: string;
     size?: SegmentedControlSize;
     disabled?: boolean;
+    /**
+     * A value is required (aria-required). v-model then only gets values (typed `V`, not `V | null`): a form reset
+     * back to an empty start is not passed on
+     */
+    required?: R & boolean;
     name?: string;
     /** Extra classes per part of the component, e.g. { base: "…" } (see the recipe) */
     classes?: RecipeClasses<typeof segmentedControlRecipe>;
 }
 
 defineOptions({ inheritAttrs: false });
-const props = withDefaults(defineProps<SegmentedControlProps<V>>(), {
+const props = withDefaults(defineProps<SegmentedControlProps<V, R>>(), {
     modelValue: undefined,
     defaultValue: undefined,
     size: 'md',
     disabled: undefined,
+    required: undefined,
 });
 const segmentedControl = useRecipe('segmentedControl', segmentedControlRecipe, () => props.classes);
-const emit = defineEmits<{ 'update:modelValue': [value: V | null] }>();
+const emit = defineEmits<{ 'update:modelValue': [value: R extends true ? V : V | null] }>();
 const attrs = useAttrs();
 useLabelForWarning('SegmentedControl', () => attrs.id);
 const styles = computed(() => segmentedControl({ size: props.size }));
@@ -52,6 +61,12 @@ onMounted(() => {
         warnInDevelopment('SegmentedControl: pass `label` or place it in a Field with a label – the group has no name');
 });
 
+// A required control never reports an empty value (Ark does on a form reset to an empty start: null or undefined)
+function onValueChange(value: string | null) {
+    if (value == null && props.required) return;
+    emit('update:modelValue', value as R extends true ? V : V | null);
+}
+
 provide(
     segmentedControlKey,
     computed(() => props.size)
@@ -62,6 +77,7 @@ provide(
     <SegmentGroup.Root
         v-bind="{
             'aria-describedby': field?.ariaDescribedby,
+            ...(required ? { 'aria-required': 'true' } : {}),
             ...attrs,
             class: styles.base({ class: normalizeClass(attrs.class) }),
         }"
@@ -71,7 +87,7 @@ provide(
         orientation="horizontal"
         :disabled="disabled ?? field?.disabled"
         :name="name"
-        @update:model-value="emit('update:modelValue', $event as V | null)"
+        @update:model-value="onValueChange"
     >
         <SegmentGroup.Label v-if="!fieldLabelled" :class="styles.label()">{{ label }}</SegmentGroup.Label>
         <slot />

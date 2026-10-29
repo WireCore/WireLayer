@@ -64,3 +64,15 @@ export const Colors: Story = {
         </div>
     ),
 };
+
+/** `initials`: own initials instead of the ones from `name` (which takes the first letters of the words) */
+export const OwnInitials: Story = {
+    name: 'Own initials',
+    render: () => (
+        <div className="flex items-center gap-2.5">
+            <Avatar name="my-server" color="auto" />
+            <Avatar name="my-server" initials="MS" color="auto" />
+            <Avatar name="db_primary" initials="DB" color="info" shape="square" />
+        </div>
+    ),
+};

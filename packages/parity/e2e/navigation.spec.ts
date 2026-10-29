@@ -22,6 +22,18 @@ test.describe('Select', () => {
         await expect(trigger).toHaveText('Cloud & DevOps');
     });
 
+    test('keeps the list above other popups and dialogs while it updates', async ({ page }) => {
+        await openStory(page, 'forms-select--playground');
+        await page.getByRole('combobox', { name: 'Service' }).focus();
+        await page.keyboard.press('Enter');
+        await expect(page.getByRole('listbox')).toBeVisible();
+        // A new highlight renders the Select again – in Vue that patched Ark's inline z-index away
+        await page.keyboard.press('ArrowDown');
+        await expect(page.getByRole('option', { name: 'Cloud & DevOps' })).toHaveAttribute('data-highlighted', '');
+        const positioner = page.locator('[data-scope=select][data-part=positioner]');
+        await expect.poll(() => positioner.evaluate((el) => getComputedStyle(el).zIndex)).toBe('50');
+    });
+
     test('closes with Escape without changing the value and skips disabled options', async ({ page }) => {
         await openStory(page, 'forms-select--playground');
         const trigger = page.getByRole('combobox', { name: 'Service' });

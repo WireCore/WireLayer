@@ -225,6 +225,52 @@ export function tabbableElements(container: ParentNode): HTMLElement[] {
     );
 }
 
+const FIELDS = [
+    'input:not([type=hidden], [type=button], [type=submit], [type=reset], [type=image])',
+    'select',
+    'textarea',
+    '[contenteditable]:not([contenteditable=false])',
+    '[role=combobox]',
+    '[role=textbox]',
+    '[role=spinbutton]',
+].join(', ');
+
+/**
+ * Moves the focus into `container` like a dialog does when it opens – for content that changes while it is open
+ * (wizard steps, own multi-step dialogs): the first element marked `data-autoselect` (focused, its text selected),
+ * `data-autofocus` or `autofocus`, otherwise the first field. Returns the focused element, or null. Browser only.
+ */
+export function focusFirst(container: ParentNode | null | undefined): HTMLElement | null {
+    if (!container) return null;
+    const tabbable = tabbableElements(container);
+    const marked = container.querySelector<HTMLElement>('[data-autoselect], [data-autofocus], [autofocus]');
+    const markedOne = marked ? markedTarget(marked, tabbable) : undefined;
+    const target = markedOne ?? tabbable.find((element) => element.matches(FIELDS));
+    if (!target) return null;
+    target.focus();
+    if (markedOne && marked!.hasAttribute('data-autoselect')) selectText(target);
+    return target;
+}
+
+/**
+ * For a dialog's initial focus: the element marked `data-autoselect` in `content` – its text gets selected when it
+ * gets the focus. Undefined without one (Ark then takes `data-autofocus` or the first tabbable element). Browser only.
+ */
+export function autoselectElement(content: ParentNode | null | undefined): HTMLElement | undefined {
+    const marked = content?.querySelector<HTMLElement>('[data-autoselect]');
+    const target = marked ? markedTarget(marked, tabbableElements(content!)) : undefined;
+    target?.addEventListener('focus', () => selectText(target), { once: true });
+    return target;
+}
+
+// The mark may sit on a wrapper (e.g. a component's root): then its first tabbable element
+const markedTarget = (marked: HTMLElement, tabbable: HTMLElement[]) =>
+    tabbable.includes(marked) ? marked : tabbable.find((element) => marked.contains(element));
+
+const selectText = (element: Element) => {
+    if (element instanceof HTMLInputElement || element instanceof HTMLTextAreaElement) element.select();
+};
+
 /**
  * Keeps Tab and Shift+Tab inside `container` and focuses its first element (or `initialFocus`). Returns the function
  * that releases it.

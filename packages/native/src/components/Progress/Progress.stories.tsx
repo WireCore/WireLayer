@@ -47,6 +47,7 @@ export const Compact: Story = {
             <Progress value={42} label="backup.tar.gz" hideLabel showValue={false} barText="42 %" />
             <Progress value={0} label="logs.zip" hideLabel showValue={false} barText="waiting" />
             <Progress value={77} label="db.dump" hideLabel showValue={false} barText="failed" status="danger" />
+            <Progress value={30} label="media.tar" hideLabel showValue={false} barText="cancelled" status="neutral" />
             <Progress value={81} label="Disk" size="xs" status="warn" />
         </View>
     ),

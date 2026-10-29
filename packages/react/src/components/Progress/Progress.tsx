@@ -33,8 +33,11 @@ export interface ProgressProps extends Omit<ComponentProps<'div'>, 'defaultValue
     orientation?: 'horizontal' | 'vertical';
     /** `xs`: a thin bar with small text, e.g. in a list or a status bar */
     size?: 'xs' | 'md';
-    /** Colour of the filled part by its state, e.g. `danger` for a failed transfer */
-    status?: 'info' | 'success' | 'warn' | 'danger';
+    /**
+     * Colour of the filled part by its state, e.g. `danger` for a failed transfer, `neutral` (grey) for a cancelled
+     * one
+     */
+    status?: 'info' | 'success' | 'warn' | 'danger' | 'neutral';
     /** The label only for screen readers – it still names the progress bar */
     hideLabel?: boolean;
     /**
@@ -77,7 +80,7 @@ export function Progress({
         animated,
         stepped: !!steps && !segments,
         size,
-        color: status,
+        color: status === 'neutral' ? 'muted' : status,
         hideLabel,
         hasText: showBarText,
     });

@@ -1,6 +1,6 @@
 import { Trash2 } from '@lucide/vue';
 import type { Meta, StoryObj } from '@storybook/vue3-vite';
-import { ref } from 'vue';
+import { nextTick, ref } from 'vue';
 import Button from '../Button/Button.vue';
 import Field from '../Field/Field.vue';
 import Input from '../Input/Input.vue';
@@ -207,6 +207,59 @@ export const InitialFocus: Story = {
                     <template #footer>
                         <DialogClose><Button variant="outline" size="sm">Cancel</Button></DialogClose>
                         <DialogClose><Button size="sm">Save</Button></DialogClose>
+                    </template>
+                </DialogContent>
+            </Dialog>`,
+    }),
+};
+
+/** `data-autoselect`: the field gets the focus with its text selected – typing replaces the prefilled name */
+export const SelectedOnOpen: Story = {
+    name: 'Selected on open',
+    render: () => ({
+        components: { Button, Dialog, DialogClose, DialogContent, DialogTrigger, Field, Input },
+        template: `
+            <Dialog>
+                <DialogTrigger><Button variant="outline">Duplicate connection</Button></DialogTrigger>
+                <DialogContent title="Duplicate connection" size="sm">
+                    <Field label="Name"><Input model-value="web-01 (copy)" data-autoselect /></Field>
+                    <template #footer>
+                        <DialogClose><Button variant="outline" size="sm">Cancel</Button></DialogClose>
+                        <DialogClose><Button size="sm">Duplicate</Button></DialogClose>
+                    </template>
+                </DialogContent>
+            </Dialog>`,
+    }),
+};
+
+/**
+ * Own steps in one dialog: `focusFirst()` on the content focuses the new step the way opening does (data-autoselect,
+ * data-autofocus, otherwise the first field)
+ */
+export const OwnSteps: Story = {
+    name: 'Own steps',
+    render: () => ({
+        components: { Button, Dialog, DialogClose, DialogContent, DialogTrigger, Field, Input },
+        setup() {
+            const step = ref(1);
+            const content = ref<{ focusFirst(): HTMLElement | null } | null>(null);
+            const next = async () => {
+                step.value = 2;
+                await nextTick();
+                content.value?.focusFirst();
+            };
+            return { step, content, next };
+        },
+        template: `
+            <Dialog @update:open="(open) => open || (step = 1)">
+                <DialogTrigger><Button variant="outline">New connection</Button></DialogTrigger>
+                <DialogContent ref="content" title="New connection" :description="'Step ' + step + ' of 2'" size="sm">
+                    <Field v-if="step === 1" label="Host"><Input mono data-autofocus /></Field>
+                    <Field v-else label="User"><Input model-value="root" data-autoselect /></Field>
+                    <template #footer>
+                        <DialogClose><Button variant="outline" size="sm">Cancel</Button></DialogClose>
+                        <Button v-if="step === 1" size="sm" @click="next">Next</Button>
+                        <DialogClose v-else><Button size="sm">Create</Button></DialogClose>
                     </template>
                 </DialogContent>
             </Dialog>`,

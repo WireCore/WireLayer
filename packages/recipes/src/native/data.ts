@@ -304,6 +304,7 @@ export const progressParts = tv({
             success: { verticalRange: 'bg-success' },
             warn: { verticalRange: 'bg-warn' },
             danger: { verticalRange: 'bg-danger' },
+            neutral: { verticalRange: 'bg-muted' },
         },
         /** Text in the bar: a taller track */
         hasText: {
@@ -315,6 +316,7 @@ export const progressParts = tv({
         { filled: true, status: 'success', class: { step: 'bg-success' } },
         { filled: true, status: 'warn', class: { step: 'bg-warn' } },
         { filled: true, status: 'danger', class: { step: 'bg-danger' } },
+        { filled: true, status: 'neutral', class: { step: 'bg-muted' } },
         { size: 'xs', hasText: true, class: { track: 'h-3.5' } },
     ],
 });

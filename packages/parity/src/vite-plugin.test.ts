@@ -97,3 +97,42 @@ describe('wirelayer()', () => {
         );
     });
 });
+
+describe('wirelayer() in the dev server', () => {
+    // @tailwindcss/vite only builds a CSS file again when a file it imports changed on disk: an import added while the
+    // dev server runs has to reach such a file, or its classes are missing until a restart
+    it('keeps the imports in a file of its own and rewrites it when a new import appears', async () => {
+        const cacheDir = join(app, 'node_modules/.vite');
+        const file = join(cacheDir, 'wirelayer-sources.css');
+        const handlers = new Map<string, (path: string) => void>();
+        const reloaded: unknown[] = [];
+        const server = {
+            watcher: { on: (event: string, handler: (path: string) => void) => handlers.set(event, handler) },
+            moduleGraph: { getModuleById: (id: string) => ({ id }) },
+            reloadModule: async (module: unknown) => void reloaded.push(module),
+        };
+        const plugin = wirelayer();
+        (plugin.configResolved as (config: { root: string; cacheDir: string }) => void)({ root: app, cacheDir });
+        (plugin.configureServer as unknown as (devServer: typeof server) => void)(server);
+        (plugin.buildStart as () => void)();
+        const code = (plugin.transform as (code: string, id: string) => { code: string })(
+            readFileSync(styles, 'utf8'),
+            styles
+        ).code;
+        expect(code).toContain(`@import '${file}';`);
+        expect(code).not.toContain('/sources/');
+        expect(readFileSync(file, 'utf8')).toContain('/sources/Card.css');
+        expect(readFileSync(file, 'utf8')).not.toContain('/sources/Avatar.css');
+
+        const added = join(app, 'src/Added.ts');
+        writeFileSync(added, "import { Avatar } from '@wirecore/wirelayer-react';\n");
+        try {
+            handlers.get('add')!(added);
+        } finally {
+            rmSync(added);
+        }
+        expect(readFileSync(file, 'utf8')).toContain('/sources/Avatar.css');
+        expect(reloaded).toEqual([{ id: styles }]);
+        expect(await build(code)).toContain('--wc-recipe-avatar');
+    });
+});

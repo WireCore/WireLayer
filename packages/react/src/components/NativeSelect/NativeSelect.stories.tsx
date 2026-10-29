@@ -9,7 +9,7 @@ const items = [
     { value: 'vie', label: 'Vienna', disabled: true },
 ];
 
-function Demo(args: NativeSelectProps) {
+function Demo(args: NativeSelectProps<string, string>) {
     const [value, setValue] = useState('nue');
     return (
         <div className="flex w-64 flex-col gap-3">
@@ -27,7 +27,7 @@ const meta = {
     args: { items, placeholder: 'Select', size: 'md', disabled: false, invalid: false },
     argTypes: { items: { control: false }, size: { control: 'inline-radio', options: ['sm', 'md', 'lg'] } },
     render: (args) => <Demo {...args} />,
-} satisfies Meta<typeof NativeSelect<string>>;
+} satisfies Meta<typeof NativeSelect<string, string>>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;

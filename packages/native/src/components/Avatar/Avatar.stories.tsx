@@ -52,3 +52,15 @@ export const SizesAndColors: Story = {
         </View>
     ),
 };
+
+/** `initials`: own initials instead of the ones from `name` (which takes the first letters of the words) */
+export const OwnInitials: Story = {
+    name: 'Own initials',
+    render: () => (
+        <View className="flex-row items-center gap-2">
+            <Avatar name="my-server" color="auto" />
+            <Avatar name="my-server" initials="MS" color="auto" />
+            <Avatar name="db_primary" initials="DB" color="info" shape="square" />
+        </View>
+    ),
+};

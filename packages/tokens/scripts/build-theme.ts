@@ -220,6 +220,12 @@ ${Object.entries(radius)
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
     }
+    /* Popups positioned by Ark (Select, Menu, Popover …): Ark copies the z-index of the content to the positioner as
+       an inline style – Vue removes it again when it patches the positioner's style, which drops a list behind a
+       dialog. In the base layer, so a z-index utility on a positioner still wins */
+    [data-scope][data-part='positioner'] {
+        z-index: var(--z-index);
+    }
 }
 `;
 

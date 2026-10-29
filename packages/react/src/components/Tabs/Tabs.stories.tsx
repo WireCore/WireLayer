@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { GitCommitHorizontal, Layers, LayoutDashboard } from 'lucide-react';
 import { useState } from 'react';
+import { Button } from '../Button/Button.js';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './Tabs.js';
 
 const meta = {
@@ -98,3 +99,42 @@ export const VerticalManual: Story = {
         </Tabs>
     ),
 };
+
+const sessions = ['web-01', 'db-primary', 'backup'];
+
+function PanelsElsewhereDemo() {
+    const [active, setActive] = useState<string | null>('web-01');
+    return (
+        <div className="flex w-[420px] flex-col gap-2">
+            <Tabs value={active} onValueChange={setActive} label="Sessions">
+                <TabsList>
+                    {sessions.map((name) => (
+                        <TabsTrigger key={name} value={name} controls={`pane-${name}`}>
+                            {name}
+                        </TabsTrigger>
+                    ))}
+                </TabsList>
+            </Tabs>
+            {sessions.map((name) => (
+                <div
+                    key={name}
+                    id={`pane-${name}`}
+                    hidden={active !== name}
+                    className="rounded-lg border border-line bg-bg-2 p-3 font-mono text-xs"
+                >
+                    {name}:~$
+                </div>
+            ))}
+            {active === null && <p className="text-sm text-muted">No session selected.</p>}
+            <Button size="sm" variant="outline" className="self-start" onClick={() => setActive(null)}>
+                Select none
+            </Button>
+        </div>
+    );
+}
+
+/**
+ * Tabs that switch panes living elsewhere (e.g. terminal sessions kept alive while hidden): `controls` points each tab
+ * at its pane, and the value may be null – no tab selected, the first tab stays reachable with Tab
+ */
+export const PanelsElsewhere: Story = { name: 'Panels elsewhere', render: () => <PanelsElsewhereDemo /> };
