@@ -1,5 +1,35 @@
 # @wirecore/wirelayer-recipes
 
+## 0.7.0
+
+### Minor Changes
+
+- ed18228: `Alert` takes actions – Vue slot `#actions`, React and React Native prop `actions` – e.g. "Workspace locked –
+  [Unlock]": beside the text, below it when there is little room (React Native: below the text). Recipe slots `text` and
+  `actions`, variant `hasActions`; without actions the DOM stays as it was.
+- ed18228: `DialogContent` (React Native: `Dialog`) takes `titlePosition: 'body' | 'header'` (default `body`, as before). With
+  `header` the title sits in the row of the close and maximize buttons, after a smaller icon, the header separated by a
+  line – as on the Drawer; a long title wraps. Recipe variant `titleInHeader` for `dialog` (HTML: `wc-dialog-title-in-header`).
+- ed18228: Menus for desktop apps, all opt-in:
+
+    - `ContextMenu` reports its open state (Vue `v-model:open` / `update:open`, React `open`/`onOpenChange`) – e.g. to keep
+      Delete, Enter or F2 from the list below while it is open – and `before-open` / `onBeforeOpen` with the right-clicked
+      (or long-pressed) element, to select its row before the menu shows
+    - `Menu` and `ContextMenu` take `closeOnScroll`, `closeOnResize` and `closeOnBlur` (default `false`): a menu at a point
+      closes when the content below scrolls (not a scroll inside the menu), the window is resized or loses the focus
+    - `highlightFirst` on both: the first item is highlighted also when the menu opens by pointer, so Enter takes it
+    - `closeMenuOnPageEvents` in the recipes
+
+- ed18228: `mono` on `Input`, `PasswordInput` and `Textarea` (default `false`): the theme's monospace font (JetBrains Mono) for
+  paths, tokens, recovery codes, URLs and keys. Recipe variant `mono` for `input`, `passwordInput` and `textarea`.
+- ed18228: Compact `Progress` for lists and status bars, all opt-in:
+
+    - `size: 'xs' | 'md'` – `xs` is a thin bar with small text
+    - `status: 'info' | 'success' | 'warn' | 'danger'` colours the fill
+    - `hideLabel`: the label only names the bar for screen readers
+    - `barText`, e.g. "42 %", "waiting" or "failed": text in a taller bar (horizontal, without segments or steps), readable
+      over the empty and the filled part; screen readers get it after the value
+
 ## 0.6.0
 
 ### Minor Changes

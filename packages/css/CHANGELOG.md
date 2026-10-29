@@ -1,5 +1,25 @@
 # @wirecore/wirelayer-css
 
+## 0.8.0
+
+### Minor Changes
+
+- ed18228: `Alert` takes actions – Vue slot `#actions`, React and React Native prop `actions` – e.g. "Workspace locked –
+  [Unlock]": beside the text, below it when there is little room (React Native: below the text). Recipe slots `text` and
+  `actions`, variant `hasActions`; without actions the DOM stays as it was.
+- ed18228: `DialogContent` (React Native: `Dialog`) takes `titlePosition: 'body' | 'header'` (default `body`, as before). With
+  `header` the title sits in the row of the close and maximize buttons, after a smaller icon, the header separated by a
+  line – as on the Drawer; a long title wraps. Recipe variant `titleInHeader` for `dialog` (HTML: `wc-dialog-title-in-header`).
+- ed18228: `mono` on `Input`, `PasswordInput` and `Textarea` (default `false`): the theme's monospace font (JetBrains Mono) for
+  paths, tokens, recovery codes, URLs and keys. Recipe variant `mono` for `input`, `passwordInput` and `textarea`.
+- ed18228: Compact `Progress` for lists and status bars, all opt-in:
+
+    - `size: 'xs' | 'md'` – `xs` is a thin bar with small text
+    - `status: 'info' | 'success' | 'warn' | 'danger'` colours the fill
+    - `hideLabel`: the label only names the bar for screen readers
+    - `barText`, e.g. "42 %", "waiting" or "failed": text in a taller bar (horizontal, without segments or steps), readable
+      over the empty and the filled part; screen readers get it after the value
+
 ## 0.7.0
 
 ### Minor Changes
