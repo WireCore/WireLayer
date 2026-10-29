@@ -665,6 +665,35 @@ export function createLongPress(
     };
 }
 
+/** How a context menu is being opened – the second argument of ContextMenu's before-open */
+export interface ContextMenuOpenDetails {
+    /** `pointer`: right click or long press; `keyboard`: Shift+F10 or the menu key */
+    source: 'pointer' | 'keyboard';
+    /** With the keyboard: the element that has the focus (e.g. a row of a list) – null with the pointer */
+    focused: Element | null;
+}
+
+/**
+ * Tells the contextmenu events of the keyboard (Shift+F10, the menu key) from those of the pointer: give it the
+ * keydown and pointerdown events of the area, and ask it on contextmenu. Browser only.
+ */
+export function createContextMenuSource() {
+    let keyboard = false;
+    return {
+        keydown(event: { key: string; shiftKey: boolean }) {
+            if (event.key === 'ContextMenu' || (event.key === 'F10' && event.shiftKey)) keyboard = true;
+        },
+        pointerdown() {
+            keyboard = false;
+        },
+        contextmenu(): ContextMenuOpenDetails {
+            const source = keyboard ? 'keyboard' : 'pointer';
+            keyboard = false;
+            return { source, focused: source === 'keyboard' ? document.activeElement : null };
+        },
+    };
+}
+
 /** A toast swiped sideways by `distance` pixels closes once it moved 80 pixels or 40 % of its width */
 export function isSwipeDismiss(distance: number, width: number): boolean {
     return Math.abs(distance) >= Math.min(80, width * 0.4);

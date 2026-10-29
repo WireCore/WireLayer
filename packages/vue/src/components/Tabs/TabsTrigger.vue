@@ -2,7 +2,18 @@
 import { Tabs } from '@ark-ui/vue/tabs';
 import { X } from '@lucide/vue';
 import { closeTab, type RecipeClasses, tabs as tabsRecipe } from '@wirecore/wirelayer-recipes';
-import { computed, normalizeClass, useAttrs, type Component } from 'vue';
+import {
+    computed,
+    inject,
+    normalizeClass,
+    onMounted,
+    onUpdated,
+    ref,
+    useAttrs,
+    useTemplateRef,
+    type Component,
+} from 'vue';
+import { tabsNoneSelectedKey } from './context.js';
 import { useRecipe } from '../../recipes.js';
 
 export interface TabsTriggerProps {
@@ -15,16 +26,42 @@ export interface TabsTriggerProps {
      * another one) yourself. The focus moves to the neighbouring tab
      */
     closable?: boolean;
+    /**
+     * Id of the element the tab shows, when it is not a TabsContent of these Tabs (e.g. a pane elsewhere shown with
+     * v-show) – `null`: none (tabs without panels)
+     */
+    controls?: string | null;
     /** Extra classes per part of the component, e.g. { base: "…" } (see the recipe) */
     classes?: RecipeClasses<typeof tabsRecipe>;
 }
 
 defineOptions({ inheritAttrs: false });
-const props = withDefaults(defineProps<TabsTriggerProps>(), { disabled: undefined, closable: false });
+const props = withDefaults(defineProps<TabsTriggerProps>(), {
+    disabled: undefined,
+    closable: false,
+    controls: undefined,
+});
 const emit = defineEmits<{ close: [value: string] }>();
 const tabs = useRecipe('tabs', tabsRecipe, () => props.classes);
 const attrs = useAttrs();
 const styles = computed(() => tabs({ closable: props.closable }));
+
+// No tab selected (Tabs value null): Ark takes every tab out of the Tab order – the first enabled one stays in it
+const noneSelected = inject(tabsNoneSelectedKey, null);
+const trigger = useTemplateRef<{ $el: HTMLElement }>('trigger');
+const first = ref(false);
+const checkFirst = () => {
+    const element = trigger.value?.$el;
+    first.value =
+        !!element && element.closest('[role=tablist]')?.querySelector('[role=tab]:not([disabled])') === element;
+};
+onMounted(checkFirst);
+onUpdated(checkFirst);
+// null removes Ark's aria-controls (undefined would keep it)
+const own = computed(() => ({
+    ...(props.controls !== undefined ? { 'aria-controls': props.controls as string | undefined } : {}),
+    ...(noneSelected?.value && first.value ? { tabIndex: 0 } : {}),
+}));
 
 function onKeydown(event: KeyboardEvent) {
     if (!props.closable || event.key !== 'Delete' || event.defaultPrevented || props.disabled) return;
@@ -41,7 +78,8 @@ function onCloseClick(event: MouseEvent) {
     <!-- The close button is not part of the tab (no button in a button): pointer only, Delete closes by keyboard -->
     <span v-if="closable" role="presentation" :class="styles.tab()">
         <Tabs.Trigger
-            v-bind="{ ...attrs, class: styles.trigger({ class: normalizeClass(attrs.class) }) }"
+            ref="trigger"
+            v-bind="{ ...attrs, ...own, class: styles.trigger({ class: normalizeClass(attrs.class) }) }"
             :value="value"
             :disabled="disabled"
             aria-keyshortcuts="Delete"
@@ -63,7 +101,8 @@ function onCloseClick(event: MouseEvent) {
     </span>
     <Tabs.Trigger
         v-else
-        v-bind="{ ...attrs, class: styles.trigger({ class: normalizeClass(attrs.class) }) }"
+        ref="trigger"
+        v-bind="{ ...attrs, ...own, class: styles.trigger({ class: normalizeClass(attrs.class) }) }"
         :value="value"
         :disabled="disabled"
     >

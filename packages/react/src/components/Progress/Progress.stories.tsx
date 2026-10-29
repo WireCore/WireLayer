@@ -55,11 +55,12 @@ const transfers = [
     { name: 'logs.zip', value: 0, text: 'waiting' },
     { name: 'db.dump', value: 77, text: 'failed', status: 'danger' as const },
     { name: 'site.zip', value: 100, text: 'done', status: 'success' as const },
+    { name: 'media.tar', value: 30, text: 'cancelled', status: 'neutral' as const },
 ];
 
 /**
  * Compact bars for lists and status bars: `size="xs"`, `hideLabel` (the label still names the bar for screen readers),
- * `barText` in the bar and `status` for the colour
+ * `barText` in the bar and `status` for the colour – `neutral` (grey) for a cancelled transfer
  */
 export const Compact: Story = {
     name: 'Compact',

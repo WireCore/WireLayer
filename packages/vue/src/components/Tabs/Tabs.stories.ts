@@ -1,6 +1,7 @@
 import { GitCommitHorizontal, Layers, LayoutDashboard } from '@lucide/vue';
 import type { Meta, StoryObj } from '@storybook/vue3-vite';
 import { ref } from 'vue';
+import Button from '../Button/Button.vue';
 import Tabs from './Tabs.vue';
 import TabsContent from './TabsContent.vue';
 import TabsList from './TabsList.vue';
@@ -87,5 +88,38 @@ export const VerticalManual: Story = {
                 <TabsContent value="services" class="text-sm text-muted">Software, AI, hosting, cloud.</TabsContent>
                 <TabsContent value="process" class="text-sm text-muted">Understand, build, operate.</TabsContent>
             </Tabs>`,
+    }),
+};
+
+/**
+ * Tabs that switch panes living elsewhere (e.g. terminal sessions kept alive with v-show): `controls` points each tab
+ * at its pane, and the value may be null – no tab selected, the first tab stays reachable with Tab
+ */
+export const PanelsElsewhere: Story = {
+    name: 'Panels elsewhere',
+    render: () => ({
+        components: { Button, Tabs, TabsList, TabsTrigger },
+        setup: () => ({ sessions: ['web-01', 'db-primary', 'backup'], active: ref<string | null>('web-01') }),
+        template: `
+            <div class="flex w-[420px] flex-col gap-2">
+                <Tabs v-model="active" label="Sessions">
+                    <TabsList>
+                        <TabsTrigger v-for="name in sessions" :key="name" :value="name" :controls="'pane-' + name">
+                            {{ name }}
+                        </TabsTrigger>
+                    </TabsList>
+                </Tabs>
+                <div
+                    v-for="name in sessions"
+                    v-show="active === name"
+                    :id="'pane-' + name"
+                    :key="name"
+                    class="rounded-lg border border-line bg-bg-2 p-3 font-mono text-xs"
+                >
+                    {{ name }}:~$
+                </div>
+                <p v-if="active === null" class="text-sm text-muted">No session selected.</p>
+                <Button size="sm" variant="outline" class="self-start" @click="active = null">Select none</Button>
+            </div>`,
     }),
 };

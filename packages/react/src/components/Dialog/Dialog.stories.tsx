@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Trash2 } from 'lucide-react';
-import { useState, type CSSProperties } from 'react';
+import { focusFirst } from '@wirecore/wirelayer-recipes';
+import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { Button } from '../Button/Button.js';
 import { Field } from '../Field/Field.js';
 import { Input } from '../Input/Input.js';
@@ -276,6 +277,94 @@ export const InitialFocus: Story = {
         </Dialog>
     ),
 };
+
+/** `data-autoselect`: the field gets the focus with its text selected – typing replaces the prefilled name */
+export const SelectedOnOpen: Story = {
+    name: 'Selected on open',
+    render: () => (
+        <Dialog>
+            <DialogTrigger>
+                <Button variant="outline">Duplicate connection</Button>
+            </DialogTrigger>
+            <DialogContent
+                title="Duplicate connection"
+                size="sm"
+                footer={
+                    <>
+                        <DialogClose>
+                            <Button variant="outline" size="sm">
+                                Cancel
+                            </Button>
+                        </DialogClose>
+                        <DialogClose>
+                            <Button size="sm">Duplicate</Button>
+                        </DialogClose>
+                    </>
+                }
+            >
+                <Field label="Name">
+                    <Input defaultValue="web-01 (copy)" data-autoselect />
+                </Field>
+            </DialogContent>
+        </Dialog>
+    ),
+};
+
+function OwnStepsDemo() {
+    const [step, setStep] = useState(1);
+    const content = useRef<HTMLDivElement>(null);
+    // The new step gets the focus the way opening does
+    useEffect(() => {
+        if (step === 2) focusFirst(content.current);
+    }, [step]);
+    return (
+        <Dialog onOpenChange={(open) => open || setStep(1)}>
+            <DialogTrigger>
+                <Button variant="outline">New connection</Button>
+            </DialogTrigger>
+            <DialogContent
+                ref={content}
+                title="New connection"
+                description={`Step ${step} of 2`}
+                size="sm"
+                footer={
+                    <>
+                        <DialogClose>
+                            <Button variant="outline" size="sm">
+                                Cancel
+                            </Button>
+                        </DialogClose>
+                        {step === 1 ? (
+                            <Button size="sm" onClick={() => setStep(2)}>
+                                Next
+                            </Button>
+                        ) : (
+                            <DialogClose>
+                                <Button size="sm">Create</Button>
+                            </DialogClose>
+                        )}
+                    </>
+                }
+            >
+                {step === 1 ? (
+                    <Field label="Host">
+                        <Input mono data-autofocus />
+                    </Field>
+                ) : (
+                    <Field label="User">
+                        <Input defaultValue="root" data-autoselect />
+                    </Field>
+                )}
+            </DialogContent>
+        </Dialog>
+    );
+}
+
+/**
+ * Own steps in one dialog: `focusFirst(element)` on the content focuses the new step the way opening does
+ * (data-autoselect, data-autofocus, otherwise the first field)
+ */
+export const OwnSteps: Story = { name: 'Own steps', render: () => <OwnStepsDemo /> };
 
 /** `titlePosition="header"`: the title in the row of the close button, after a smaller icon (as on the Drawer) */
 export const TitleInTheHeader: Story = {

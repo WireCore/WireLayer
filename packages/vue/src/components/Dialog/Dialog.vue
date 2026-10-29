@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { Dialog } from '@ark-ui/vue/dialog';
-import { computed, provide } from 'vue';
-import { dialogRootKey } from './context.js';
+import { autoselectElement } from '@wirecore/wirelayer-recipes';
+import { computed, provide, shallowRef } from 'vue';
+import { dialogContentKey, dialogRootKey } from './context.js';
 
 export interface DialogProps {
     /** Controlled state – use with v-model:open */
@@ -33,6 +34,14 @@ provide(
     dialogRootKey,
     computed(() => ({ modal: props.modal }))
 );
+// A field marked data-autoselect gets the focus with its text selected; otherwise Ark's own choice (an alertdialog's
+// close button, data-autofocus, the first tabbable element)
+const content = shallowRef<HTMLElement | null>(null);
+provide(dialogContentKey, content);
+const initialFocus = () =>
+    autoselectElement(content.value) ??
+    (props.role === 'alertdialog' ? content.value?.querySelector<HTMLElement>('[data-part=close-trigger]') : null) ??
+    null;
 </script>
 
 <template>
@@ -44,6 +53,7 @@ provide(
         :modal="modal"
         :close-on-escape="closeOnEscape"
         :close-on-interact-outside="closeOnInteractOutside"
+        :initial-focus-el="initialFocus"
         lazy-mount
         unmount-on-exit
         @update:open="emit('update:open', $event)"

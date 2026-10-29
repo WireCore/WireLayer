@@ -32,6 +32,15 @@ describe('animation theme variables', () => {
     });
 });
 
+describe('popup positioners', () => {
+    // Vue patches Ark's inline z-index of a positioner away when it renders again – the stylesheet keeps it
+    it('gives every Ark positioner the z-index Ark copied from its content, in the base layer', () => {
+        expect(css).toMatch(
+            /@layer base \{[^@]*\[data-scope\]\[data-part='positioner'\] \{\s*z-index: var\(--z-index\);/
+        );
+    });
+});
+
 describe('light and dark', () => {
     // Without data-mode the page follows the system; data-mode="light"|"dark" forces a mode (checked in the browser
     // as well – this keeps the generated rules from getting lost)

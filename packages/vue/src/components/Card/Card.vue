@@ -20,6 +20,8 @@ export interface CardProps {
     titleTag?: 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'p';
     /** `horizontal`: media at the start, the content beside it */
     orientation?: 'vertical' | 'horizontal';
+    /** `sm`: smaller radius, padding and title, e.g. for cards in a list inside a dialog */
+    size?: 'sm' | 'md';
     /** Extra classes per part of the component, e.g. { base: "…", title: "…" } (see the recipes card and cardParts) */
     classes?: RecipeClasses<typeof cardRecipe> & RecipeClasses<typeof cardPartsRecipe>;
 }
@@ -41,7 +43,7 @@ const card = useRecipe('card', cardRecipe, () => props.classes);
 const cardParts = useRecipe('cardParts', cardPartsRecipe, () => props.classes);
 const attrs = useAttrs();
 const horizontal = computed(() => props.orientation === 'horizontal');
-const parts = computed(() => cardParts({ horizontal: horizontal.value }));
+const parts = computed(() => cardParts({ horizontal: horizontal.value, size: props.size }));
 const hasTitle = computed(() => !!props.title || !!slots.title || !!props.subtitle || !!slots.subtitle);
 // Without title, media, header or footer the card renders its content as before
 const hasParts = computed(
@@ -54,7 +56,7 @@ const hasParts = computed(
         v-if="!hasParts"
         v-bind="{
             ...attrs,
-            class: card({ interactive, horizontal: horizontal || undefined, class: normalizeClass(attrs.class) }),
+            class: card({ interactive, horizontal: horizontal || undefined, size, class: normalizeClass(attrs.class) }),
         }"
         :as-child="asChild"
     >
@@ -64,7 +66,7 @@ const hasParts = computed(
         v-else
         v-bind="{
             ...attrs,
-            class: card({ interactive, horizontal: horizontal || undefined, class: normalizeClass(attrs.class) }),
+            class: card({ interactive, horizontal: horizontal || undefined, size, class: normalizeClass(attrs.class) }),
         }"
     >
         <div v-if="slots.media" :class="parts.media()"><slot name="media" /></div>

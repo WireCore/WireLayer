@@ -23,12 +23,15 @@ const RadioGroupContext = createContext<RadioGroupContextValue>({
 /** The surrounding RadioGroup (RadioCard) */
 export const useRadioGroup = () => useContext(RadioGroupContext);
 
-/** `V`: the type of the values – a union like `'ssh' | 'sftp'` or numbers (default string) */
-export interface RadioGroupProps<V extends string | number = string> extends ViewProps {
+/**
+ * `V`: the type of the values – a union like `'ssh' | 'sftp'` or numbers (default string); `R`: whether `required` is
+ * set (then onValueChange is typed `V`, not `V | null`)
+ */
+export interface RadioGroupProps<V extends string | number = string, R extends boolean = false> extends ViewProps {
     /** Selected value; numbers when the items have number values */
     value?: V | null;
     defaultValue?: V | null;
-    onValueChange?: (value: V | null) => void;
+    onValueChange?: (value: R extends true ? V : V | null) => void;
     /** Visible label, also the group's accessible name */
     label?: string;
     orientation?: RadioGroupOrientation;
@@ -36,13 +39,13 @@ export interface RadioGroupProps<V extends string | number = string> extends Vie
     columns?: number;
     disabled?: boolean;
     invalid?: boolean;
-    /** Shows the required mark after the label */
-    required?: boolean;
+    /** Shows the required mark after the label; onValueChange is then typed `V` (a choice is never undone) */
+    required?: R;
     children?: ReactNode;
 }
 
 /** One choice out of several (role radiogroup) named by its label; RadioGroupItem or RadioCard inside, cards in `columns` */
-export function RadioGroup<V extends string | number = string>({
+export function RadioGroup<V extends string | number = string, R extends boolean = false>({
     value,
     defaultValue = null,
     onValueChange,
@@ -51,12 +54,16 @@ export function RadioGroup<V extends string | number = string>({
     columns,
     disabled = false,
     invalid = false,
-    required = false,
+    required,
     className,
     children,
     ...props
-}: RadioGroupProps<V>) {
-    const [current, setCurrent] = useControllable(value, defaultValue, onValueChange);
+}: RadioGroupProps<V, R>) {
+    const [current, setCurrent] = useControllable(
+        value,
+        defaultValue,
+        onValueChange as ((value: V | null) => void) | undefined
+    );
     const labelId = `${useId()}label`;
     const styles = radioGroup({ orientation });
 

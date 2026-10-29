@@ -1,12 +1,21 @@
 import { Tabs as ArkTabs } from '@ark-ui/react/tabs';
 import { closeTab, scrollEdges, tabs as tabsRecipe, type RecipeClasses } from '@wirecore/wirelayer-recipes';
 import { ChevronLeft, ChevronRight, X } from 'lucide-react';
-import { useEffect, useRef, useState, type ComponentProps } from 'react';
+import { createContext, useContext, useEffect, useLayoutEffect, useRef, useState, type ComponentProps } from 'react';
 import type { IconComponent } from '../../types.js';
 import { useRecipe } from '../RecipesProvider/RecipesProvider.js';
 
+const useBrowserLayoutEffect = typeof document === 'undefined' ? useEffect : useLayoutEffect;
+
+/** The Tabs' value is null on purpose (no tab selected): the first tab stays reachable with Tab */
+const TabsNoneSelectedContext = createContext(false);
+
 export interface TabsProps extends Omit<ComponentProps<'div'>, 'defaultValue' | 'dir'> {
-    value?: string;
+    /**
+     * Selected tab; `null`: no tab selected (e.g. tabs of panels that live elsewhere – the first tab stays reachable
+     * with Tab)
+     */
+    value?: string | null;
     defaultValue?: string;
     onValueChange?: (value: string | null) => void;
     /** Accessible name of the tab list */
@@ -40,18 +49,20 @@ export function Tabs({
     const tabs = useRecipe('tabs', tabsRecipe, classes);
     const styles = tabs();
     return (
-        <ArkTabs.Root
-            {...props}
-            className={styles.base({ class: className })}
-            value={value}
-            defaultValue={defaultValue}
-            onValueChange={(details) => onValueChange?.(details.value)}
-            orientation={orientation}
-            activationMode={activationMode}
-            lazyMount={lazyMount}
-            unmountOnExit={unmountOnExit}
-            translations={label ? { listLabel: label } : undefined}
-        />
+        <TabsNoneSelectedContext value={value === null}>
+            <ArkTabs.Root
+                {...props}
+                className={styles.base({ class: className })}
+                value={value}
+                defaultValue={defaultValue}
+                onValueChange={(details) => onValueChange?.(details.value)}
+                orientation={orientation}
+                activationMode={activationMode}
+                lazyMount={lazyMount}
+                unmountOnExit={unmountOnExit}
+                translations={label ? { listLabel: label } : undefined}
+            />
+        </TabsNoneSelectedContext>
     );
 }
 
@@ -144,6 +155,11 @@ export interface TabsTriggerProps extends Omit<ComponentProps<'button'>, 'value'
      */
     closable?: boolean;
     onClose?: (value: string) => void;
+    /**
+     * Id of the element the tab shows, when it is not a TabsContent of these Tabs (e.g. a pane elsewhere, hidden
+     * while not selected) – `null`: none (tabs without panels)
+     */
+    controls?: string | null;
     /** Extra classes per part of the component, e.g. { base: "…" } (see the recipe) */
     classes?: RecipeClasses<typeof tabsRecipe>;
 }
@@ -156,16 +172,34 @@ export function TabsTrigger({
     disabled,
     closable = false,
     onClose,
+    controls,
     className,
     children,
     onKeyDown,
+    ref,
     ...props
 }: TabsTriggerProps) {
     const tabs = useRecipe('tabs', tabsRecipe, classes);
     const styles = tabs({ closable });
+    // No tab selected (Tabs value null): Ark takes every tab out of the Tab order – the first enabled one stays in it
+    const noneSelected = useContext(TabsNoneSelectedContext);
+    const element = useRef<HTMLButtonElement | null>(null);
+    const [first, setFirst] = useState(false);
+    useBrowserLayoutEffect(() => {
+        const own = element.current;
+        setFirst(!!own && own.closest('[role=tablist]')?.querySelector('[role=tab]:not([disabled])') === own);
+    });
     const trigger = (
         <ArkTabs.Trigger
             {...props}
+            ref={(node: HTMLButtonElement | null) => {
+                element.current = node;
+                if (typeof ref === 'function') return ref(node);
+                if (ref) ref.current = node;
+            }}
+            // null removes Ark's aria-controls (undefined would keep it)
+            {...(controls !== undefined ? { 'aria-controls': controls as string } : {})}
+            {...(noneSelected && first ? { tabIndex: 0 } : {})}
             className={styles.trigger({ class: className })}
             value={value}
             disabled={disabled}

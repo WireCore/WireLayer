@@ -18,7 +18,13 @@ export {
     type HotkeyItem,
     type UseHotkeysOptions,
 } from './hotkeys.js';
-export { useColorScheme, useMediaQuery, useReducedMotion, type UseMediaQueryOptions } from './media.js';
+export {
+    useColorScheme,
+    useMediaQuery,
+    useReducedMotion,
+    useResolvedTokens,
+    type UseMediaQueryOptions,
+} from './media.js';
 export {
     useElementSize,
     useHeadroom,

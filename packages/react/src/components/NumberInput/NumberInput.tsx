@@ -19,13 +19,17 @@ import { InputStatus } from '../Input/InputStatus.js';
 import { useLocale, useTranslations } from '../LocaleProvider/LocaleProvider.js';
 import { useRecipe } from '../RecipesProvider/RecipesProvider.js';
 
-export interface NumberInputProps extends Omit<
+/** What an emptied field becomes when it is left: `min` (or 0) or the last valid number */
+export type NumberInputEmptyFallback = 'min' | 'previous';
+
+/** `F`: the type of `emptyFallback` (with it onValueChange only gets numbers, never null) */
+export interface NumberInputProps<F extends NumberInputEmptyFallback | undefined = undefined> extends Omit<
     ComponentProps<'input'>,
     'value' | 'defaultValue' | 'size' | 'min' | 'max' | 'step' | 'onChange' | 'prefix'
 > {
     value?: number | null;
     defaultValue?: number | null;
-    onValueChange?: (value: number | null) => void;
+    onValueChange?: (value: F extends string ? number : number | null) => void;
     min?: number;
     max?: number;
     step?: number;
@@ -59,6 +63,11 @@ export interface NumberInputProps extends Omit<
      * range, `none` keeps it (mark it invalid yourself)
      */
     clampBehavior?: 'blur' | 'strict' | 'none';
+    /**
+     * A number is always set: an emptied field falls back to `min` (or 0) or to the last valid number (`previous`)
+     * when it is left or Enter is pressed – onValueChange then only gets numbers (typed `number`, not `number | null`)
+     */
+    emptyFallback?: F;
     /** Selects the whole number when the field gets the focus */
     selectOnFocus?: boolean;
     /** Shows a spinner in the field and marks it busy (aria-busy) */
@@ -72,7 +81,7 @@ export interface NumberInputProps extends Omit<
 }
 
 /** Number field with − / + buttons, arrow keys and locale formatting ("1,234.5"); `ref` reaches the native input */
-export function NumberInput({
+export function NumberInput<F extends NumberInputEmptyFallback | undefined = undefined>({
     classes,
     value,
     defaultValue,
@@ -97,6 +106,7 @@ export function NumberInput({
     allowDecimal = true,
     decimals,
     clampBehavior = 'blur',
+    emptyFallback,
     selectOnFocus = false,
     loading = false,
     clearable = false,
@@ -108,7 +118,7 @@ export function NumberInput({
     onPaste,
     onFocus,
     ...props
-}: NumberInputProps) {
+}: NumberInputProps<F>) {
     const numberInput = useRecipe('numberInput', numberInputRecipe, classes);
     const localeContext = useLocale();
     const locale = localeProp ?? localeContext.locale;
@@ -128,10 +138,16 @@ export function NumberInput({
     const min = allowNegative ? minProp : Math.max(minProp ?? 0, 0);
     // The text as typed ("12." while entering 12.5) – formatting the number again would swallow the separator
     const [typed, setTyped] = useState<{ text: string; number: number | null } | null>(null);
+    // The last valid number typed – an emptied field with emptyFallback="previous" goes back to it (or to `value`)
+    const previous = useRef(defaultValue ?? null);
     const controlled =
         value === undefined
-            ? undefined
-            : typed && typed.number === value
+            ? // Uncontrolled with a fallback: the typed text, so the fallback number can be put back
+              emptyFallback
+                ? typed?.text
+                : undefined
+            : // With a fallback an emptied field keeps its value until it is left
+              typed && (typed.number === value || (!!emptyFallback && typed.number === null))
               ? typed.text
               : toNumberInputValue(value, locale, format);
     const text = controlled ?? typed?.text ?? toNumberInputValue(defaultValue, locale, format) ?? '';
@@ -163,7 +179,17 @@ export function NumberInput({
             onValueChange={(details) => {
                 const number = Number.isNaN(details.valueAsNumber) ? null : details.valueAsNumber;
                 setTyped({ text: details.value, number });
-                onValueChange?.(number);
+                if (number === null && emptyFallback) return;
+                if (number !== null) previous.current = number;
+                onValueChange?.(number as F extends string ? number : number | null);
+            }}
+            onValueCommit={(details) => {
+                // Leaving the field (or Enter) with an empty text: the fallback number
+                if (!emptyFallback || !Number.isNaN(details.valueAsNumber)) return;
+                const last = value ?? previous.current;
+                const number = emptyFallback === 'previous' && last !== null ? last : (min ?? 0);
+                setTyped({ text: toNumberInputValue(number, locale, format) ?? '', number });
+                onValueChange?.(number as F extends string ? number : number | null);
             }}
             min={min}
             max={max}

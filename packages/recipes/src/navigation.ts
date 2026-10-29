@@ -326,7 +326,14 @@ export const progress = tv({
                 step: 'data-[state=complete]:bg-danger',
                 barTextFill: 'text-on-danger',
             },
-            muted: { segment: 'bg-muted', swatch: 'bg-muted' },
+            /** Also the fill of `status: 'neutral'` (e.g. a cancelled transfer) */
+            muted: {
+                segment: 'bg-muted',
+                swatch: 'bg-muted',
+                range: 'bg-muted',
+                step: 'data-[state=complete]:bg-muted',
+                barTextFill: 'text-bg',
+            },
         },
     },
     compoundVariants: [

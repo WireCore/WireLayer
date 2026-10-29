@@ -3,7 +3,7 @@ import Badge from '../components/Badge/Badge.vue';
 import Button from '../components/Button/Button.vue';
 import Input from '../components/Input/Input.vue';
 import { useClipboard, useNetwork } from './browser.js';
-import { useColorScheme, useMediaQuery, useReducedMotion } from './media.js';
+import { useColorScheme, useMediaQuery, useReducedMotion, useResolvedTokens } from './media.js';
 import { useDisclosure, useStateHistory } from './state.js';
 import { useLocalStorage } from './storage.js';
 import { useDebouncedValue, useIdle } from './timing.js';
@@ -66,3 +66,24 @@ type Story = StoryObj<typeof meta>;
  * – and more (useHotkeys, useFocusTrap, useIntersection, useScrollSpy …), without VueUse
  */
 export const Playground: Story = {};
+
+/**
+ * `useResolvedTokens()`: the token colours as hex, for canvas libraries like xterm.js that cannot read CSS variables –
+ * they change with the mode and the theme (`resolveTokens()` reads them once)
+ */
+export const ResolvedTokens: Story = {
+    name: 'Resolved tokens',
+    render: () => ({
+        setup: () => ({ tokens: useResolvedTokens() }),
+        template: `
+            <dl class="m-0 grid w-[min(560px,92vw)] gap-x-6 gap-y-1.5 font-mono text-xs sm:grid-cols-2">
+                <div v-for="(value, name) in tokens" :key="name" class="flex items-center gap-2">
+                    <dt class="flex items-center gap-2 text-muted">
+                        <span class="size-4 shrink-0 rounded border border-line" :style="{ background: value }"></span>
+                        {{ name }}
+                    </dt>
+                    <dd class="m-0 ms-auto text-fg">{{ value }}</dd>
+                </div>
+            </dl>`,
+    }),
+};

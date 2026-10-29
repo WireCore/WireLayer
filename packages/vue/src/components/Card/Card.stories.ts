@@ -84,3 +84,28 @@ export const Horizontal: Story = {
             </Card>`,
     }),
 };
+
+/** `size="sm"`: smaller radius, padding and title – for lists of cards, e.g. inside a dialog */
+export const Small: Story = {
+    name: 'Small',
+    render: () => ({
+        components: { Badge, Card },
+        setup: () => ({
+            hosts: [
+                { name: 'web-01', detail: 'Ubuntu 24.04 · SSH', state: 'Online' },
+                { name: 'db-primary', detail: 'Debian 12 · SSH', state: 'Online' },
+                { name: 'backup', detail: 'FreeBSD 14 · SFTP', state: 'Offline' },
+            ],
+        }),
+        template: `
+            <ul class="flex w-80 flex-col gap-2">
+                <li v-for="host in hosts" :key="host.name">
+                    <Card size="sm" :title="host.name" :subtitle="host.detail" title-tag="p">
+                        <template #header>
+                            <Badge :variant="host.state === 'Online' ? 'success' : 'outline'">{{ host.state }}</Badge>
+                        </template>
+                    </Card>
+                </li>
+            </ul>`,
+    }),
+};

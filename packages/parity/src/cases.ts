@@ -407,6 +407,7 @@ export const cases: [string, El][] = [
     ['Avatar auto colour without name', el('Avatar', { size: 'xl', color: 'auto' })],
     ['Avatar as button', el('Avatar', { name: 'Julia Klein', as: 'button', size: 'sm' })],
     ['Avatar as button, own label', el('Avatar', { name: 'Julia Klein', as: 'button', 'aria-label': 'Account' })],
+    ['Avatar own initials', el('Avatar', { name: 'my-server', initials: 'MS' })],
     [
         'Menu with an Avatar trigger, arrow and placement',
         el(
@@ -528,6 +529,15 @@ export const cases: [string, El][] = [
             el('SegmentedControlItem', { value: 'en' }, 'EN')
         ),
     ],
+    [
+        'SegmentedControl required',
+        el(
+            'SegmentedControl',
+            { label: 'Protocol', required: true, defaultValue: 'ssh' },
+            el('SegmentedControlItem', { value: 'ssh' }, 'SSH'),
+            el('SegmentedControlItem', { value: 'sftp' }, 'SFTP')
+        ),
+    ],
 
     [
         'SegmentedControl, RadioGroup and ChipGroup in Field',
@@ -581,6 +591,16 @@ export const cases: [string, El][] = [
         el('Select', { items: selectItems, 'aria-label': 'Service', defaultValue: 'web', clearable: true }),
     ],
     ['Select clearable empty', el('Select', { items: selectItems, 'aria-label': 'Service', clearable: true })],
+    [
+        'Select empty string as no value',
+        el('Select', {
+            items: selectItems,
+            'aria-label': 'Service',
+            placeholder: 'Choose',
+            emptyValue: '',
+            defaultValue: '',
+        }),
+    ],
     ['Select loading', el('Select', { items: [], 'aria-label': 'Service', loading: true })],
     ...['sm', 'lg'].map((size): [string, El] => [
         `Select ${size}`,
@@ -632,6 +652,25 @@ export const cases: [string, El][] = [
 
     ['Tabs', tabsExample()],
     ['Tabs second selected', tabsExample({ defaultValue: 'services' })],
+    [
+        'Tabs with panels elsewhere',
+        el(
+            'div',
+            {},
+            el(
+                'Tabs',
+                { label: 'Sessions', defaultValue: 'one' },
+                el(
+                    'TabsList',
+                    {},
+                    el('TabsTrigger', { value: 'one', controls: 'pane-one' }, 'host-1'),
+                    el('TabsTrigger', { value: 'two', controls: 'pane-two' }, 'host-2')
+                )
+            ),
+            el('div', { id: 'pane-one' }, 'Terminal of host-1'),
+            el('div', { id: 'pane-two', hidden: true }, 'Terminal of host-2')
+        ),
+    ],
     [
         'Tabs vertical, manual, lazy',
         tabsExample({ orientation: 'vertical', activationMode: 'manual', lazyMount: true, unmountOnExit: true }),
@@ -716,6 +755,7 @@ export const cases: [string, El][] = [
         }),
     ],
     ['Progress text in the bar', el('Progress', { value: 42, label: 'Upload', barText: '42 %', status: 'success' })],
+    ['Progress neutral', el('Progress', { value: 42, label: 'Upload', barText: 'cancelled', status: 'neutral' })],
 
     ['Menu closed', el('Menu', { items: menuItems }, el('IconButton', { icon: icon('Ellipsis'), label: 'Actions' }))],
     ['ContextMenu closed', el('ContextMenu', { items: menuItems }, el('div', {}, 'Area'))],
@@ -2065,6 +2105,7 @@ export const cases: [string, El][] = [
     ],
     ['HoverCard without trigger', el('div', {}, el('HoverCard', { $slots: { content: 'Card' }, content: 'Card' }))],
     ['Kbd', el('p', {}, el('Kbd', {}, 'Ctrl'), ' + ', el('Kbd', {}, 'K'))],
+    ['Code', el('p', {}, 'Run ', el('Code', { code: 'npm i' }), ' or ', el('Code', {}, 'pnpm add'))],
     ['MonthPicker', el('Field', { label: 'Month' }, el('MonthPicker', { defaultValue: '2026-10' }))],
     ['Calendar', el('Calendar', { selectionMode: 'multiple', defaultValue: ['2026-10-20', '2026-10-22'] })],
     [
@@ -3136,6 +3177,7 @@ export const cases: [string, El][] = [
     ['Spinner label', el('Spinner', { label: 'Loading servers' })],
 
     ['Card', el('Card', {}, el('h3', {}, 'Software & Web'))],
+    ['Card sm', el('Card', { size: 'sm', title: 'host-1', subtitle: 'Linux · SSH' }, 'Last login today')],
     ['Card interactive asChild', el('Card', { interactive: true, asChild: true }, el('a', { href: '#' }, 'Hosting'))],
     [
         'Card title, media, header and footer',

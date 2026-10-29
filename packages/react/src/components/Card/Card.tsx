@@ -19,6 +19,8 @@ export interface CardProps extends Omit<ComponentProps<'div'>, 'title'> {
     titleTag?: 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'p';
     /** `horizontal`: media at the start, the content beside it */
     orientation?: 'vertical' | 'horizontal';
+    /** `sm`: smaller radius, padding and title, e.g. for cards in a list inside a dialog */
+    size?: 'sm' | 'md';
     /** Image or video above the content (beside it when horizontal) */
     media?: ReactNode;
     /** Extra content in the header, after the title (e.g. a badge or a menu) */
@@ -38,6 +40,7 @@ export function Card({
     subtitle,
     titleTag: TitleTag = 'h3',
     orientation = 'vertical',
+    size,
     media,
     header,
     footer,
@@ -48,7 +51,7 @@ export function Card({
     const card = useRecipe('card', cardRecipe, classes);
     const cardParts = useRecipe('cardParts', cardPartsRecipe, classes);
     const horizontal = orientation === 'horizontal';
-    const base = card({ interactive, horizontal: horizontal || undefined, class: className });
+    const base = card({ interactive, horizontal: horizontal || undefined, size, class: className });
     const hasTitle = !!title || !!subtitle;
     // Without title, media, header or footer the card renders its content as before
     if (asChild || !(hasTitle || media || header || footer)) {
@@ -58,7 +61,7 @@ export function Card({
             </ark.div>
         );
     }
-    const parts = cardParts({ horizontal });
+    const parts = cardParts({ horizontal, size });
     return (
         <div {...props} className={base}>
             {media && <div className={parts.media()}>{media}</div>}

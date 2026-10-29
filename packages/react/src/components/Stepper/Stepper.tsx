@@ -27,6 +27,8 @@ export interface StepperProps {
     orientation?: 'horizontal' | 'vertical';
     /** Label beside the number (default) or below it */
     labelPlacement?: 'end' | 'bottom';
+    /** Text of the last "Next" button, e.g. "Create" (default "Finish") */
+    finishLabel?: string;
     /** Content of a step */
     children: (index: number) => ReactNode;
     /** Shown after the last step */
@@ -51,6 +53,7 @@ export function Stepper({
     isStepValid,
     orientation = 'horizontal',
     labelPlacement = 'end',
+    finishLabel,
     children,
     completed,
     className,
@@ -121,7 +124,7 @@ export function Stepper({
                             {/* With linear, an invalid step blocks going on – shown as a disabled button */}
                             <Steps.NextTrigger asChild>
                                 <Button disabled={linear && !api.isStepValid(api.value)}>
-                                    {api.value === api.count - 1 ? t.finish : t.next}
+                                    {api.value === api.count - 1 ? (finishLabel ?? t.finish) : t.next}
                                 </Button>
                             </Steps.NextTrigger>
                         </div>

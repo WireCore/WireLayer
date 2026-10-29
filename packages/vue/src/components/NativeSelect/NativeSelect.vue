@@ -1,4 +1,4 @@
-<script setup lang="ts" generic="V extends string | number = string">
+<script setup lang="ts" generic="V extends string | number = string, P extends string | undefined = undefined">
 import { Field, useFieldContext } from '@ark-ui/vue/field';
 import { ChevronDown } from '@lucide/vue';
 import { nativeSelect as nativeSelectRecipe, type RecipeClasses, type Size } from '@wirecore/wirelayer-recipes';
@@ -13,13 +13,16 @@ export interface NativeSelectOption<V extends string | number = string> {
     disabled?: boolean;
 }
 
-/** `V`: the type of the values – a union like `'ssh' | 'sftp'` or numbers (default string) */
-export interface NativeSelectProps<V extends string | number = string> {
+/**
+ * `V`: the type of the values – a union like `'ssh' | 'sftp'` or numbers (default string); `P`: the placeholder's type
+ * (without a placeholder v-model only gets values, never '')
+ */
+export interface NativeSelectProps<V extends string | number = string, P extends string | undefined = undefined> {
     items: readonly NativeSelectOption<V>[];
     /** Chosen value – use with v-model; the placeholder option gives an empty string */
     modelValue?: V | '';
-    /** First, empty option, e.g. "Please choose" */
-    placeholder?: string;
+    /** First, empty option, e.g. "Please choose" – without it v-model only gets values (typed `V`, not `V | ''`) */
+    placeholder?: P;
     size?: Size;
     invalid?: boolean;
     disabled?: boolean;
@@ -28,7 +31,7 @@ export interface NativeSelectProps<V extends string | number = string> {
 }
 
 defineOptions({ inheritAttrs: false });
-const props = withDefaults(defineProps<NativeSelectProps<V>>(), {
+const props = withDefaults(defineProps<NativeSelectProps<V, P>>(), {
     modelValue: undefined,
     placeholder: undefined,
     size: 'md',
@@ -36,7 +39,7 @@ const props = withDefaults(defineProps<NativeSelectProps<V>>(), {
     disabled: undefined,
 });
 const nativeSelect = useRecipe('nativeSelect', nativeSelectRecipe, () => props.classes);
-const emit = defineEmits<{ 'update:modelValue': [value: V | ''] }>();
+const emit = defineEmits<{ 'update:modelValue': [value: P extends string ? V | '' : V] }>();
 const attrs = useAttrs();
 const split = computed(() => splitAttrs(attrs));
 const field = useFieldContext();
@@ -46,7 +49,10 @@ const noReadonly = null as unknown as undefined;
 // The option's value with its type (a number stays a number); the placeholder gives ''
 function onChange(event: Event) {
     const text = (event.target as HTMLSelectElement).value;
-    emit('update:modelValue', props.items.find((item) => String(item.value) === text)?.value ?? (text as V | ''));
+    emit(
+        'update:modelValue',
+        (props.items.find((item) => String(item.value) === text)?.value ?? text) as P extends string ? V | '' : V
+    );
 }
 </script>
 

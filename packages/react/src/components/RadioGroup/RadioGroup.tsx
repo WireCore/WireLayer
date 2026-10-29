@@ -11,15 +11,18 @@ import { useFieldStatus } from '../Field/context.js';
 import { useRecipe } from '../RecipesProvider/RecipesProvider.js';
 import { useLabelForWarning } from '../../utils/label-for.js';
 
-/** `V`: the type of the values – a union like `'ssh' | 'sftp'` or numbers (default string) */
-export interface RadioGroupProps<V extends string | number = string> extends Omit<
+/**
+ * `V`: the type of the values – a union like `'ssh' | 'sftp'` or numbers (default string); `R`: whether `required` is
+ * set (then onValueChange only gets values, never null)
+ */
+export interface RadioGroupProps<V extends string | number = string, R extends boolean = false> extends Omit<
     ComponentProps<'div'>,
     'defaultValue' | 'dir'
 > {
     /** Selected value; numbers when the items have number values */
     value?: V | null;
     defaultValue?: V | null;
-    onValueChange?: (value: V | null) => void;
+    onValueChange?: (value: R extends true ? V : V | null) => void;
     /** Visible group label (otherwise pass aria-label – or place the group in a Field with a label) */
     label?: string;
     orientation?: RadioGroupOrientation;
@@ -27,14 +30,18 @@ export interface RadioGroupProps<V extends string | number = string> extends Omi
     columns?: number;
     disabled?: boolean;
     invalid?: boolean;
-    required?: boolean;
+    /**
+     * A choice is required (aria-required). onValueChange then only gets values (typed `V`, not `V | null`): a form
+     * reset back to an empty start is not passed on
+     */
+    required?: R;
     name?: string;
     /** Extra classes per part of the component, e.g. { base: "…" } (see the recipe) */
     classes?: RecipeClasses<typeof radioGroupRecipe>;
 }
 
 /** One choice out of several (role="radiogroup", arrow keys), horizontal or vertical */
-export function RadioGroup<V extends string | number = string>({
+export function RadioGroup<V extends string | number = string, R extends boolean = false>({
     classes,
     value,
     defaultValue,
@@ -49,7 +56,7 @@ export function RadioGroup<V extends string | number = string>({
     className,
     children,
     ...props
-}: RadioGroupProps<V>) {
+}: RadioGroupProps<V, R>) {
     useLabelForWarning('RadioGroup', props.id);
     const radioGroup = useRecipe('radioGroup', radioGroupRecipe, classes);
     const styles = radioGroup({ orientation, grid: columns !== undefined });
@@ -71,11 +78,16 @@ export function RadioGroup<V extends string | number = string>({
                 {...(fieldLabelled ? { ids: { label: field.ids.label } } : {})}
                 value={toText(value)}
                 defaultValue={toText(defaultValue)}
-                onValueChange={(details) =>
+                onValueChange={(details) => {
+                    // A required group never reports an empty value (Ark does on a form reset to an empty start:
+                    // null or undefined)
+                    if (details.value == null && required) return;
                     onValueChange?.(
-                        (details.value === null ? null : (values.get(details.value) ?? details.value)) as V | null
-                    )
-                }
+                        (details.value === null ? null : (values.get(details.value) ?? details.value)) as R extends true
+                            ? V
+                            : V | null
+                    );
+                }}
                 orientation={orientation}
                 disabled={disabled ?? field?.disabled}
                 invalid={invalid ?? field?.invalid}

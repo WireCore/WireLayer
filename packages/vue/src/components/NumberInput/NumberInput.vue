@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script setup lang="ts" generic="F extends 'min' | 'previous' | undefined = undefined">
 import { useFieldContext } from '@ark-ui/vue/field';
 import { NumberInput, useNumberInput } from '@ark-ui/vue/number-input';
 import { ChevronDown, ChevronUp, Minus, Plus } from '@lucide/vue';
@@ -22,10 +22,11 @@ import { useFieldStatus } from '../Field/context.js';
 import InputStatus from '../Input/InputStatus.vue';
 import { textFieldHandle } from '../../utils/text-field.js';
 
-const localeContext = useLocale();
-const translations = useTranslations();
+/** What an emptied field becomes when it is left: `min` (or 0) or the last valid number */
+export type NumberInputEmptyFallback = 'min' | 'previous';
 
-export interface NumberInputProps {
+/** `F`: the type of `emptyFallback` (with it v-model only gets numbers, never null) */
+export interface NumberInputProps<F extends NumberInputEmptyFallback | undefined = undefined> {
     /** Number or null (empty) – use with v-model */
     modelValue?: number | null;
     defaultValue?: number | null;
@@ -62,6 +63,11 @@ export interface NumberInputProps {
      * range, `none` keeps it (mark it invalid yourself)
      */
     clampBehavior?: 'blur' | 'strict' | 'none';
+    /**
+     * A number is always set: an emptied field falls back to `min` (or 0) or to the last valid number (`previous`)
+     * when it is left or Enter is pressed – v-model then only gets numbers (typed `number`, not `number | null`)
+     */
+    emptyFallback?: F;
     /** Selects the whole number when the field gets the focus */
     selectOnFocus?: boolean;
     /** Shows a spinner in the field and marks it busy (aria-busy) */
@@ -77,7 +83,9 @@ export interface NumberInputProps {
 }
 
 defineOptions({ inheritAttrs: false });
-const props = withDefaults(defineProps<NumberInputProps>(), {
+const localeContext = useLocale();
+const translations = useTranslations();
+const props = withDefaults(defineProps<NumberInputProps<F>>(), {
     modelValue: undefined,
     defaultValue: undefined,
     formatOptions: () => defaultNumberFormat,
@@ -94,7 +102,7 @@ const props = withDefaults(defineProps<NumberInputProps>(), {
 });
 const numberInput = useRecipe('numberInput', numberInputRecipe, () => props.classes);
 const currentLocale = computed(() => props.locale ?? localeContext.value.locale);
-const emit = defineEmits<{ 'update:modelValue': [value: number | null] }>();
+const emit = defineEmits<{ 'update:modelValue': [value: F extends string ? number : number | null] }>();
 const attrs = useAttrs();
 const split = computed(() => splitAttrs(attrs));
 const field = useFieldContext();
@@ -117,6 +125,8 @@ const min = computed(() => (props.allowNegative ? props.min : Math.max(props.min
 // Ark keeps the text as typed ("12." while entering 12.5). A controlled value would be written back before
 // Vue re-renders and swallow the separator – so only changes from outside are passed in, through the API.
 let emitted: number | null | undefined;
+// The last valid number – an emptied field with emptyFallback="previous" goes back to it
+let previous = props.modelValue ?? props.defaultValue ?? null;
 const initial = toNumberInputValue(props.modelValue ?? props.defaultValue, currentLocale.value, format.value);
 // Ark Vue binds the formatted value on every render, which removes a just typed comma – the input shows this text
 const text = ref(initial ?? '');
@@ -140,8 +150,17 @@ const api = useNumberInput(
         ...controlIds(props.id, 'input', { label: field?.value.ids.label, input: field?.value.ids.control }),
         onValueChange: (details: { value: string; valueAsNumber: number }) => {
             text.value = details.value;
-            emitted = Number.isNaN(details.valueAsNumber) ? null : details.valueAsNumber;
-            emit('update:modelValue', emitted);
+            const number = Number.isNaN(details.valueAsNumber) ? null : details.valueAsNumber;
+            // With a fallback the value stays until the field is left
+            if (number === null && props.emptyFallback) return;
+            if (number !== null) previous = number;
+            emitted = number;
+            emit('update:modelValue', number as F extends string ? number : number | null);
+        },
+        // Leaving the field (or Enter) with an empty text: the fallback number
+        onValueCommit: (details: { valueAsNumber: number }) => {
+            if (!props.emptyFallback || !Number.isNaN(details.valueAsNumber)) return;
+            api.value.setValue(props.emptyFallback === 'previous' && previous !== null ? previous : (min.value ?? 0));
         },
     }))
 );
@@ -149,6 +168,7 @@ watch(
     () => props.modelValue,
     (value) => {
         if (value === undefined || value === emitted) return;
+        if (value !== null) previous = value;
         if (value === null) api.value.clearValue();
         else api.value.setValue(value);
     }

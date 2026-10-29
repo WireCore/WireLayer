@@ -355,3 +355,32 @@ function KeysInADialogDemo() {
  * `open`/`onOpenChange` report whether the list is open
  */
 export const KeysInADialog: Story = { name: 'Keys in a dialog', render: () => <KeysInADialogDemo /> };
+
+function EmptyStringValueDemo() {
+    const [jumpHost, setJumpHost] = useState('');
+    const hosts = [
+        { value: 'bastion-1', label: 'bastion-1' },
+        { value: 'bastion-2', label: 'bastion-2' },
+    ];
+    return (
+        <div className="flex w-[380px] flex-col gap-3.5">
+            <Field label="Jump host">
+                <Select
+                    value={jumpHost}
+                    onValueChange={setJumpHost}
+                    items={hosts}
+                    placeholder="None"
+                    emptyValue=""
+                    clearable
+                />
+            </Field>
+            <span className="text-xs text-muted">Value: {JSON.stringify(jumpHost)}</span>
+        </div>
+    );
+}
+
+/**
+ * A model that uses `""` for "nothing chosen" (e.g. from a form or an API): `emptyValue=""` shows the placeholder for
+ * it, and clearing gives `""` back instead of null
+ */
+export const EmptyStringValue: Story = { name: 'Empty string as no value', render: () => <EmptyStringValueDemo /> };

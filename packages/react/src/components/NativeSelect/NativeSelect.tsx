@@ -11,16 +11,19 @@ export interface NativeSelectOption<V extends string | number = string> {
     disabled?: boolean;
 }
 
-/** `V`: the type of the values – a union like `'ssh' | 'sftp'` or numbers (default string) */
-export interface NativeSelectProps<V extends string | number = string> extends Omit<
-    ComponentProps<'select'>,
-    'size' | 'onChange'
-> {
+/**
+ * `V`: the type of the values – a union like `'ssh' | 'sftp'` or numbers (default string); `P`: the placeholder's type
+ * (without a placeholder onValueChange only gets values, never '')
+ */
+export interface NativeSelectProps<
+    V extends string | number = string,
+    P extends string | undefined = undefined,
+> extends Omit<ComponentProps<'select'>, 'size' | 'onChange'> {
     items: readonly NativeSelectOption<V>[];
     /** The chosen option's value with its type; the placeholder option gives an empty string */
-    onValueChange?: (value: V | '') => void;
-    /** First, empty option, e.g. "Please choose" */
-    placeholder?: string;
+    onValueChange?: (value: P extends string ? V | '' : V) => void;
+    /** First, empty option, e.g. "Please choose" – without it onValueChange only gets values (typed `V`, not `V | ''`) */
+    placeholder?: P;
     size?: Size;
     invalid?: boolean;
     /** Extra classes per part of the component, e.g. { base: "…" } (see the recipe) */
@@ -28,7 +31,7 @@ export interface NativeSelectProps<V extends string | number = string> extends O
 }
 
 /** The browser's select: its own keyboard and mobile pickers; inside a Field it is labelled and described */
-export function NativeSelect<V extends string | number = string>({
+export function NativeSelect<V extends string | number = string, P extends string | undefined = undefined>({
     classes,
     items,
     onValueChange,
@@ -39,7 +42,7 @@ export function NativeSelect<V extends string | number = string>({
     className,
     style,
     ...props
-}: NativeSelectProps<V>) {
+}: NativeSelectProps<V, P>) {
     const nativeSelect = useRecipe('nativeSelect', nativeSelectRecipe, classes);
     const field = useFieldContext();
     const styles = nativeSelect({ size });
@@ -53,7 +56,11 @@ export function NativeSelect<V extends string | number = string>({
                 onChange={(event) => {
                     // The option's value with its type (a number stays a number); the placeholder gives ''
                     const text = event.target.value;
-                    onValueChange?.(items.find((item) => String(item.value) === text)?.value ?? (text as V | ''));
+                    onValueChange?.(
+                        (items.find((item) => String(item.value) === text)?.value ?? text) as P extends string
+                            ? V | ''
+                            : V
+                    );
                 }}
             >
                 {placeholder && <option value="">{placeholder}</option>}

@@ -1,4 +1,4 @@
-<script setup lang="ts" generic="V extends string | number = string">
+<script setup lang="ts" generic="V extends string | number = string, R extends boolean = false">
 import { useFieldContext } from '@ark-ui/vue/field';
 import { RadioGroup } from '@ark-ui/vue/radio-group';
 import {
@@ -12,8 +12,11 @@ import { useFieldStatus } from '../Field/context.js';
 import { useRecipe } from '../../recipes.js';
 import { useLabelForWarning } from '../../utils/label-for.js';
 
-/** `V`: the type of the values – a union like `'ssh' | 'sftp'` or numbers (default string) */
-export interface RadioGroupProps<V extends string | number = string> {
+/**
+ * `V`: the type of the values – a union like `'ssh' | 'sftp'` or numbers (default string); `R`: whether `required` is
+ * set (then v-model only gets values, never null)
+ */
+export interface RadioGroupProps<V extends string | number = string, R extends boolean = false> {
     /** Selected value – use with v-model; numbers when the items have number values */
     modelValue?: V | null;
     defaultValue?: V | null;
@@ -24,14 +27,18 @@ export interface RadioGroupProps<V extends string | number = string> {
     columns?: number;
     disabled?: boolean;
     invalid?: boolean;
-    required?: boolean;
+    /**
+     * A choice is required (aria-required). v-model then only gets values (typed `V`, not `V | null`): a form reset
+     * back to an empty start is not passed on
+     */
+    required?: R & boolean;
     name?: string;
     /** Extra classes per part of the component, e.g. { base: "…" } (see the recipe) */
     classes?: RecipeClasses<typeof radioGroupRecipe>;
 }
 
 defineOptions({ inheritAttrs: false });
-const props = withDefaults(defineProps<RadioGroupProps<V>>(), {
+const props = withDefaults(defineProps<RadioGroupProps<V, R>>(), {
     modelValue: undefined,
     defaultValue: undefined,
     orientation: 'horizontal',
@@ -40,7 +47,7 @@ const props = withDefaults(defineProps<RadioGroupProps<V>>(), {
     required: undefined,
 });
 const radioGroup = useRecipe('radioGroup', radioGroupRecipe, () => props.classes);
-const emit = defineEmits<{ 'update:modelValue': [value: V | null] }>();
+const emit = defineEmits<{ 'update:modelValue': [value: R extends true ? V : V | null] }>();
 const attrs = useAttrs();
 useLabelForWarning('RadioGroup', () => attrs.id);
 const styles = computed(() => radioGroup({ orientation: props.orientation, grid: props.columns !== undefined }));
@@ -57,8 +64,11 @@ const ids = computed(() => (fieldLabelled.value ? { label: field!.value.ids.labe
 const values = new Map<string, string | number>();
 provide(radioGroupValuesKey, values);
 const toText = (value: V | null | undefined) => (value == null ? value : String(value));
-const onValueChange = (value: string | null) =>
-    emit('update:modelValue', (value === null ? null : (values.get(value) ?? value)) as V | null);
+// A required group never reports an empty value (Ark does on a form reset to an empty start: null or undefined)
+function onValueChange(value: string | null) {
+    if (value == null && props.required) return;
+    emit('update:modelValue', (value === null ? null : (values.get(value) ?? value)) as R extends true ? V : V | null);
+}
 </script>
 
 <template>

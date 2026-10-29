@@ -152,6 +152,24 @@ Worth reading before changing the affected areas.
   or an effect (and React's `autoFocus`, which only calls `focus()`) is overridden. The trap looks for
   `[data-autofocus]`/`[autofocus]`; an `alertdialog` starts on its close button. In jsdom no field counts as focusable
   (no layout), so the test runs in the browser.
+- **Positioner z-index in Vue:** Ark copies the z-index of a popup's content to its positioner as an inline style
+  (`z-index: var(--z-index)`), after the render. Vue patches the positioner's `style` object on every render and clears
+  keys that are null there – `zIndex` is one of them, so the inline z-index was gone after the first update and the list
+  lay behind a dialog. The theme sets the same z-index for `[data-scope][data-part='positioner']` in the base layer
+  (a z-index utility on a positioner still wins).
+- **`data-autoselect` and the alertdialog:** the Dialog passes its own `initialFocusEl` to find the marked field – that
+  replaces Ark's default, which starts an `alertdialog` on its close button, so the Dialog takes the close button itself
+  for an alertdialog without a marked field.
+- **Tabs without a selected tab:** Ark makes only the selected tab tabbable – with the value null no tab is in the Tab
+  order. When the value is null on purpose, the first enabled tab gets `tabIndex` 0 (found in the DOM after rendering);
+  Tabs without a value (uncontrolled, no default) stay as they were.
+- **Tailwind's Vite plugin and added imports:** `@tailwindcss/vite` keeps the compiled CSS of a file until one of the
+  files it imports changes on disk – imports that a plugin adds to the code alone are ignored. In the dev server the
+  WireLayer plugin therefore writes them to a file in Vite's cache folder and imports that file.
+- **Narrower emit types:** `required` (RadioGroup, SegmentedControl), the placeholder (NativeSelect), `emptyFallback`
+  (NumberInput) and `emptyValue` (Select) are extra generics that only change the type of v-model/onValueChange.
+  `emptyValue` is `NoInfer` in the value types – otherwise the bound value would be taken as `E` and remove null from
+  the type even without `emptyValue`.
 - **Controlled form elements:** Vue additionally writes the value of a `<select>` as the attribute `value` (which
   `<select>` does not know), React only sets the property – the DOM comparison ignores this attribute. For `<textarea>`,
   React writes the value as text content and Ark Vue's factory additionally as an attribute – the passed value is

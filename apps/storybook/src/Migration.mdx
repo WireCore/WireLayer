@@ -74,3 +74,19 @@ by side, then the places where the two behave differently. The React package has
   numbers); `Checkbox` with a boolean model gives booleans.
 - **Compact parts:** `Progress size="xs"` with `hide-label`, `bar-text` and `status`; `Alert #actions`; `mono` on text
   fields; `DialogContent title-position="header"` puts the title next to the close button.
+- **Values that are never empty:** with `required`, `RadioGroup` and `SegmentedControl` give v-model `V` instead of
+  `V | null`; `NativeSelect` without `placeholder` gives `V` instead of `V | ''`; `NumberInput empty-fallback="min"` or
+  `"previous"` refills an emptied field when it is left (typed `number`). `Select empty-value=""` treats an empty string
+  like null – the placeholder shows, clearing gives `""` back.
+- **Focus in dialogs and wizards:** `data-autoselect` focuses a field and selects its text when the dialog opens (e.g. a
+  prefilled name). For content that changes while it is open, `DialogContent` exposes `focusFirst()` (React:
+  `focusFirst(element)`), and `Wizard focus-on-step-change` moves the focus into each new step. `Wizard finish-label`
+  names the last button; `validate` may return a text, shown as the step's error.
+- **Panels elsewhere:** `TabsTrigger controls="pane-id"` points a tab at a pane outside the Tabs (`:controls="null"`
+  for none); `Tabs` takes `null` for "no tab selected" – the first tab stays reachable with Tab.
+- **Context menus by keyboard:** `@before-open` gets a second argument `{ source: 'pointer' | 'keyboard', focused }` –
+  with Shift+F10 or the menu key `focused` is the element with the focus (e.g. the list row).
+- **Canvas libraries** (xterm.js, charts): `resolveTokens()` gives the token colours of the current mode and theme as hex;
+  `useResolvedTokens()` updates when the mode, the theme or the system colour scheme changes.
+- **More compact parts:** `Card size="sm"` for lists in dialogs, `Progress status="neutral"` for cancelled work,
+  `Avatar initials="MS"`, and `Code` for code in a sentence without shiki (the look of `InlineCode` from `/code`).

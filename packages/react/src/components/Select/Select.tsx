@@ -46,16 +46,22 @@ export interface SelectItem<V = string> {
     keywords?: readonly string[];
 }
 
-export interface SelectProps<T = SelectItem, V = ItemValueOf<T>> extends Omit<
+/** `T`: the items, `V`: their values, `E`: the type of `emptyValue` (default null) */
+export interface SelectProps<T = SelectItem, V = ItemValueOf<T>, E = null> extends Omit<
     ComponentProps<'button'>,
     'value' | 'defaultValue'
 > {
     /** Options: SelectItem objects – or any objects or values, read with itemValue/itemLabel/itemDisabled/itemGroup */
     items: readonly T[];
     /** Selected value; any type (string, number, boolean, object) */
-    value?: V | null;
-    defaultValue?: V | null;
-    onValueChange?: (value: V | null) => void;
+    value?: V | NoInfer<E> | null;
+    defaultValue?: V | NoInfer<E> | null;
+    onValueChange?: (value: V | NoInfer<E>) => void;
+    /**
+     * The value that means "nothing chosen" instead of null, e.g. `""`: it shows the placeholder, and clearing gives it
+     * back (onValueChange is then typed `V | E`, without null)
+     */
+    emptyValue?: E;
     placeholder?: string;
     invalid?: boolean;
     required?: boolean;
@@ -131,12 +137,13 @@ interface Api {
 }
 
 /** Dropdown list for one option: arrow keys, typeahead, Escape; native select hidden for forms */
-export function Select<T = SelectItem, V = ItemValueOf<T>>({
+export function Select<T = SelectItem, V = ItemValueOf<T>, E = null>({
     classes,
     items,
     value,
     defaultValue,
     onValueChange,
+    emptyValue,
     placeholder,
     disabled,
     invalid,
@@ -172,7 +179,7 @@ export function Select<T = SelectItem, V = ItemValueOf<T>>({
     style,
     onKeyDown,
     ...props
-}: SelectProps<T, V>) {
+}: SelectProps<T, V, E>) {
     const select = useRecipe('select', selectRecipe, classes);
     const styles = select({ size, clearable });
     // An own id goes to the trigger through Ark (it finds the trigger by its id)
@@ -188,13 +195,16 @@ export function Select<T = SelectItem, V = ItemValueOf<T>>({
         filter && !manualFilter && !dataSource ? query : ''
     );
     const known = useMemo(() => [...options, ...source.resolvedOptions], [options, source.resolvedOptions]);
+    // emptyValue (e.g. "") counts as null: nothing chosen, the placeholder shows
+    const withoutEmpty = (current: unknown) => (emptyValue !== undefined && current === emptyValue ? null : current);
     const { selected, keys, commit, commitKeys } = useListSelection<T>({
         multiple: false,
-        value,
-        defaultValue,
+        value: withoutEmpty(value),
+        defaultValue: withoutEmpty(defaultValue),
         accessors,
         items: known,
-        onChange: onValueChange,
+        onChange:
+            onValueChange && ((next: unknown) => onValueChange((next === null ? (emptyValue ?? null) : next) as V | E)),
         // Without a data source and loaded: a value outside the items warns in development
         check: { component: 'Select', ready: !dataSource && !loading && items.length > 0 },
     });

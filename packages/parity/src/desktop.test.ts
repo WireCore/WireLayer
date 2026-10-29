@@ -264,7 +264,7 @@ describe.each(frameworks)('%s', (framework) => {
             );
             const row = screen.getByText('host-2');
             fireEvent.contextMenu(row, { clientX: 40, clientY: 40 });
-            expect(onBeforeOpen).toHaveBeenCalledWith(row);
+            expect(onBeforeOpen).toHaveBeenCalledWith(row, { source: 'pointer', focused: null });
             const menu = await screen.findByRole('menu');
             expect(onOpenChange).toHaveBeenLastCalledWith(true);
             await waitFor(() =>

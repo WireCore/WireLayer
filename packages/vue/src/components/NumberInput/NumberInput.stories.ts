@@ -1,7 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite';
-import { ref } from 'vue';
+import { ref, type ConcreteComponent } from 'vue';
 import Field from '../Field/Field.vue';
-import NumberInput from './NumberInput.vue';
+import NumberInputComponent from './NumberInput.vue';
+
+// Generic component: Storybook's Vue types can't infer args here
+const NumberInput = NumberInputComponent as unknown as ConcreteComponent;
 
 const meta = {
     title: 'Forms/NumberInput',
@@ -60,6 +63,28 @@ export const Options: Story = {
                 <Field label="Pieces" helper-text="Whole numbers only, at most 10">
                     <NumberInput :default-value="4" :allow-decimal="false" :max="10" clamp-behavior="strict" />
                 </Field>
+            </div>`,
+    }),
+};
+
+/**
+ * A field that is never empty: `empty-fallback="previous"` puts the last valid number back when an emptied field is
+ * left (or Enter is pressed), `"min"` the minimum – v-model is then typed `number`
+ */
+export const EmptyFallback: Story = {
+    name: 'Empty fallback',
+    render: () => ({
+        components: { Field, NumberInput },
+        setup: () => ({ port: ref(22), retries: ref(3) }),
+        template: `
+            <div class="flex w-60 flex-col gap-4">
+                <Field label="Port" helper-text="Empty: back to the last port">
+                    <NumberInput v-model="port" :min="1" :max="65535" :stepper="false" empty-fallback="previous" />
+                </Field>
+                <Field label="Retries" helper-text="Empty: the minimum">
+                    <NumberInput v-model="retries" :min="1" :max="10" empty-fallback="min" />
+                </Field>
+                <span class="text-xs text-muted">Port {{ port }} · retries {{ retries }}</span>
             </div>`,
     }),
 };
