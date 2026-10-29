@@ -85,6 +85,8 @@ export const alert = tv({
         content: 'min-w-0 flex-1 gap-0.5 pt-[3px]',
         title: 'font-sans-semibold text-sm text-fg',
         description: 'font-sans text-[13px] leading-5 text-muted',
+        /** Buttons in the message (`actions`), below the text */
+        actions: 'mt-2 flex-row flex-wrap items-center gap-2',
         dismiss: ['size-7 items-center justify-center rounded-full', pressable, 'active:bg-line active:opacity-100'],
         dismissIcon: 'size-3.5 text-muted',
     },
@@ -226,5 +228,30 @@ export const progress = tv({
         value: 'shrink-0 font-mono text-[11px] text-muted',
         track: 'h-1.5 overflow-hidden rounded-[3px] bg-line-2',
         range: 'h-full overflow-hidden rounded-[3px] bg-primary',
+        /** Text in the bar (`barText`) over the empty part */
+        barText: 'absolute inset-0 items-center justify-center px-1.5',
+        barTextLabel: 'font-mono text-[10.5px] text-fg',
+        /** The same text inside the filled part (as wide as the track), in the colour for the fill */
+        barTextFill: 'absolute top-0 bottom-0 left-0 items-center justify-center px-1.5',
+        barTextFillLabel: 'font-mono text-[10.5px] text-on-primary',
     },
+    variants: {
+        /** `xs`: small text, e.g. in a list */
+        size: {
+            xs: { base: 'gap-1', label: 'text-[10px]', value: 'text-[10px]' },
+            md: {},
+        },
+        /** Colour of the filled part by its state */
+        status: {
+            info: { range: 'bg-info', barTextFillLabel: 'text-on-info' },
+            success: { range: 'bg-success', barTextFillLabel: 'text-on-success' },
+            warn: { range: 'bg-warn', barTextFillLabel: 'text-on-warn' },
+            danger: { range: 'bg-danger', barTextFillLabel: 'text-on-danger' },
+        },
+        /** The label only names the bar; the value stays at the end */
+        hideLabel: {
+            true: { header: 'justify-end' },
+        },
+    },
+    compoundVariants: [{ size: 'xs', class: { barTextLabel: 'text-[10px]', barTextFillLabel: 'text-[10px]' } }],
 });

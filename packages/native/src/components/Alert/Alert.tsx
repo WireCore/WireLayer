@@ -18,6 +18,8 @@ export interface AlertProps extends ViewProps {
     onDismiss?: () => void;
     /** Calls `onDismiss` after this many milliseconds */
     duration?: number;
+    /** Buttons in the message, e.g. "Unlock" or "Reconnect" – below the text */
+    actions?: ReactNode;
     children?: ReactNode;
 }
 
@@ -33,6 +35,7 @@ export function Alert({
     dismissLabel,
     onDismiss,
     duration,
+    actions,
     className,
     children,
     ...props
@@ -65,6 +68,7 @@ export function Alert({
                     ) : (
                         children
                     ))}
+                {actions && <View className={styles.actions()}>{actions}</View>}
             </View>
             {dismissible && (
                 <Pressable

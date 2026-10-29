@@ -5,15 +5,21 @@ import {
     type RadioGroupOrientation,
     type RecipeClasses,
 } from '@wirecore/wirelayer-recipes';
-import type { ComponentProps, CSSProperties } from 'react';
+import { useState, type ComponentProps, type CSSProperties } from 'react';
+import { RadioGroupValuesContext } from './context.js';
 import { useFieldStatus } from '../Field/context.js';
 import { useRecipe } from '../RecipesProvider/RecipesProvider.js';
 import { useLabelForWarning } from '../../utils/label-for.js';
 
-export interface RadioGroupProps extends Omit<ComponentProps<'div'>, 'defaultValue' | 'dir'> {
-    value?: string | null;
-    defaultValue?: string | null;
-    onValueChange?: (value: string | null) => void;
+/** `V`: the type of the values – a union like `'ssh' | 'sftp'` or numbers (default string) */
+export interface RadioGroupProps<V extends string | number = string> extends Omit<
+    ComponentProps<'div'>,
+    'defaultValue' | 'dir'
+> {
+    /** Selected value; numbers when the items have number values */
+    value?: V | null;
+    defaultValue?: V | null;
+    onValueChange?: (value: V | null) => void;
     /** Visible group label (otherwise pass aria-label – or place the group in a Field with a label) */
     label?: string;
     orientation?: RadioGroupOrientation;
@@ -28,7 +34,7 @@ export interface RadioGroupProps extends Omit<ComponentProps<'div'>, 'defaultVal
 }
 
 /** One choice out of several (role="radiogroup", arrow keys), horizontal or vertical */
-export function RadioGroup({
+export function RadioGroup<V extends string | number = string>({
     classes,
     value,
     defaultValue,
@@ -43,7 +49,7 @@ export function RadioGroup({
     className,
     children,
     ...props
-}: RadioGroupProps) {
+}: RadioGroupProps<V>) {
     useLabelForWarning('RadioGroup', props.id);
     const radioGroup = useRecipe('radioGroup', radioGroupRecipe, classes);
     const styles = radioGroup({ orientation, grid: columns !== undefined });
@@ -52,29 +58,38 @@ export function RadioGroup({
     const fieldStatus = useFieldStatus();
     const fieldLabelled =
         !label && !props['aria-label'] && !props['aria-labelledby'] && !!field && fieldStatus.labelled;
+    // Ark works with strings: number values go in as text and come back as the item's value
+    const [values] = useState(() => new Map<string, string | number>());
+    const toText = (current: V | null | undefined) => (current == null ? current : String(current));
 
     return (
-        <ArkRadioGroup.Root
-            aria-describedby={field?.ariaDescribedby}
-            {...props}
-            className={styles.base({ class: className })}
-            {...(fieldLabelled ? { ids: { label: field.ids.label } } : {})}
-            value={value}
-            defaultValue={defaultValue}
-            onValueChange={(details) => onValueChange?.(details.value)}
-            orientation={orientation}
-            disabled={disabled ?? field?.disabled}
-            invalid={invalid ?? field?.invalid}
-            required={required ?? field?.required}
-            name={name}
-        >
-            {label && <ArkRadioGroup.Label className={styles.label()}>{label}</ArkRadioGroup.Label>}
-            <div
-                className={styles.items()}
-                style={columns ? ({ '--wc-columns': String(columns) } as CSSProperties) : undefined}
+        <RadioGroupValuesContext value={values}>
+            <ArkRadioGroup.Root
+                aria-describedby={field?.ariaDescribedby}
+                {...props}
+                className={styles.base({ class: className })}
+                {...(fieldLabelled ? { ids: { label: field.ids.label } } : {})}
+                value={toText(value)}
+                defaultValue={toText(defaultValue)}
+                onValueChange={(details) =>
+                    onValueChange?.(
+                        (details.value === null ? null : (values.get(details.value) ?? details.value)) as V | null
+                    )
+                }
+                orientation={orientation}
+                disabled={disabled ?? field?.disabled}
+                invalid={invalid ?? field?.invalid}
+                required={required ?? field?.required}
+                name={name}
             >
-                {children}
-            </div>
-        </ArkRadioGroup.Root>
+                {label && <ArkRadioGroup.Label className={styles.label()}>{label}</ArkRadioGroup.Label>}
+                <div
+                    className={styles.items()}
+                    style={columns ? ({ '--wc-columns': String(columns) } as CSSProperties) : undefined}
+                >
+                    {children}
+                </div>
+            </ArkRadioGroup.Root>
+        </RadioGroupValuesContext>
     );
 }

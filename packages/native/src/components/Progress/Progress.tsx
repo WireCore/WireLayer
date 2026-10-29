@@ -33,6 +33,17 @@ export interface ProgressProps extends ViewProps {
     animated?: boolean;
     /** `vertical`: the bar fills from the bottom */
     orientation?: 'horizontal' | 'vertical';
+    /** `xs`: a thin bar with small text, e.g. in a list or a status bar */
+    size?: 'xs' | 'md';
+    /** Colour of the filled part by its state, e.g. `danger` for a failed transfer */
+    status?: 'info' | 'success' | 'warn' | 'danger';
+    /** The label only for screen readers – it still names the progress bar */
+    hideLabel?: boolean;
+    /**
+     * Short text in the bar, e.g. "42 %", "waiting" or "failed" (a taller bar; horizontal, without segments or steps)
+     * – screen readers get it after the value
+     */
+    barText?: string;
 }
 
 const stripeGap = 10;
@@ -49,11 +60,16 @@ export function Progress({
     striped = false,
     animated = false,
     orientation = 'horizontal',
+    size,
+    status,
+    hideLabel = false,
+    barText,
     className,
     ...props
 }: ProgressProps) {
-    const styles = progress();
-    const parts = progressParts();
+    const showBarText = !!barText && !segments && !steps && orientation !== 'vertical';
+    const styles = progress({ size, status, hideLabel });
+    const parts = progressParts({ size, status, hasText: showBarText });
     const reducedMotion = useReducedMotion();
     const total = segments ? segments.reduce((sum, segment) => sum + Math.max(0, segment.value), 0) : value;
     const percent = Math.round((Math.min(Math.max(total, 0), max) / max) * 100);
@@ -103,7 +119,7 @@ export function Progress({
             return (
                 <View className={parts.steps()}>
                     {Array.from({ length: steps }, (_, index) => (
-                        <View key={index} className={progressParts({ filled: index < filled }).step()} />
+                        <View key={index} className={progressParts({ filled: index < filled, status }).step()} />
                     ))}
                 </View>
             );
@@ -123,9 +139,26 @@ export function Progress({
                         />
                     ))
                 ) : (
-                    <View className={styles.range()} style={{ width: `${percent}%` }}>
-                        {stripes}
-                    </View>
+                    <>
+                        {showBarText && (
+                            <View className={styles.barText()} aria-hidden>
+                                <Text className={styles.barTextLabel()} numberOfLines={1}>
+                                    {barText}
+                                </Text>
+                            </View>
+                        )}
+                        <View className={styles.range()} style={{ width: `${percent}%` }}>
+                            {stripes}
+                            {/* The text again inside the fill (cut by it), as wide as the track */}
+                            {showBarText && width > 0 && (
+                                <View className={styles.barTextFill()} style={{ width }} aria-hidden>
+                                    <Text className={styles.barTextFillLabel()} numberOfLines={1}>
+                                        {barText}
+                                    </Text>
+                                </View>
+                            )}
+                        </View>
+                    </>
                 )}
             </View>
         );
@@ -135,7 +168,9 @@ export function Progress({
     const labelled = segments?.filter((segment) => segment.label) ?? [];
     const valueTextFull = labelled.length
         ? `${text} (${labelled.map((segment) => `${segment.label} ${valueText(Math.round((Math.max(0, segment.value) / max) * 100))}`).join(', ')})`
-        : text;
+        : showBarText && barText !== text
+          ? `${text}, ${barText}`
+          : text;
 
     return (
         <View
@@ -148,11 +183,13 @@ export function Progress({
             aria-valuenow={total}
             aria-valuetext={valueTextFull}
         >
-            {(label || showValue) && (
+            {((label && !hideLabel) || showValue) && (
                 <View className={styles.header()} aria-hidden>
-                    <Text className={styles.label()} numberOfLines={1}>
-                        {label}
-                    </Text>
+                    {!hideLabel && (
+                        <Text className={styles.label()} numberOfLines={1}>
+                            {label}
+                        </Text>
+                    )}
                     {showValue && <Text className={styles.value()}>{text}</Text>}
                 </View>
             )}

@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script setup lang="ts" generic="V extends string = string">
 import { useFieldContext } from '@ark-ui/vue/field';
 import { SegmentGroup } from '@ark-ui/vue/segment-group';
 import {
@@ -13,10 +13,11 @@ import { useFieldStatus } from '../Field/context.js';
 import { useRecipe } from '../../recipes.js';
 import { useLabelForWarning } from '../../utils/label-for.js';
 
-export interface SegmentedControlProps {
+/** `V`: the type of the values, e.g. a union like `'ssh' | 'sftp'` (default string) */
+export interface SegmentedControlProps<V extends string = string> {
     /** Selected value – use with v-model */
-    modelValue?: string | null;
-    defaultValue?: string;
+    modelValue?: V | null;
+    defaultValue?: V;
     /** Accessible name of the group (visually hidden) – inside a Field with a label, the Field's label names it */
     label?: string;
     size?: SegmentedControlSize;
@@ -27,14 +28,14 @@ export interface SegmentedControlProps {
 }
 
 defineOptions({ inheritAttrs: false });
-const props = withDefaults(defineProps<SegmentedControlProps>(), {
+const props = withDefaults(defineProps<SegmentedControlProps<V>>(), {
     modelValue: undefined,
     defaultValue: undefined,
     size: 'md',
     disabled: undefined,
 });
 const segmentedControl = useRecipe('segmentedControl', segmentedControlRecipe, () => props.classes);
-const emit = defineEmits<{ 'update:modelValue': [value: string | null] }>();
+const emit = defineEmits<{ 'update:modelValue': [value: V | null] }>();
 const attrs = useAttrs();
 useLabelForWarning('SegmentedControl', () => attrs.id);
 const styles = computed(() => segmentedControl({ size: props.size }));
@@ -70,7 +71,7 @@ provide(
         orientation="horizontal"
         :disabled="disabled ?? field?.disabled"
         :name="name"
-        @update:model-value="emit('update:modelValue', $event)"
+        @update:model-value="emit('update:modelValue', $event as V | null)"
     >
         <SegmentGroup.Label v-if="!fieldLabelled" :class="styles.label()">{{ label }}</SegmentGroup.Label>
         <slot />

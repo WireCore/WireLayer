@@ -26,11 +26,16 @@ export interface InputProps extends Omit<ComponentProps<'input'>, 'size' | 'pref
     prefix?: string;
     /** Static text segment after the input, e.g. `.de` */
     suffix?: string;
+    /** Monospace font of the theme (JetBrains Mono) – for paths, tokens, codes, URLs and keys */
+    mono?: boolean;
     /** Extra classes per part of the component, e.g. { base: "…" } (see the recipe) */
     classes?: RecipeClasses<typeof inputRecipe>;
 }
 
-/** Text field with sizes, leading icon, prefix and suffix; works inside Field */
+/**
+ * Text field with sizes, leading icon, prefix and suffix; works inside Field. `ref` reaches the native input (focus,
+ * select, setSelectionRange)
+ */
 export function Input({
     classes,
     size,
@@ -43,6 +48,7 @@ export function Input({
     leadingIcon: LeadingIcon,
     prefix,
     suffix,
+    mono = false,
     className,
     style,
     onChange,
@@ -63,6 +69,7 @@ export function Input({
         disabled: isDisabled,
         hasIcon: !!LeadingIcon,
         hasStatusIcon: isInvalid || isSuccess || loading || clearable,
+        mono,
     });
 
     // Whether there is text to clear (uncontrolled inputs report it through their change events)

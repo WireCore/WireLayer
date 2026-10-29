@@ -354,6 +354,7 @@ export {
     anchorBox,
     checkPasswordRequirements,
     clampDialogOffset,
+    closeMenuOnPageEvents,
     closeTab,
     createLongPress,
     dialogMoveForKey,

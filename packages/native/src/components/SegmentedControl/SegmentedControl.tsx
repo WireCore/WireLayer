@@ -4,18 +4,19 @@ import { Icon, type IconComponent } from '../../utils/Icon.js';
 import { toggleOnSpace } from '../../utils/keyboard.js';
 import { useControllable } from '../../utils/useControllable.js';
 
-export interface SegmentedControlItem {
-    value: string;
+export interface SegmentedControlItem<V extends string = string> {
+    value: V;
     label: string;
     icon?: IconComponent;
     disabled?: boolean;
 }
 
-export interface SegmentedControlProps extends ViewProps {
-    items: SegmentedControlItem[];
-    value?: string;
-    defaultValue?: string;
-    onValueChange?: (value: string) => void;
+/** `V`: the type of the values, e.g. a union like `'ssh' | 'sftp'` (default string) */
+export interface SegmentedControlProps<V extends string = string> extends ViewProps {
+    items: SegmentedControlItem<V>[];
+    value?: V;
+    defaultValue?: V;
+    onValueChange?: (value: V) => void;
     /** Name of the group, e.g. "View" */
     label: string;
     size?: 'sm' | 'md';
@@ -26,7 +27,7 @@ export interface SegmentedControlProps extends ViewProps {
 }
 
 /** A few exclusive options side by side – a radio group */
-export function SegmentedControl({
+export function SegmentedControl<V extends string = string>({
     items,
     value,
     defaultValue,
@@ -37,8 +38,12 @@ export function SegmentedControl({
     disabled = false,
     className,
     ...props
-}: SegmentedControlProps) {
-    const [current, setCurrent] = useControllable(value, defaultValue ?? items[0]?.value ?? '', onValueChange);
+}: SegmentedControlProps<V>) {
+    const [current, setCurrent] = useControllable<V>(
+        value,
+        defaultValue ?? items[0]?.value ?? ('' as V),
+        onValueChange
+    );
     return (
         <View
             role="radiogroup"

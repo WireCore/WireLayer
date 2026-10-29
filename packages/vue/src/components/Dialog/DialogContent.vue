@@ -21,6 +21,11 @@ export interface DialogContentProps {
     title: string;
     /** The title only for screen readers – it still names the dialog (e.g. a video in a dialog) */
     hideTitle?: boolean;
+    /**
+     * `body` (default): the title below the header row; `header`: in the row of the close button, after a smaller
+     * icon, the header separated by a line (as on the Drawer)
+     */
+    titlePosition?: 'body' | 'header';
     description?: string;
     /** Icon component in the coloured box at the top */
     icon?: Component;
@@ -104,6 +109,7 @@ const styles = computed(() =>
         draggable: props.draggable && !isMaximized.value,
         maximizable: props.maximizable,
         hideTitle: props.hideTitle,
+        titleInHeader: props.titlePosition === 'header',
     })
 );
 </script>
@@ -125,6 +131,7 @@ const styles = computed(() =>
                     <span v-if="icon" :class="styles.iconBox()">
                         <component :is="icon" :class="styles.icon()" aria-hidden="true" />
                     </span>
+                    <Dialog.Title v-if="titlePosition === 'header'" :class="styles.title()">{{ title }}</Dialog.Title>
                     <button
                         v-if="maximizable"
                         type="button"
@@ -151,7 +158,7 @@ const styles = computed(() =>
                     </Dialog.CloseTrigger>
                 </div>
                 <div :class="styles.body()">
-                    <Dialog.Title :class="styles.title()">{{ title }}</Dialog.Title>
+                    <Dialog.Title v-if="titlePosition !== 'header'" :class="styles.title()">{{ title }}</Dialog.Title>
                     <Dialog.Description v-if="description" :class="styles.description()">
                         {{ description }}
                     </Dialog.Description>

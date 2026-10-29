@@ -240,8 +240,32 @@ export const progress = tv({
         legendItem: 'flex items-center gap-1.5',
         swatch: 'size-2 shrink-0 rounded-full',
         legendValue: 'text-muted tabular-nums',
+        /** Text in the bar (`barText`) over the empty part */
+        barText: [
+            'pointer-events-none absolute inset-0 flex items-center justify-center overflow-hidden px-1.5',
+            'font-mono text-[10.5px] leading-none whitespace-nowrap text-fg tabular-nums',
+        ],
+        /** The same text in the range, as wide as the track (100cqw) and cut by the range – in the colour for the fill */
+        barTextFill: [
+            'pointer-events-none absolute inset-y-0 start-0 flex w-[100cqw] items-center justify-center px-1.5',
+            'font-mono text-[10.5px] leading-none whitespace-nowrap text-on-primary tabular-nums',
+            'forced-colors:text-[HighlightText]',
+        ],
     },
     variants: {
+        /** `xs`: a thin bar with small text, e.g. in a list or a status bar */
+        size: {
+            xs: { base: 'gap-1', header: 'text-[10px]', track: 'h-1' },
+            md: {},
+        },
+        /** The label only names the bar for screen readers; the value stays at the end */
+        hideLabel: {
+            true: { header: 'justify-end' },
+        },
+        /** Text in the bar: a taller track, the range covers the text below and cuts the text in it */
+        hasText: {
+            true: { track: 'relative @container h-4', range: 'relative overflow-hidden' },
+        },
         /** Vertical bar: grows from the bottom (fill the height of the parent) */
         orientation: {
             horizontal: {},
@@ -271,19 +295,47 @@ export const progress = tv({
         animated: {
             true: { range: 'motion-safe:animate-progress-stripes', segment: 'motion-safe:animate-progress-stripes' },
         },
-        /** Colour of a segment */
+        /** Colour of a segment – and of the filled part (`status`) */
         color: {
             primary: { segment: 'bg-primary', swatch: 'bg-primary' },
-            info: { segment: 'bg-info', swatch: 'bg-info' },
-            success: { segment: 'bg-success', swatch: 'bg-success' },
-            warn: { segment: 'bg-warn', swatch: 'bg-warn' },
-            danger: { segment: 'bg-danger', swatch: 'bg-danger' },
+            info: {
+                segment: 'bg-info',
+                swatch: 'bg-info',
+                range: 'bg-info',
+                step: 'data-[state=complete]:bg-info',
+                barTextFill: 'text-on-info',
+            },
+            success: {
+                segment: 'bg-success',
+                swatch: 'bg-success',
+                range: 'bg-success',
+                step: 'data-[state=complete]:bg-success',
+                barTextFill: 'text-on-success',
+            },
+            warn: {
+                segment: 'bg-warn',
+                swatch: 'bg-warn',
+                range: 'bg-warn',
+                step: 'data-[state=complete]:bg-warn',
+                barTextFill: 'text-on-warn',
+            },
+            danger: {
+                segment: 'bg-danger',
+                swatch: 'bg-danger',
+                range: 'bg-danger',
+                step: 'data-[state=complete]:bg-danger',
+                barTextFill: 'text-on-danger',
+            },
             muted: { segment: 'bg-muted', swatch: 'bg-muted' },
         },
     },
+    compoundVariants: [
+        { size: 'xs', hasText: true, class: { track: 'h-3.5', barText: 'text-[10px]', barTextFill: 'text-[10px]' } },
+    ],
     defaultVariants: {
         orientation: 'horizontal',
         color: 'primary',
+        size: 'md',
     },
 });
 

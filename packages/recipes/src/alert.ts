@@ -12,6 +12,10 @@ export const alert = tv({
         content: 'flex flex-col gap-0.5 pt-[3px]',
         title: 'text-sm font-semibold',
         description: 'text-[13px] leading-normal text-muted',
+        /** Title and text next to the actions (`actions`) */
+        text: 'flex min-w-0 flex-1 basis-48 flex-col gap-0.5',
+        /** Buttons in the message, e.g. "Unlock" – beside the text, below it when there is little room */
+        actions: 'flex shrink-0 flex-wrap items-center gap-2',
         dismiss: [
             'flex size-7 cursor-pointer items-center justify-center rounded-full text-muted transition-colors hover:bg-line hover:text-fg motion-reduce:transition-none',
             'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fg',
@@ -36,6 +40,10 @@ export const alert = tv({
                 description: 'text-[13px]',
                 dismiss: 'size-6',
             },
+        },
+        /** With actions: text and buttons side by side, wrapping below each other */
+        hasActions: {
+            true: { content: 'flex-row flex-wrap items-center gap-x-4 gap-y-2' },
         },
         size: {
             sm: {

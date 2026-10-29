@@ -1,12 +1,14 @@
 import { Cloud, CodeXml, Cpu, Network, Server, Sparkles } from '@lucide/vue';
 import type { Meta, StoryObj } from '@storybook/vue3-vite';
 import type { DataSource } from '@wirecore/wirelayer-recipes';
-import { ref, type ConcreteComponent } from 'vue';
+import { onBeforeUnmount, onMounted, ref, type ConcreteComponent } from 'vue';
+import ComboboxComponent from '../Combobox/Combobox.vue';
 import Field from '../Field/Field.vue';
 import SelectComponent from './Select.vue';
 
 // Generic component: Storybook's Vue types can't infer args here
 const Select = SelectComponent as unknown as ConcreteComponent;
+const Combobox = ComboboxComponent as unknown as ConcreteComponent;
 
 const items = [
     { value: 'web', label: 'Software & Web', icon: CodeXml },
@@ -269,5 +271,42 @@ export const Keywords: Story = {
             <Field label="Category" class="w-72">
                 <Select v-model="value" :items="categories" item-group="parent" item-keywords="parent" filter />
             </Field>`,
+    }),
+};
+
+/**
+ * In a dialog that saves with Enter and cancels with Escape on the window: `stop-key-propagation` keeps the keys the
+ * list handles itself (Enter choosing or opening, Escape closing, Tab leaving) in the Select or Combobox.
+ * `v-model:open` (or `update:open`) reports whether the list is open
+ */
+export const KeysInADialog: Story = {
+    name: 'Keys in a dialog',
+    render: () => ({
+        components: { Field, Select, Combobox },
+        setup() {
+            const lastKey = ref('–');
+            const open = ref(false);
+            const onKey = (event: KeyboardEvent) => {
+                if (event.key === 'Enter' || event.key === 'Escape') lastKey.value = event.key;
+            };
+            onMounted(() => window.addEventListener('keydown', onKey));
+            onBeforeUnmount(() => window.removeEventListener('keydown', onKey));
+            const protocols = [
+                { value: 'ssh', label: 'SSH' },
+                { value: 'sftp', label: 'SFTP' },
+                { value: 'rdp', label: 'RDP' },
+            ];
+            return { lastKey, open, protocols };
+        },
+        template: `
+            <div class="flex w-[380px] flex-col gap-3.5">
+                <Field label="Protocol">
+                    <Select v-model:open="open" :items="protocols" filter stop-key-propagation />
+                </Field>
+                <Field label="Jump host">
+                    <Combobox :items="protocols" stop-key-propagation />
+                </Field>
+                <span class="text-xs text-muted">List open: {{ open }} · Last key on the window: {{ lastKey }}</span>
+            </div>`,
     }),
 };

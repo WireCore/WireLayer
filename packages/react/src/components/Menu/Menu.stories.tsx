@@ -243,3 +243,38 @@ export const UserMenu: Story = {
         </div>
     ),
 };
+
+function ClosesWithThePageDemo() {
+    const menu = useRef<OverlayHandle>(null);
+    const [selected, setSelected] = useState('');
+    return (
+        <div className="flex flex-col items-center gap-3">
+            <button
+                type="button"
+                className="w-72 rounded-lg border border-line p-4 text-sm text-fg"
+                onClick={(event) => menu.current?.open(event.nativeEvent)}
+            >
+                Row web-01 – click opens at the pointer
+            </button>
+            <Menu
+                ref={menu}
+                items={items}
+                closeOnScroll
+                closeOnResize
+                closeOnBlur
+                highlightFirst
+                onSelect={setSelected}
+            />
+            <p className="h-4 text-xs text-muted" aria-live="polite">
+                {selected && `Selected: ${selected}`}
+            </p>
+        </div>
+    );
+}
+
+/**
+ * A menu at a point stays where it opened: `closeOnScroll`, `closeOnResize` and `closeOnBlur` close it when the
+ * content below scrolls, the window is resized or loses the focus. `highlightFirst` highlights the first item also
+ * when it opens by pointer, so Enter takes it
+ */
+export const ClosesWithThePage: Story = { name: 'Closes with the page', render: () => <ClosesWithThePageDemo /> };

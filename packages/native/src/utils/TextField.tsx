@@ -30,6 +30,8 @@ export interface TextFieldProps extends TextInputProps {
     prefix?: string;
     /** Static text segment after the input, e.g. `.de` */
     suffix?: string;
+    /** Monospace font of the theme (JetBrains Mono) – for paths, tokens, codes, URLs and keys */
+    mono?: boolean;
     ref?: Ref<ComponentRef<typeof TextInput>>;
 }
 
@@ -54,6 +56,7 @@ export function TextField({
     leadingIcon,
     prefix,
     suffix,
+    mono = false,
     className,
     onFocus,
     onBlur,
@@ -79,6 +82,7 @@ export function TextField({
         success: control.success,
         disabled: control.disabled,
         hasIcon: !!leadingIcon,
+        mono,
     });
     const placeholder = useResolveClassNames('text-muted');
     const editable = !control.disabled && props.editable !== false;

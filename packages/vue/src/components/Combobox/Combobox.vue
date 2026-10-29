@@ -80,6 +80,13 @@ export interface ComboboxProps<T = SelectItem, V = ItemValueOf<T>> {
     pageSize?: number;
     /** Id of the input, e.g. for a `<label for>` */
     id?: string;
+    /** Whether the list is open – use with v-model:open, or listen to update:open */
+    open?: boolean;
+    /**
+     * Keeps the keys the open list handles itself (Enter choosing, Escape closing, Tab leaving) from bubbling up – e.g.
+     * in a dialog with window shortcuts for Enter (save) and Escape (cancel)
+     */
+    stopKeyPropagation?: boolean;
     /** Extra classes per part of the component, e.g. { base: "…" } (see the recipe) */
     classes?: RecipeClasses<typeof comboboxRecipe>;
 }
@@ -95,6 +102,7 @@ const props = withDefaults(defineProps<ComboboxProps<T, V>>(), {
     invalid: undefined,
     required: undefined,
     clearable: true,
+    open: undefined,
 });
 const combobox = useRecipe('combobox', comboboxRecipe, () => props.classes);
 const emit = defineEmits<{
@@ -105,6 +113,8 @@ const emit = defineEmits<{
     filterChange: [text: string];
     /** The end of the list was scrolled into view (hasMore) */
     loadMore: [];
+    /** The list opened or closed */
+    'update:open': [open: boolean];
 }>();
 defineSlots<{
     /** Content of an option (instead of icon and label) */
@@ -158,7 +168,15 @@ function onLoadMore() {
     if (props.dataSource) source.loadMore();
     else emit('loadMore');
 }
+// The list's keys stay in the combobox while it is open – also the key that closes it (it closes before the key
+// reaches the input), so the state drops only after the event
+let isOpen = false;
+let listOpen = false;
 function onOpenChange(open: boolean) {
+    emit('update:open', open);
+    isOpen = open;
+    if (open) listOpen = true;
+    else setTimeout(() => (listOpen = isOpen));
     if (open && !editing.value) source.open();
 }
 const collection = computed(() =>
@@ -214,6 +232,8 @@ function commitText() {
     );
 }
 function onKeydown(event: KeyboardEvent) {
+    if (props.stopKeyPropagation && (listOpen || props.open) && ['Enter', 'Escape', 'Tab'].includes(event.key))
+        event.stopPropagation();
     if (event.key === 'Enter' && !highlighted.value) commitText();
 }
 // Fixed objects: a new literal in the template on every render makes Ark update the machine, which can re-render
@@ -243,6 +263,7 @@ const ids = computed(() =>
         :placeholder="placeholder"
         :positioning="listPositioning"
         :translations="translations.combobox"
+        :open="open"
         v-bind="ids"
         lazy-mount
         unmount-on-exit

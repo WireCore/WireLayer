@@ -27,9 +27,32 @@ const meta = {
     args: { items, placeholder: 'Select', size: 'md', disabled: false, invalid: false },
     argTypes: { items: { control: false }, size: { control: 'inline-radio', options: ['sm', 'md', 'lg'] } },
     render: (args) => <Demo {...args} />,
-} satisfies Meta<typeof NativeSelect>;
+} satisfies Meta<typeof NativeSelect<string>>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Playground: Story = {};
+
+const ports = [
+    { value: 22, label: '22 (SSH)' },
+    { value: 2222, label: '2222' },
+    { value: 443, label: '443 (HTTPS)' },
+];
+
+function NumberValuesDemo() {
+    const [port, setPort] = useState<number | ''>(22);
+    return (
+        <div className="flex w-64 flex-col gap-3">
+            <Field label="Port">
+                <NativeSelect items={ports} value={port} onValueChange={setPort} />
+            </Field>
+            <span className="text-xs text-muted">
+                Value: {port} ({typeof port})
+            </span>
+        </div>
+    );
+}
+
+/** Number values: onValueChange gets numbers back; the placeholder option gives an empty string */
+export const NumberValues: Story = { name: 'Number values', render: () => <NumberValuesDemo /> };

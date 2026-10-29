@@ -12,7 +12,7 @@ import {
     type RecipeClasses,
 } from '@wirecore/wirelayer-recipes';
 import { ChevronDown, LoaderCircle, X } from 'lucide-react';
-import { useEffect, useMemo, useState, type ComponentProps, type ReactNode } from 'react';
+import { useEffect, useMemo, useRef, useState, type ComponentProps, type ReactNode } from 'react';
 import { useOptionSource } from '../../utils/data-source.js';
 import type { SelectItem } from '../Select/Select.js';
 import { ListOptions, useListOptions, useListSelection, type ListItemState, type SelectSize } from '../Select/list.js';
@@ -83,6 +83,15 @@ export interface ComboboxProps<T = SelectItem, V = ItemValueOf<T>> extends Omit<
     minSearchLength?: number;
     /** Options per request of the data source (default 50) */
     pageSize?: number;
+    /** Whether the list is open (controlled, with onOpenChange) */
+    open?: boolean;
+    /** The list opened or closed */
+    onOpenChange?: (open: boolean) => void;
+    /**
+     * Keeps the keys the open list handles itself (Enter choosing, Escape closing, Tab leaving) from bubbling up – e.g.
+     * in a dialog with window shortcuts for Enter (save) and Escape (cancel)
+     */
+    stopKeyPropagation?: boolean;
     /** Content of an option (instead of icon and label) */
     renderItem?: (item: T, state: ListItemState) => ReactNode;
     /** Extra classes per part of the component, e.g. { base: "…" } (see the recipe) */
@@ -123,6 +132,9 @@ export function Combobox<T = SelectItem, V = ItemValueOf<T>>({
     dataSource,
     minSearchLength,
     pageSize,
+    open,
+    onOpenChange,
+    stopKeyPropagation = false,
     renderItem,
     id,
     className,
@@ -177,6 +189,9 @@ export function Combobox<T = SelectItem, V = ItemValueOf<T>>({
     const [draft, setDraft] = useState<string | null>(null);
     const text = draft ?? selected[0]?.label ?? '';
     const [highlighted, setHighlighted] = useState<string | null>(null);
+    // The list's keys stay in the combobox while it is open – also the key that closes it (it closes before the key
+    // reaches the input), so the state drops only after the event
+    const listOpen = useRef({ now: false, keys: false });
 
     /** allowCustomValue: the typed text becomes the value – the matching item, the text itself or nothing */
     function commitText() {
@@ -212,7 +227,13 @@ export function Combobox<T = SelectItem, V = ItemValueOf<T>>({
                 if (typing && dataSource) source.search(details.inputValue);
             }}
             onHighlightChange={(details) => setHighlighted(details.highlightedValue)}
+            open={open}
             onOpenChange={(details) => {
+                onOpenChange?.(details.open);
+                const state = listOpen.current;
+                state.now = details.open;
+                if (details.open) state.keys = true;
+                else setTimeout(() => (state.keys = state.now));
                 if (details.open && draft === null) source.open();
             }}
             allowCustomValue={allowCustomValue}
@@ -238,6 +259,12 @@ export function Combobox<T = SelectItem, V = ItemValueOf<T>>({
                     }}
                     onKeyDown={(event) => {
                         onKeyDown?.(event);
+                        if (
+                            stopKeyPropagation &&
+                            (listOpen.current.keys || open) &&
+                            ['Enter', 'Escape', 'Tab'].includes(event.key)
+                        )
+                            event.stopPropagation();
                         if (event.key === 'Enter' && !highlighted) commitText();
                     }}
                 />

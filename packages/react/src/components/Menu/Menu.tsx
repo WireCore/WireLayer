@@ -2,6 +2,7 @@ import { useFilter } from '@ark-ui/react/locale';
 import { Menu as ArkMenu } from '@ark-ui/react/menu';
 import { Portal } from '@ark-ui/react/portal';
 import {
+    closeMenuOnPageEvents,
     filterMenuEntries,
     highlightFirstMenuItem,
     linkTarget,
@@ -24,6 +25,7 @@ import {
     type ReactElement,
     type ReactNode,
     type Ref,
+    type RefObject,
 } from 'react';
 import type { IconComponent } from '../../types.js';
 import { useTranslations } from '../LocaleProvider/LocaleProvider.js';
@@ -169,7 +171,68 @@ export interface MenuItemOptions {
     renderItem?: MenuItemRenderer;
 }
 
-export interface MenuProps extends MenuItemOptions {
+/** Opt-in behaviour of an open menu (Menu, ContextMenu) */
+export interface MenuBehaviorOptions {
+    /** Closes when the page (or a container) scrolls – e.g. for a menu opened at a point */
+    closeOnScroll?: boolean;
+    /** Closes when the window is resized */
+    closeOnResize?: boolean;
+    /** Closes when the window loses the focus (switching to another window) */
+    closeOnBlur?: boolean;
+    /** Highlights the first item also when the menu opens by pointer, so Enter takes it (as in desktop menus) */
+    highlightFirst?: boolean;
+}
+
+/**
+ * Closing an open menu when the page scrolls, the window is resized or loses the focus, and highlighting the first item
+ * when it opens. Returns Ark's root props for the highlight – controlled only with `highlightFirst`.
+ */
+export function useMenuBehavior(
+    open: boolean,
+    close: () => void,
+    content: RefObject<HTMLElement | null>,
+    { closeOnScroll = false, closeOnResize = false, closeOnBlur = false, highlightFirst = false }: MenuBehaviorOptions
+) {
+    const latestClose = useRef(close);
+    useEffect(() => {
+        latestClose.current = close;
+    });
+    useEffect(() => {
+        if (!open || !(closeOnScroll || closeOnResize || closeOnBlur)) return;
+        return closeMenuOnPageEvents(() => latestClose.current(), {
+            scroll: closeOnScroll,
+            resize: closeOnResize,
+            blur: closeOnBlur,
+        });
+    }, [open, closeOnScroll, closeOnResize, closeOnBlur]);
+
+    const [highlighted, setHighlighted] = useState<string | null>(null);
+    const [wasOpen, setWasOpen] = useState(open);
+    if (wasOpen !== open) {
+        setWasOpen(open);
+        setHighlighted(null);
+    }
+    useEffect(() => {
+        if (!open || !highlightFirst) return;
+        // Once the items are rendered; a keyboard opening (or the pointer) may have highlighted one already
+        const frame = requestAnimationFrame(() => {
+            if (content.current)
+                highlightFirstMenuItem(content.current, {
+                    setHighlightedValue: (value) => setHighlighted((current) => current ?? value),
+                });
+        });
+        return () => cancelAnimationFrame(frame);
+    }, [open, highlightFirst, content]);
+    return highlightFirst
+        ? {
+              highlightedValue: highlighted,
+              onHighlightChange: (details: { highlightedValue: string | null }) =>
+                  setHighlighted(details.highlightedValue),
+          }
+        : {};
+}
+
+export interface MenuProps extends MenuItemOptions, MenuBehaviorOptions {
     /**
      * Items, groups ({ type: 'group' }), separators ({ type: 'separator' }), checkbox items ({ type: 'checkbox' }) and
      * radio groups ({ type: 'radio' }); items with children open a submenu, items with href or to are links
@@ -212,6 +275,10 @@ export function Menu({
     searchLabel,
     placement = 'bottom-start',
     arrow,
+    closeOnScroll,
+    closeOnResize,
+    closeOnBlur,
+    highlightFirst,
     ref,
     children,
 }: MenuProps) {
@@ -242,6 +309,13 @@ export function Menu({
         return () => cancelAnimationFrame(frame);
     }, [state.isOpen, searchable]);
     const label = searchLabel ?? translations.menu.search;
+    const content = useRef<HTMLDivElement>(null);
+    const highlight = useMenuBehavior(state.isOpen, state.handle.close, content, {
+        closeOnScroll,
+        closeOnResize,
+        closeOnBlur,
+        highlightFirst,
+    });
 
     return (
         <MenuStateProvider
@@ -257,6 +331,7 @@ export function Menu({
                 // With the arrow the gap of the Popover, else Ark's default
                 positioning={state.positioning({ placement, gutter: arrow ? 10 : 8 })}
                 anchorPoint={state.anchorPoint}
+                {...highlight}
                 lazyMount
                 unmountOnExit
                 onSelect={(details) => onSelect?.(details.value)}
@@ -264,7 +339,7 @@ export function Menu({
                 {children && <ArkMenu.Trigger asChild>{children}</ArkMenu.Trigger>}
                 <Portal>
                     <ArkMenu.Positioner>
-                        <ArkMenu.Content className={styles.content()}>
+                        <ArkMenu.Content ref={content} className={styles.content()}>
                             {arrow && (
                                 <ArkMenu.Arrow className={styles.arrow()}>
                                     <ArkMenu.ArrowTip className={styles.arrowTip()} />

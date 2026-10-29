@@ -6,7 +6,7 @@ import {
     type RecipeClasses,
     type Size,
 } from '@wirecore/wirelayer-recipes';
-import { useEffect, useId, useLayoutEffect, useRef, useState, type ComponentProps } from 'react';
+import { useEffect, useId, useImperativeHandle, useLayoutEffect, useRef, useState, type ComponentProps } from 'react';
 import { useFieldStatus } from '../Field/context.js';
 import { InputStatus } from '../Input/InputStatus.js';
 import { useTranslations } from '../LocaleProvider/LocaleProvider.js';
@@ -35,11 +35,16 @@ export interface TextareaProps extends ComponentProps<'textarea'> {
     clearable?: boolean;
     /** Accessible name of the clear button (default "Clear input") */
     clearLabel?: string;
+    /** Monospace font of the theme (JetBrains Mono) – for keys, codes and logs */
+    mono?: boolean;
     /** Extra classes per part of the component, e.g. { base: "…" } (see the recipes textarea and textareaParts) */
     classes?: RecipeClasses<typeof textareaRecipe> & RecipeClasses<typeof textareaPartsRecipe>;
 }
 
-/** Multi-line text field, optionally growing with the text (autoResize) and with a counter; works inside Field */
+/**
+ * Multi-line text field, optionally growing with the text (autoResize) and with a counter; works inside Field. `ref`
+ * reaches the native textarea
+ */
 export function Textarea({
     classes,
     size,
@@ -53,10 +58,12 @@ export function Textarea({
     loading = false,
     clearable = false,
     clearLabel,
+    mono = false,
     className,
     style,
     onInput,
     onChange,
+    ref,
     ...props
 }: TextareaProps) {
     const textarea = useRecipe('textarea', textareaRecipe, classes);
@@ -69,6 +76,8 @@ export function Textarea({
     const isDisabled = disabled || !!fieldContext?.disabled;
     const isReadOnly = !!props.readOnly || !!fieldContext?.readOnly;
     const element = useRef<HTMLTextAreaElement>(null);
+    // `ref` reaches the native textarea, as on the other text fields
+    useImperativeHandle(ref, () => element.current!, []);
     const maxLength = props.maxLength && props.maxLength > 0 ? props.maxLength : undefined;
     const counted = showCount && maxLength !== undefined;
     const trailing = loading || clearable || isSuccess;
@@ -129,6 +138,7 @@ export function Textarea({
                 disabled: isDisabled,
                 autoResize,
                 hasTrailing: wrapped ? trailing : undefined,
+                mono,
                 class: wrapped ? undefined : className,
             })}
             style={wrapped ? undefined : style}

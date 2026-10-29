@@ -72,6 +72,16 @@ export const dialog = tv({
         bare: {
             true: { body: 'pt-[18px]' },
         },
+        /** `titlePosition: 'header'`: the title in the row of the close button (a smaller icon before it), as on the Drawer */
+        titleInHeader: {
+            true: {
+                header: 'border-b border-line pb-3',
+                iconBox: 'size-7 rounded-lg',
+                icon: 'size-4',
+                title: 'min-w-0 flex-1 text-base',
+                body: 'pt-4',
+            },
+        },
         /** The body scrolls, title and buttons stay */
         scrollInside: {
             true: { content: 'max-h-full' },

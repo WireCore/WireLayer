@@ -68,3 +68,58 @@ export const ItemTypes: Story = {
         ],
     },
 };
+
+const hosts = ['web-01', 'web-02', 'db-01'];
+const hostItems: MenuEntry[] = [
+    { value: 'connect', label: 'Connect' },
+    { value: 'rename', label: 'Rename', shortcut: 'F2' },
+    { type: 'separator' },
+    { value: 'delete', label: 'Delete', shortcut: 'Del', danger: true },
+];
+
+function DesktopListDemo() {
+    const [current, setCurrent] = useState('web-01');
+    const [open, setOpen] = useState(false);
+    return (
+        <div className="flex w-72 flex-col gap-3">
+            <ContextMenu
+                items={hostItems}
+                label="Host actions"
+                open={open}
+                onOpenChange={setOpen}
+                highlightFirst
+                closeOnScroll
+                closeOnResize
+                closeOnBlur
+                onBeforeOpen={(target) => {
+                    const row = target.closest<HTMLElement>('[data-host]');
+                    if (row) setCurrent(row.dataset.host!);
+                }}
+            >
+                <ul className="m-0 flex list-none flex-col rounded-lg border border-line p-1" aria-label="Hosts">
+                    {hosts.map((host) => (
+                        <li
+                            key={host}
+                            data-host={host}
+                            className={`rounded-md px-2.5 py-1.5 text-sm text-fg ${host === current ? 'bg-line font-medium' : ''}`}
+                            aria-current={host === current || undefined}
+                            onClick={() => setCurrent(host)}
+                        >
+                            {host}
+                        </li>
+                    ))}
+                </ul>
+            </ContextMenu>
+            <span className="text-xs text-muted">
+                Selected: {current} · Menu open: {String(open)}
+            </span>
+        </div>
+    );
+}
+
+/**
+ * A list as in a desktop app: `onBeforeOpen` gets the right-clicked element – select its row before the menu shows;
+ * `open`/`onOpenChange` tell whether the menu is open (e.g. to pause Delete or F2 on the list). `highlightFirst` and
+ * the close props as on Menu
+ */
+export const DesktopList: Story = { name: 'Desktop list', render: () => <DesktopListDemo /> };

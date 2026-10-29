@@ -4,15 +4,21 @@ import { ChevronDown } from 'lucide-react';
 import type { ComponentProps } from 'react';
 import { useRecipe } from '../RecipesProvider/RecipesProvider.js';
 
-export interface NativeSelectOption {
-    value: string;
+export interface NativeSelectOption<V extends string | number = string> {
+    /** A string or a number – onValueChange gets it back with its type */
+    value: V;
     label: string;
     disabled?: boolean;
 }
 
-export interface NativeSelectProps extends Omit<ComponentProps<'select'>, 'size' | 'onChange'> {
-    items: readonly NativeSelectOption[];
-    onValueChange?: (value: string) => void;
+/** `V`: the type of the values – a union like `'ssh' | 'sftp'` or numbers (default string) */
+export interface NativeSelectProps<V extends string | number = string> extends Omit<
+    ComponentProps<'select'>,
+    'size' | 'onChange'
+> {
+    items: readonly NativeSelectOption<V>[];
+    /** The chosen option's value with its type; the placeholder option gives an empty string */
+    onValueChange?: (value: V | '') => void;
     /** First, empty option, e.g. "Please choose" */
     placeholder?: string;
     size?: Size;
@@ -22,7 +28,7 @@ export interface NativeSelectProps extends Omit<ComponentProps<'select'>, 'size'
 }
 
 /** The browser's select: its own keyboard and mobile pickers; inside a Field it is labelled and described */
-export function NativeSelect({
+export function NativeSelect<V extends string | number = string>({
     classes,
     items,
     onValueChange,
@@ -33,7 +39,7 @@ export function NativeSelect({
     className,
     style,
     ...props
-}: NativeSelectProps) {
+}: NativeSelectProps<V>) {
     const nativeSelect = useRecipe('nativeSelect', nativeSelectRecipe, classes);
     const field = useFieldContext();
     const styles = nativeSelect({ size });
@@ -44,7 +50,11 @@ export function NativeSelect({
                 className={styles.select()}
                 disabled={disabled ?? field?.disabled}
                 aria-invalid={(invalid ?? field?.invalid) || undefined}
-                onChange={(event) => onValueChange?.(event.target.value)}
+                onChange={(event) => {
+                    // The option's value with its type (a number stays a number); the placeholder gives ''
+                    const text = event.target.value;
+                    onValueChange?.(items.find((item) => String(item.value) === text)?.value ?? (text as V | ''));
+                }}
             >
                 {placeholder && <option value="">{placeholder}</option>}
                 {items.map((item) => (

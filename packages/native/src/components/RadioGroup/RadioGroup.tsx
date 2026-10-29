@@ -5,8 +5,8 @@ import { toggleOnSpace } from '../../utils/keyboard.js';
 import { useControllable } from '../../utils/useControllable.js';
 
 interface RadioGroupContextValue {
-    value: string | null;
-    select: (value: string) => void;
+    value: string | number | null;
+    select: (value: string | number) => void;
     disabled: boolean;
     invalid: boolean;
     /** Cards per row (RadioCard) */
@@ -23,10 +23,12 @@ const RadioGroupContext = createContext<RadioGroupContextValue>({
 /** The surrounding RadioGroup (RadioCard) */
 export const useRadioGroup = () => useContext(RadioGroupContext);
 
-export interface RadioGroupProps extends ViewProps {
-    value?: string | null;
-    defaultValue?: string | null;
-    onValueChange?: (value: string | null) => void;
+/** `V`: the type of the values – a union like `'ssh' | 'sftp'` or numbers (default string) */
+export interface RadioGroupProps<V extends string | number = string> extends ViewProps {
+    /** Selected value; numbers when the items have number values */
+    value?: V | null;
+    defaultValue?: V | null;
+    onValueChange?: (value: V | null) => void;
     /** Visible label, also the group's accessible name */
     label?: string;
     orientation?: RadioGroupOrientation;
@@ -40,7 +42,7 @@ export interface RadioGroupProps extends ViewProps {
 }
 
 /** One choice out of several (role radiogroup) named by its label; RadioGroupItem or RadioCard inside, cards in `columns` */
-export function RadioGroup({
+export function RadioGroup<V extends string | number = string>({
     value,
     defaultValue = null,
     onValueChange,
@@ -53,13 +55,15 @@ export function RadioGroup({
     className,
     children,
     ...props
-}: RadioGroupProps) {
+}: RadioGroupProps<V>) {
     const [current, setCurrent] = useControllable(value, defaultValue, onValueChange);
     const labelId = `${useId()}label`;
     const styles = radioGroup({ orientation });
 
     return (
-        <RadioGroupContext.Provider value={{ value: current, select: setCurrent, disabled, invalid, columns }}>
+        <RadioGroupContext.Provider
+            value={{ value: current, select: (next) => setCurrent(next as V), disabled, invalid, columns }}
+        >
             <View
                 role="radiogroup"
                 aria-labelledby={label ? labelId : undefined}
@@ -84,7 +88,8 @@ export function RadioGroup({
 }
 
 export interface RadioGroupItemProps {
-    value: string;
+    /** Value of the option – a number makes the group's value a number */
+    value: string | number;
     disabled?: boolean;
     className?: string;
     children?: ReactNode;

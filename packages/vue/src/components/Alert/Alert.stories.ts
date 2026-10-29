@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite';
 import { ref } from 'vue';
+import Button from '../Button/Button.vue';
 import Alert from './Alert.vue';
 
 const meta = {
@@ -82,6 +83,30 @@ export const Duration: Story = {
                     Disappears after 8 seconds, pauses on hover and focus.
                 </Alert>
                 <button v-else type="button" class="text-sm underline" @click="shown = true">Show again</button>
+            </div>`,
+    }),
+};
+
+/** `#actions`: buttons in the message – beside the text, below it when there is little room */
+export const WithActions: Story = {
+    name: 'With actions',
+    render: () => ({
+        components: { Alert, Button },
+        template: `
+            <div class="flex w-[480px] flex-col gap-2.5">
+                <Alert status="warn" title="Workspace locked">
+                    Unlock it to see the connections.
+                    <template #actions><Button size="sm">Unlock</Button></template>
+                </Alert>
+                <Alert status="danger" title="Connection lost" dismissible>
+                    web-01 stopped answering.
+                    <template #actions><Button size="sm" variant="outline">Reconnect</Button></template>
+                </Alert>
+                <div class="w-64">
+                    <Alert status="info" size="sm" title="Update ready">
+                        <template #actions><Button size="sm" variant="outline">Restart</Button></template>
+                    </Alert>
+                </div>
             </div>`,
     }),
 };

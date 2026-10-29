@@ -106,3 +106,29 @@ function OptionsDemo() {
 
 /** Sizes, docked to the bottom, fullscreen and a dialog that only its button closes */
 export const Options: Story = { name: 'Variants', render: () => <OptionsDemo /> };
+
+function TitleInTheHeaderDemo() {
+    const [open, setOpen] = useState(false);
+    return (
+        <>
+            <Button variant="outline" onPress={() => setOpen(true)}>
+                Edit connection
+            </Button>
+            <Dialog
+                open={open}
+                onOpenChange={setOpen}
+                title="Edit connection"
+                description="web-01 · production"
+                titlePosition="header"
+                footer={
+                    <Button size="sm" onPress={() => setOpen(false)}>
+                        Save
+                    </Button>
+                }
+            />
+        </>
+    );
+}
+
+/** `titlePosition="header"`: the title in the row of the close button, after a smaller icon (as on the Drawer) */
+export const TitleInTheHeader: Story = { name: 'Title in the header', render: () => <TitleInTheHeaderDemo /> };

@@ -111,6 +111,10 @@ export const passwordInput = tv({
             },
         },
         success: boxSuccess,
+        /** Monospace font of the theme – for tokens, passphrases and keys */
+        mono: {
+            true: { input: 'font-mono' },
+        },
     },
     defaultVariants: {
         size: 'md',

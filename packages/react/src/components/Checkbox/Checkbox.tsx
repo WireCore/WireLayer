@@ -7,10 +7,17 @@ import { useRecipe } from '../RecipesProvider/RecipesProvider.js';
 
 export type CheckedState = boolean | 'indeterminate';
 
-export interface CheckboxProps extends Omit<ComponentProps<'input'>, 'checked' | 'defaultChecked' | 'value' | 'type'> {
-    checked?: CheckedState;
-    defaultChecked?: CheckedState;
-    onCheckedChange?: (checked: CheckedState) => void;
+/**
+ * `C`: the state type – inferred from `checked`/`defaultChecked`, so a boolean `checked` gets booleans back in
+ * onCheckedChange (the indeterminate state only comes from `checked`)
+ */
+export interface CheckboxProps<C extends CheckedState = CheckedState> extends Omit<
+    ComponentProps<'input'>,
+    'checked' | 'defaultChecked' | 'value' | 'type'
+> {
+    checked?: C;
+    defaultChecked?: C;
+    onCheckedChange?: (checked: C) => void;
     invalid?: boolean;
     value?: string;
     children?: ReactNode;
@@ -19,7 +26,7 @@ export interface CheckboxProps extends Omit<ComponentProps<'input'>, 'checked' |
 }
 
 /** Checkbox with label (also indeterminate), works inside Field */
-export function Checkbox({
+export function Checkbox<C extends CheckedState = CheckedState>({
     classes,
     checked,
     defaultChecked,
@@ -34,7 +41,7 @@ export function Checkbox({
     style,
     children,
     ...props
-}: CheckboxProps) {
+}: CheckboxProps<C>) {
     const checkbox = useRecipe('checkbox', checkboxRecipe, classes);
     const styles = checkbox();
     // An own id goes to the hidden input through Ark (it finds the input by its id)
@@ -45,7 +52,7 @@ export function Checkbox({
             style={style}
             checked={checked}
             defaultChecked={defaultChecked}
-            onCheckedChange={(details) => onCheckedChange?.(details.checked)}
+            onCheckedChange={(details) => onCheckedChange?.(details.checked as C)}
             disabled={disabled}
             invalid={invalid}
             required={required}

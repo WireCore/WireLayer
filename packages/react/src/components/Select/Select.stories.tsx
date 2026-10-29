@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import type { DataSource } from '@wirecore/wirelayer-recipes';
 import { Cloud, CodeXml, Cpu, Network, Server, Sparkles } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
+import { Combobox } from '../Combobox/Combobox.js';
 import { Field } from '../Field/Field.js';
 import { Select } from './Select.js';
 
@@ -316,3 +317,41 @@ export const Keywords: Story = {
         </Field>
     ),
 };
+
+const protocols = [
+    { value: 'ssh', label: 'SSH' },
+    { value: 'sftp', label: 'SFTP' },
+    { value: 'rdp', label: 'RDP' },
+];
+
+function KeysInADialogDemo() {
+    const [lastKey, setLastKey] = useState('–');
+    const [open, setOpen] = useState(false);
+    useEffect(() => {
+        const onKey = (event: KeyboardEvent) => {
+            if (event.key === 'Enter' || event.key === 'Escape') setLastKey(event.key);
+        };
+        window.addEventListener('keydown', onKey);
+        return () => window.removeEventListener('keydown', onKey);
+    }, []);
+    return (
+        <div className="flex w-[380px] flex-col gap-3.5">
+            <Field label="Protocol">
+                <Select open={open} onOpenChange={setOpen} items={protocols} filter stopKeyPropagation />
+            </Field>
+            <Field label="Jump host">
+                <Combobox items={protocols} stopKeyPropagation />
+            </Field>
+            <span className="text-xs text-muted">
+                List open: {String(open)} · Last key on the window: {lastKey}
+            </span>
+        </div>
+    );
+}
+
+/**
+ * In a dialog that saves with Enter and cancels with Escape on the window: `stopKeyPropagation` keeps the keys the
+ * list handles itself (Enter choosing or opening, Escape closing, Tab leaving) in the Select or Combobox.
+ * `open`/`onOpenChange` report whether the list is open
+ */
+export const KeysInADialog: Story = { name: 'Keys in a dialog', render: () => <KeysInADialogDemo /> };

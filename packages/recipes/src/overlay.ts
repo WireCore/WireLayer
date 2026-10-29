@@ -130,6 +130,16 @@ export const dialog = tv({
         hideTitle: {
             true: { title: 'sr-only' },
         },
+        /** `titlePosition: 'header'`: the title in the row of the close button (a smaller icon before it), as on the Drawer */
+        titleInHeader: {
+            true: {
+                header: 'border-b border-line pb-3',
+                iconBox: 'size-7 shrink-0 rounded-lg',
+                icon: 'size-4',
+                title: 'min-w-0 flex-1 text-base break-words',
+                body: 'pt-4',
+            },
+        },
         status: {
             neutral: { iconBox: 'bg-line text-fg' },
             success: { iconBox: 'bg-success/14 text-success' },

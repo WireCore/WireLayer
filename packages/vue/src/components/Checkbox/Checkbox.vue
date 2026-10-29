@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script setup lang="ts" generic="C extends CheckedState = CheckedState">
 import { Checkbox } from '@ark-ui/vue/checkbox';
 import { useFieldContext } from '@ark-ui/vue/field';
 import { Check, Minus } from '@lucide/vue';
@@ -9,10 +9,14 @@ import { useRecipe } from '../../recipes.js';
 
 export type CheckedState = boolean | 'indeterminate';
 
-export interface CheckboxProps {
+/**
+ * `C`: the state type – inferred from `checked`/`defaultChecked`, so a boolean v-model:checked gets booleans back (the
+ * indeterminate state only comes from `checked`)
+ */
+export interface CheckboxProps<C extends CheckedState = CheckedState> {
     /** Controlled state – use with v-model:checked */
-    checked?: CheckedState;
-    defaultChecked?: CheckedState;
+    checked?: C;
+    defaultChecked?: C;
     disabled?: boolean;
     invalid?: boolean;
     required?: boolean;
@@ -26,7 +30,7 @@ export interface CheckboxProps {
 
 defineOptions({ inheritAttrs: false });
 // undefined (not false) when absent: uncontrolled by default, and a surrounding Field can still disable it
-const props = withDefaults(defineProps<CheckboxProps>(), {
+const props = withDefaults(defineProps<CheckboxProps<C>>(), {
     checked: undefined,
     defaultChecked: undefined,
     disabled: undefined,
@@ -34,7 +38,7 @@ const props = withDefaults(defineProps<CheckboxProps>(), {
     required: undefined,
 });
 const checkbox = useRecipe('checkbox', checkboxRecipe, () => props.classes);
-const emit = defineEmits<{ 'update:checked': [checked: CheckedState] }>();
+const emit = defineEmits<{ 'update:checked': [checked: C] }>();
 const attrs = useAttrs();
 const split = computed(() => splitAttrs(attrs));
 const styles = checkbox();
@@ -57,7 +61,7 @@ const ids = computed(() =>
         :name="name"
         :value="value"
         v-bind="ids"
-        @update:checked="emit('update:checked', $event)"
+        @update:checked="emit('update:checked', $event as C)"
     >
         <Checkbox.Control :class="styles.control()">
             <Checkbox.Indicator>

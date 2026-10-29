@@ -17,6 +17,11 @@ export interface DialogProps {
     /** Icon component in the coloured box at the top */
     icon?: IconComponent;
     status?: DialogStatus;
+    /**
+     * `body` (default): the title below the header row; `header`: in the row of the close button, after a smaller
+     * icon, the header separated by a line (as on the Drawer)
+     */
+    titlePosition?: 'body' | 'header';
     /** Width: sm 320, md 400 (default), lg 560, xl 800, full the width of the screen */
     size?: OverlaySize;
     /** Centred (default), near the top or docked to the bottom edge */
@@ -54,6 +59,7 @@ export function Dialog({
     description,
     icon,
     status,
+    titlePosition = 'body',
     size,
     position,
     fullscreen = false,
@@ -69,7 +75,16 @@ export function Dialog({
 }: DialogProps) {
     const translations = useTranslations();
     const scrollInside = scrollBehavior === 'inside';
-    const styles = dialog({ status, size, position, fullscreen, scrollInside, bare: !icon && !closable });
+    const inHeader = titlePosition === 'header';
+    const styles = dialog({
+        status,
+        size,
+        position,
+        fullscreen,
+        scrollInside,
+        bare: !inHeader && !icon && !closable,
+        titleInHeader: inHeader,
+    });
     const reducedMotion = useReducedMotion();
     const id = useId();
     const close = () => onOpenChange(false);
@@ -92,11 +107,14 @@ export function Dialog({
         return () => cancelAnimationFrame(frame);
     }, [open, web, closable, initialFocusRef]);
 
+    const titleText = (
+        <Text nativeID={`${id}title`} role="heading" className={styles.title()}>
+            {title}
+        </Text>
+    );
     const body = (
         <View className={styles.body()}>
-            <Text nativeID={`${id}title`} role="heading" className={styles.title()}>
-                {title}
-            </Text>
+            {!inHeader && titleText}
             {description && (
                 <Text nativeID={`${id}description`} className={styles.description()}>
                     {description}
@@ -133,13 +151,14 @@ export function Dialog({
                     accessibilityViewIsModal
                     className={styles.content({ class: className })}
                 >
-                    {(icon || closable) && (
+                    {(icon || closable || inHeader) && (
                         <View className={styles.header()}>
                             {icon && (
                                 <View className={styles.iconBox()}>
                                     <Icon icon={icon} className={styles.icon()} />
                                 </View>
                             )}
+                            {inHeader && titleText}
                             {closable && (
                                 <Pressable
                                     ref={closeButton}

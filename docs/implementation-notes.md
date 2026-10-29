@@ -138,6 +138,20 @@ Worth reading before changing the affected areas.
 - **React Compiler and functions during render:** `toggleOnSpace(choose)` is called during render – if `choose` reads a
   ref (through further functions), `react-hooks/refs` reports an error. Kanban and DataTable therefore keep such values
   in state or set the data source only in the effect.
+- **Keys of a closing popup (`stopKeyPropagation`):** Ark's dismiss layer handles Escape on the document in the capture
+  phase – the list is closed before the key bubbles. React no longer delivers the event of the unmounted list (it
+  delegates from the root), so Select stops Escape with a native listener on the list that is never removed; Enter and
+  Tab stay with `onKeyDown` (a native `stopPropagation` there would also stop Ark's own delegated handler). The
+  Combobox's input stays mounted; it keeps the open state until after the event (`setTimeout`), since the list closes
+  before the key reaches the input.
+- **Generic components and their type:** a Vue SFC with `generic` is a function, not a constructor –
+  `InstanceType<typeof X>` and Storybook's `Meta<typeof X>` need a cast (`as unknown as ConcreteComponent`). A React
+  generic whose constraint is wider than its default (`V extends string | number = string`) shows the constraint in
+  `ComponentProps<typeof X>`; `typeof X<string>` names the old props.
+- **Initial focus in dialogs:** Ark's focus trap takes the focus after the content mounted – a `focus()` in `onMounted`
+  or an effect (and React's `autoFocus`, which only calls `focus()`) is overridden. The trap looks for
+  `[data-autofocus]`/`[autofocus]`; an `alertdialog` starts on its close button. In jsdom no field counts as focusable
+  (no layout), so the test runs in the browser.
 - **Controlled form elements:** Vue additionally writes the value of a `<select>` as the attribute `value` (which
   `<select>` does not know), React only sets the property – the DOM comparison ignores this attribute. For `<textarea>`,
   React writes the value as text content and Ark Vue's factory additionally as an attribute – the passed value is

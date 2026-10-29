@@ -1,7 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite';
-import { ref } from 'vue';
+import { ref, type ConcreteComponent } from 'vue';
 import Field from '../Field/Field.vue';
-import NativeSelect from './NativeSelect.vue';
+import NativeSelectComponent from './NativeSelect.vue';
+
+// Generic component: Storybook's Vue types can't infer args here
+const NativeSelect = NativeSelectComponent as unknown as ConcreteComponent;
 
 const items = [
     { value: 'fra', label: 'Frankfurt' },
@@ -29,3 +32,24 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Playground: Story = {};
+
+/** Number values: v-model gets numbers back; the placeholder option gives an empty string */
+export const NumberValues: Story = {
+    name: 'Number values',
+    render: () => ({
+        components: { Field, NativeSelect },
+        setup: () => ({
+            port: ref(22),
+            ports: [
+                { value: 22, label: '22 (SSH)' },
+                { value: 2222, label: '2222' },
+                { value: 443, label: '443 (HTTPS)' },
+            ],
+        }),
+        template: `
+            <div class="flex w-64 flex-col gap-3">
+                <Field label="Port"><NativeSelect v-model="port" :items="ports" /></Field>
+                <span class="text-xs text-muted">Value: {{ port }} ({{ typeof port }})</span>
+            </div>`,
+    }),
+};

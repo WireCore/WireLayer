@@ -20,6 +20,7 @@ import { useLocale, useTranslations } from '../../locale.js';
 import { useRecipe } from '../../recipes.js';
 import { useFieldStatus } from '../Field/context.js';
 import InputStatus from '../Input/InputStatus.vue';
+import { textFieldHandle } from '../../utils/text-field.js';
 
 const localeContext = useLocale();
 const translations = useTranslations();
@@ -207,6 +208,8 @@ function clear() {
     setTextControlValue(input);
     input.focus();
 }
+// focus(), blur(), select(), setSelectionRange() and the native input (`element`) for template refs
+defineExpose(textFieldHandle(() => control.value?.$el.querySelector('input')));
 </script>
 
 <template>

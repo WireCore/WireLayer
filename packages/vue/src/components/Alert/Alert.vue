@@ -35,12 +35,20 @@ export interface AlertProps {
 
 defineOptions({ inheritAttrs: false });
 const props = withDefaults(defineProps<AlertProps>(), { status: 'info' });
+const slots = defineSlots<{
+    /** The message text */
+    default?(): unknown;
+    /** Buttons in the message, e.g. "Unlock" or "Reconnect" – beside the text, below it when there is little room */
+    actions?(): unknown;
+}>();
 const alert = useRecipe('alert', alertRecipe, () => props.classes);
 const emit = defineEmits<{ dismiss: [] }>();
 const attrs = useAttrs();
 
 const icons = { neutral: Info, success: CircleCheck, info: Info, warn: TriangleAlert, danger: OctagonX };
-const styles = computed(() => alert({ status: props.status, variant: props.variant, size: props.size }));
+const styles = computed(() =>
+    alert({ status: props.status, variant: props.variant, size: props.size, hasActions: !!slots.actions })
+);
 
 // Auto-dismiss: paused while hovered or focused
 let timer: PausableTimer | undefined;
@@ -76,7 +84,15 @@ const onFocusOut = (event: FocusEvent) => {
         <span :class="styles.iconBox()">
             <component :is="icons[status]" :class="styles.icon()" aria-hidden="true" />
         </span>
-        <div :class="styles.content()">
+        <!-- With actions: the texts in their own column, the buttons beside them -->
+        <div v-if="slots.actions" :class="styles.content()">
+            <div :class="styles.text()">
+                <div v-if="title" :class="styles.title()">{{ title }}</div>
+                <div v-if="slots.default" :class="styles.description()"><slot /></div>
+            </div>
+            <div :class="styles.actions()"><slot name="actions" /></div>
+        </div>
+        <div v-else :class="styles.content()">
             <div v-if="title" :class="styles.title()">{{ title }}</div>
             <div v-if="$slots.default" :class="styles.description()"><slot /></div>
         </div>

@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-native-web-vite';
 import { View } from 'react-native';
+import { Button } from '../Button/Button.js';
 import { Alert } from './Alert.js';
 
 const meta = {
@@ -51,6 +52,29 @@ export const SimpleAndSmall: Story = {
             </Alert>
             <Alert status="neutral" title="No status">
                 Neutral note without color.
+            </Alert>
+        </View>
+    ),
+};
+
+/** `actions`: buttons in the message, below the text */
+export const WithActions: Story = {
+    name: 'With actions',
+    render: () => (
+        <View className="gap-2.5">
+            <Alert status="warn" title="Workspace locked" actions={<Button size="sm">Unlock</Button>}>
+                Unlock it to see the connections.
+            </Alert>
+            <Alert
+                status="danger"
+                title="Connection lost"
+                actions={
+                    <Button size="sm" variant="outline">
+                        Reconnect
+                    </Button>
+                }
+            >
+                web-01 stopped answering.
             </Alert>
         </View>
     ),

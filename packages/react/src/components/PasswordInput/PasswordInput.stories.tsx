@@ -65,3 +65,21 @@ function ControlledVisibilityDemo() {
 
 /** Visibility from outside (visible/onVisibleChange), e.g. one switch for two fields */
 export const ControlledVisibility: Story = { render: () => <ControlledVisibilityDemo /> };
+
+/**
+ * Secrets the browser should not offer to save (tokens, passphrases, vault master passwords): `autoComplete="off"`;
+ * `one-time-code` for one-time codes. `mono` sets the monospace font
+ */
+export const NotSaved: Story = {
+    name: 'Not saved by the browser',
+    render: () => (
+        <div className="flex w-[380px] flex-col gap-3.5">
+            <Field label="Vault master password">
+                <PasswordInput autoComplete="off" />
+            </Field>
+            <Field label="Access token">
+                <PasswordInput autoComplete="off" mono />
+            </Field>
+        </div>
+    ),
+};

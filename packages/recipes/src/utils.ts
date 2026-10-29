@@ -867,3 +867,25 @@ export function highlightFirstMenuItem(
     if (first) menu.setHighlightedValue(first.dataset.value ?? '');
     return first?.id;
 }
+
+/**
+ * Closes an open menu on what it does not follow: the page scrolling (not a scroll inside a menu), the window being
+ * resized or losing the focus (switching to another window). Returns the cleanup. Browser only.
+ */
+export function closeMenuOnPageEvents(
+    close: () => void,
+    events: { scroll?: boolean; resize?: boolean; blur?: boolean }
+): () => void {
+    const onScroll = (event: Event) => {
+        if (event.target instanceof Element && event.target.closest('[data-scope=menu]')) return;
+        close();
+    };
+    const listeners: [string, EventListener, AddEventListenerOptions][] = [];
+    if (events.scroll) listeners.push(['scroll', onScroll, { capture: true, passive: true }]);
+    if (events.resize) listeners.push(['resize', close, {}]);
+    if (events.blur) listeners.push(['blur', close, {}]);
+    for (const [type, listener, options] of listeners) window.addEventListener(type, listener, options);
+    return () => {
+        for (const [type, listener, options] of listeners) window.removeEventListener(type, listener, options);
+    };
+}

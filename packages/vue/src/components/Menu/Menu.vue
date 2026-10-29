@@ -10,9 +10,9 @@ import {
     type OverlayHandle,
     type RecipeClasses,
 } from '@wirecore/wirelayer-recipes';
-import { computed, nextTick, ref, watch, type Component } from 'vue';
+import { computed, nextTick, ref, useTemplateRef, watch, type Component } from 'vue';
 import MenuEntries from './MenuEntries.vue';
-import { provideMenuState } from './state.js';
+import { provideMenuState, useMenuBehavior } from './state.js';
 import type { PopoverPlacement } from '../Popover/Popover.vue';
 import type { MenuCheckboxItem, MenuEntry, MenuItem, MenuRadioItem } from './types.js';
 import { useTranslations } from '../../locale.js';
@@ -40,6 +40,14 @@ export interface MenuProps {
     arrow?: boolean;
     /** Component for link items, e.g. RouterLink or NuxtLink (gets `to` for items with `to`, else `href`); default <a> */
     linkAs?: Component | string;
+    /** Closes when the page (or a container) scrolls – e.g. for a menu opened at a point */
+    closeOnScroll?: boolean;
+    /** Closes when the window is resized */
+    closeOnResize?: boolean;
+    /** Closes when the window loses the focus (switching to another window) */
+    closeOnBlur?: boolean;
+    /** Highlights the first item also when the menu opens by pointer, so Enter takes it (as in desktop menus) */
+    highlightFirst?: boolean;
     /** Extra classes per part of the component, e.g. { base: "…" } (see the recipe) */
     classes?: RecipeClasses<typeof menuRecipe>;
 }
@@ -81,6 +89,16 @@ const overlay = useAnchoredOverlay({
     restoreFocus: true,
 });
 defineExpose<OverlayHandle>(overlay.handle);
+const content = useTemplateRef<{ $el: HTMLElement }>('content');
+const highlight = useMenuBehavior({
+    open: () => overlay.isOpen.value,
+    close: overlay.handle.close,
+    content: () => content.value?.$el,
+    closeOnScroll: () => props.closeOnScroll,
+    closeOnResize: () => props.closeOnResize,
+    closeOnBlur: () => props.closeOnBlur,
+    highlightFirst: () => props.highlightFirst,
+});
 
 // Filter field: accent- and case-blind over the labels; the filter starts empty with every opening
 const query = ref('');
@@ -116,6 +134,7 @@ const positioning = computed(() => overlay.positioning({ placement: props.placem
         :open="overlay.isOpen.value"
         :positioning="positioning"
         :anchor-point="overlay.anchorPoint.value"
+        v-bind="highlight"
         lazy-mount
         unmount-on-exit
         @update:open="overlay.onOpenChange($event)"
@@ -124,7 +143,7 @@ const positioning = computed(() => overlay.positioning({ placement: props.placem
         <Menu.Trigger v-if="$slots.default" as-child><slot /></Menu.Trigger>
         <Teleport to="body">
             <Menu.Positioner>
-                <Menu.Content :class="styles.content()">
+                <Menu.Content ref="content" :class="styles.content()">
                     <Menu.Arrow v-if="arrow" :class="styles.arrow()">
                         <Menu.ArrowTip :class="styles.arrowTip()" />
                     </Menu.Arrow>

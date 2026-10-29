@@ -31,6 +31,17 @@ export interface ProgressProps extends Omit<ComponentProps<'div'>, 'defaultValue
     animated?: boolean;
     /** Vertical bar (fills the height of its parent) */
     orientation?: 'horizontal' | 'vertical';
+    /** `xs`: a thin bar with small text, e.g. in a list or a status bar */
+    size?: 'xs' | 'md';
+    /** Colour of the filled part by its state, e.g. `danger` for a failed transfer */
+    status?: 'info' | 'success' | 'warn' | 'danger';
+    /** The label only for screen readers – it still names the progress bar */
+    hideLabel?: boolean;
+    /**
+     * Short text in the bar, e.g. "42 %", "waiting" or "failed" (a taller bar; horizontal, without segments or steps)
+     * – screen readers get it after the value
+     */
+    barText?: string;
     /** Extra classes per part of the component, e.g. { base: "…" } (see the recipe) */
     classes?: RecipeClasses<typeof progressRecipe>;
 }
@@ -49,15 +60,30 @@ export function Progress({
     striped,
     animated,
     orientation = 'horizontal',
+    size,
+    status,
+    hideLabel = false,
+    barText,
     className,
     'aria-label': ariaLabel,
     ...props
 }: ProgressProps) {
     const progress = useRecipe('progress', progressRecipe, classes);
     const total = segments ? segments.reduce((sum, segment) => sum + Math.max(0, segment.value), 0) : value;
-    const styles = progress({ orientation, striped, animated, stepped: !!steps && !segments });
+    const showBarText = !!barText && !segments?.length && !steps && orientation !== 'vertical';
+    const styles = progress({
+        orientation,
+        striped,
+        animated,
+        stepped: !!steps && !segments,
+        size,
+        color: status,
+        hideLabel,
+        hasText: showBarText,
+    });
     const percentOf = (part: number) => Math.round((part / max) * 100);
     const text = valueText(percentOf(total));
+    const announced = showBarText && barText !== text ? `${text}, ${barText}` : text;
     const filled = steps ? Math.round((total / max) * steps) : 0;
     const sizeKey = orientation === 'vertical' ? 'height' : 'width';
     const colorOf = (segment: ProgressSegment, index: number) => segment.color ?? palette[index % palette.length]!;
@@ -70,14 +96,19 @@ export function Progress({
             max={max}
             {...(orientation === 'vertical' ? { orientation } : {})}
         >
-            {(label || showValue) && (
+            {((label && !hideLabel) || showValue) && (
                 <div className={styles.header()}>
-                    {label && <ArkProgress.Label className={styles.label()}>{label}</ArkProgress.Label>}
+                    {label && !hideLabel && <ArkProgress.Label className={styles.label()}>{label}</ArkProgress.Label>}
                     {showValue && <ArkProgress.ValueText className={styles.value()}>{text}</ArkProgress.ValueText>}
                 </div>
             )}
             {/* Ark names the progressbar after its value; the label is the name, the value its valuetext */}
-            <ArkProgress.Track className={styles.track()} aria-label={label ?? ariaLabel} aria-valuetext={text}>
+            <ArkProgress.Track className={styles.track()} aria-label={label ?? ariaLabel} aria-valuetext={announced}>
+                {showBarText && (
+                    <span className={styles.barText()} aria-hidden="true">
+                        {barText}
+                    </span>
+                )}
                 {segments?.length ? (
                     <div className={styles.segments()}>
                         {segments.map((segment, index) => (
@@ -100,7 +131,13 @@ export function Progress({
                         ))}
                     </div>
                 ) : (
-                    <ArkProgress.Range className={styles.range()} />
+                    <ArkProgress.Range className={styles.range()}>
+                        {showBarText && (
+                            <span className={styles.barTextFill()} aria-hidden="true">
+                                {barText}
+                            </span>
+                        )}
+                    </ArkProgress.Range>
                 )}
             </ArkProgress.Track>
             {segments?.some((segment) => segment.label) && (

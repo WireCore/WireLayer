@@ -12,7 +12,17 @@ import {
     type RecipeClasses,
 } from '@wirecore/wirelayer-recipes';
 import { ChevronDown, LoaderCircle, X } from 'lucide-react';
-import { useEffect, useId, useMemo, useState, type ComponentProps, type KeyboardEvent, type ReactNode } from 'react';
+import {
+    useCallback,
+    useEffect,
+    useId,
+    useMemo,
+    useRef,
+    useState,
+    type ComponentProps,
+    type KeyboardEvent,
+    type ReactNode,
+} from 'react';
 import type { IconComponent } from '../../types.js';
 import { useOptionSource } from '../../utils/data-source.js';
 import { useTranslations } from '../LocaleProvider/LocaleProvider.js';
@@ -96,6 +106,15 @@ export interface SelectProps<T = SelectItem, V = ItemValueOf<T>> extends Omit<
     pageSize?: number;
     /** Not labelled by a surrounding Field – for a second control inside it (e.g. PhoneInput's country) */
     standalone?: boolean;
+    /** Whether the list is open (controlled, with onOpenChange) */
+    open?: boolean;
+    /** The list opened or closed */
+    onOpenChange?: (open: boolean) => void;
+    /**
+     * Keeps the keys the list handles itself (Enter choosing or opening, Escape closing, Tab leaving) from bubbling
+     * up – e.g. in a dialog with window shortcuts for Enter (save) and Escape (cancel)
+     */
+    stopKeyPropagation?: boolean;
     /** Content of an option (instead of icon and label) */
     renderItem?: (item: T, state: ListItemState) => ReactNode;
     /** Content of the field for the selected item */
@@ -143,6 +162,9 @@ export function Select<T = SelectItem, V = ItemValueOf<T>>({
     minSearchLength,
     pageSize,
     standalone,
+    open,
+    onOpenChange,
+    stopKeyPropagation = false,
     renderItem,
     renderValue,
     id,
@@ -228,10 +250,23 @@ export function Select<T = SelectItem, V = ItemValueOf<T>>({
 
     function onTriggerKeyDown(event: KeyboardEvent<HTMLButtonElement>) {
         onKeyDown?.(event);
+        // Enter opens the list
+        if (stopKeyPropagation && event.key === 'Enter') event.stopPropagation();
         if (!clearable || !selected.length || (event.key !== 'Backspace' && event.key !== 'Delete')) return;
         event.preventDefault();
         commit([]);
     }
+    // Escape closes the list before it bubbles (Ark's dismiss layer listens on the document), so React no longer
+    // delivers it from the closed list: a native listener on the list itself, kept until the list is gone
+    const stopKeys = useRef(stopKeyPropagation);
+    useEffect(() => {
+        stopKeys.current = stopKeyPropagation;
+    });
+    const escapeKey = useCallback((node: HTMLDivElement | null) => {
+        node?.addEventListener('keydown', (event) => {
+            if (stopKeys.current && event.key === 'Escape') event.stopPropagation();
+        });
+    }, []);
     function onFilterInput(api: Api, text: string) {
         setQuery(text);
         onFilterChange?.(text);
@@ -248,7 +283,9 @@ export function Select<T = SelectItem, V = ItemValueOf<T>>({
             collection={collection}
             value={keys}
             onValueChange={(details) => commitKeys(details.value, details.items as ListOption<T>[])}
+            open={open}
             onOpenChange={(details) => {
+                onOpenChange?.(details.open);
                 if (details.open) source.open();
                 if (details.open || !query) return;
                 setQuery('');
@@ -322,6 +359,12 @@ export function Select<T = SelectItem, V = ItemValueOf<T>>({
                         className={styles.content()}
                         aria-busy={listLoading || undefined}
                         aria-label={filter ? props['aria-label'] : undefined}
+                        ref={escapeKey}
+                        // Enter choosing and Tab leaving the open list (the list is only rendered while open)
+                        onKeyDown={(event) => {
+                            if (stopKeyPropagation && (event.key === 'Enter' || event.key === 'Tab'))
+                                event.stopPropagation();
+                        }}
                     >
                         {/* With a search field the popup is a dialog: search field, then the list */}
                         {filter ? (
