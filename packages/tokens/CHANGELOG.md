@@ -1,5 +1,20 @@
 # @wirecore/wirelayer-tokens
 
+## 0.5.0
+
+### Minor Changes
+
+- 849eac6: Token colours as fixed values for canvas libraries (xterm.js, charts) that cannot read CSS variables:
+  `resolveTokens(element?)` gives the colours that apply right now (mode, theme and own overrides) as hex – `#rrggbbaa` for
+  the translucent ones – and `watchTokens(onChange)` reports a change of mode, theme or system colour scheme. The
+  composable/hook `useResolvedTokens()` keeps them up to date.
+
+### Patch Changes
+
+- 849eac6: Popups with a positioner (Select, Combobox, Menu, Popover …) stay above a dialog: the theme gives Ark's positioners
+  `z-index: var(--z-index)` (in the base layer). Ark sets the z-index inline, but Vue removed it again whenever the popup
+  rendered anew – the list then lay behind the dialog, looked closed and the pointer hit the dialog.
+
 ## 0.4.0
 
 ### Minor Changes

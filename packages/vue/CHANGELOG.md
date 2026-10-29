@@ -1,5 +1,81 @@
 # @wirecore/wirelayer-vue
 
+## 0.9.0
+
+### Minor Changes
+
+- 849eac6: Display parts for dense desktop UIs, all opt-in:
+
+    - `Progress status="neutral"`: a grey fill, e.g. for a cancelled transfer (also React Native)
+    - `Avatar initials`: own initials instead of the ones from `name` ("MS" for "my-server"; also React Native)
+    - `Card size="sm"`: smaller radius, padding and title, for lists of cards inside a dialog (`wc-card-sm` in HTML);
+      `ConfigProvider size` leaves cards alone
+    - `Code` in the main package: code in a sentence with the look of `InlineCode`, without syntax colours and without the
+      optional `shiki`
+
+    `rounded-card` and `rounded-panel` now count as radii for tailwind-merge (like `rounded-popup`): another radius in
+    `class`/`classes` replaces them instead of both classes ending up on the element.
+
+- 849eac6: `ContextMenu`'s `before-open` / `onBeforeOpen` gets a second argument `{ source: 'pointer' | 'keyboard', focused }`:
+  opened with Shift+F10 or the menu key, `focused` is the element with the focus – a list can tell a row from its empty
+  space even when the browser fires the event on the whole area. The first argument stays as it was.
+  `createContextMenuSource()` in the recipes tells the two apart.
+- 849eac6: Focus for dialogs and wizards whose content changes:
+
+    - `data-autoselect` on a field in a `Dialog`: it gets the focus when the dialog opens, with its text selected (e.g. a
+      prefilled name). Without it Ark's choice stays (an alertdialog's close button, `data-autofocus`, the first element)
+    - `focusFirst(container)` (also from the component packages) focuses like opening does – `data-autoselect`,
+      `data-autofocus`/`autofocus`, otherwise the first field; Vue's `DialogContent` exposes it as `focusFirst()`
+    - `Wizard focusOnStepChange` moves the focus into each new step the same way (not after a failed check: the invalid
+      field keeps it)
+    - `autoselectElement(content)` in the recipes for a dialog's own initial focus
+
+- 849eac6: Choices that cannot be empty give their value type without the empty value – no `$event && …` guard for a model that
+  is never empty. Only the types change, unless noted:
+
+    - `RadioGroup` and `SegmentedControl` with `required`: v-model / `onValueChange` get `V`, not `V | null`. A form reset
+      back to an empty start (the only way Ark empties the group) is no longer passed on for a required group.
+      `SegmentedControl` takes `required` now (`aria-required` on the group); React Native's `RadioGroup` is typed the same
+    - `NativeSelect` without `placeholder`: `V`, not `V | ''` (only the placeholder option gives `''`)
+
+- 849eac6: `NumberInput` with `emptyFallback`, for fields that always need a number (e.g. a port): an emptied field keeps its value
+  while it is empty and falls back to `min` (or 0) or to the last valid number (`previous`) when it is left or Enter is
+  pressed. v-model / `onValueChange` is then typed `number`. Without it an emptied field still reports null.
+
+    Note for type code around the components: `NumberInput` (Vue) is generic now, so `InstanceType<typeof NumberInput>` and
+    Storybook's `Meta<typeof NumberInput>` need a cast (as for Select).
+
+- 849eac6: Token colours as fixed values for canvas libraries (xterm.js, charts) that cannot read CSS variables:
+  `resolveTokens(element?)` gives the colours that apply right now (mode, theme and own overrides) as hex – `#rrggbbaa` for
+  the translucent ones – and `watchTokens(onChange)` reports a change of mode, theme or system colour scheme. The
+  composable/hook `useResolvedTokens()` keeps them up to date.
+- 849eac6: `Select` with `emptyValue`, e.g. `""` for a model that uses an empty string for "nothing chosen": the value counts as
+  null – the placeholder shows, no development warning about an unknown value – and clearing gives it back instead of null
+  (typed `V | E`). Without it `""` is still an unknown value shown as text.
+- 849eac6: `Tabs` for panels that live elsewhere (editor or terminal tabs, panes shown with `v-show`):
+
+    - `TabsTrigger controls="pane-id"` points `aria-controls` at that element; `null` removes it (tabs without panels)
+    - `Tabs` takes `null` as its value: no tab selected. The first enabled tab then stays reachable with Tab (Ark takes
+      every tab out of the Tab order without a selection); Tabs without a value stay as they were
+
+- 849eac6: Own texts in `Wizard` (and `Stepper`): `finishLabel` names the last button (default "Finish"), and a step's `validate`
+  may return a text (also async) – it keeps the step open and is shown as its error instead of "Please check the entries
+  in this step".
+
+### Patch Changes
+
+- 849eac6: Popups with a positioner (Select, Combobox, Menu, Popover …) stay above a dialog: the theme gives Ark's positioners
+  `z-index: var(--z-index)` (in the base layer). Ark sets the z-index inline, but Vue removed it again whenever the popup
+  rendered anew – the list then lay behind the dialog, looked closed and the pointer hit the dialog.
+- Updated dependencies [849eac6]
+- Updated dependencies [849eac6]
+- Updated dependencies [849eac6]
+- Updated dependencies [849eac6]
+- Updated dependencies [849eac6]
+- Updated dependencies [849eac6]
+    - @wirecore/wirelayer-recipes@0.8.0
+    - @wirecore/wirelayer-tokens@0.5.0
+
 ## 0.8.0
 
 ### Minor Changes
