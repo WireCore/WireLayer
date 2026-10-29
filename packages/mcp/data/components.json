@@ -37567,7 +37567,7 @@
         {
             "id": "introduction-installation",
             "title": "Installation",
-            "text": "The packages are published on npm:\n\n```sh\npnpm add @wirecore/wirelayer-vue    # or\npnpm add @wirecore/wirelayer-react  # or\npnpm add @wirecore/wirelayer-native\n```"
+            "text": "The packages are published on npm – install them with npm, pnpm, Yarn or Bun:\n\n```sh\nnpm install @wirecore/wirelayer-vue\npnpm add @wirecore/wirelayer-vue\nyarn add @wirecore/wirelayer-vue\nbun add @wirecore/wirelayer-vue\n```\n\nThe same for `@wirecore/wirelayer-react` and `@wirecore/wirelayer-native` (React Native / Expo)."
         },
         {
             "id": "introduction-adding-the-styles",

@@ -8,8 +8,13 @@ Around 180 accessible React components on Ark UI and Tailwind CSS v4 – forms, 
 
 ## Installation
 
+With npm, pnpm, Yarn or Bun:
+
 ```sh
+npm install @wirecore/wirelayer-react
 pnpm add @wirecore/wirelayer-react
+yarn add @wirecore/wirelayer-react
+bun add @wirecore/wirelayer-react
 ```
 
 ## Usage

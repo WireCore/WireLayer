@@ -8,8 +8,13 @@ Around 180 accessible Vue 3 components on Ark UI and Tailwind CSS v4 – forms, 
 
 ## Installation
 
+With npm, pnpm, Yarn or Bun:
+
 ```sh
+npm install @wirecore/wirelayer-vue
 pnpm add @wirecore/wirelayer-vue
+yarn add @wirecore/wirelayer-vue
+bun add @wirecore/wirelayer-vue
 ```
 
 ## Usage
