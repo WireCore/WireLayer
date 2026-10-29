@@ -1,9 +1,11 @@
 import { expect, test, type Locator } from '@playwright/test';
 import { openStory } from './story.ts';
 
-/** What sets two triggers in a bar apart: size, border and a ring (box-shadow) */
+/** What sets two triggers in a bar apart: size, border and a ring (box-shadow) – once the hover transition is done */
 const look = (element: Locator) =>
-    element.evaluate((node) => {
+    element.evaluate(async (node) => {
+        // transition-colors runs also with reduced motion: a value read in between differs from run to run
+        await Promise.all(node.getAnimations().map((animation) => animation.finished));
         const style = getComputedStyle(node);
         return {
             size: `${style.width} × ${style.height}`,
