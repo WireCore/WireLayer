@@ -1,5 +1,40 @@
 # @wirecore/wirelayer-native
 
+## 0.6.0
+
+### Minor Changes
+
+- 849eac6: Display parts for dense desktop UIs, all opt-in:
+
+    - `Progress status="neutral"`: a grey fill, e.g. for a cancelled transfer (also React Native)
+    - `Avatar initials`: own initials instead of the ones from `name` ("MS" for "my-server"; also React Native)
+    - `Card size="sm"`: smaller radius, padding and title, for lists of cards inside a dialog (`wc-card-sm` in HTML);
+      `ConfigProvider size` leaves cards alone
+    - `Code` in the main package: code in a sentence with the look of `InlineCode`, without syntax colours and without the
+      optional `shiki`
+
+    `rounded-card` and `rounded-panel` now count as radii for tailwind-merge (like `rounded-popup`): another radius in
+    `class`/`classes` replaces them instead of both classes ending up on the element.
+
+- 849eac6: Choices that cannot be empty give their value type without the empty value – no `$event && …` guard for a model that
+  is never empty. Only the types change, unless noted:
+
+    - `RadioGroup` and `SegmentedControl` with `required`: v-model / `onValueChange` get `V`, not `V | null`. A form reset
+      back to an empty start (the only way Ark empties the group) is no longer passed on for a required group.
+      `SegmentedControl` takes `required` now (`aria-required` on the group); React Native's `RadioGroup` is typed the same
+    - `NativeSelect` without `placeholder`: `V`, not `V | ''` (only the placeholder option gives `''`)
+
+### Patch Changes
+
+- Updated dependencies [849eac6]
+- Updated dependencies [849eac6]
+- Updated dependencies [849eac6]
+- Updated dependencies [849eac6]
+- Updated dependencies [849eac6]
+- Updated dependencies [849eac6]
+    - @wirecore/wirelayer-recipes@0.8.0
+    - @wirecore/wirelayer-tokens@0.5.0
+
 ## 0.5.0
 
 ### Minor Changes

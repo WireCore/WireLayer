@@ -1,5 +1,42 @@
 # @wirecore/wirelayer-recipes
 
+## 0.8.0
+
+### Minor Changes
+
+- 849eac6: Display parts for dense desktop UIs, all opt-in:
+
+    - `Progress status="neutral"`: a grey fill, e.g. for a cancelled transfer (also React Native)
+    - `Avatar initials`: own initials instead of the ones from `name` ("MS" for "my-server"; also React Native)
+    - `Card size="sm"`: smaller radius, padding and title, for lists of cards inside a dialog (`wc-card-sm` in HTML);
+      `ConfigProvider size` leaves cards alone
+    - `Code` in the main package: code in a sentence with the look of `InlineCode`, without syntax colours and without the
+      optional `shiki`
+
+    `rounded-card` and `rounded-panel` now count as radii for tailwind-merge (like `rounded-popup`): another radius in
+    `class`/`classes` replaces them instead of both classes ending up on the element.
+
+- 849eac6: `ContextMenu`'s `before-open` / `onBeforeOpen` gets a second argument `{ source: 'pointer' | 'keyboard', focused }`:
+  opened with Shift+F10 or the menu key, `focused` is the element with the focus – a list can tell a row from its empty
+  space even when the browser fires the event on the whole area. The first argument stays as it was.
+  `createContextMenuSource()` in the recipes tells the two apart.
+- 849eac6: Focus for dialogs and wizards whose content changes:
+
+    - `data-autoselect` on a field in a `Dialog`: it gets the focus when the dialog opens, with its text selected (e.g. a
+      prefilled name). Without it Ark's choice stays (an alertdialog's close button, `data-autofocus`, the first element)
+    - `focusFirst(container)` (also from the component packages) focuses like opening does – `data-autoselect`,
+      `data-autofocus`/`autofocus`, otherwise the first field; Vue's `DialogContent` exposes it as `focusFirst()`
+    - `Wizard focusOnStepChange` moves the focus into each new step the same way (not after a failed check: the invalid
+      field keeps it)
+    - `autoselectElement(content)` in the recipes for a dialog's own initial focus
+
+### Patch Changes
+
+- 849eac6: Vite plugin: a component imported for the first time while `vite dev` runs gets its classes right away. The plugin added
+  its sources file to the CSS, but Tailwind's Vite plugin only builds a CSS file again when a file it imports changes on
+  disk – the classes were missing until a restart (cards without padding, tiny avatars). In the dev server the imports now
+  live in a file in Vite's cache folder; the build is unchanged.
+
 ## 0.7.0
 
 ### Minor Changes
