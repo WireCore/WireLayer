@@ -8,8 +8,13 @@ Page blocks for Vue built on `@wirecore/wirelayer-vue`: SiteHeader, CtaSection, 
 
 ## Installation
 
+With npm, pnpm, Yarn or Bun:
+
 ```sh
+npm install @wirecore/wirelayer-blocks-vue @wirecore/wirelayer-vue
 pnpm add @wirecore/wirelayer-blocks-vue @wirecore/wirelayer-vue
+yarn add @wirecore/wirelayer-blocks-vue @wirecore/wirelayer-vue
+bun add @wirecore/wirelayer-blocks-vue @wirecore/wirelayer-vue
 ```
 
 ## Usage

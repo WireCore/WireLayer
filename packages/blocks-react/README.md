@@ -8,8 +8,13 @@ Page blocks for React built on `@wirecore/wirelayer-react`: SiteHeader, CtaSecti
 
 ## Installation
 
+With npm, pnpm, Yarn or Bun:
+
 ```sh
+npm install @wirecore/wirelayer-blocks-react @wirecore/wirelayer-react
 pnpm add @wirecore/wirelayer-blocks-react @wirecore/wirelayer-react
+yarn add @wirecore/wirelayer-blocks-react @wirecore/wirelayer-react
+bun add @wirecore/wirelayer-blocks-react @wirecore/wirelayer-react
 ```
 
 ## Usage

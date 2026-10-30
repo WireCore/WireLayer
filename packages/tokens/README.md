@@ -8,8 +8,13 @@ Design tokens of WireLayer – colors, radii, typography, size grid, local fonts
 
 ## Installation
 
+With npm, pnpm, Yarn or Bun:
+
 ```sh
+npm install @wirecore/wirelayer-tokens
 pnpm add @wirecore/wirelayer-tokens
+yarn add @wirecore/wirelayer-tokens
+bun add @wirecore/wirelayer-tokens
 ```
 
 ## Usage

@@ -8,8 +8,13 @@ The WireLayer components as plain CSS classes (`.wc-*`) for HTML and server temp
 
 ## Installation
 
+With npm, pnpm, Yarn or Bun:
+
 ```sh
+npm install @wirecore/wirelayer-css
 pnpm add @wirecore/wirelayer-css
+yarn add @wirecore/wirelayer-css
+bun add @wirecore/wirelayer-css
 ```
 
 ## Usage

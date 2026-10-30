@@ -8,9 +8,16 @@ Around 145 accessible React Native (Expo) components with the prop names of the 
 
 ## Installation
 
+With npm, pnpm, Yarn or Bun:
+
 ```sh
+npm install @wirecore/wirelayer-native uniwind tailwindcss lucide-react-native react-native-svg expo-font
 pnpm add @wirecore/wirelayer-native uniwind tailwindcss lucide-react-native react-native-svg expo-font
+yarn add @wirecore/wirelayer-native uniwind tailwindcss lucide-react-native react-native-svg expo-font
+bun add @wirecore/wirelayer-native uniwind tailwindcss lucide-react-native react-native-svg expo-font
 ```
+
+In an Expo app, `npx expo install @wirecore/wirelayer-native uniwind tailwindcss lucide-react-native react-native-svg expo-font` picks the versions that fit your SDK.
 
 ## Usage
 

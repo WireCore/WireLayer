@@ -1,32 +1,87 @@
-<img src="assets/wirelayer.svg" alt="" width="72" height="72" />
+<p align="center">
+    <img src="assets/wirelayer.svg" alt="" width="160" height="160" />
+</p>
 
-# WireLayer Component Library
+<h1 align="center">WireLayer</h1>
 
-Component library for **Vue**, **React**, **React Native** and **HTML**, built on **Tailwind CSS v4**, **Ark UI**,
-**Uniwind** and **Lucide** – one look, one API, accessible according to WCAG 2.2 AA. The packages are called
-`@wirecore/wirelayer-*`.
+<p align="center">
+    Accessible components for <b>Vue</b>, <b>React</b>, <b>React Native</b> and <b>HTML</b> – one look, one API.<br />
+    Built on Tailwind CSS v4, Ark UI, Uniwind and Lucide · WCAG 2.2 AA
+</p>
 
-## Installation
+<p align="center">
+    <a href="https://wirecore.github.io/WireLayer/"><b>Storybook</b></a> ·
+    <a href="#quick-start">Quick start</a> ·
+    <a href="#components">Components</a> ·
+    <a href="https://wirecore.github.io/WireLayer/llms.txt">llms.txt</a> ·
+    <a href="CONTRIBUTING.md">Contributing</a>
+</p>
 
-Tailwind CSS v4.1 or newer is required.
+<p align="center">
+    <a href="https://www.npmjs.com/package/@wirecore/wirelayer-vue"><img alt="npm version" src="https://img.shields.io/npm/v/@wirecore/wirelayer-vue?label=npm" /></a>
+    <a href="https://github.com/WireCore/WireLayer/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/WireCore/WireLayer/actions/workflows/ci.yml/badge.svg?branch=main" /></a>
+    <img alt="WCAG 2.2 AA" src="https://img.shields.io/badge/WCAG-2.2%20AA-blue" />
+    <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-green" /></a>
+</p>
+
+## Highlights
+
+- **One API, four targets:** Vue and React with the same props and the same DOM (checked by parity tests), React Native
+  with the prop names of the web, `.wc-*` classes for HTML without JavaScript. The packages are called
+  `@wirecore/wirelayer-*`.
+- **Accessible:** WCAG 2.2 AA – keyboard, focus, roles and contrast; axe runs on every story in every mode and theme.
+- **Light, dark and themes** from design tokens; every part of a component can be restyled.
+- **Only what you use:** large features live in subpaths with optional peer dependencies, and the CSS can contain only
+  the classes of the components you import.
+- **14 languages** with right-to-left support, and docs for AI assistants: `llms.txt` in every package and an MCP
+  server.
+
+## Quick start
+
+**1. Install** – Tailwind CSS v4.1 or newer is required (Vue 3.5+ or React 19+).
 
 ```sh
-pnpm add @wirecore/wirelayer-vue      # or
-pnpm add @wirecore/wirelayer-react    # or
-pnpm add @wirecore/wirelayer-native   # React Native / Expo
+npm install @wirecore/wirelayer-vue
+pnpm add @wirecore/wirelayer-vue
+yarn add @wirecore/wirelayer-vue
+bun add @wirecore/wirelayer-vue
 ```
+
+For React use `@wirecore/wirelayer-react`, for React Native / Expo `@wirecore/wirelayer-native` (its peer dependencies:
+[packages/native](packages/native/README.md)).
+
+**2. Add the styles** after Tailwind:
 
 ```css
 @import 'tailwindcss';
 @import '@wirecore/wirelayer-vue/styles.css'; /* or @wirecore/wirelayer-react/styles.css */
 ```
 
-For a smaller CSS file, import `styles-core.css` instead and only the classes of the components you use
-(`@wirecore/wirelayer-vue/sources/Button.css` …) – Storybook › Getting started › Welcome.
+For a smaller CSS file with only the classes of the components you use, add the Vite plugin and import `theme.css`
+instead – it adds the classes of every WireLayer import it finds in your sources:
+
+```ts
+// vite.config.ts – before Tailwind's plugin
+import tailwindcss from '@tailwindcss/vite';
+import { wirelayer } from '@wirecore/wirelayer-recipes/vite';
+
+export default { plugins: [wirelayer(), tailwindcss()] };
+```
+
+```css
+@import 'tailwindcss';
+@import '@wirecore/wirelayer-vue/theme.css';
+@import '@wirecore/wirelayer-vue/fonts.css';
+```
+
+**3. Use the components** – the same components and props in Vue and React (`v-model` ↔ `value`/`onChange`):
 
 ```vue
 <script setup lang="ts">
 import { Button, Field, Input } from '@wirecore/wirelayer-vue';
+import { ref } from 'vue';
+
+const email = ref('');
 </script>
 
 <template>
@@ -37,9 +92,36 @@ import { Button, Field, Input } from '@wirecore/wirelayer-vue';
 </template>
 ```
 
-Setup for Nuxt, Next.js, Expo and plain HTML, themes and customization: Storybook › Getting started.
+```tsx
+import { Button, Field, Input } from '@wirecore/wirelayer-react';
+import { useState } from 'react';
+
+export function Signup() {
+    const [email, setEmail] = useState('');
+    return (
+        <>
+            <Field label="Email" required>
+                <Input value={email} onChange={(event) => setEmail(event.target.value)} type="email" />
+            </Field>
+            <Button>Start project</Button>
+        </>
+    );
+}
+```
+
+Setup for Nuxt, Next.js, Expo and plain HTML, themes and customization:
+[Storybook › Getting started](https://wirecore.github.io/WireLayer/?path=/docs/getting-started-welcome--docs).
 
 ## Components
+
+**Vue and React** – around 180 components with an identical prop API and identical DOM; **React Native** around 145;
+**HTML** the `.wc-*` classes; plus **page blocks**. All components and props:
+[Storybook](https://wirecore.github.io/WireLayer/), `llms.txt` (also inside each package:
+`node_modules/@wirecore/wirelayer-vue/llms.txt` …) or the MCP server `@wirecore/wirelayer-mcp` for AI assistants
+(`claude mcp add wirelayer -- npx -y -p @wirecore/wirelayer-mcp wirelayer-mcp`).
+
+<details>
+<summary><b>Overview of the components</b></summary>
 
 **Vue and React** – around 180 components with an identical prop API and identical DOM, among them:
 
@@ -68,13 +150,15 @@ recipes.
 ModeToggle, AuthForm, AuthLayout and ConditionBuilder (nested AND/OR rules, also as the editor of the advanced
 DataTable filter: `renderAdvancedFilter` or the slot `#advancedFilter`).
 
-All components and props: Storybook and `llms.txt` (also inside each package: `node_modules/@wirecore/wirelayer-vue/llms.txt` …), or the MCP server `@wirecore/wirelayer-mcp` for AI assistants
-(`claude mcp add wirelayer -- npx -y -p @wirecore/wirelayer-mcp wirelayer-mcp`).
+</details>
 
 ### Subpaths with optional peer dependencies
 
 What a large library needs lives in its own subpaths – it only ends up in the bundle when the app imports it, and then
-needs the respective peer dependency:
+needs the respective peer dependency.
+
+<details>
+<summary><b>Subpaths and their peer dependencies</b></summary>
 
 | Subpath           | Vue / React                                                        | React Native (`@wirecore/wirelayer-native/…`)        |
 | ----------------- | ------------------------------------------------------------------ | ---------------------------------------------------- |
@@ -87,6 +171,11 @@ needs the respective peer dependency:
 | `/pdf`            | PdfViewer on pdf.js (`pdfjs-dist`)                                 | PdfViewer on react-native-pdf (development build)    |
 | `/locales/<code>` | Language modules (see below)                                       | Language modules                                     |
 | `/expo-*`         | –                                                                  | `expo-sharing`, `expo-clipboard`, file/image pickers |
+
+</details>
+
+Setup of the PDF viewer (pdf.js stylesheet and worker, license **Apache-2.0**):
+[Storybook › Getting started › PDF viewer](https://wirecore.github.io/WireLayer/?path=/docs/getting-started-welcome--docs#pdf-viewer).
 
 ## Languages
 
@@ -113,14 +202,6 @@ English; the writing direction (`ar`, `he`, `fa`, `ur` → right to left) follow
 complete `Translations` object – the TypeScript type reports missing texts. The bundled translations should be reviewed
 by native speakers before use.
 
-## PDF viewer
-
-`PdfViewer` from `@wirecore/wirelayer-vue/pdf` or `@wirecore/wirelayer-react/pdf` is built on `pdfjs-dist` (optional
-peer dependency, license **Apache-2.0**, compatible with MIT projects). The app includes
-`pdfjs-dist/legacy/web/pdf_viewer.css` once and passes the URL of the worker (`workerSrc`) – recipes for Vite, Nuxt and
-Next.js in Storybook › Getting started. The sample PDFs of the stories (`apps/storybook/public/pdf`) are generated by
-`node apps/storybook/scripts/sample-pdf.ts`.
-
 ## Development
 
 Docker is the only requirement – Node and pnpm run in the container.
@@ -139,6 +220,9 @@ docker compose up
 | http://localhost:8081 | Expo demo app (web) – port configurable via `EXPO_PORT` |
 | http://localhost:3000 | Nuxt demo app (`docker compose --profile apps up`)      |
 | http://localhost:3001 | Next.js demo app (`docker compose --profile apps up`)   |
+
+The sample PDFs of the stories (`apps/storybook/public/pdf`) are generated by
+`node apps/storybook/scripts/sample-pdf.ts`.
 
 Commands, the workflow for new components and the Definition of Done: [CONTRIBUTING.md](CONTRIBUTING.md). Background:
 [architecture and decisions](docs/architecture.md), [accessibility](docs/accessibility.md),

@@ -8,8 +8,13 @@ Framework-agnostic recipes (tailwind-variants) and logic of the WireLayer compon
 
 ## Installation
 
+With npm, pnpm, Yarn or Bun:
+
 ```sh
+npm install @wirecore/wirelayer-recipes
 pnpm add @wirecore/wirelayer-recipes
+yarn add @wirecore/wirelayer-recipes
+bun add @wirecore/wirelayer-recipes
 ```
 
 ## Usage
