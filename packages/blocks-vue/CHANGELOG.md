@@ -1,5 +1,15 @@
 # @wirecore/wirelayer-blocks-vue
 
+## 0.2.8
+
+### Patch Changes
+
+- ad4939e: READMEs and the guide "Getting started": installation with npm, pnpm, Yarn and Bun (React Native: also
+  `npx expo install`).
+- Updated dependencies [ad4939e]
+    - @wirecore/wirelayer-vue@0.9.1
+    - @wirecore/wirelayer-recipes@0.8.1
+
 ## 0.2.7
 
 ### Patch Changes

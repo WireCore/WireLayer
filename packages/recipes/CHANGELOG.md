@@ -1,5 +1,12 @@
 # @wirecore/wirelayer-recipes
 
+## 0.8.1
+
+### Patch Changes
+
+- ad4939e: READMEs and the guide "Getting started": installation with npm, pnpm, Yarn and Bun (React Native: also
+  `npx expo install`).
+
 ## 0.8.0
 
 ### Minor Changes
