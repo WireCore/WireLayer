@@ -1,5 +1,12 @@
 # @wirecore/wirelayer-tokens
 
+## 0.5.1
+
+### Patch Changes
+
+- ad4939e: READMEs and the guide "Getting started": installation with npm, pnpm, Yarn and Bun (React Native: also
+  `npx expo install`).
+
 ## 0.5.0
 
 ### Minor Changes
