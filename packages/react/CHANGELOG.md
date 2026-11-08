@@ -1,5 +1,15 @@
 # @wirecore/wirelayer-react
 
+## 0.9.2
+
+### Patch Changes
+
+- 8317abc: `Calendar` and `DatePicker` with `allowDeselect`: clearing the chosen day keeps its month in view and the focus on that
+  day. Before, the view jumped to today's month.
+- dd4bee0: `Stepper` and `Wizard`: while the current step is busy – an async `validate` in the `Wizard`, `loading` on the item in
+  the `Stepper` – "Next" shows a spinner and ignores clicks (`aria-busy`, `aria-disabled`) but keeps the focus. Before,
+  only the step's number turned into a spinner, and a second click on the unchanged button looked like nothing happened.
+
 ## 0.9.1
 
 ### Patch Changes
