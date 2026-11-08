@@ -675,6 +675,8 @@ function DayTable({
         if (api.selectionMode !== 'single' || !api.getDayTableCellState({ value: day, visibleRange }).selected) return;
         event.preventDefault();
         api.clearValue({ focus: false });
+        // Clearing moves Ark's focused day to today – and the view with it to today's month
+        api.setFocusedValue(day);
     };
     // On the cell, before Ark's own handlers (capture): own weekend days and deselecting. Nothing extra on the
     // default calendar – same DOM and handlers as before
