@@ -12,7 +12,10 @@ const translations = useTranslations();
 export interface StepperItem {
     label: string;
     description?: string;
-    /** The step is busy (e.g. saving): a spinner instead of its number, aria-busy on the step */
+    /**
+     * The step is busy (e.g. saving): a spinner instead of its number, aria-busy on the step – and while it is the
+     * current one, "Next" shows the spinner too and ignores clicks
+     */
     loading?: boolean;
 }
 
@@ -104,9 +107,12 @@ const noCurrent = null as unknown as undefined;
                 <Steps.PrevTrigger as-child>
                     <Button variant="outline">{{ t.prev }}</Button>
                 </Steps.PrevTrigger>
-                <!-- With linear, an invalid step blocks going on – shown as a disabled button -->
+                <!--
+                    With linear, an invalid step blocks going on – shown as a disabled button. While the current step
+                    is busy, the button shows it and ignores clicks, but keeps the focus
+                -->
                 <Steps.NextTrigger as-child>
-                    <Button :disabled="linear && !api.isStepValid(api.value)">{{
+                    <Button :disabled="linear && !api.isStepValid(api.value)" :loading="items[api.value]?.loading">{{
                         api.value === api.count - 1 ? (finishLabel ?? t.finish) : t.next
                     }}</Button>
                 </Steps.NextTrigger>
