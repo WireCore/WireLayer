@@ -55,6 +55,8 @@ function deselect(event: Event, day: DateValue) {
     if (!canDeselect(day)) return;
     event.preventDefault();
     api.value.clearValue({ focus: false });
+    // Clearing moves Ark's focused day to today – and the view with it to today's month
+    api.value.setFocusedValue(day);
 }
 // On the cell, before Ark's own handlers (capture): own weekend days and deselecting. Nothing extra on the
 // default calendar – same DOM and handlers as before

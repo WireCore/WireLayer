@@ -669,6 +669,38 @@ describe.each(frameworks)('%s', (framework) => {
             await userEvent.click(screen.getByRole('button', { name: 'Finish' }));
             await waitFor(() => expect(onComplete).toHaveBeenCalled());
         });
+
+        it('"Next" shows a running check and ignores clicks meanwhile, keeping the focus', async () => {
+            let done: (valid: boolean) => void = () => {};
+            const validate = vi.fn(() => new Promise<boolean>((resolve) => (done = resolve)));
+            await render(
+                framework,
+                el('Wizard', {
+                    steps: [{ label: 'Contact', validate }, { label: 'Address' }],
+                    $scoped: {
+                        step: {
+                            react: 'renderStep',
+                            args: (index: number) => ({ index }),
+                            render: ({ index }: { index: number }) => el('p', {}, `Content ${index + 1}`),
+                        },
+                    },
+                })
+            );
+            const next = screen.getByRole('button', { name: 'Next' });
+            expect(next).not.toHaveAttribute('aria-busy');
+            await userEvent.click(next);
+            await waitFor(() => expect(next).toHaveAttribute('aria-busy', 'true'));
+            expect(next).toHaveAttribute('aria-disabled', 'true');
+            expect(next).toHaveFocus();
+            await userEvent.click(next);
+            expect(validate).toHaveBeenCalledTimes(1);
+
+            done(true);
+            await waitFor(() =>
+                expect(screen.getByRole('tab', { name: /Address/ })).toHaveAttribute('aria-selected', 'true')
+            );
+            expect(screen.getByRole('button', { name: 'Finish' })).not.toHaveAttribute('aria-busy');
+        });
     });
 
     describe('Persona, Statistic, AiLabel, ConfigProvider', () => {

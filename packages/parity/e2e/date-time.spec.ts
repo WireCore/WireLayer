@@ -35,12 +35,22 @@ test.describe('DateRangePicker', () => {
     });
 
     test('the calendar picks start, then end, and marks the days between', async ({ page }) => {
+        // Without a value the calendar opens on today's month – so the days are picked there
+        const now = new Date();
+        const day = (date: number) => new Date(now.getFullYear(), now.getMonth(), date);
+        const label = (date: Date) =>
+            new RegExp(
+                `^${date.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}`
+            );
+        const iso = (date: Date) =>
+            `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+        const [start, end] = [day(7), day(9)];
         await openStory(page, 'forms-daterangepicker--playground');
         await page.getByRole('button', { name: 'Clear range' }).click();
         await page.getByRole('button', { name: 'Open calendar' }).click();
-        await page.getByRole('button', { name: /^Wednesday, October 7, 2026/ }).click();
-        await page.getByRole('button', { name: /^Friday, October 9, 2026/ }).click();
-        await expect(page.getByText('From: 2026-10-07 · To: 2026-10-09')).toBeVisible();
+        await page.getByRole('button', { name: label(start) }).click();
+        await page.getByRole('button', { name: label(end) }).click();
+        await expect(page.getByText(`From: ${iso(start)} · To: ${iso(end)}`)).toBeVisible();
     });
 
     test('with time: start and end each get hour and minute', async ({ page }) => {
