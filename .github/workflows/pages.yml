@@ -28,7 +28,7 @@ jobs:
             - uses: actions/checkout@v7
             - uses: ./.github/actions/setup
             - id: pages
-              uses: actions/configure-pages@v5
+              uses: actions/configure-pages@v6
             - run: pnpm build
             # llms.txt and llms-full.txt land in apps/storybook/public and are served with the host
             - run: pnpm --filter @wirecore/wirelayer-mcp collect
