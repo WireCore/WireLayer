@@ -369,6 +369,11 @@ export interface DataTableProps<T> {
      * the changes are collected (marked) until "Save" (`save`) or "Discard", with undo and redo
      */
     editMode?: 'cell' | 'row' | 'batch';
+    /**
+     * What starts editing a cell with the pointer: `click` (default) or `dblclick` – then a single click only focuses
+     * the cell. The keyboard always starts editing (Enter or Space on the cell, Enter/F2 in the grid navigation).
+     */
+    editTrigger?: 'click' | 'dblclick';
     /** Row height – use with v-model:size (`densityToggle`) */
     size?: 'sm' | 'md' | 'lg';
     /** Menu above the table to change the row height */
@@ -445,6 +450,7 @@ const props = withDefaults(defineProps<DataTableProps<TData>>(), {
     maxConstraints: 2,
     paginatorPosition: 'bottom',
     editMode: 'cell',
+    editTrigger: 'click',
     rowHeight: 41,
     stateStorage: 'session',
     selectAllMode: 'page',
@@ -1897,6 +1903,12 @@ async function focusEditor() {
     root.value
         ?.querySelector<HTMLElement>('[data-editor] :is(input, button, [role=combobox], [tabindex="0"])')
         ?.focus();
+}
+/** A click on an editable cell; with `editTrigger="dblclick"` the pointer needs the second click (detail 2) – the
+ *  click of the keyboard (Enter, Space) has detail 0 and edits right away */
+function onEditClick(row: TableRow, columnId: string, event: MouseEvent) {
+    if (props.editTrigger === 'dblclick' && event.detail === 1) return;
+    startEdit(row, columnId);
 }
 function startEdit(row: TableRow, columnId: string) {
     editing.value = { rowId: row.id, columnId };
@@ -3689,7 +3701,7 @@ const bottomEndPositioning = { placement: 'bottom-end', gutter: 4 } as const;
                                             row.original
                                         )
                                     )}${isChanged(row, cell.column.id) ? `, ${t.changed}` : ''}`"
-                                    @click="startEdit(row, cell.column.id)"
+                                    @click="onEditClick(row, cell.column.id, $event)"
                                 >
                                     <slot
                                         :name="`cell-${cell.column.id}`"
@@ -4124,7 +4136,7 @@ const bottomEndPositioning = { placement: 'bottom-end', gutter: 4 } as const;
                                                             item.row.original
                                                         )
                                                     )}${isChanged(item.row, cell.column.id) ? `, ${t.changed}` : ''}`"
-                                                    @click="startEdit(item.row, cell.column.id)"
+                                                    @click="onEditClick(item.row, cell.column.id, $event)"
                                                 >
                                                     <slot
                                                         :name="`cell-${cell.column.id}`"

@@ -968,6 +968,19 @@ describe.each(frameworks)('%s DataTable', (framework) => {
         await waitFor(() => expect(screen.getByRole('button', { name: '42, edit Load' })).toHaveFocus());
     });
 
+    it('editTrigger="dblclick": a single click only focuses the cell, a double click or the keyboard edits', async () => {
+        const columns = [{ id: 'name', header: 'Name', editable: true }];
+        await render(framework, table({ editTrigger: 'dblclick', columns }));
+        await userEvent.click(screen.getByRole('button', { name: 'web-01, edit Name' }));
+        expect(screen.queryByRole('textbox', { name: 'Name' })).toBeNull();
+        await userEvent.dblClick(screen.getByRole('button', { name: 'web-01, edit Name' }));
+        await waitFor(() => expect(screen.getByRole('textbox', { name: 'Name' })).toHaveFocus());
+        await userEvent.keyboard('{Escape}');
+        await waitFor(() => expect(screen.getByRole('button', { name: 'web-01, edit Name' })).toHaveFocus());
+        await userEvent.keyboard('{Enter}');
+        await waitFor(() => expect(screen.getByRole('textbox', { name: 'Name' })).toHaveFocus());
+    });
+
     it('edits a whole row and saves it', async () => {
         const onRowEdit = vi.fn();
         await render(

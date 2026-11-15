@@ -9630,6 +9630,12 @@
                     "description": "`cell`: one cell at a time (Tab moves on); `row`: a whole row with save and cancel; `batch`: like `cell`, but the changes are collected (marked) until \"Save\" (`onSave`) or \"Discard\", with undo and redo"
                 },
                 {
+                    "name": "editTrigger",
+                    "type": "'click' | 'dblclick'",
+                    "optional": true,
+                    "description": "What starts editing a cell with the pointer: `click` (default) or `dblclick` – then a single click only focuses the cell. The keyboard always starts editing (Enter or Space on the cell, Enter/F2 in the grid navigation)."
+                },
+                {
                     "name": "onCellEdit",
                     "type": "(edit: DataTableCellEdit<TData>) => void",
                     "optional": true,
@@ -10255,6 +10261,12 @@
                         "type": "'cell' | 'row' | 'batch'",
                         "optional": true,
                         "description": "`cell`: one cell at a time (Tab moves on); `row`: a whole row with save and cancel; `batch`: like `cell`, but the changes are collected (marked) until \"Save\" (`save`) or \"Discard\", with undo and redo"
+                    },
+                    {
+                        "name": "editTrigger",
+                        "type": "'click' | 'dblclick'",
+                        "optional": true,
+                        "description": "What starts editing a cell with the pointer: `click` (default) or `dblclick` – then a single click only focuses the cell. The keyboard always starts editing (Enter or Space on the cell, Enter/F2 in the grid navigation)."
                     },
                     {
                         "name": "size",
