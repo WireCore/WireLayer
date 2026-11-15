@@ -438,6 +438,11 @@ export interface DataTableProps<TData> extends Omit<
      * the changes are collected (marked) until "Save" (`onSave`) or "Discard", with undo and redo
      */
     editMode?: 'cell' | 'row' | 'batch';
+    /**
+     * What starts editing a cell with the pointer: `click` (default) or `dblclick` – then a single click only focuses
+     * the cell. The keyboard always starts editing (Enter or Space on the cell, Enter/F2 in the grid navigation).
+     */
+    editTrigger?: 'click' | 'dblclick';
     /** An editable cell was changed (`editMode="cell"`) */
     onCellEdit?: (edit: DataTableCellEdit<TData>) => void;
     /** A row was saved (`editMode="row"`) */
@@ -657,6 +662,7 @@ export function DataTable<TData extends object>({
     wrapHeaders = false,
     verticalHeaders = false,
     editMode = 'cell',
+    editTrigger = 'click',
     onCellEdit,
     onRowEdit,
     size,
@@ -3142,7 +3148,12 @@ export function DataTable<TData extends object>({
                     aria-label={
                         changed ? `${t.edit(label(column), shown)}, ${t.changed}` : t.edit(label(column), shown)
                     }
-                    onClick={() => startEdit(row, column.id)}
+                    onClick={(event) => {
+                        // with editTrigger="dblclick" the pointer needs the second click (detail 2) – the click of
+                        // the keyboard (Enter, Space) has detail 0 and edits right away
+                        if (editTrigger === 'dblclick' && event.detail === 1) return;
+                        startEdit(row, column.id);
+                    }}
                 >
                     {custom ?? shown}
                 </button>
