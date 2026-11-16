@@ -9015,7 +9015,7 @@
             "description": "Data table on TanStack Table: sorting (also by several columns), search, filter row or filter menus with match modes, pagination, selection, column menu (pin, move, hide, group), resizing, column groups, totals, row details, row actions, row reordering, editing (cell or row), virtual scrolling, full screen, CSV export and saved state",
             "category": "Data",
             "story": "data-datatable--playground",
-            "extends": "Omit<\n    ComponentProps<'div'>,\n    'children' | 'ref' | 'contextMenu' | 'onScrollEnd' | 'onRowClick'\n>",
+            "extends": "Omit<\n    ComponentProps<'div'>,\n    'children' | 'ref' | 'contextMenu' | 'onScroll' | 'onScrollEnd' | 'onRowClick'\n>",
             "props": [
                 {
                     "name": "data",
@@ -9726,6 +9726,12 @@
                     "description": ""
                 },
                 {
+                    "name": "onScroll",
+                    "type": "(event: UIEvent<HTMLDivElement>) => void",
+                    "optional": true,
+                    "description": "The table's scroll area scrolled (down/up with `scrollHeight`, sideways when wider) – e.g. to close a popover anchored in a row that virtual scrolling removes"
+                },
+                {
                     "name": "stateKey",
                     "type": "string",
                     "optional": true,
@@ -10360,6 +10366,11 @@
                         "description": "Content of a cell, by column id"
                     },
                     {
+                        "name": "footer-<id>",
+                        "props": "DataTableFooterProps<TData>",
+                        "description": "Own content of a footer cell, by column id – e.g. totals as badges; the CSV export keeps the text"
+                    },
+                    {
                         "name": "filter-<id>",
                         "props": "DataTableFilterInputProps<TData>",
                         "description": "Own filter input of a column (filter row and filter menu), by column id"
@@ -10540,6 +10551,11 @@
                         "name": "scrollEnd",
                         "payload": "",
                         "description": ""
+                    },
+                    {
+                        "name": "scroll",
+                        "payload": "event: Event",
+                        "description": "The table's scroll area scrolled (down/up with `scrollHeight`, sideways when wider) – e.g. to close a popover anchored in a row that virtual scrolling removes"
                     },
                     {
                         "name": "cellSelectionChange",

@@ -100,6 +100,16 @@ export interface DataTableEditorProps<TData> {
     invalid: boolean;
 }
 
+/** What an own footer cell gets (React `renderFooter`, Vue slot `#footer-<id>`) */
+export interface DataTableFooterProps<TData> {
+    /** Total of `aggregate`, not formatted – undefined without one */
+    value: unknown;
+    /** Text the cell shows by default: `footer` or the formatted total */
+    text: string;
+    /** Rows the total is computed from: all filtered rows (every page), without group rows */
+    rows: TData[];
+}
+
 export interface DataTableColumn<TData> {
     id: string;
     /** Column name – also the accessible name of the column, of its filter and of its menus */
@@ -161,7 +171,7 @@ export interface DataTableColumn<TData> {
     validate?: (value: unknown, row: TData) => string | undefined | Promise<string | undefined>;
     /** Total of the column in the footer row and in group rows */
     aggregate?: DataTableAggregate | ((values: unknown[]) => unknown);
-    /** Footer text of the column (instead of the aggregate) */
+    /** Footer text of the column (instead of the aggregate); the CSV export and printing keep it with `renderFooter` */
     footer?: string;
     /** Part of the CSV export, default true */
     exportable?: boolean;
@@ -190,6 +200,8 @@ export interface DataTableColumn<TData> {
     renderOption?: (item: unknown, state: { selected: boolean; highlighted: boolean; disabled: boolean }) => ReactNode;
     /** Own editor (instead of the input of `editor`) */
     renderEditor?: (props: DataTableEditorProps<TData>) => ReactNode;
+    /** Own content of the footer cell, e.g. totals as badges – the CSV export and printing keep the text */
+    renderFooter?: (props: DataTableFooterProps<TData>) => ReactNode;
 }
 
 /** "Select all" across the pages of a server table (`selectAllMode="all"`): every row except these */

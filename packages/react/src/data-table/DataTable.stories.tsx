@@ -558,6 +558,72 @@ export const Totals: Story = {
     ),
 };
 
+/** Machines per location, e.g. for a footer cell */
+const perLocation = (rows: readonly MachineRow[]) => {
+    const counts = new Map<string, number>();
+    for (const row of rows) counts.set(row.location, (counts.get(row.location) ?? 0) + 1);
+    return [...counts];
+};
+
+/**
+ * Own footer cells: `renderFooter` gets the total (`value`), its text and the filtered rows it is computed from – here
+ * the machines per location as badges. The CSV export keeps the text.
+ */
+export const OwnFooter: Story = {
+    render: () => (
+        <DataTable<MachineRow>
+            features={features}
+            data={machines(12)}
+            columns={[
+                { id: 'name', header: 'Name', footer: 'Total' },
+                {
+                    id: 'location',
+                    header: 'Location',
+                    renderFooter: ({ rows }) => (
+                        <span className="flex flex-wrap gap-1">
+                            {perLocation(rows).map(([location, count]) => (
+                                <Badge key={location} variant="outline">
+                                    {`${location}: ${count}`}
+                                </Badge>
+                            ))}
+                        </span>
+                    ),
+                },
+                { id: 'cores', header: 'Cores', align: 'end', aggregate: 'sum' },
+            ]}
+            caption="Machines per location"
+            getRowId={machineId}
+            className={`${card} max-w-[720px]`}
+        />
+    ),
+};
+
+function ScrollEventTable() {
+    const [offset, setOffset] = useState(0);
+    return (
+        <div className="flex max-w-[720px] flex-col gap-2">
+            <DataTable<MachineRow>
+                features={features}
+                data={machines(200)}
+                columns={machineColumns.slice(0, 4)}
+                caption="Machines"
+                getRowId={machineId}
+                virtual
+                scrollHeight="320px"
+                className={card}
+                onScroll={(event) => setOffset(Math.round(event.currentTarget.scrollTop))}
+            />
+            <p className="text-sm text-muted">{`Scrolled ${offset} px`}</p>
+        </div>
+    );
+}
+
+/**
+ * `onScroll` reports every scroll of the table's scroll area (down/up with `scrollHeight`, sideways when wider) – e.g.
+ * to close a popover anchored in a row that virtual scrolling removes
+ */
+export const ScrollEvent: Story = { render: () => <ScrollEventTable /> };
+
 function LargeTable() {
     const [rows, setRows] = useState(() => machines(2000));
     const [loading, setLoading] = useState(false);

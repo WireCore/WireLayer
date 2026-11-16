@@ -98,6 +98,16 @@ export interface DataTableEditorProps<TData> {
     invalid: boolean;
 }
 
+/** What an own footer cell gets (React `renderFooter`, Vue slot `#footer-<id>`) */
+export interface DataTableFooterProps<TData> {
+    /** Total of `aggregate`, not formatted – undefined without one */
+    value: unknown;
+    /** Text the cell shows by default: `footer` or the formatted total */
+    text: string;
+    /** Rows the total is computed from: all filtered rows (every page), without group rows */
+    rows: TData[];
+}
+
 export interface DataTableColumn<TData> {
     id: string;
     /** Column name – also the accessible name of the column, of its filter and of its menus */
@@ -159,7 +169,10 @@ export interface DataTableColumn<TData> {
     validate?: (value: unknown, row: TData) => string | undefined | Promise<string | undefined>;
     /** Total of the column in the footer row and in group rows */
     aggregate?: DataTableAggregate | ((values: unknown[]) => unknown);
-    /** Footer text of the column (instead of the aggregate) */
+    /**
+     * Footer text of the column (instead of the aggregate); own content with the slot `#footer-<id>` – the CSV export
+     * and printing keep the text
+     */
     footer?: string;
     /** Part of the CSV export, default true */
     exportable?: boolean;
