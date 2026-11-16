@@ -47,7 +47,9 @@ function Demo(args: Parameters<typeof NotificationCenter>[0]) {
                 hasMore={more}
                 loading={loading}
                 onMarkRead={(id) => setItems(items.map((item) => (item.id === id ? { ...item, read: true } : item)))}
-                onMarkAllRead={() => setItems(items.map((item) => ({ ...item, read: true })))}
+                onMarkAllRead={(ids) =>
+                    setItems(items.map((item) => (ids.includes(item.id) ? { ...item, read: true } : item)))
+                }
                 onLoadMore={() => {
                     setLoading(true);
                     setTimeout(() => {
@@ -60,7 +62,7 @@ function Demo(args: Parameters<typeof NotificationCenter>[0]) {
                     }, 800);
                 }}
                 renderActions={(item) =>
-                    item.href ? null : (
+                    item.href || item.clickable ? null : (
                         <IconButton icon={HardDrive} label={`Details: ${item.title}`} variant="text" size="xs" />
                     )
                 }
@@ -105,3 +107,11 @@ export const Drawer: Story = { args: { display: 'drawer' } };
 
 /** Nothing there */
 export const Empty: Story = { args: { items: [], hasMore: false } };
+
+/**
+ * `clickable` items without `href`: the title is a button that reports `onSelect` – e.g. to open the item in the app
+ * (here everything without a link). "Mark all as read" reports the ids of the unread items for one request.
+ */
+export const ClickableItems: Story = {
+    args: { items: start.map((item) => (item.href ? item : { ...item, clickable: true })) },
+};

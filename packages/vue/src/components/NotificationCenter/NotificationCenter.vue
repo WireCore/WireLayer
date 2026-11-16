@@ -63,10 +63,11 @@ const emit = defineEmits<{
     'update:open': [open: boolean];
     /** Mark one item as read */
     markRead: [id: string];
-    markAllRead: [];
+    /** "Mark all as read": the ids of the unread items shown – e.g. for one request to the server */
+    markAllRead: [ids: string[]];
     /** Load the next page (hasMore) */
     loadMore: [];
-    /** The title link of an item was clicked */
+    /** The title of an item was clicked: its link, or its button (`clickable` without `href`) */
     select: [item: NotificationItem, event: MouseEvent];
 }>();
 defineSlots<{ 'item-actions'?(props: { item: NotificationItem }): unknown }>();
@@ -126,8 +127,9 @@ const listEvents = {
         emit('markRead', id);
     },
     onMarkAllRead: () => {
+        const ids = all.value.filter((item) => !item.read).map((item) => item.id);
         if (source.active.value) readIds.value = new Set(all.value.map((item) => item.id));
-        emit('markAllRead');
+        emit('markAllRead', ids);
     },
     onLoadMore: () => (source.active.value ? source.loadMore() : emit('loadMore')),
     onSelect: (item: NotificationItem, event: MouseEvent) => emit('select', item, event),

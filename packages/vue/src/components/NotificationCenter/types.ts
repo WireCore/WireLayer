@@ -9,5 +9,7 @@ export interface NotificationItem {
     read?: boolean;
     /** The title becomes a link */
     href?: string;
+    /** Without `href`: the title becomes a button that reports `select` (e.g. to open the item in the app) */
+    clickable?: boolean;
     icon?: Component;
 }

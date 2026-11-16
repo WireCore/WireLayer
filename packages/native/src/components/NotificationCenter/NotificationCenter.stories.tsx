@@ -36,7 +36,9 @@ function Demo() {
                 hasMore={hasMore}
                 loading={loading}
                 onMarkRead={(id) => setItems(items.map((item) => (item.id === id ? { ...item, read: true } : item)))}
-                onMarkAllRead={() => setItems(items.map((item) => ({ ...item, read: true })))}
+                onMarkAllRead={(ids) =>
+                    setItems(items.map((item) => (ids.includes(item.id) ? { ...item, read: true } : item)))
+                }
                 onLoadMore={() => {
                     setLoading(true);
                     setTimeout(() => {

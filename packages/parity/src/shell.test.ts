@@ -359,7 +359,25 @@ describe.each(frameworks)('%s', (framework) => {
             await userEvent.click(within(panel).getByRole('button', { name: 'Mark as read: Backup complete' }));
             expect(onMarkRead).toHaveBeenCalledWith('a');
             await userEvent.click(within(panel).getByRole('button', { name: 'Mark all as read' }));
-            expect(onMarkAllRead).toHaveBeenCalledOnce();
+            // With the ids of the unread items shown, e.g. for one request to the server
+            expect(onMarkAllRead).toHaveBeenCalledExactlyOnceWith(['a', 'c']);
+        });
+
+        it('clickable items without href have a title button that reports select; others stay text', async () => {
+            const onSelect = vi.fn();
+            const list = [
+                { id: 'a', title: 'Nomination open', date: '2026-10-21T09:30:00', clickable: true },
+                { id: 'b', title: 'Invoice ready', date: '2026-10-21T08:00:00', read: true },
+            ];
+            await render(
+                framework,
+                el('NotificationCenter', { items: list, now: '2026-10-21T12:00:00', onSelect, open: true })
+            );
+            const panel = await screen.findByRole('dialog', { name: 'Notifications' });
+            await userEvent.click(within(panel).getByRole('button', { name: 'Unread: Nomination open' }));
+            expect(onSelect).toHaveBeenCalledWith(expect.objectContaining({ id: 'a' }), expect.anything());
+            expect(within(panel).queryByRole('button', { name: /Invoice ready/ })).not.toBeInTheDocument();
+            expect(within(panel).queryByRole('link')).not.toBeInTheDocument();
         });
 
         it('shows the empty state and loads more', async () => {

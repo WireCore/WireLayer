@@ -28,6 +28,8 @@ export interface NotificationItem {
     read?: boolean;
     /** The title becomes a link */
     href?: string;
+    /** Without `href`: the title becomes a button that reports `onSelect` (e.g. to open the item in the app) */
+    clickable?: boolean;
     icon?: IconComponent;
 }
 
@@ -59,11 +61,12 @@ export interface NotificationCenterProps extends Omit<ComponentProps<'div'>, 'on
     emptyText?: string;
     /** Mark one item as read */
     onMarkRead?: (id: string) => void;
-    onMarkAllRead?: () => void;
+    /** "Mark all as read": the ids of the unread items shown – e.g. for one request to the server */
+    onMarkAllRead?: (ids: string[]) => void;
     /** Load the next page (hasMore) */
     onLoadMore?: () => void;
-    /** The title link of an item was clicked */
-    onSelect?: (item: NotificationItem, event: MouseEvent<HTMLAnchorElement>) => void;
+    /** The title of an item was clicked: its link, or its button (`clickable` without `href`) */
+    onSelect?: (item: NotificationItem, event: MouseEvent<HTMLAnchorElement | HTMLButtonElement>) => void;
     /** Own buttons per item (before "mark as read") */
     renderActions?: (item: NotificationItem) => ReactNode;
     /** Extra classes per part of the component, e.g. { base: "…" } (see the recipe) */
@@ -78,12 +81,11 @@ type ListProps = Pick<
     | 'now'
     | 'emptyText'
     | 'onMarkRead'
-    | 'onMarkAllRead'
     | 'onLoadMore'
     | 'onSelect'
     | 'renderActions'
     | 'classes'
-> & { items: readonly NotificationItem[]; unread: number };
+> & { items: readonly NotificationItem[]; unread: number; onMarkAllRead: () => void };
 
 function NotificationList({
     items,
@@ -147,6 +149,16 @@ function NotificationList({
                                                 >
                                                     {title}
                                                 </a>
+                                            ) : item.clickable ? (
+                                                <button
+                                                    type="button"
+                                                    className={itemStyles.title({
+                                                        class: [styles.titleLink(), styles.titleButton()],
+                                                    })}
+                                                    onClick={(event) => onSelect?.(item, event)}
+                                                >
+                                                    {title}
+                                                </button>
                                             ) : (
                                                 <span className={itemStyles.title()}>{title}</span>
                                             )}
@@ -244,8 +256,9 @@ export function NotificationCenter({
         onMarkRead?.(id);
     };
     const markAllRead = () => {
+        const ids = all.filter((item) => !item.read).map((item) => item.id);
         if (source.active) setReadIds(new Set(all.map((item) => item.id)));
-        onMarkAllRead?.();
+        onMarkAllRead?.(ids);
     };
     const items = itemsProp;
     const unread = unreadCount ?? all.filter((item) => !item.read).length;

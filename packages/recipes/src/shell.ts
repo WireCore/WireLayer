@@ -258,6 +258,8 @@ export const notificationCenter = tv({
         body: 'flex min-w-0 flex-1 flex-col gap-0.5',
         title: 'text-sm text-fg',
         titleLink: ['rounded-sm text-fg no-underline hover:underline', focusRing],
+        /** The title of a `clickable` item without href: a button that looks like the title link */
+        titleButton: 'cursor-pointer border-0 bg-transparent p-0 text-start',
         description: 'text-[13px] leading-snug text-muted',
         time: 'font-mono text-[11px] text-muted',
         actions: 'flex shrink-0 items-start gap-1',

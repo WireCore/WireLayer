@@ -22205,9 +22205,9 @@
                 },
                 {
                     "name": "onMarkAllRead",
-                    "type": "() => void",
+                    "type": "(ids: string[]) => void",
                     "optional": true,
-                    "description": ""
+                    "description": "\"Mark all as read\": the ids of the unread items shown – e.g. for one request to the server"
                 },
                 {
                     "name": "onLoadMore",
@@ -22217,9 +22217,9 @@
                 },
                 {
                     "name": "onSelect",
-                    "type": "(item: NotificationItem, event: MouseEvent<HTMLAnchorElement>) => void",
+                    "type": "(item: NotificationItem, event: MouseEvent<HTMLAnchorElement | HTMLButtonElement>) => void",
                     "optional": true,
-                    "description": "The title link of an item was clicked"
+                    "description": "The title of an item was clicked: its link, or its button (`clickable` without `href`)"
                 },
                 {
                     "name": "renderActions",
@@ -22329,8 +22329,8 @@
                     },
                     {
                         "name": "markAllRead",
-                        "payload": "",
-                        "description": ""
+                        "payload": "ids: string[]",
+                        "description": "\"Mark all as read\": the ids of the unread items shown – e.g. for one request to the server"
                     },
                     {
                         "name": "loadMore",
@@ -22340,7 +22340,7 @@
                     {
                         "name": "select",
                         "payload": "item: NotificationItem, event: MouseEvent",
-                        "description": "The title link of an item was clicked"
+                        "description": "The title of an item was clicked: its link, or its button (`clickable` without `href`)"
                     }
                 ]
             }
@@ -45805,9 +45805,9 @@
                     },
                     {
                         "name": "onMarkAllRead",
-                        "type": "() => void",
+                        "type": "(ids: string[]) => void",
                         "optional": true,
-                        "description": ""
+                        "description": "\"Mark all as read\": the ids of the unread items shown – e.g. for one request to the server"
                     },
                     {
                         "name": "onLoadMore",

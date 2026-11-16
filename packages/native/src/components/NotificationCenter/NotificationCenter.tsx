@@ -56,7 +56,8 @@ export interface NotificationCenterProps {
     /** Text without notifications */
     emptyText?: string;
     onMarkRead?: (id: string) => void;
-    onMarkAllRead?: () => void;
+    /** "Mark all as read": the ids of the unread items shown – e.g. for one request to the server */
+    onMarkAllRead?: (ids: string[]) => void;
     /** "Load more" without dataSource */
     onLoadMore?: () => void;
     /** A tap on a notification */
@@ -145,8 +146,9 @@ export function NotificationCenter({
         onMarkRead?.(id);
     };
     const markAll = () => {
+        const ids = all.filter((item) => !item.read).map((item) => item.id);
         if (dataSource) setReadIds(new Set(all.map((item) => item.id)));
-        onMarkAllRead?.();
+        onMarkAllRead?.(ids);
     };
     const reference = now ? toDate(now) : new Date();
     const name = label ?? t.label;
