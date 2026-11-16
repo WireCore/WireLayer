@@ -6,12 +6,21 @@ import {
     type ItemAccessor,
 } from '@wirecore/wirelayer-recipes';
 import { LoaderCircle } from 'lucide-react';
-import { useEffect, useImperativeHandle, useMemo, useRef, type CSSProperties, type ReactNode, type Ref } from 'react';
+import {
+    useEffect,
+    useImperativeHandle,
+    useMemo,
+    useRef,
+    type ComponentProps,
+    type CSSProperties,
+    type ReactNode,
+    type Ref,
+} from 'react';
 import { useTranslations } from '../components/LocaleProvider/LocaleProvider.js';
 import { useRecipe } from '../components/RecipesProvider/RecipesProvider.js';
 import { useDataSource } from '../utils/data-source.js';
 
-export interface VirtualListProps<T> {
+export interface VirtualListProps<T> extends Omit<ComponentProps<'div'>, 'children' | 'ref'> {
     items?: readonly T[];
     /** Accessible name of the list */
     label: string;
@@ -83,6 +92,7 @@ export function VirtualList<T>({
     className,
     style,
     ref,
+    ...attributes
 }: VirtualListProps<T>) {
     const virtualListBox = useRecipe('virtualListBox', virtualListBoxRecipe);
     const styles = virtualListBox();
@@ -177,6 +187,7 @@ export function VirtualList<T>({
 
     const listElement = (
         <div
+            {...attributes}
             ref={scrollElement}
             role="list"
             aria-label={label}

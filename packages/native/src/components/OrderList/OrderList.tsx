@@ -11,7 +11,15 @@ import {
 } from '@wirecore/wirelayer-recipes/native';
 import { Check, ChevronDown, ChevronsDown, ChevronsUp, ChevronUp } from 'lucide-react-native';
 import { useEffect, useId, useRef, useState, type ComponentRef, type ReactNode } from 'react';
-import { Platform, Pressable, ScrollView, Text, View, type AccessibilityActionEvent } from 'react-native';
+import {
+    Platform,
+    Pressable,
+    ScrollView,
+    Text,
+    View,
+    type AccessibilityActionEvent,
+    type ViewProps,
+} from 'react-native';
 import { useTranslations } from '../../locale.js';
 import { useAnnouncer } from '../../utils/announce.js';
 import { focusElement } from '../../utils/focus-registry.js';
@@ -22,7 +30,7 @@ import { IconButton } from '../IconButton/IconButton.js';
 import type { SelectItem } from '../Select/Select.js';
 import { ListSearch } from './ListSearch.js';
 
-export interface OrderListProps<T = SelectItem, V = ItemValueOf<T>> {
+export interface OrderListProps<T = SelectItem, V = ItemValueOf<T>> extends ViewProps {
     /** Items in their order; SelectItem objects or any objects/values (see itemValue/itemLabel) */
     value?: T[];
     defaultValue?: T[];
@@ -67,6 +75,7 @@ export function OrderList<T = SelectItem, V = ItemValueOf<T>>({
     filter = false,
     renderItem,
     className,
+    ...rest
 }: OrderListProps<T, V>) {
     const translations = useTranslations();
     const t = translations.orderList;
@@ -114,7 +123,7 @@ export function OrderList<T = SelectItem, V = ItemValueOf<T>>({
             : {};
 
     return (
-        <View className={styles.base({ class: className })}>
+        <View {...rest} className={styles.base({ class: className })}>
             <Text nativeID={`${id}label`} className={styles.label()}>
                 {label}
             </Text>

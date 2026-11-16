@@ -36,6 +36,10 @@ const meta = {
     },
     decorators: [(Story) => <View className="w-[340px]">{Story()}</View>],
     render: (args) => <Demo {...(args as PickListProps)} />,
+    argTypes: {
+        // View props reach the outermost view (react-native-web: data-testid)
+        testID: { control: 'text' },
+    },
 } satisfies Meta<typeof PickList>;
 
 export default meta;

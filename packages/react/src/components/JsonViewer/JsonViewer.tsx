@@ -152,7 +152,10 @@ export function JsonViewer({
             expandedValue={expanded}
             onExpandedChange={(details) => setExpanded(details.expandedValue)}
             translations={{ treeLabel: label ?? ariaLabel ?? t.label }}
-            onKeyDown={onKeyDown}
+            onKeyDown={(event) => {
+                rest.onKeyDown?.(event);
+                onKeyDown(event);
+            }}
         >
             {search && (
                 <Input

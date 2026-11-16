@@ -1,11 +1,11 @@
 import { pinInput, pinInputChange, type PinInputType } from '@wirecore/wirelayer-recipes/native';
 import { useRef, useState, type ComponentRef } from 'react';
-import { Platform, TextInput, View } from 'react-native';
+import { Platform, TextInput, View, type ViewProps } from 'react-native';
 import { useResolveClassNames } from 'uniwind';
 import { useTranslations } from '../../locale.js';
 import { useFieldControl } from '../Field/Field.js';
 
-export interface PinInputProps {
+export interface PinInputProps extends ViewProps {
     /** Number of characters */
     length?: number;
     value?: string;
@@ -47,6 +47,7 @@ export function PinInput({
     disabled,
     'aria-label': ariaLabel,
     className,
+    ...rest
 }: PinInputProps) {
     const translations = useTranslations();
     const control = useFieldControl({ invalid, disabled });
@@ -78,6 +79,7 @@ export function PinInput({
 
     return (
         <View
+            {...rest}
             role="group"
             aria-label={label}
             {...(control.props as object)}

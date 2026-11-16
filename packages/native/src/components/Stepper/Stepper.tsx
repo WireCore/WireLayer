@@ -1,7 +1,7 @@
 import { stepper, visuallyHidden } from '@wirecore/wirelayer-recipes/native';
 import { Check } from 'lucide-react-native';
 import { Fragment, useState, type ReactNode } from 'react';
-import { Platform, Pressable, Text, View } from 'react-native';
+import { Platform, Pressable, Text, View, type ViewProps } from 'react-native';
 import { useTranslations } from '../../locale.js';
 import { Icon } from '../../utils/Icon.js';
 import { useControllable } from '../../utils/useControllable.js';
@@ -12,7 +12,7 @@ export interface StepperItem {
     description?: string;
 }
 
-export interface StepperProps {
+export interface StepperProps extends Omit<ViewProps, 'children'> {
     items: StepperItem[];
     /** Current step (0-based; items.length = all done) */
     step?: number;
@@ -49,6 +49,7 @@ export function Stepper({
     completed,
     orientation,
     className,
+    ...rest
 }: StepperProps) {
     const vertical = orientation === 'vertical';
     const translations = useTranslations();
@@ -70,7 +71,7 @@ export function Stepper({
     const styles = stepper({ orientation });
 
     return (
-        <View className={styles.base({ class: className })}>
+        <View {...rest} className={styles.base({ class: className })}>
             <View role="list" className={styles.list()}>
                 {items.map((item, index) => {
                     const state = index < current ? 'done' : index === current ? 'active' : 'todo';

@@ -137,7 +137,10 @@ export function VirtualTree({
                 virtualizer.scrollToIndex(index, { align: 'auto' });
                 focusWhenRendered(getElement);
             }}
-            onKeyDownCapture={model.onKeyDown}
+            onKeyDownCapture={(event) => {
+                rest.onKeyDownCapture?.(event);
+                model.onKeyDown(event);
+            }}
         >
             {label && <ArkTreeView.Label className={styles.label()}>{label}</ArkTreeView.Label>}
             <TreeToolbar

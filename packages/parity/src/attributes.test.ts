@@ -1,4 +1,5 @@
-import { describe, expect, it } from 'vitest';
+import { fireEvent } from '@testing-library/dom';
+import { describe, expect, it, vi } from 'vitest';
 import { cases } from './cases.js';
 import { el, frameworks, normalize, render, renderSettled, type El } from './harness.js';
 
@@ -53,9 +54,11 @@ const components: { name: string; node?: El; id?: false; innerLabel?: true }[] =
     { name: 'PinInput', id: false, innerLabel: true },
     { name: 'ProgressCircle' },
     { name: 'Rating', id: false },
+    { name: 'ScrollTop' },
     { name: 'ScrollPanel' },
     { name: 'SidebarNav' },
     { name: 'SignaturePad' },
+    { name: 'Sparkline' },
     { name: 'Sortable', innerLabel: true },
     { name: 'SpeedDial' },
     { name: 'SplitButton' },
@@ -68,6 +71,7 @@ const components: { name: string; node?: El; id?: false; innerLabel?: true }[] =
     { name: 'Tree', innerLabel: true },
     { name: 'TreeSelect', id: false, innerLabel: true },
     { name: 'Editor', innerLabel: true },
+    { name: 'VirtualList' },
     { name: 'VirtualTree', innerLabel: true },
 ];
 
@@ -127,5 +131,27 @@ describe('extra attributes land on the outermost element', () => {
         expect(root.getAttribute('data-tour')).toBe('canvas');
         expect(root.hasAttribute('aria-label')).toBe(false);
         expect(root.querySelector('ul')!.getAttribute('aria-label')).toBe('Tasks');
+    });
+
+    // Components with a key handler of their own on the outermost element: a listener given to them runs as well
+    const keyHandlers: [string, string, boolean][] = [
+        ['JsonViewer', 'KeyDown', false],
+        ['Timeline feed, loading older', 'KeyDown', false],
+        ['Tree', 'KeyDown', true],
+        ['VirtualTree', 'KeyDown', true],
+    ];
+    describe.each(frameworks)('%s', (framework) => {
+        it.each(keyHandlers)('%s runs a given key listener next to its own', async (name, event, capture) => {
+            const node = cases.find(
+                ([caseName, node]) => caseName === name || (node.type === name && caseName.startsWith(name))
+            )![1];
+            const listener = vi.fn();
+            // React: onKeyDown(Capture), Vue: onKeydown(Capture)
+            const prop = `on${framework === 'react' ? event : 'Keydown'}${capture ? 'Capture' : ''}`;
+            const root = (await render(framework, { ...node, props: { ...node.props, [prop]: listener } }))
+                .firstElementChild!;
+            fireEvent.keyDown(root.querySelector('[tabindex="0"]') ?? root, { key: 'ArrowDown' });
+            expect(listener).toHaveBeenCalledTimes(1);
+        });
     });
 });

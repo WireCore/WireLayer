@@ -67,6 +67,35 @@ export interface OptionListProps<T, V> {
     renderItem?: (item: T, state: ListItemState) => ReactNode;
 }
 
+// Every prop of the option list by name (the type makes sure none is missing)
+const optionListKeys: Record<keyof OptionListProps<unknown, unknown>, true> = {
+    items: true,
+    itemValue: true,
+    itemLabel: true,
+    itemDisabled: true,
+    itemGroup: true,
+    valueKey: true,
+    manualFilter: true,
+    onFilterChange: true,
+    emptyText: true,
+    loading: true,
+    loadingText: true,
+    hasMore: true,
+    onLoadMore: true,
+    dataSource: true,
+    minSearchLength: true,
+    pageSize: true,
+    renderItem: true,
+};
+
+/** A list's other props without those of the option list: the props for its root view */
+export function optionListAttributes<P extends object>(props: P): Omit<P, keyof OptionListProps<unknown, unknown>> {
+    return Object.fromEntries(Object.entries(props).filter(([key]) => !(key in optionListKeys))) as Omit<
+        P,
+        keyof OptionListProps<unknown, unknown>
+    >;
+}
+
 /** Accent- and case-blind: "nu" finds "Nürnberg" */
 export const fold = (text: string) => text.normalize('NFD').replace(/\p{M}/gu, '').toLocaleLowerCase();
 export const contains = (text: string, query: string) => fold(text).includes(fold(query));

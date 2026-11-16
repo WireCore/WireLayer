@@ -182,12 +182,15 @@ defineExpose({
     -->
     <div
         ref="scrollElement"
+        v-bind="{
+            ...attrs,
+            class: styles.base({ class: normalizeClass(attrs.class) }),
+            style: [{ height }, attrs.style],
+        }"
         role="list"
         :aria-label="label"
         :aria-busy="(extended && busy) || undefined"
         tabindex="0"
-        :class="styles.base({ class: normalizeClass(attrs.class) })"
-        :style="[{ height }, attrs.style]"
     >
         <div :class="styles.spacer()" :style="{ height: `${virtualizer.getTotalSize()}px` }">
             <template v-for="row in virtualRows" :key="String(row.key)">

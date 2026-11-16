@@ -111,7 +111,16 @@ export function Timeline({
             aria-label={label}
             className={styles.base({ class: className })}
             style={style}
-            {...(feed ? { role: 'feed', 'aria-busy': loading || undefined, onKeyDown: onFeedKeyDown } : {})}
+            {...(feed
+                ? {
+                      role: 'feed',
+                      'aria-busy': loading || undefined,
+                      onKeyDown: (event: KeyboardEvent<HTMLElement>) => {
+                          rest.onKeyDown?.(event);
+                          onFeedKeyDown(event);
+                      },
+                  }
+                : {})}
         >
             {items.map((item, index) => {
                 const Icon = item.icon;

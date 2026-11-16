@@ -16,6 +16,10 @@ const meta = {
         formatValue: (value: number) => `${value} GB`,
     },
     decorators: [(Story) => <View className="w-[320px]">{Story()}</View>],
+    argTypes: {
+        // View props reach the outermost view (react-native-web: data-testid)
+        testID: { control: 'text' },
+    },
 } satisfies Meta<typeof MeterGroup>;
 
 export default meta;

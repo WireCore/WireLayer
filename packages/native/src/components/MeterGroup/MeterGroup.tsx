@@ -1,5 +1,5 @@
 import { meterColor, meterGroup, type MeterColor } from '@wirecore/wirelayer-recipes/native';
-import { Text, View } from 'react-native';
+import { Text, View, type ViewProps } from 'react-native';
 import { segmentPalette } from '../../utils/palette.js';
 
 export interface MeterGroupItem {
@@ -8,7 +8,7 @@ export interface MeterGroupItem {
     color?: MeterColor;
 }
 
-export interface MeterGroupProps {
+export interface MeterGroupProps extends ViewProps {
     items: MeterGroupItem[];
     /** Visible label, also the name of the group */
     label: string;
@@ -35,6 +35,7 @@ export function MeterGroup({
     legendPosition = 'bottom',
     legendOrientation = 'horizontal',
     className,
+    ...rest
 }: MeterGroupProps) {
     const styles = meterGroup({
         orientation,
@@ -71,7 +72,7 @@ export function MeterGroup({
         </View>
     );
     return (
-        <View role="group" aria-label={label} className={styles.base({ class: className })}>
+        <View {...rest} role="group" aria-label={label} className={styles.base({ class: className })}>
             <Text className={styles.label()} aria-hidden>
                 {label}
             </Text>

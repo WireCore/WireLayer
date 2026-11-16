@@ -30,6 +30,10 @@ const meta = {
     args: { label: 'Table columns', filter: false },
     decorators: [(Story) => <View className="w-[340px]">{Story()}</View>],
     render: (args) => <Demo {...(args as OrderListProps)} />,
+    argTypes: {
+        // View props reach the outermost view (react-native-web: data-testid)
+        testID: { control: 'text' },
+    },
 } satisfies Meta<typeof OrderList>;
 
 export default meta;

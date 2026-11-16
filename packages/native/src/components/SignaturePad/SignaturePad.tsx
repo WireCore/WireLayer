@@ -1,7 +1,7 @@
 import { pointsToPath, signaturePad, signatureSvg, typedSignature } from '@wirecore/wirelayer-recipes/native';
 import { Eraser, Keyboard, PenLine, Undo2 } from 'lucide-react-native';
 import { useId, useState } from 'react';
-import { Text, View, type GestureResponderEvent, type LayoutChangeEvent } from 'react-native';
+import { Text, View, type GestureResponderEvent, type LayoutChangeEvent, type ViewProps } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import { useTranslations } from '../../locale.js';
 import { useAnnouncer } from '../../utils/announce.js';
@@ -10,7 +10,7 @@ import { Button } from '../Button/Button.js';
 import { Field } from '../Field/Field.js';
 import { Input } from '../Input/Input.js';
 
-export interface SignaturePadProps {
+export interface SignaturePadProps extends ViewProps {
     /** The signature as SVG data URL ("" when empty, controlled) */
     value?: string;
     onValueChange?: (value: string) => void;
@@ -60,6 +60,7 @@ export function SignaturePad({
     readOnly = false,
     invalid = false,
     className,
+    ...rest
 }: SignaturePadProps) {
     const translations = useTranslations();
     const t = translations.signaturePad;
@@ -106,7 +107,7 @@ export function SignaturePad({
     const empty = typing ? !typedName.trim() : !paths.length && !stroke.length;
 
     return (
-        <View className={styles.base({ class: className })}>
+        <View {...rest} className={styles.base({ class: className })}>
             <Text nativeID={`${id}label`} className={styles.label()}>
                 {name}
             </Text>

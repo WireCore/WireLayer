@@ -28146,7 +28146,7 @@
             "description": "Hidden (and out of the tab order) until the page is scrolled down",
             "category": "Navigation",
             "story": "navigation-scrolltop--playground",
-            "extends": null,
+            "extends": "Omit<ComponentProps<'button'>, 'children' | 'color'>",
             "props": [
                 {
                     "name": "threshold",
@@ -30383,7 +30383,7 @@
             "description": "Small line without axes; the canvas is an image named by the trend and the extremes",
             "category": "Data",
             "story": "data-sparkline--playground",
-            "extends": null,
+            "extends": "ComponentProps<'span'>",
             "props": [
                 {
                     "name": "data",
@@ -35811,7 +35811,7 @@
             "description": "Only the visible rows are in the DOM; each row says its position (aria-posinset/setsize), so screen readers still know the length. The area scrolls with the keyboard (tabindex).",
             "category": "Data",
             "story": "data-virtuallist--playground",
-            "extends": null,
+            "extends": "Omit<ComponentProps<'div'>, 'children' | 'ref'>",
             "props": [
                 {
                     "name": "items",
@@ -37972,7 +37972,7 @@
         {
             "id": "migration-pitfalls",
             "title": "Pitfalls",
-            "text": "- **An empty choice is `null`, not `''`.** For PrimeVue's Select `''` means \"nothing chosen\"; WireLayer's Select treats\n  `''` as a value (it warns in development that it is not among the items). Use `null`.\n- **TanStack fields start with `''`.** A required text in Zod therefore needs `.min(1)` – `z.string()` alone accepts\n  the empty field.\n- **Fonts:** set your own with `@theme { --font-sans: … }`. Import `theme.css` instead of `styles.css` (with the\n  sources files, or the Vite plugin `@wirecore/wirelayer-recipes/vite`) so the WireLayer fonts are not bundled\n  (_Getting started › Welcome › Smaller CSS_).\n- **Card spacing:** `Card` puts a `gap` between its direct children – wrap content that should sit tight in one\n  element.\n- **Overrides go per part and per variant.** `classes: { base: 'rounded-md' }` reaches every size; only the medium size\n  with `variants: { size: { md: { base: '…' } } }` – no selectors on the recipe's own classes. States such as `invalid`\n  stay visible over such classes; only `class` on the component itself replaces them.\n- **Sizes and corners in one place:** the height, text and corners of buttons and fields per size, the corners of\n  rounded buttons, the padding of cards and the backdrop of dialogs are CSS variables (`--wc-control-h-md` …).\n- **Labels:** wrap a control in `Field` (it links label, description and error). A native `<label for>` works with the\n  control's own `id`; date fields, sliders and groups need `Field` or `aria-label`.\n- **Extra attributes go to the outermost element.** `data-*`, `id`, `title`, `aria-describedby` and listeners without a\n  prop of their own land on the component's outermost element (React: the rest props, Vue: the attrs) – e.g.\n  `data-tour` as the target of a `Tour` step or a test selector, no wrapper `<div>` needed. Exceptions: `aria-label`\n  names what it labels (the list of `Sortable` and `Listbox`, the tree of `Tree`, `VirtualTree` and `JsonViewer`, the\n  dial of `Knob`, the field of `CascadeSelect`, `TreeSelect`, `ColorPicker`, `PinInput` and `Editor`); a control's own\n  `id` prop goes to that control (see _Labels_); `Fieldset` takes `id` as the base of its legend's and texts' ids.\n- **Brand colours:** `checkTheme` lists the pairs below WCAG AA, `suggestThemeFixes` the nearest colours (and `on-*`\n  colours) that meet them – an orange `primary` with white text, common in PrimeVue themes, does not."
+            "text": "- **An empty choice is `null`, not `''`.** For PrimeVue's Select `''` means \"nothing chosen\"; WireLayer's Select treats\n  `''` as a value (it warns in development that it is not among the items). Use `null`.\n- **TanStack fields start with `''`.** A required text in Zod therefore needs `.min(1)` – `z.string()` alone accepts\n  the empty field.\n- **Fonts:** set your own with `@theme { --font-sans: … }`. Import `theme.css` instead of `styles.css` (with the\n  sources files, or the Vite plugin `@wirecore/wirelayer-recipes/vite`) so the WireLayer fonts are not bundled\n  (_Getting started › Welcome › Smaller CSS_).\n- **Card spacing:** `Card` puts a `gap` between its direct children – wrap content that should sit tight in one\n  element.\n- **Overrides go per part and per variant.** `classes: { base: 'rounded-md' }` reaches every size; only the medium size\n  with `variants: { size: { md: { base: '…' } } }` – no selectors on the recipe's own classes. States such as `invalid`\n  stay visible over such classes; only `class` on the component itself replaces them.\n- **Sizes and corners in one place:** the height, text and corners of buttons and fields per size, the corners of\n  rounded buttons, the padding of cards and the backdrop of dialogs are CSS variables (`--wc-control-h-md` …).\n- **Labels:** wrap a control in `Field` (it links label, description and error). A native `<label for>` works with the\n  control's own `id`; date fields, sliders and groups need `Field` or `aria-label`.\n- **Extra attributes go to the outermost element.** `data-*`, `id`, `title`, `aria-describedby` and listeners without a\n  prop of their own land on the component's outermost element (React: the rest props, Vue: the attrs) – e.g.\n  `data-tour` as the target of a `Tour` step or a test selector, no wrapper `<div>` needed. Exceptions: `aria-label`\n  names what it labels (the list of `Sortable` and `Listbox`, the tree of `Tree`, `VirtualTree` and `JsonViewer`, the\n  dial of `Knob`, the field of `CascadeSelect`, `TreeSelect`, `ColorPicker`, `PinInput` and `Editor`); a control's own\n  `id` prop goes to that control (see _Labels_); `Fieldset` takes `id` as the base of its legend's and texts' ids.\n  Text fields and pickers built around a native input (`Input`, `Select`, `DatePicker`, `Checkbox`, `Switch` …) give\n  `class` and `style` to their wrapper and every other attribute to the input. `Inplace` takes none – its element\n  switches between the text and the editor. In React Native the view props (`testID`, `nativeID`, accessibility props)\n  go to the outermost view; pickers that open a sheet (`Select`, `CascadeSelect`, `TreeSelect`, `ColorPicker`,\n  `NavigationMenu`, `NotificationCenter`) take none – they render a trigger and a sheet, no outer view.\n- **Brand colours:** `checkTheme` lists the pairs below WCAG AA, `suggestThemeFixes` the nearest colours (and `on-*`\n  colours) that meet them – an orange `primary` with white text, common in PrimeVue themes, does not."
         },
         {
             "id": "migration-desktop-apps-dense-ui-many-dialogs",
@@ -39355,7 +39355,7 @@
                 "description": "Slides to swipe through (FlatList with paging): arrow buttons, dots, autoplay with pause (WCAG 2.2.2), the arrow keys on the web. Slides outside the page are hidden from screen readers; iOS and Android announce the new slide.",
                 "category": "Media",
                 "story": "media-carousel--playground",
-                "extends": null,
+                "extends": "Omit<ViewProps, 'children'>",
                 "props": [
                     {
                         "name": "items",
@@ -41663,7 +41663,7 @@
                 "description": "Items as a list or grid (a list either way, the switch is a radio group \"View\"), with pages or growing (\"Load more\", optionally at the end of the scrolling), loading placeholders, empty and error states – from `items` or a data source. The items scroll in a FlatList.",
                 "category": "Data",
                 "story": "data-dataview--playground",
-                "extends": null,
+                "extends": "Omit<ViewProps, 'children'>",
                 "props": [
                     {
                         "name": "items",
@@ -44560,7 +44560,7 @@
                 "description": "Always visible list of options: radio buttons (one value) or checkboxes (`multiple`) – the selection states screen readers announce on iOS and Android. Scrolls inside its box; its end (or \"Load more\") loads more.",
                 "category": "Forms",
                 "story": "forms-listbox--playground",
-                "extends": null,
+                "extends": "ViewProps",
                 "props": [
                     {
                         "name": "items",
@@ -45264,7 +45264,7 @@
                 "description": "Several values in one bar with a legend, e.g. storage by type – the legend gives every value as text",
                 "category": "Data",
                 "story": "data-metergroup--playground",
-                "extends": null,
+                "extends": "ViewProps",
                 "props": [
                     {
                         "name": "items",
@@ -46106,7 +46106,7 @@
                 "description": "Choose an item (radio buttons), then move it with the buttons below – or with the screen reader actions of every item (\"Move to top\", \"Move up\" …), on the web also with Alt + arrow keys. The new position is announced.",
                 "category": "Data",
                 "story": "data-orderlist--playground",
-                "extends": null,
+                "extends": "ViewProps",
                 "props": [
                     {
                         "name": "value",
@@ -46182,7 +46182,7 @@
                 "description": "Hierarchy of people as a vertical, indented list (nested lists – screen readers read the structure): a card per person (avatar, name, role), a button beside each team that shows or hides it, teams loaded on demand.",
                 "category": "Data",
                 "story": "data-orgchart--playground",
-                "extends": null,
+                "extends": "ViewProps",
                 "props": [
                     {
                         "name": "node",
@@ -47004,7 +47004,7 @@
                 "description": "Two lists of checkboxes, one below the other: choose items and move them across with the buttons between the lists (\"Add selected\", \"Add all\" …); the move is announced.",
                 "category": "Data",
                 "story": "data-picklist--playground",
-                "extends": null,
+                "extends": "ViewProps",
                 "props": [
                     {
                         "name": "items",
@@ -47192,7 +47192,7 @@
                 "description": "Code input (OTP, PIN): one box per character (\"Digit 1 of 6\"), typing moves on, Backspace on an empty box goes back, pasting or the SMS autofill fills all boxes.",
                 "category": "Forms",
                 "story": "forms-pininput--playground",
-                "extends": null,
+                "extends": "ViewProps",
                 "props": [
                     {
                         "name": "length",
@@ -47862,7 +47862,7 @@
                 "description": "Star rating as one adjustable control (role slider): swipe up/down (VoiceOver) or the adjust actions (TalkBack) change it, it reads \"3 stars\"; on the web the arrow keys, Home/End. A tap on a star chooses it (on its left half with allowHalf).",
                 "category": "Forms",
                 "story": "forms-rating--playground",
-                "extends": null,
+                "extends": "ViewProps",
                 "props": [
                     {
                         "name": "value",
@@ -48902,7 +48902,7 @@
                 "description": "Signature field: draw with the finger (react-native-svg, gesture responder); \"Undo\" removes the last stroke. With typedAlternative the name can be typed instead – for screen reader and switch users. The value is an SVG data URL.",
                 "category": "Forms",
                 "story": "forms-signaturepad--playground",
-                "extends": null,
+                "extends": "ViewProps",
                 "props": [
                     {
                         "name": "value",
@@ -49194,7 +49194,7 @@
                 "description": "Sortable list: every item has a handle. Drag it after a long press (or right away by moving it), tap it and then the target (WCAG 2.5.7), or use the screen reader actions \"Move up\" … and \"Move to “…”\" (lists of a group); on the web Space picks up, the arrow keys move, Space drops and Escape cancels. Every step is announced.",
                 "category": "Data",
                 "story": "data-sortable--playground",
-                "extends": null,
+                "extends": "ViewProps",
                 "props": [
                     {
                         "name": "value",
@@ -49630,7 +49630,7 @@
                 "description": "Wizard for small screens: numbered steps in a row (each named with its status), the title of the current step as a heading, its content and back/next below; the last \"Next\" finishes.",
                 "category": "Navigation",
                 "story": "navigation-stepper--playground",
-                "extends": null,
+                "extends": "Omit<ViewProps, 'children'>",
                 "props": [
                     {
                         "name": "items",
@@ -51306,7 +51306,7 @@
                 "description": "A long list that renders only what is in view (FlatList; with `itemGroup` a SectionList with sticky headings). The end loads more (`hasMore` + `onLoadMore`, or a data source) – \"Load more\" does the same for screen reader and keyboard users; loading, empty and error rows at the end, the data source's state announced.",
                 "category": "Data",
                 "story": "data-virtuallist--playground",
-                "extends": null,
+                "extends": "Omit<ViewProps, 'children'>",
                 "props": [
                     {
                         "name": "items",

@@ -194,7 +194,10 @@ export function Tree({
             {...(model.ownChecks ? {} : { checkedValue, defaultCheckedValue })}
             onCheckedChange={(details) => model.ownChecks || model.onArkCheckedChange(details.checkedValue)}
             translations={{ treeLabel: label ?? ariaLabel ?? translations.tree.treeLabel }}
-            onKeyDownCapture={model.onKeyDown}
+            onKeyDownCapture={(event) => {
+                rest.onKeyDownCapture?.(event);
+                model.onKeyDown(event);
+            }}
         >
             {label && <ArkTreeView.Label className={styles.label()}>{label}</ArkTreeView.Label>}
             <TreeToolbar

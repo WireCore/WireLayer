@@ -58,6 +58,8 @@ const meta = {
         children: (item: unknown, layout: 'list' | 'grid') => <ServerItem server={item as Server} layout={layout} />,
     },
     argTypes: {
+        // View props reach the outermost view (react-native-web: data-testid)
+        testID: { control: 'text' },
         layout: { control: 'inline-radio', options: ['list', 'grid'] },
         loadMode: { control: 'inline-radio', options: ['pages', 'infinite'] },
     },

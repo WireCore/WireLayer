@@ -24,6 +24,7 @@ import {
     type AccessibilityActionEvent,
     type AccessibilityActionInfo,
     type GestureResponderEvent,
+    type ViewProps,
 } from 'react-native';
 import { useTranslations } from '../../locale.js';
 import { useAnnouncer } from '../../utils/announce.js';
@@ -46,7 +47,7 @@ import {
     useSortableStore,
 } from './store.js';
 
-export interface SortableProps<T = unknown> {
+export interface SortableProps<T = unknown> extends ViewProps {
     /** The items in their order (controlled) */
     value?: T[];
     defaultValue?: T[];
@@ -136,6 +137,7 @@ export function SortableList<T = unknown>({
     onHandlePress,
     actions,
     onAction,
+    ...rest
 }: SortableListProps<T>) {
     const translations = useTranslations();
     const t = translations.sortable;
@@ -386,7 +388,7 @@ export function SortableList<T = unknown>({
     };
 
     return (
-        <View className={styles.base({ class: className })}>
+        <View {...rest} className={styles.base({ class: className })}>
             {!!label && (
                 <Text nativeID={`${baseId}label`} className={styles.label()}>
                     {label}

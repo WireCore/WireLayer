@@ -8,7 +8,7 @@ import {
 } from '@wirecore/wirelayer-recipes/native';
 import { LayoutGrid, List } from 'lucide-react-native';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
-import { FlatList, Platform, Text, View, type StyleProp, type ViewStyle } from 'react-native';
+import { FlatList, Platform, Text, View, type StyleProp, type ViewStyle, type ViewProps } from 'react-native';
 import { useLocale } from '../../locale.js';
 import { useAnnouncer } from '../../utils/announce.js';
 import { useControllable } from '../../utils/useControllable.js';
@@ -18,7 +18,7 @@ import { SegmentedControl } from '../SegmentedControl/SegmentedControl.js';
 import { Skeleton } from '../Skeleton/Skeleton.js';
 import { useDataList } from '../VirtualList/useDataList.js';
 
-export interface DataViewProps<T> {
+export interface DataViewProps<T> extends Omit<ViewProps, 'children'> {
     items?: readonly T[];
     /** Accessible name of the list, e.g. "Server" */
     label: string;
@@ -126,6 +126,7 @@ export function DataView<T>({
     children,
     className,
     style,
+    ...rest
 }: DataViewProps<T>) {
     const { translations, locale } = useLocale();
     const t = translations.dataView;
@@ -298,6 +299,7 @@ export function DataView<T>({
 
     return (
         <View
+            {...rest}
             className={styles.base({ class: className })}
             style={style}
             onLayout={(event) => setWidth(event.nativeEvent.layout.width)}

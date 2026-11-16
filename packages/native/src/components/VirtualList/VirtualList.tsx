@@ -8,6 +8,7 @@ import {
     View,
     type DimensionValue,
     type StyleProp,
+    type ViewProps,
     type ViewStyle,
 } from 'react-native';
 import { useLocale } from '../../locale.js';
@@ -16,7 +17,7 @@ import { Loader } from '../../utils/Loader.js';
 import { Button } from '../Button/Button.js';
 import { useDataList } from './useDataList.js';
 
-export interface VirtualListProps<T> {
+export interface VirtualListProps<T> extends Omit<ViewProps, 'children'> {
     /** The items (with `dataSource` the list loads them itself) */
     items?: readonly T[];
     /** Accessible name of the list */
@@ -101,6 +102,7 @@ export function VirtualList<T>({
     className,
     style,
     ref,
+    ...rest
 }: VirtualListProps<T>) {
     const { translations } = useLocale();
     const styles = virtualList();
@@ -219,6 +221,7 @@ export function VirtualList<T>({
         </View>
     );
     const common = {
+        ...rest,
         // An empty list is no list (axe: a list needs items); the web can reach the scrolling box with the keyboard
         ...(list.length ? { role: 'list' as const, 'aria-label': label } : {}),
         ...(web ? { tabIndex: 0 as const } : {}),

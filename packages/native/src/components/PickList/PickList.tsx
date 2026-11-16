@@ -9,7 +9,7 @@ import {
 } from '@wirecore/wirelayer-recipes/native';
 import { ChevronDown, ChevronsDown, ChevronsUp, ChevronUp } from 'lucide-react-native';
 import { useMemo, useState, type ReactNode } from 'react';
-import { View } from 'react-native';
+import { View, type ViewProps } from 'react-native';
 import { useTranslations } from '../../locale.js';
 import { useAnnouncer } from '../../utils/announce.js';
 import { contains, type ListItemState } from '../../utils/options.js';
@@ -19,7 +19,7 @@ import { Listbox } from '../Listbox/Listbox.js';
 import { ListSearch } from '../OrderList/ListSearch.js';
 import type { SelectItem } from '../Select/Select.js';
 
-export interface PickListProps<T = SelectItem, V = ItemValueOf<T>> {
+export interface PickListProps<T = SelectItem, V = ItemValueOf<T>> extends ViewProps {
     /** All items: SelectItem objects – or any objects or values, read with itemValue/itemLabel/itemDisabled */
     items: readonly T[];
     /** Values of the chosen items, in their order; any type (see `valueKey`) */
@@ -84,6 +84,7 @@ export function PickList<T = SelectItem, V = ItemValueOf<T>>({
     selectAll = false,
     renderItem,
     className,
+    ...rest
 }: PickListProps<T, V>) {
     const translations = useTranslations();
     const t = translations.pickList;
@@ -149,7 +150,7 @@ export function PickList<T = SelectItem, V = ItemValueOf<T>>({
     const shared = { itemValue, itemLabel, itemDisabled, valueKey, multiple: true, selectAll, renderItem };
 
     return (
-        <View className={styles.base({ class: className })}>
+        <View {...rest} className={styles.base({ class: className })}>
             <View className={styles.section()}>
                 {filter && (
                     <ListSearch
