@@ -7,6 +7,8 @@ import {
     fonts,
     nativeExtraThemes,
     nativeFonts,
+    optionalColorFallbacks,
+    optionalColorTokens,
     radius,
     themes,
     themeToCss,
@@ -59,6 +61,10 @@ ${themeRules}
     --font-sans: ${fonts.sans.join(', ')};
     --font-mono: ${fonts.mono.join(', ')};
 ${colorTokens.map((token) => `    --color-${token}: var(--wc-${token});`).join('\n')}
+    /* Optional tokens: without a value of the theme they follow another token (accent → primary …) */
+${optionalColorTokens
+    .map((token) => `    --color-${token}: var(--wc-${token}, var(--wc-${optionalColorFallbacks[token]}));`)
+    .join('\n')}
 ${Object.entries(tracking)
     .map(([name, value]) => `    --tracking-${name}: ${value};`)
     .join('\n')}

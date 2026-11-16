@@ -65,3 +65,36 @@ describe('light and dark', () => {
         }
     });
 });
+
+describe('optional colour tokens', () => {
+    const native = readFileSync(new URL('../dist/native.css', import.meta.url), 'utf8');
+
+    // Not declared on :root – the Tailwind colour reads the token of the theme and else the one it follows, also in
+    // nested themes (data-theme on a part of the page)
+    it('follows the token it falls back to when a theme does not set it', () => {
+        expect(css).toContain('--color-accent: var(--wc-accent, var(--wc-primary));');
+        expect(css).toContain('--color-on-accent: var(--wc-on-accent, var(--wc-on-primary));');
+        expect(css).toContain('--color-primary-hover: var(--wc-primary-hover, var(--wc-primary));');
+        expect(css).not.toMatch(/--wc-(accent|on-accent|primary-hover):/);
+    });
+
+    it('is part of the CSS of a theme that sets it', () => {
+        const rules = themeToCss({
+            name: 'brand',
+            label: 'Brand',
+            colors: { light: { accent: '#00696d', 'primary-hover': '#8f3500' }, dark: { accent: '#2aa0a5' } },
+        });
+        expect(rules).toContain('--wc-accent: #00696d;');
+        expect(rules).toContain('--wc-primary-hover: #8f3500;');
+        expect(rules).toContain('--wc-accent: #2aa0a5;');
+    });
+
+    it('gives React Native a fixed colour per theme and mode', () => {
+        const variants = native.split('@variant ').slice(1);
+        expect(variants).toHaveLength(themes.length * 2);
+        for (const variant of variants) {
+            expect(variant).toMatch(/--color-accent: [^;v]+;/);
+            expect(variant).toMatch(/--color-primary-hover: [^;v]+;/);
+        }
+    });
+});

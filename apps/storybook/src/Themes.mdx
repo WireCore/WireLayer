@@ -58,6 +58,59 @@ suggestThemeFixes(brand);
 //    on: { token: 'on-primary', value: '#050505', ratio: 8.1 } }, …]
 ```
 
+## Second brand color and hover color
+
+Three more tokens are optional – a theme sets them only when it needs them. Without them they follow another token, so
+a theme without them looks as before:
+
+| Token           | Without it   | Used by                                                                                                                                           |
+| --------------- | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `accent`        | `primary`    | A second brand color for your own markup: `bg-accent`, `text-accent`, `border-accent` (no component uses it)                                      |
+| `on-accent`     | `on-primary` | Text on the accent: `text-on-accent`                                                                                                              |
+| `primary-hover` | see right    | Hover of the primary color: the fill of solid primary buttons (else the fill fades to 85 %) and the text of tinted ones (else it stays `primary`) |
+
+`primary-hover` is the answer to a strong brand color: a fill that fades on hover, or a tint behind the text, can drop
+it below 4.5:1 although the color itself passes. Tinted means `soft`, `outline` and `text` buttons in the primary color
+and avatar buttons with `color="primary"`.
+
+```ts
+export const brand = defineTheme({
+    name: 'brand',
+    label: 'Brand',
+    colors: {
+        light: {
+            primary: '#a33d00',
+            'on-primary': '#FFFFFF',
+            'primary-hover': '#8a3300',
+            accent: '#00696d',
+            'on-accent': '#FFFFFF',
+        },
+        dark: {
+            primary: '#e95a00',
+            'on-primary': '#050505',
+            'primary-hover': '#f5772a',
+            accent: '#2aa0a5',
+            'on-accent': '#050505',
+        },
+    },
+});
+```
+
+`checkTheme` checks the accent (text on it, and as text on `bg`, `bg-2` and `card`) once a theme sets `accent` or
+`on-accent` in a mode. The hover pairs of the primary color use `primary-hover` when it is set, and `suggestThemeFixes`
+suggests one `primary-hover` that meets all of them, before it would change `primary` itself.
+
+**Changed with `@wirecore/wirelayer-tokens` 0.6 and `@wirecore/wirelayer-recipes` 0.9:**
+
+- Solid primary buttons without `primary-hover` fade only their fill on hover (`color-mix`, 85 %); before, the whole
+  button faded with `opacity`, the text included. In the bundled themes this looks the same – the text has the color
+  of the page – and the contrast is never lower. Solid success, danger, info, warn and contrast buttons still fade with
+  `opacity`.
+- `checkTheme` checks tinted primary text at rest as well: `soft primary: text-primary on bg-primary/10` (on `bg`,
+  `bg-2`, `card`) and `avatar primary: text-primary on primary/14 (card)`. Before, the stricter hover pairs covered
+  them; with `primary-hover` the hover has a text color of its own. A theme that missed a tinted hover may therefore be
+  reported for these pairs as well.
+
 ## Component sizes and shapes
 
 Besides the colors, a few measures that a brand usually changes are CSS variables. Without them every component looks as

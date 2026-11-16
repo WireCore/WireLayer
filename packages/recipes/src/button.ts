@@ -32,8 +32,14 @@ export type ButtonColorKey = `color${Capitalize<ButtonColor>}`;
 export const buttonColorKey = (color: ButtonColor | undefined): ButtonColorKey | undefined =>
     color && (`color${color[0]!.toUpperCase()}${color.slice(1)}` as ButtonColorKey);
 
+/**
+ * Hover of solid primary buttons: the theme's `primary-hover`, else the fill fades to 85 % like the other solid
+ * variants (the text stays opaque). The token contrast test checks both.
+ */
+const primaryHoverFill = 'hover:bg-[var(--wc-primary-hover,color-mix(in_srgb,var(--wc-primary)_85%,transparent))]';
+
 const colors: Record<IconButtonVariant, string> = {
-    primary: 'bg-primary text-on-primary hover:opacity-85',
+    primary: `bg-primary text-on-primary ${primaryHoverFill}`,
     secondary: 'bg-line text-fg hover:bg-line-2',
     success: 'bg-success text-on-success hover:opacity-85',
     // Info and warn fade less on hover: at 85 % their text would drop below 4.5:1 (see the token contrast test)
@@ -42,8 +48,8 @@ const colors: Record<IconButtonVariant, string> = {
     danger: 'bg-danger text-on-danger hover:opacity-85',
     outline: 'border border-line-2 text-fg hover:border-fg',
     text: 'text-fg hover:bg-line',
-    /** Tinted background in the primary colour (or the `color`) */
-    soft: 'bg-primary/10 text-primary hover:bg-primary/14',
+    /** Tinted background in the primary colour (or the `color`); on hover the text takes `primary-hover` */
+    soft: 'bg-primary/10 text-primary hover:bg-primary/14 hover:text-primary-hover',
     /** On inverted (fg) surfaces, e.g. the CTA section */
     inverted: 'bg-bg text-fg hover:opacity-85',
 };
@@ -57,52 +63,52 @@ const colorStyles: Record<
     { filled: string; outline: string; text: string; soft: string; link: string }
 > = {
     colorPrimary: {
-        filled: 'bg-primary text-on-primary hover:bg-primary hover:opacity-85',
-        outline: 'border-primary text-primary hover:border-primary hover:bg-primary/8',
-        text: 'text-primary hover:bg-primary/8',
-        soft: 'bg-primary/10 text-primary hover:bg-primary/14',
+        filled: `bg-primary text-on-primary ${primaryHoverFill} hover:opacity-100`,
+        outline: 'border-primary text-primary hover:border-primary hover:bg-primary/8 hover:text-primary-hover',
+        text: 'text-primary hover:bg-primary/8 hover:text-primary-hover',
+        soft: 'bg-primary/10 text-primary hover:bg-primary/14 hover:text-primary-hover',
         link: 'text-primary',
     },
     colorSecondary: {
         filled: 'bg-line text-fg hover:bg-line-2 hover:opacity-100',
         outline: 'border-line-2 text-muted hover:border-fg hover:text-fg',
         text: 'text-muted hover:bg-line hover:text-fg',
-        soft: 'bg-line text-fg hover:bg-line-2',
+        soft: 'bg-line text-fg hover:bg-line-2 hover:text-fg',
         link: 'text-muted hover:text-fg',
     },
     colorSuccess: {
         filled: 'bg-success text-on-success hover:bg-success hover:opacity-85',
         outline: 'border-success text-success hover:border-success hover:bg-success/8',
         text: 'text-success hover:bg-success/8',
-        soft: 'bg-success/10 text-success hover:bg-success/14',
+        soft: 'bg-success/10 text-success hover:bg-success/14 hover:text-success',
         link: 'text-success',
     },
     colorInfo: {
         filled: 'bg-info text-on-info hover:bg-info hover:opacity-90',
         outline: 'border-info text-info hover:border-info hover:bg-info/8',
         text: 'text-info hover:bg-info/8',
-        soft: 'bg-info/10 text-info hover:bg-info/14',
+        soft: 'bg-info/10 text-info hover:bg-info/14 hover:text-info',
         link: 'text-info',
     },
     colorWarn: {
         filled: 'bg-warn text-on-warn hover:bg-warn hover:opacity-90',
         outline: 'border-warn text-warn hover:border-warn hover:bg-warn/8',
         text: 'text-warn hover:bg-warn/8',
-        soft: 'bg-warn/10 text-warn hover:bg-warn/14',
+        soft: 'bg-warn/10 text-warn hover:bg-warn/14 hover:text-warn',
         link: 'text-warn',
     },
     colorDanger: {
         filled: 'bg-danger text-on-danger hover:bg-danger hover:opacity-85',
         outline: 'border-danger text-danger hover:border-danger hover:bg-danger/8',
         text: 'text-danger hover:bg-danger/8',
-        soft: 'bg-danger/10 text-danger hover:bg-danger/14',
+        soft: 'bg-danger/10 text-danger hover:bg-danger/14 hover:text-danger',
         link: 'text-danger',
     },
     colorContrast: {
         filled: 'bg-fg text-bg hover:bg-fg hover:opacity-85',
         outline: 'border-fg text-fg hover:border-fg hover:bg-line',
         text: 'text-fg hover:bg-line',
-        soft: 'bg-fg/10 text-fg hover:bg-fg/14',
+        soft: 'bg-fg/10 text-fg hover:bg-fg/14 hover:text-fg',
         link: 'text-fg',
     },
 };

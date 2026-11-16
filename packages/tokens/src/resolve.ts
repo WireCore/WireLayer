@@ -1,17 +1,19 @@
 // The colour tokens as fixed values at runtime – for canvas libraries (xterm.js, charts) that cannot read CSS
 // variables. Browser only.
 import { parse, toHex } from './color.js';
-import { colorTokens, type ColorSet } from './tokens.js';
+import { colorTokens, optionalColorFallbacks, optionalColorTokens, type ColorSet } from './tokens.js';
 
 /**
  * The colours of the tokens as they apply to `element` right now (mode, theme and own overrides included): hex,
- * `#rrggbbaa` for translucent ones (line, glow). A value the browser cannot paint stays as written.
+ * `#rrggbbaa` for translucent ones (line, glow). A value the browser cannot paint stays as written. Optional tokens
+ * the theme does not set (`accent` …) get the colour of the token they follow.
  */
 export function resolveTokens(element: Element = document.documentElement): ColorSet {
     const style = getComputedStyle(element);
-    return Object.fromEntries(
-        colorTokens.map((token) => [token, toFixedColor(style.getPropertyValue(`--wc-${token}`).trim())])
-    ) as ColorSet;
+    const value = (token: string) => toFixedColor(style.getPropertyValue(`--wc-${token}`).trim());
+    const base = Object.fromEntries(colorTokens.map((token) => [token, value(token)])) as ColorSet;
+    for (const token of optionalColorTokens) base[token] = value(token) || base[optionalColorFallbacks[token]];
+    return base;
 }
 
 /**

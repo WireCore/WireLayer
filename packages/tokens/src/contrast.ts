@@ -2,18 +2,34 @@
 // and exported so projects can test their own themes:
 //   expect(checkTheme(myTheme)).toEqual([])
 import { contrast, inGamut, oklchToRgb, over, parse, rgbToOklch, toHex, type Rgba } from './color.js';
-import { colorTokens, modes, resolveColors, type ColorSet, type ColorToken, type Mode, type Theme } from './tokens.js';
+import {
+    colorTokens,
+    colorValue,
+    modes,
+    optionalColorTokens,
+    resolveColors,
+    type ColorSet,
+    type ColorToken,
+    type Mode,
+    type OptionalColorToken,
+    type Theme,
+} from './tokens.js';
 
 /** 4.5:1 for text (1.4.3), 3:1 for UI component boundaries, selected states and icons (1.4.11). */
 const TEXT = 4.5;
 const NON_TEXT = 3;
-/** Must match the `hover:opacity-*` of the solid button variants in @wirecore/wirelayer-recipes. */
+/**
+ * Must match the `hover:opacity-*` of the solid button variants in @wirecore/wirelayer-recipes – and the fade of solid
+ * primary buttons without `primary-hover` (`color-mix(… var(--wc-primary) 85%, transparent)`, the text stays).
+ */
 const HOVER_OPACITY = 0.85;
 /** Info and warn buttons fade less on hover (`hover:opacity-90`) – at 85 % white text would drop below 4.5:1. */
 const HOVER_OPACITY_LIGHT_FILL = 0.9;
 /** Tinted ("soft") buttons: `bg-<colour>/10`, on hover `/14` (the tint of badges and alert icons). */
+const SOFT_TINT = 0.1;
 const SOFT_HOVER_TINT = 0.14;
 /** Tinted avatar as a button (`color`, `as="button"`): 14 % of the colour on the card, on hover 18 % */
+const AVATAR_TINT = 0.14;
 const AVATAR_HOVER_TINT = 0.18;
 /**
  * Editor colours – must match `editorColorTokens`/`editorColorValue` in @wirecore/wirelayer-recipes: text moved 25 % towards
@@ -41,9 +57,14 @@ interface Pair {
 
 /** Every foreground/background combination the components use, with its required ratio. */
 export function contrastPairs(colors: ColorSet): ContrastResult[] {
-    const color = (token: ColorToken) => parse(colors[token]);
+    /** Optional tokens the set does not have give the token they follow (`accent` → `primary`) */
+    const color = (token: ColorToken | OptionalColorToken) => parse(colorValue(colors, token));
     /** A token painted onto an opaque surface, optionally with Tailwind opacity (`bg-success/14`). */
     const on = (token: ColorToken, surface: ColorToken, opacity = 1) => over(color(token), color(surface), opacity);
+    /** Text of a tinted button or avatar on hover: primary turns `primary-hover` (itself without it) */
+    const hoverText = (tone: ColorToken) => color(tone === 'primary' ? 'primary-hover' : tone);
+    /** The accent is checked once a theme sets it – until then it is the primary colour, checked above */
+    const accent = colors.accent !== undefined || colors['on-accent'] !== undefined;
     const pair = (name: string, foreground: Rgba, background: Rgba, min: number): Pair => ({
         name,
         foreground,
@@ -75,10 +96,28 @@ export function contrastPairs(colors: ColorSet): ContrastResult[] {
         pair('danger: text-on-danger on bg-danger', color('on-danger'), color('danger'), TEXT),
         pair('info: text-on-info on bg-info', color('on-info'), color('info'), TEXT),
         pair('warn: text-on-warn on bg-warn', color('on-warn'), color('warn'), TEXT),
-        // Hover of solid buttons (`hover:opacity-85` fades text and background onto the page)
+        // Second brand colour: text on it and as text on the surfaces
+        ...(accent
+            ? [
+                  pair('accent: text-on-accent on bg-accent', color('on-accent'), color('accent'), TEXT),
+                  ...surfaces.map((surface) =>
+                      pair(`text-accent on ${surface}`, color('accent'), color(surface), TEXT)
+                  ),
+              ]
+            : []),
+        // Hover of solid primary buttons: the `primary-hover` fill – without it the fill fades to 85 % onto the page
+        // and the text stays
+        ...surfaces.map((surface) =>
+            pair(
+                `primary hover on ${surface}`,
+                color('on-primary'),
+                colors['primary-hover'] !== undefined ? color('primary-hover') : on('primary', surface, HOVER_OPACITY),
+                TEXT
+            )
+        ),
+        // Hover of the other solid buttons (`hover:opacity-85` fades text and background onto the page)
         ...(
             [
-                ['primary', 'on-primary', 'primary'],
                 ['success', 'on-success', 'success'],
                 ['danger', 'on-danger', 'danger'],
             ] as const
@@ -117,13 +156,29 @@ export function contrastPairs(colors: ColorSet): ContrastResult[] {
             )
         ),
         // Coloured outline/text/soft buttons: text in the colour on the page and on its tint (hover); primary as
-        // text colour (status colours are covered above)
+        // text colour (status colours are covered above). On hover the primary text turns `primary-hover`.
         ...surfaces.map((surface) => pair(`text-primary on ${surface}`, color('primary'), color(surface), TEXT)),
+        // Tinted primary at rest: soft buttons (/10) and avatars (14 % on the card) – not covered by the hover pairs
+        // once `primary-hover` changes the text there
+        ...surfaces.map((surface) =>
+            pair(
+                `soft primary: text-primary on bg-primary/10 (${surface})`,
+                color('primary'),
+                on('primary', surface, SOFT_TINT),
+                TEXT
+            )
+        ),
+        pair(
+            'avatar primary: text-primary on primary/14 (card)',
+            color('primary'),
+            on('primary', 'card', AVATAR_TINT),
+            TEXT
+        ),
         ...surfaces.flatMap((surface) =>
             (['primary', ...statuses] as const).map((tone) =>
                 pair(
                     `soft ${tone} hover: text-${tone} on bg-${tone}/14 (${surface})`,
-                    color(tone),
+                    hoverText(tone),
                     on(tone, surface, SOFT_HOVER_TINT),
                     TEXT
                 )
@@ -133,7 +188,7 @@ export function contrastPairs(colors: ColorSet): ContrastResult[] {
         ...(['primary', ...statuses] as const).map((tone) =>
             pair(
                 `avatar ${tone} hover: text-${tone} on ${tone}/18 (card)`,
-                color(tone),
+                hoverText(tone),
                 on(tone, 'card', AVATAR_HOVER_TINT),
                 TEXT
             )
@@ -143,7 +198,7 @@ export function contrastPairs(colors: ColorSet): ContrastResult[] {
             (['primary', ...statuses] as const).map((tone) =>
                 pair(
                     `${tone} outline hover: text on bg-${tone}/8 (${surface})`,
-                    color(tone),
+                    hoverText(tone),
                     on(tone, surface, 0.08),
                     TEXT
                 )
@@ -203,7 +258,7 @@ export function checkTheme(theme: Theme): (ContrastResult & { mode: Mode })[] {
 
 /** A way to meet a missed contrast: a token and its new value, with the ratio the pair then reaches */
 export interface ContrastFix {
-    token: ColorToken;
+    token: ColorToken | OptionalColorToken;
     value: string;
     ratio: number;
 }
@@ -213,7 +268,8 @@ export interface ContrastSuggestion extends ContrastResult {
     mode: Mode;
     /**
      * The nearest colour that meets it – its lightness moved in OKLCH, the hue kept (the chroma only lowered where
-     * sRGB needs it) – without breaking another pair
+     * sRGB needs it) – without breaking another pair. For a missed hover of the primary colour this is a
+     * `primary-hover` that meets every hover pair, so the primary colour itself can stay.
      */
     color?: ContrastFix;
     /** A light or dark text colour (`on-*`) that meets it */
@@ -223,11 +279,13 @@ export interface ContrastSuggestion extends ContrastResult {
 const ON_COLORS = ['#FFFFFF', '#050505'];
 /** Steps of the OKLCH lightness while searching the nearest colour that meets a pair */
 const LIGHTNESS_STEP = 0.005;
+/** Tokens tried first when a pair depends on them: a hover colour of its own keeps the primary colour */
+const PREFERRED: readonly (ColorToken | OptionalColorToken)[] = ['primary-hover'];
 
 /**
  * The pairs `checkTheme` reports, each with suggestions: the nearest variant of a colour of the pair that meets it
- * (lightness moved in OKLCH, hue and chroma kept) and/or a light or dark `on-*` colour. Tokens the theme sets
- * itself are tried first. Empty when the theme passes.
+ * (lightness moved in OKLCH, hue and chroma kept) and/or a light or dark `on-*` colour. `primary-hover` is tried
+ * first for the hover pairs, then the tokens the theme sets itself. Empty when the theme passes.
  */
 export function suggestThemeFixes(theme: Theme): ContrastSuggestion[] {
     return modes.flatMap((mode) => {
@@ -236,34 +294,52 @@ export function suggestThemeFixes(theme: Theme): ContrastSuggestion[] {
         const failing = new Set(before.filter((result) => result.ratio < result.min).map((result) => result.name));
         // The pairs with one token changed – the same candidates come up for every missed pair
         const cache = new Map<string, ContrastResult[]>();
-        const pairsWith = (token: ColorToken, value: string) => {
+        const pairsWith = (token: ColorToken | OptionalColorToken, value: string) => {
             const key = `${token} ${value}`;
             let results = cache.get(key);
             if (!results) cache.set(key, (results = contrastPairs({ ...colors, [token]: value })));
             return results;
         };
-        /** Meets the pair and every pair that passed before still passes */
-        const fixes = (results: ContrastResult[], name: string) => {
+        /** The names of the pairs whose ratio changes with the token */
+        const dependents = new Map<ColorToken | OptionalColorToken, Set<string>>();
+        for (const token of [...colorTokens, ...optionalColorTokens]) {
+            const shifted = pairsWith(token, toHex(over(parse('#808080'), parse(colorValue(colors, token)), 0.5)));
+            const changed = before.filter(
+                (result) => Math.abs(shifted.find((pair) => pair.name === result.name)!.ratio - result.ratio) > 1e-6
+            );
+            dependents.set(token, new Set(changed.map((result) => result.name)));
+        }
+        /**
+         * Meets the pair and every pair that passed before still passes – a preferred token (`primary-hover`) has to
+         * meet every pair that depends on it, so one value fixes all of them
+         */
+        const fixes = (token: ColorToken | OptionalColorToken, results: ContrastResult[], name: string) => {
             const own = results.find((result) => result.name === name)!;
-            const broken = results.some((result) => result.ratio < result.min && !failing.has(result.name));
+            const together = PREFERRED.includes(token) ? dependents.get(token)! : new Set<string>();
+            const broken = results.some(
+                (result) => result.ratio < result.min && (!failing.has(result.name) || together.has(result.name))
+            );
             return own.ratio >= own.min && !broken ? own.ratio : undefined;
         };
         const own = theme.colors[mode] ?? {};
+        const rank = (token: ColorToken | OptionalColorToken) =>
+            (PREFERRED.includes(token) ? 2 : 0) + Number(token in own);
         return before
             .filter((result) => result.ratio < result.min)
             .map((result): ContrastSuggestion => {
                 // The tokens the pair depends on: changing them changes its ratio
-                const involved = colorTokens.filter((token) => {
-                    const shifted = pairsWith(token, toHex(over(parse('#808080'), parse(colors[token]), 0.5)));
-                    return Math.abs(shifted.find((pair) => pair.name === result.name)!.ratio - result.ratio) > 1e-6;
-                });
-                const ordered = [...involved].sort((a, b) => Number(b in own) - Number(a in own));
+                const involved = [...colorTokens, ...optionalColorTokens].filter((token) =>
+                    dependents.get(token)!.has(result.name)
+                );
+                const ordered = [...involved].sort((a, b) => rank(b) - rank(a));
                 const suggestion: ContrastSuggestion = { ...result, mode };
                 // Translucent tokens (lines) keep their alpha – no opaque replacement for them
-                const opaque = ordered.filter((name) => !name.startsWith('on-') && parse(colors[name]).a === 1);
+                const opaque = ordered.filter(
+                    (name) => !name.startsWith('on-') && parse(colorValue(colors, name)).a === 1
+                );
                 for (const token of opaque) {
-                    const fix = nearestLightness(colors[token], token, (value) =>
-                        fixes(pairsWith(token, value), result.name)
+                    const fix = nearestLightness(colorValue(colors, token), token, (value) =>
+                        fixes(token, pairsWith(token, value), result.name)
                     );
                     if (fix) {
                         suggestion.color = fix;
@@ -272,8 +348,8 @@ export function suggestThemeFixes(theme: Theme): ContrastSuggestion[] {
                 }
                 for (const token of ordered.filter((name) => name.startsWith('on-'))) {
                     for (const value of ON_COLORS) {
-                        const ratio = fixes(pairsWith(token, value), result.name);
-                        if (ratio !== undefined && value.toLowerCase() !== colors[token].toLowerCase()) {
+                        const ratio = fixes(token, pairsWith(token, value), result.name);
+                        if (ratio !== undefined && value.toLowerCase() !== colorValue(colors, token).toLowerCase()) {
                             suggestion.on = { token, value, ratio };
                             break;
                         }
@@ -288,7 +364,7 @@ export function suggestThemeFixes(theme: Theme): ContrastSuggestion[] {
 /** The value of `token` with the nearest OKLCH lightness to `color` (either way) for which `meets` gives a ratio */
 function nearestLightness(
     color: string,
-    token: ColorToken,
+    token: ColorToken | OptionalColorToken,
     meets: (value: string) => number | undefined
 ): ContrastFix | undefined {
     const { l, c, h } = rgbToOklch(parse(color));
