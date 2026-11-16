@@ -337,6 +337,18 @@
                     "description": "Distance from the edges, e.g. \"1rem\" (default 1.5rem)"
                 },
                 {
+                    "name": "offsetX",
+                    "type": "string",
+                    "optional": true,
+                    "description": "Distance from the side edge (start/end) only, e.g. \"1rem\" – instead of `offset`"
+                },
+                {
+                    "name": "offsetY",
+                    "type": "string",
+                    "optional": true,
+                    "description": "Distance from the top or bottom edge only, e.g. \"4rem\" above a banner – instead of `offset`"
+                },
+                {
                     "name": "classes",
                     "type": "RecipeClasses<typeof affixRecipe>",
                     "optional": true,
@@ -356,6 +368,18 @@
                         "type": "string",
                         "optional": true,
                         "description": "Distance from the edges, e.g. \"1rem\" (default 1.5rem)"
+                    },
+                    {
+                        "name": "offsetX",
+                        "type": "string",
+                        "optional": true,
+                        "description": "Distance from the side edge (start/end) only, e.g. \"1rem\" – instead of `offset`"
+                    },
+                    {
+                        "name": "offsetY",
+                        "type": "string",
+                        "optional": true,
+                        "description": "Distance from the top or bottom edge only, e.g. \"4rem\" above a banner – instead of `offset`"
                     },
                     {
                         "name": "classes",

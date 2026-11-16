@@ -27,3 +27,6 @@ type Story = StoryObj<typeof meta>;
 
 /** Fixed in a corner of the window */
 export const Playground: Story = {};
+
+/** Separate distances: `offsetY` from the bottom (e.g. above a banner), `offsetX` from the side */
+export const SeparateOffsets: Story = { args: { offsetX: '1rem', offsetY: '4rem' } };

@@ -2168,6 +2168,7 @@ export const cases: [string, El][] = [
     ['Center', el('Center', { inline: true }, el('span', {}, 'Middle'))],
     ['AspectRatio', el('AspectRatio', { ratio: 4 / 3 }, el('img', { src: '/image.jpg', alt: 'Data center' }))],
     ['Affix', el('Affix', { position: 'top-start', offset: '1rem' }, el('Button', {}, 'Help'))],
+    ['Affix, separate offsets', el('Affix', { offset: '1rem', offsetY: '4rem' }, el('Button', {}, 'Help'))],
     [
         'Sticky bar',
         el(

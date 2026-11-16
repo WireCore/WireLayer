@@ -645,3 +645,15 @@ describe.each(frameworks)('%s SidebarNav with router links', (framework) => {
         expect(screen.getByRole('link', { name: 'Overview' })).not.toHaveAttribute('aria-current');
     });
 });
+
+describe.each(frameworks)('%s Affix', (framework) => {
+    it('offsetX and offsetY set one edge each, offset stays the default of both', async () => {
+        await render(framework, el('Affix', { offset: '1rem', offsetY: '4rem' }, el('Button', {}, 'Help')));
+        const affix = screen.getByRole('button', { name: 'Help' }).parentElement!;
+        expect(affix.style.getPropertyValue('--wc-affix-offset')).toBe('1rem');
+        expect(affix.style.getPropertyValue('--wc-affix-offset-y')).toBe('4rem');
+        expect(affix.style.getPropertyValue('--wc-affix-offset-x')).toBe('');
+        expect(affix).toHaveClass('bottom-[var(--wc-affix-offset-y,var(--wc-affix-offset,1.5rem))]');
+        expect(affix).toHaveClass('inset-e-[var(--wc-affix-offset-x,var(--wc-affix-offset,1.5rem))]');
+    });
+});
