@@ -1,5 +1,34 @@
 # @wirecore/wirelayer-tokens
 
+## 0.6.0
+
+### Minor Changes
+
+- b9d33fb: Themes can set a second brand color: the optional tokens `accent` and `on-accent` become the Tailwind colors
+  `bg-accent`, `text-accent`, `border-accent` and `text-on-accent` (also in React Native via `native.css`). Without them
+  they follow `primary` and `on-primary`, so existing themes stay as they are. `checkTheme` and `suggestThemeFixes` check
+  text on the accent and the accent as text on `bg`, `bg-2` and `card` once a theme sets `accent` or `on-accent` in a
+  mode. `resolveTokens()` returns them as well. No component uses the accent.
+- b9d33fb: Themes can set the hover of the primary color: the optional token `primary-hover` is the fill of solid primary buttons
+  and the text of tinted ones (`soft`, `outline`, `text` in the primary color, Button and IconButton, and avatar buttons
+  with `color="primary"`) on hover – for strong brand colors whose faded hover or tinted text misses 4.5:1. `checkTheme`
+  checks the hover pairs with it, and `suggestThemeFixes` suggests one `primary-hover` for all of them before it changes
+  `primary`.
+
+    Changed behavior:
+
+    - Without `primary-hover`, solid primary buttons now fade only their fill on hover (to 85 % via `color-mix`), no longer
+      the whole button with `opacity` – the text stays opaque. The bundled themes look the same, the contrast is never
+      lower. The other solid colors keep fading with `opacity`.
+    - `checkTheme` additionally checks tinted primary text at rest (`soft primary: text-primary on bg-primary/10` on `bg`,
+      `bg-2`, `card`, and `avatar primary: text-primary on primary/14 (card)`), which the hover pairs no longer imply. A
+      custom theme that missed a tinted primary hover may be reported for these pairs too.
+
+### Patch Changes
+
+- efd24f8: `parse` (and with it `resolveTokens` / `useResolvedTokens`) reads OKLCH colors with the lightness or chroma in
+  percent, as minified CSS writes them (`oklch(47% .13 155)`). Before, the status colors resolved to `#NaNNaNNaN`.
+
 ## 0.5.1
 
 ### Patch Changes

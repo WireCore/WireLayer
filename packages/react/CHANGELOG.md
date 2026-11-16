@@ -1,5 +1,57 @@
 # @wirecore/wirelayer-react
 
+## 0.11.0
+
+### Minor Changes
+
+- d1fec76: Affix: `offsetX` (side edge, start/end) and `offsetY` (top or bottom edge) set one distance each, e.g. higher above a
+  banner; `offset` stays the distance from both edges and the default of the two. In HTML: `--wc-affix-offset-x` and
+  `--wc-affix-offset-y`.
+- 5b13204: DataTable: own content of a footer cell – the slot `#footer-<id>` (Vue) or the column option `renderFooter` (React)
+  gets `value` (the total of `aggregate`, not formatted), `text` (what the cell shows by default) and `rows` (the filtered
+  rows the total is computed from, every page, without group rows), e.g. for totals as badges. A column with only own
+  footer content shows the footer row as well; the CSV export and printing keep the text.
+- 5b13204: DataTable: `scroll` (Vue) / `onScroll` (React) reports every scroll of the table's scroll area – down and up with
+  `scrollHeight` (also with `virtual`), sideways when the table is wider – e.g. to close a popover anchored in a row that
+  virtual scrolling removes. `loadMore` stays as it was. In React `onScroll` was passed to the outer element before, where
+  it never fired (that element does not scroll).
+- a9fa66f: NotificationCenter:
+
+    - Items without `href` can be `clickable`: their title becomes a button that reports `select` / `onSelect` (opt-in per
+      item; items without both stay text). In React the event of `onSelect` is a `MouseEvent<HTMLAnchorElement |
+HTMLButtonElement>` now.
+    - `markAllRead` / `onMarkAllRead` gets the ids of the unread items shown (Vue, React and React Native), e.g. for one
+      request to the server instead of one per item.
+
+- 5a6e8cd: SidebarNav: router links like Menu and BottomNavigation – `linkAs` renders the links (RouterLink, NuxtLink, the Link of
+  React Router or Next.js …) and gets `to` for items with `to`, else `href`. `currentHref` (the item with exactly this
+  `href`) or `isCurrent` mark the current page with `aria-current="page"` and open its groups; an item's own `current`
+  still wins.
+- b9d33fb: Themes can set the hover of the primary color: the optional token `primary-hover` is the fill of solid primary buttons
+  and the text of tinted ones (`soft`, `outline`, `text` in the primary color, Button and IconButton, and avatar buttons
+  with `color="primary"`) on hover – for strong brand colors whose faded hover or tinted text misses 4.5:1. `checkTheme`
+  checks the hover pairs with it, and `suggestThemeFixes` suggests one `primary-hover` for all of them before it changes
+  `primary`.
+
+    Changed behavior:
+
+    - Without `primary-hover`, solid primary buttons now fade only their fill on hover (to 85 % via `color-mix`), no longer
+      the whole button with `opacity` – the text stays opaque. The bundled themes look the same, the contrast is never
+      lower. The other solid colors keep fading with `opacity`.
+    - `checkTheme` additionally checks tinted primary text at rest (`soft primary: text-primary on bg-primary/10` on `bg`,
+      `bg-2`, `card`, and `avatar primary: text-primary on primary/14 (card)`), which the hover pairs no longer imply. A
+      custom theme that missed a tinted primary hover may be reported for these pairs too.
+
+### Patch Changes
+
+- Updated dependencies [d1fec76]
+- Updated dependencies [a9fa66f]
+- Updated dependencies [efd24f8]
+- Updated dependencies [b9d33fb]
+- Updated dependencies [b9d33fb]
+    - @wirecore/wirelayer-recipes@0.9.0
+    - @wirecore/wirelayer-tokens@0.6.0
+
 ## 0.10.0
 
 ### Minor Changes
