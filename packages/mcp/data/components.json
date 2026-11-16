@@ -29157,7 +29157,25 @@
                     "name": "onNavigate",
                     "type": "(item: SidebarNavItem, event: MouseEvent<HTMLAnchorElement>) => void",
                     "optional": true,
-                    "description": "A link was clicked – call event.preventDefault() and route yourself in a single-page app"
+                    "description": "A link was clicked – call event.preventDefault() and route yourself in a single-page app (or use `linkAs`)"
+                },
+                {
+                    "name": "linkAs",
+                    "type": "ElementType",
+                    "optional": true,
+                    "description": "Component for the links, e.g. Link of React Router or Next.js (gets `to` for items with `to`, else `href`); default <a>"
+                },
+                {
+                    "name": "currentHref",
+                    "type": "string",
+                    "optional": true,
+                    "description": "Path of the current page – the item with exactly this href gets aria-current=\"page\" (its groups start open)"
+                },
+                {
+                    "name": "isCurrent",
+                    "type": "(item: SidebarNavItem) => boolean",
+                    "optional": true,
+                    "description": "Own check for the current page, e.g. with the router"
                 },
                 {
                     "name": "rail",
@@ -29215,6 +29233,24 @@
                         "type": "string",
                         "optional": false,
                         "description": "Name of the navigation landmark, e.g. \"Main navigation\""
+                    },
+                    {
+                        "name": "linkAs",
+                        "type": "string | Component",
+                        "optional": true,
+                        "description": "Component for the links, e.g. RouterLink or NuxtLink (gets `to` for items with `to`, else `href`); default <a>"
+                    },
+                    {
+                        "name": "currentHref",
+                        "type": "string",
+                        "optional": true,
+                        "description": "Path of the current page – the item with exactly this href gets aria-current=\"page\" (its groups start open)"
+                    },
+                    {
+                        "name": "isCurrent",
+                        "type": "(item: SidebarNavItem) => boolean",
+                        "optional": true,
+                        "description": "Own check for the current page, e.g. with the router"
                     },
                     {
                         "name": "rail",

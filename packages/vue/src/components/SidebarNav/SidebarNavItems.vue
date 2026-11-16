@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { Collapsible } from '@ark-ui/vue/collapsible';
 import { ChevronRight } from '@lucide/vue';
-import { formatCount, sidebarNav as sidebarNavRecipe } from '@wirecore/wirelayer-recipes';
-import { computed, type FunctionalComponent } from 'vue';
-import { containsCurrent, type SidebarNavItem } from './types.js';
+import { formatCount, linkTarget, sidebarNav as sidebarNavRecipe } from '@wirecore/wirelayer-recipes';
+import { computed, type Component, type FunctionalComponent } from 'vue';
+import { containsCurrent, type SidebarNavCurrentCheck, type SidebarNavItem } from './types.js';
 import Tooltip from '../Tooltip/Tooltip.vue';
 import { useRecipe } from '../../recipes.js';
 
@@ -11,6 +11,8 @@ defineOptions({ name: 'SidebarNavItems' });
 const props = defineProps<{
     items: readonly SidebarNavItem[];
     depth: number;
+    linkAs: string | Component;
+    check: SidebarNavCurrentCheck;
     rail?: boolean;
     expandOnHover?: boolean;
 }>();
@@ -26,7 +28,7 @@ const badgeText = (badge: number | string) => (typeof badge === 'number' ? forma
 
 <template>
     <li v-for="item in items" :key="item.label">
-        <Collapsible.Root v-if="item.children" :default-open="containsCurrent(item)">
+        <Collapsible.Root v-if="item.children" :default-open="containsCurrent(item, check)">
             <component :is="wrapper" :content="item.label" placement="right">
                 <Collapsible.Trigger :class="styles.link()" :style="{ '--depth': depth }">
                     <component :is="item.icon" v-if="item.icon" :class="styles.icon()" aria-hidden="true" />
@@ -43,6 +45,8 @@ const badgeText = (badge: number | string) => (typeof badge === 'number' ? forma
                     <SidebarNavItems
                         :items="item.children"
                         :depth="depth + 1"
+                        :link-as="linkAs"
+                        :check="check"
                         :rail="rail"
                         :expand-on-hover="expandOnHover"
                         @navigate="(i, e) => emit('navigate', i, e)"
@@ -51,18 +55,19 @@ const badgeText = (badge: number | string) => (typeof badge === 'number' ? forma
             </Collapsible.Content>
         </Collapsible.Root>
         <component :is="wrapper" v-else :content="item.label" placement="right">
-            <a
-                :href="item.href"
+            <component
+                :is="linkAs"
+                v-bind="linkTarget(item.href, item.to)"
                 :class="styles.link()"
                 :style="{ '--depth': depth }"
-                :aria-current="item.current ? 'page' : undefined"
+                :aria-current="check(item) ? 'page' : undefined"
                 @click="emit('navigate', item, $event)"
             >
                 <component :is="item.icon" v-if="item.icon" :class="styles.icon()" aria-hidden="true" />
                 <span v-else-if="rail" :class="styles.monogram()" aria-hidden="true">{{ item.label[0] }}</span>
                 <span :class="styles.label()">{{ item.label }}</span>
                 <span v-if="item.badge !== undefined" :class="styles.badge()">{{ badgeText(item.badge) }}</span>
-            </a>
+            </component>
         </component>
     </li>
 </template>

@@ -2,7 +2,9 @@ import { screen, waitFor, within } from '@testing-library/dom';
 import { act, cleanup as cleanupReact } from '@testing-library/react';
 import { cleanup as cleanupVue } from '@testing-library/vue';
 import userEvent from '@testing-library/user-event';
+import { createElement } from 'react';
 import { describe, expect, it, vi } from 'vitest';
+import { defineComponent, h } from 'vue';
 import { el, frameworks, icon, normalize, render, type El, type Framework } from './harness.js';
 
 // Page shell: mega menu, app shell, banner, notification center, page header, bottom navigation, result,
@@ -563,5 +565,65 @@ describe.each(frameworks)('%s', (framework) => {
             expect(screen.getByTestId('collapse')).toHaveAttribute('data-state', 'closed');
             expect(screen.getByRole('region', { name: 'Categories' })).toHaveAttribute('tabindex', '0');
         });
+    });
+});
+
+describe.each(frameworks)('%s SidebarNav with router links', (framework) => {
+    // Stand-in for RouterLink / React Router's Link: needs `to`, resolves the href itself
+    const RouterLink =
+        framework === 'vue'
+            ? defineComponent({
+                  props: { to: { type: String, required: true } },
+                  setup:
+                      (props, { slots }) =>
+                      () =>
+                          h('a', { href: `#${props.to}` }, slots.default?.()),
+              })
+            : ({ to, ...props }: { to: string }) => createElement('a', { ...props, href: `#${to}` });
+    const items = [
+        { label: 'Overview', to: '/' },
+        {
+            label: 'Infrastructure',
+            children: [
+                { label: 'Servers', href: '/servers', to: '/servers' },
+                { label: 'Networks', to: '/networks' },
+            ],
+        },
+    ];
+
+    it('hands `to` to linkAs and marks the item of currentHref, its group open', async () => {
+        const onNavigate = vi.fn();
+        await render(
+            framework,
+            el('SidebarNav', {
+                label: 'Main navigation',
+                items,
+                linkAs: RouterLink,
+                currentHref: '/servers',
+                onNavigate,
+            })
+        );
+        const overview = screen.getByRole('link', { name: 'Overview' });
+        expect(overview).toHaveAttribute('href', '#/');
+        expect(overview).not.toHaveAttribute('to');
+        expect(overview).not.toHaveAttribute('aria-current');
+        expect(screen.getByRole('link', { name: 'Servers' })).toHaveAttribute('aria-current', 'page');
+        await userEvent.click(overview);
+        expect(onNavigate).toHaveBeenCalledWith(expect.objectContaining({ label: 'Overview' }), expect.anything());
+    });
+
+    it('isCurrent decides for items without href', async () => {
+        await render(
+            framework,
+            el('SidebarNav', {
+                label: 'Main navigation',
+                items,
+                linkAs: RouterLink,
+                isCurrent: (item: { to?: string }) => item.to === '/networks',
+            })
+        );
+        expect(screen.getByRole('link', { name: 'Networks' })).toHaveAttribute('aria-current', 'page');
+        expect(screen.getByRole('link', { name: 'Servers' })).not.toHaveAttribute('aria-current');
+        expect(screen.getByRole('link', { name: 'Overview' })).not.toHaveAttribute('aria-current');
     });
 });

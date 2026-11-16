@@ -1,6 +1,6 @@
 import { ChartColumn, House, LogOut, Server, Settings, Users } from '@lucide/vue';
 import type { Meta, StoryObj } from '@storybook/vue3-vite';
-import { ref } from 'vue';
+import { defineComponent, h, ref } from 'vue';
 import SidebarNav, { type SidebarNavProps } from './SidebarNav.vue';
 import type { SidebarNavItem } from './types.js';
 
@@ -82,4 +82,52 @@ export const Rail: Story = { args: { rail: true }, render: demo('w-16') };
 export const RailExpandOnHover: Story = {
     args: { rail: true, expandOnHover: true },
     render: demo('w-16 hover:w-60 focus-within:w-60'),
+};
+
+// Stand-in for RouterLink / NuxtLink: gets `to` and renders the link for it
+const StoryRouterLink = defineComponent({
+    props: { to: { type: String, required: true } },
+    setup:
+        (props, { slots }) =>
+        () =>
+            h('a', { href: `#${props.to}` }, slots.default?.()),
+});
+const routes: SidebarNavItem[] = [
+    { label: 'Overview', href: '/overview', to: '/overview', icon: House },
+    {
+        label: 'Infrastructure',
+        icon: Server,
+        children: [
+            { label: 'Server', href: '/server', to: '/server' },
+            { label: 'Networks', href: '/networks', to: '/networks' },
+        ],
+    },
+    { label: 'Settings', href: '/settings', to: '/settings', icon: Settings },
+];
+
+/**
+ * Router links: `linkAs` renders every link (RouterLink, NuxtLink …) and gets `to`; `currentHref` (e.g. the route's
+ * path) marks the current page by `href` and opens its group – or `isCurrent` decides
+ */
+export const RouterLinks: Story = {
+    render: (args: SidebarNavProps) => ({
+        components: { SidebarNav },
+        setup: () => {
+            const path = ref('/server');
+            const navigate = (item: SidebarNavItem, event: MouseEvent) => {
+                event.preventDefault();
+                path.value = item.href!;
+            };
+            return { args, routes, path, navigate, StoryRouterLink };
+        },
+        template: `
+            <SidebarNav
+                v-bind="args"
+                :items="routes"
+                :link-as="StoryRouterLink"
+                :current-href="path"
+                class="w-60"
+                @navigate="navigate"
+            />`,
+    }),
 };
