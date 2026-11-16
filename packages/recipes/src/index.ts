@@ -1039,6 +1039,7 @@ export {
     type SortableState,
     type SortableTexts,
 } from './sortable.js';
+export { prepareTourStep, tourSkipTarget, type TourStepPreparation } from './tour-steps.js';
 export {
     insertMention,
     mentionQuery,

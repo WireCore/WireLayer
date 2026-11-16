@@ -40,6 +40,30 @@ test.describe('Tour', () => {
         await expect(page.getByRole('alertdialog')).toHaveCount(0);
         await expect(page.getByText('Tour completed')).toBeVisible();
     });
+
+    test('before switches the tab, the step waits for its target; a missing step is skipped', async ({ page }) => {
+        await openStory(page, 'overlays-tour--waiting-for-targets');
+        await page.getByRole('button', { name: 'Start tour' }).click();
+        const step = page.getByRole('alertdialog');
+        await expect(step).toContainText('Servers');
+        await expect(page.getByText('Step: servers')).toBeVisible();
+        await step.getByRole('button', { name: 'Next' }).click();
+        // The chart loads after the tab switch – the step comes once it is there
+        await expect(page.getByRole('tab', { name: 'Reports' })).toHaveAttribute('aria-selected', 'true');
+        await expect(step).toContainText('Load', { timeout: 5000 });
+        await expect(page.getByRole('img', { name: 'Load chart' })).toBeVisible();
+        await step.getByRole('button', { name: 'Next' }).click();
+        await expect(step).toContainText('That is it');
+        await expect(step).toContainText('4 of 4');
+        await step.getByRole('button', { name: 'Back' }).click();
+        await expect(step).toContainText('Load');
+        await step.getByRole('button', { name: 'Back' }).click();
+        await expect(step).toContainText('Servers');
+        await expect(page.getByRole('tab', { name: 'Servers' })).toHaveAttribute('aria-selected', 'true');
+        await page.keyboard.press('Escape');
+        await expect(page.getByRole('alertdialog')).toHaveCount(0);
+        await expect(page.getByText('Step: –')).toBeVisible();
+    });
 });
 
 test.describe('TableOfContents', () => {

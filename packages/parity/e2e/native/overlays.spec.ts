@@ -151,3 +151,21 @@ test.describe('Toggletip', () => {
         await expect(page.getByRole('status')).toHaveText('');
     });
 });
+
+test.describe('Tour', () => {
+    test('before switches the tab, the step waits for its target; a missing step is skipped', async ({ page }) => {
+        await openStory(page, 'overlays-tour--waiting-for-targets');
+        await page.getByRole('button', { name: 'Start tour' }).click();
+        const step = page.getByRole('dialog', { name: 'Servers' });
+        await expect(step).toBeVisible();
+        await expect(page.getByText('Step: servers')).toBeVisible();
+        await step.getByRole('button', { name: 'Next' }).click();
+        await expect(page.getByRole('dialog', { name: 'Load' })).toBeVisible({ timeout: 5000 });
+        await page.getByRole('dialog', { name: 'Load' }).getByRole('button', { name: 'Next' }).click();
+        const last = page.getByRole('dialog', { name: 'That is it' });
+        await expect(last).toContainText('4 of 4');
+        await last.getByRole('button', { name: 'Done' }).click();
+        await expect(page.getByRole('dialog')).toHaveCount(0);
+        await expect(page.getByText('Step: –')).toBeVisible();
+    });
+});
