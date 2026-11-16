@@ -1,5 +1,35 @@
 # @wirecore/wirelayer-recipes
 
+## 0.9.0
+
+### Minor Changes
+
+- d1fec76: Affix: `offsetX` (side edge, start/end) and `offsetY` (top or bottom edge) set one distance each, e.g. higher above a
+  banner; `offset` stays the distance from both edges and the default of the two. In HTML: `--wc-affix-offset-x` and
+  `--wc-affix-offset-y`.
+- a9fa66f: NotificationCenter:
+
+    - Items without `href` can be `clickable`: their title becomes a button that reports `select` / `onSelect` (opt-in per
+      item; items without both stay text). In React the event of `onSelect` is a `MouseEvent<HTMLAnchorElement |
+HTMLButtonElement>` now.
+    - `markAllRead` / `onMarkAllRead` gets the ids of the unread items shown (Vue, React and React Native), e.g. for one
+      request to the server instead of one per item.
+
+- b9d33fb: Themes can set the hover of the primary color: the optional token `primary-hover` is the fill of solid primary buttons
+  and the text of tinted ones (`soft`, `outline`, `text` in the primary color, Button and IconButton, and avatar buttons
+  with `color="primary"`) on hover – for strong brand colors whose faded hover or tinted text misses 4.5:1. `checkTheme`
+  checks the hover pairs with it, and `suggestThemeFixes` suggests one `primary-hover` for all of them before it changes
+  `primary`.
+
+    Changed behavior:
+
+    - Without `primary-hover`, solid primary buttons now fade only their fill on hover (to 85 % via `color-mix`), no longer
+      the whole button with `opacity` – the text stays opaque. The bundled themes look the same, the contrast is never
+      lower. The other solid colors keep fading with `opacity`.
+    - `checkTheme` additionally checks tinted primary text at rest (`soft primary: text-primary on bg-primary/10` on `bg`,
+      `bg-2`, `card`, and `avatar primary: text-primary on primary/14 (card)`), which the hover pairs no longer imply. A
+      custom theme that missed a tinted primary hover may be reported for these pairs too.
+
 ## 0.8.1
 
 ### Patch Changes

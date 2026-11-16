@@ -1,5 +1,18 @@
 # @wirecore/wirelayer-blocks-vue
 
+## 0.2.10
+
+### Patch Changes
+
+- Updated dependencies [d1fec76]
+- Updated dependencies [5b13204]
+- Updated dependencies [5b13204]
+- Updated dependencies [a9fa66f]
+- Updated dependencies [5a6e8cd]
+- Updated dependencies [b9d33fb]
+    - @wirecore/wirelayer-recipes@0.9.0
+    - @wirecore/wirelayer-vue@0.11.0
+
 ## 0.2.9
 
 ### Patch Changes

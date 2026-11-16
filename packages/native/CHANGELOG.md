@@ -1,5 +1,27 @@
 # @wirecore/wirelayer-native
 
+## 0.7.0
+
+### Minor Changes
+
+- a9fa66f: NotificationCenter:
+
+    - Items without `href` can be `clickable`: their title becomes a button that reports `select` / `onSelect` (opt-in per
+      item; items without both stay text). In React the event of `onSelect` is a `MouseEvent<HTMLAnchorElement |
+HTMLButtonElement>` now.
+    - `markAllRead` / `onMarkAllRead` gets the ids of the unread items shown (Vue, React and React Native), e.g. for one
+      request to the server instead of one per item.
+
+### Patch Changes
+
+- Updated dependencies [d1fec76]
+- Updated dependencies [a9fa66f]
+- Updated dependencies [efd24f8]
+- Updated dependencies [b9d33fb]
+- Updated dependencies [b9d33fb]
+    - @wirecore/wirelayer-recipes@0.9.0
+    - @wirecore/wirelayer-tokens@0.6.0
+
 ## 0.6.1
 
 ### Patch Changes
