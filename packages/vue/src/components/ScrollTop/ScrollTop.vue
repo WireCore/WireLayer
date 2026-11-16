@@ -48,10 +48,10 @@ function toTop() {
     <!-- Hidden (and out of the tab order) until the page is scrolled down -->
     <IconButton
         ref="button"
+        v-bind="{ ...attrs, class: scrollTop({ class: normalizeClass(attrs.class) }) }"
         :icon="ArrowUp"
         :label="label ?? translations.scrollTop.label"
         variant="primary"
-        :class="scrollTop({ class: normalizeClass(attrs.class) })"
         :data-state="visible ? 'visible' : 'hidden'"
         :tabindex="visible ? undefined : -1"
         :aria-hidden="visible ? undefined : 'true'"

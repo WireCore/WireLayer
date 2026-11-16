@@ -103,9 +103,8 @@ const startOfWeek = computed(() => props.firstDayOfWeek ?? localeWeekInfo(curren
 <template>
     <!-- Calendar on the page (no field, no popup): a grid with arrow keys, Page Up/Down, Home/End -->
     <DatePicker.Root
-        :class="styles.inline({ class: normalizeClass(attrs.class) })"
-        :style="attrs.style"
-        :ids="ids"
+        v-bind="{ ...attrs, class: styles.inline({ class: normalizeClass(attrs.class) }) }"
+        :ids="attrs.id ? { root: attrs.id as string, content: attrs.id as string } : ids"
         inline
         :model-value="dates"
         :selection-mode="selectionMode"

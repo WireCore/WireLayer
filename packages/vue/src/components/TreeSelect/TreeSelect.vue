@@ -199,7 +199,7 @@ const listPositioning = { placement: 'bottom-start', gutter: 4, sameWidth: true 
 <template>
     <!-- Select whose options are a tree: the button opens the tree in a panel, choosing a node closes it -->
     <Popover.Root v-model:open="open" :positioning="listPositioning" v-bind="popoverIds" lazy-mount unmount-on-exit>
-        <div :class="styles.base({ class: normalizeClass(attrs.class) })" :style="attrs.style">
+        <div v-bind="{ ...attrs, 'aria-label': undefined, class: styles.base({ class: normalizeClass(attrs.class) }) }">
             <!-- Several nodes: chips in a box, the trigger fills the rest of the row -->
             <div
                 v-if="multiple"

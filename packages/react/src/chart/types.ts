@@ -5,10 +5,10 @@ import type {
     ChartSeries,
     RecipeClasses,
 } from '@wirecore/wirelayer-recipes';
-import type { CSSProperties } from 'react';
+import type { ComponentProps, CSSProperties } from 'react';
 
 /** Props of the ready-made chart types BarChart, LineChart and CompositeChart */
-export interface SeriesChartBaseProps {
+export interface SeriesChartBaseProps extends ComponentProps<'figure'> {
     /** The rows: one object per category with a value per series */
     data: readonly ChartRow[];
     /** Property of each row with the category (x axis) */

@@ -11,6 +11,7 @@ import {
 } from '@wirecore/wirelayer-recipes';
 import { ChevronDown, LoaderCircle, RotateCw } from 'lucide-react';
 import {
+    type ComponentProps,
     createContext,
     useContext,
     useEffect,
@@ -44,7 +45,7 @@ export interface OrgChartNodeState {
     loading: boolean;
 }
 
-export interface OrgChartProps {
+export interface OrgChartProps extends ComponentProps<'div'> {
     /** The top of the hierarchy */
     node: OrgChartNode;
     /** Accessible name, e.g. "Org chart" */
@@ -109,6 +110,7 @@ export function OrgChart({
     renderContent,
     className,
     style,
+    ...rest
 }: OrgChartProps) {
     const orgChart = useRecipe('orgChart', orgChartRecipe, classes);
     const styles = orgChart();
@@ -211,7 +213,7 @@ export function OrgChart({
     };
 
     return (
-        <div className={styles.base({ class: className })} style={style}>
+        <div {...rest} className={styles.base({ class: className })} style={style}>
             <ChartContext value={chart}>
                 <ul aria-label={label} className={styles.rootList()}>
                     <li className={styles.rootItem()}>

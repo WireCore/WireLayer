@@ -8,12 +8,12 @@ import {
     type RecipeClasses,
     type WaterfallStep,
 } from '@wirecore/wirelayer-recipes';
-import { useId, type CSSProperties } from 'react';
+import { type ComponentProps, useId, type CSSProperties } from 'react';
 import { useLocale } from '../components/LocaleProvider/LocaleProvider.js';
 import { useRecipe } from '../components/RecipesProvider/RecipesProvider.js';
 import { ChartCanvas } from './ChartCanvas.js';
 
-export interface WaterfallChartProps {
+export interface WaterfallChartProps extends ComponentProps<'figure'> {
     /** Changes and totals in order (`total: true` shows the running sum) */
     steps: readonly WaterfallStep[];
     /** Title of the chart, also its accessible name */
@@ -48,6 +48,7 @@ export function WaterfallChart({
     className,
     style,
     classes,
+    ...rest
 }: WaterfallChartProps) {
     const locale = useLocale();
     const t = locale.translations.chart;
@@ -60,7 +61,7 @@ export function WaterfallChart({
     };
     const rows = waterfallBars(steps);
     return (
-        <figure className={styles.base({ class: className })} style={style}>
+        <figure {...rest} className={styles.base({ class: className })} style={style}>
             <figcaption id={`${id}title`} className={hideTitle ? styles.caption() : styles.title()}>
                 {title}
             </figcaption>

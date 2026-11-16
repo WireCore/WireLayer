@@ -1,9 +1,9 @@
 import { spoiler as spoilerRecipe, type RecipeClasses } from '@wirecore/wirelayer-recipes';
-import { useEffect, useId, useRef, useState, type CSSProperties, type ReactNode } from 'react';
+import { type ComponentProps, useEffect, useId, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import { useTranslations } from '../LocaleProvider/LocaleProvider.js';
 import { useRecipe } from '../RecipesProvider/RecipesProvider.js';
 
-export interface SpoilerProps {
+export interface SpoilerProps extends ComponentProps<'div'> {
     /** Height of the cut content in px */
     maxHeight?: number;
     open?: boolean;
@@ -28,6 +28,7 @@ export function Spoiler({
     children,
     className,
     style,
+    ...rest
 }: SpoilerProps) {
     const spoiler = useRecipe('spoiler', spoilerRecipe, classes);
     const styles = spoiler();
@@ -51,7 +52,7 @@ export function Spoiler({
     }, []);
     const cut = fullHeight > maxHeight;
     return (
-        <div className={styles.base({ class: className })} style={style}>
+        <div {...rest} className={styles.base({ class: className })} style={style}>
             <div
                 id={`${id}content`}
                 className={styles.content()}

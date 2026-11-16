@@ -243,8 +243,12 @@ const bottomStartPositioning = { placement: 'bottom-start', gutter: 4 } as const
     -->
     <Combobox.Root
         v-if="filter"
-        :class="styles.base({ class: normalizeClass(attrs.class) })"
-        :style="attrs.style"
+        v-bind="{
+            ...attrs,
+            'aria-label': undefined,
+            ...comboboxIds,
+            class: styles.base({ class: normalizeClass(attrs.class) }),
+        }"
         :collection="collection"
         :model-value="currentKey ? [currentKey] : []"
         :input-value="inputText"
@@ -254,7 +258,6 @@ const bottomStartPositioning = { placement: 'bottom-start', gutter: 4 } as const
         :positioning="listPositioning"
         :translations="translations.combobox"
         :open-on-click="false"
-        v-bind="comboboxIds"
         lazy-mount
         unmount-on-exit
         @value-change="onPick($event.value)"
@@ -324,7 +327,7 @@ const bottomStartPositioning = { placement: 'bottom-start', gutter: 4 } as const
         <span role="status" :class="styles.status()">{{ status }}</span>
     </Combobox.Root>
     <Menu.Root v-else :positioning="bottomStartPositioning" v-bind="menuIds" lazy-mount unmount-on-exit>
-        <div :class="styles.base({ class: normalizeClass(attrs.class) })" :style="attrs.style">
+        <div v-bind="{ ...attrs, 'aria-label': undefined, class: styles.base({ class: normalizeClass(attrs.class) }) }">
             <!-- No wrapper without a clear button (unchanged DOM) -->
             <div v-if="clearable" :class="styles.control()">
                 <Menu.Trigger

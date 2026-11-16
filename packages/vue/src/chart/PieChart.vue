@@ -46,7 +46,7 @@ const rows = computed(() => pieLegend(props.slices, format.value, locale.value.l
 
 <template>
     <!-- Pie or doughnut on a canvas named by the title; the legend lists value and share, the table is the text -->
-    <figure :class="styles.base({ class: normalizeClass(attrs.class) })" :style="attrs.style">
+    <figure v-bind="{ ...attrs, class: styles.base({ class: normalizeClass(attrs.class) }) }">
         <figcaption :id="`${id}title`" :class="hideTitle ? styles.caption() : styles.title()">{{ title }}</figcaption>
         <div :class="parts.pieLayout()">
             <div :class="parts.pieBox()" :style="{ height }">

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { TreeView } from '@ark-ui/vue/tree-view';
 import {
+    controlIds,
     tree as treeRecipe,
     type DataSource,
     type RecipeClasses,
@@ -20,7 +21,7 @@ const translations = useTranslations();
 
 export interface TreeProps {
     items: readonly TreeNode[];
-    /** Visible label, also the tree's accessible name */
+    /** Visible label, also the tree's accessible name (else `aria-label` – on the tree, not the outer element) */
     label?: string;
     selectionMode?: 'single' | 'multiple';
     /** Selected ids – use with v-model:selected-value */
@@ -155,14 +156,18 @@ defineExpose({
         With `checkable`, Space checks the focused node instead (aria-checked on the treeitem).
     -->
     <TreeView.Root
+        v-bind="{
+            ...attrs,
+            'aria-label': undefined,
+            ...(model.ownChecks.value ? {} : { checkedValue, defaultCheckedValue }),
+            ...controlIds(attrs.id as string | undefined, 'root'),
+            class: styles.base({ class: normalizeClass(attrs.class) }),
+        }"
         ref="root"
-        :class="styles.base({ class: normalizeClass(attrs.class) })"
-        :style="attrs.style"
         :collection="model.collection.value"
         :selection-mode="selectionMode"
         :selected-value="model.selected.value"
         :expanded-value="model.expanded.value"
-        v-bind="model.ownChecks.value ? {} : { checkedValue, defaultCheckedValue }"
         :translations="{ treeLabel }"
         @selection-change="model.onSelectionChange($event.selectedValue)"
         @expanded-change="model.setExpanded($event.expandedValue)"

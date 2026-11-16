@@ -4112,6 +4112,17 @@ export const cases: [string, El][] = [
     ],
     ['Sortable empty group', el('Sortable', { defaultValue: [], group: 'kanban', label: 'Done' })],
     [
+        // Extra attributes on the outermost element (e.g. a Tour target), aria-label still names the list
+        'Sortable with attributes',
+        el('Sortable', {
+            defaultValue: sortableItems,
+            'aria-label': 'Tasks',
+            id: 'tasks',
+            'data-tour': 'canvas',
+            title: 'Drag to sort',
+        }),
+    ],
+    [
         'Sortable source (clone)',
         el('Sortable', {
             defaultValue: sortableItems,

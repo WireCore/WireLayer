@@ -8,12 +8,12 @@ import {
     type ColorFormat,
     type RecipeClasses,
 } from '@wirecore/wirelayer-recipes';
-import { useId, useMemo, type CSSProperties } from 'react';
+import { type ComponentProps, useId, useMemo, type CSSProperties } from 'react';
 import { useTranslations } from '../LocaleProvider/LocaleProvider.js';
 import { useRecipe } from '../RecipesProvider/RecipesProvider.js';
 import { ColorPickerContent } from './ColorPickerContent.js';
 
-export interface ColorPickerProps {
+export interface ColorPickerProps extends Omit<ComponentProps<'div'>, 'defaultValue' | 'value'> {
     /** Colour, e.g. "#1e66f5" ("#1e66f580" with alpha; in `format`) */
     value?: string;
     defaultValue?: string;
@@ -36,7 +36,7 @@ export interface ColorPickerProps {
     readOnly?: boolean;
     invalid?: boolean;
     name?: string;
-    /** Accessible name without a surrounding Field */
+    /** Accessible name of the button without a surrounding Field (not of the outer element) */
     'aria-label'?: string;
     /** Id of the field (the button), e.g. for a `<label for>` */
     id?: string;
@@ -67,6 +67,7 @@ export function ColorPicker({
     id,
     className,
     style,
+    ...rest
 }: ColorPickerProps) {
     const colorPicker = useRecipe('colorPicker', colorPickerRecipe, classes);
     const styles = colorPicker({ cssText: format !== 'hex' });
@@ -92,6 +93,7 @@ export function ColorPicker({
 
     return (
         <ArkColorPicker.Root
+            {...rest}
             className={styles.base({ class: className })}
             style={style}
             value={parsed}

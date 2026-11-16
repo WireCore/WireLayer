@@ -1,11 +1,11 @@
 import { scrollTop as scrollTopRecipe, type RecipeClasses } from '@wirecore/wirelayer-recipes';
 import { ArrowUp } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type ComponentProps } from 'react';
 import { IconButton } from '../IconButton/IconButton.js';
 import { useTranslations } from '../LocaleProvider/LocaleProvider.js';
 import { useRecipe } from '../RecipesProvider/RecipesProvider.js';
 
-export interface ScrollTopProps {
+export interface ScrollTopProps extends Omit<ComponentProps<'button'>, 'children' | 'color'> {
     /** Shown after scrolling this far (px) */
     threshold?: number;
     label?: string;
@@ -24,7 +24,7 @@ function toTop() {
 }
 
 /** Hidden (and out of the tab order) until the page is scrolled down */
-export function ScrollTop({ classes, threshold = 400, label: labelProp, className }: ScrollTopProps) {
+export function ScrollTop({ classes, threshold = 400, label: labelProp, className, ...rest }: ScrollTopProps) {
     const scrollTop = useRecipe('scrollTop', scrollTopRecipe, classes);
     const translations = useTranslations();
     const label = labelProp ?? translations.scrollTop.label;
@@ -43,6 +43,7 @@ export function ScrollTop({ classes, threshold = 400, label: labelProp, classNam
     }, [threshold]);
     return (
         <IconButton
+            {...rest}
             ref={button}
             icon={ArrowUp}
             label={label}
@@ -51,7 +52,10 @@ export function ScrollTop({ classes, threshold = 400, label: labelProp, classNam
             data-state={visible ? 'visible' : 'hidden'}
             tabIndex={visible ? undefined : -1}
             aria-hidden={visible ? undefined : 'true'}
-            onClick={toTop}
+            onClick={(event) => {
+                rest.onClick?.(event);
+                toTop();
+            }}
         />
     );
 }

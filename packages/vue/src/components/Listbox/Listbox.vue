@@ -35,7 +35,7 @@ export interface ListboxItem<V = string> {
 export interface ListboxProps<T = ListboxItem, V = ItemValueOf<T>> {
     /** Options: ListboxItem objects – or any objects or values, read with itemValue/itemLabel/itemDisabled/itemGroup */
     items: readonly T[];
-    /** Visible label, also the list's accessible name */
+    /** Visible label, also the list's accessible name (else `aria-label` – on the list, not the outer element) */
     label?: string;
     /** Several options can be chosen (Space toggles) */
     multiple?: boolean;
@@ -194,9 +194,12 @@ function onLoadMore() {
 <template>
     <!-- Always visible list (role="listbox"): arrow keys move, Enter/Space choose, typing jumps to an option -->
     <Listbox.Root
-        v-bind="rootIds"
-        :class="styles.base({ class: normalizeClass(attrs.class) })"
-        :style="attrs.style"
+        v-bind="{
+            ...attrs,
+            'aria-label': undefined,
+            ...rootIds,
+            class: styles.base({ class: normalizeClass(attrs.class) }),
+        }"
         :collection="collection"
         :selection-mode="multiple ? 'multiple' : 'single'"
         :model-value="keys"

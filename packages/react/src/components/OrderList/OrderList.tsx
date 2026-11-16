@@ -7,14 +7,24 @@ import {
     type RecipeClasses,
 } from '@wirecore/wirelayer-recipes';
 import { ChevronDown, ChevronsDown, ChevronsUp, ChevronUp } from 'lucide-react';
-import { useState, type CSSProperties, type DragEvent, type KeyboardEvent, type ReactNode } from 'react';
+import {
+    type ComponentProps,
+    useState,
+    type CSSProperties,
+    type DragEvent,
+    type KeyboardEvent,
+    type ReactNode,
+} from 'react';
 import { IconButton } from '../IconButton/IconButton.js';
 import { Listbox, type ListboxItem } from '../Listbox/Listbox.js';
 import { useTranslations } from '../LocaleProvider/LocaleProvider.js';
 import { useRecipe } from '../RecipesProvider/RecipesProvider.js';
 import { letDrag, type ListItemState } from '../Select/list.js';
 
-export interface OrderListProps<T = ListboxItem, V = ItemValueOf<T>> {
+export interface OrderListProps<T = ListboxItem, V = ItemValueOf<T>> extends Omit<
+    ComponentProps<'div'>,
+    'defaultValue' | 'draggable' | 'value'
+> {
     /** Items in their order; ListboxItem objects or any objects/values (see itemValue/itemLabel) */
     value?: T[];
     defaultValue?: T[];
@@ -57,6 +67,7 @@ export function OrderList<T = ListboxItem, V = ItemValueOf<T>>({
     renderItem,
     className,
     style,
+    ...rest
 }: OrderListProps<T, V>) {
     const orderList = useRecipe('orderList', orderListRecipe, classes);
     const styles = orderList();
@@ -102,7 +113,7 @@ export function OrderList<T = ListboxItem, V = ItemValueOf<T>>({
     };
 
     return (
-        <div className={styles.base({ class: className })} style={style}>
+        <div {...rest} className={styles.base({ class: className })} style={style}>
             <div
                 className={styles.list({ class: draggable ? styles.dropZone() : undefined })}
                 data-drop={dropping || undefined}

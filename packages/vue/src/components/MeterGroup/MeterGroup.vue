@@ -51,10 +51,9 @@ const sizeKey = computed(() => (props.orientation === 'vertical' ? 'height' : 'w
 <template>
     <!-- One bar for the parts (visual), the legend lists every part with its value as text -->
     <div
+        v-bind="{ ...attrs, class: styles.base({ class: normalizeClass(attrs.class) }) }"
         role="group"
         :aria-labelledby="`${id}label`"
-        :class="styles.base({ class: normalizeClass(attrs.class) })"
-        :style="attrs.style"
     >
         <span :id="`${id}label`" :class="styles.label()">{{ label }}</span>
         <div :class="styles.bar()" aria-hidden="true">

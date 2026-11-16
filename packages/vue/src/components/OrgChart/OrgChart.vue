@@ -151,7 +151,7 @@ provide(orgChartKey, {
 
 <template>
     <!-- Hierarchy as nested lists – screen readers read the structure, the lines are drawn with CSS -->
-    <div :class="styles.base({ class: normalizeClass(attrs.class) })" :style="attrs.style">
+    <div v-bind="{ ...attrs, class: styles.base({ class: normalizeClass(attrs.class) }) }">
         <ul :aria-label="label" :class="styles.rootList()">
             <li :class="styles.rootItem()">
                 <OrgChartBox :node="root" path="0">

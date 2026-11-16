@@ -2,6 +2,7 @@
 import { Clipboard } from '@ark-ui/vue/clipboard';
 import { Check, Copy } from '@lucide/vue';
 import {
+    controlIds,
     copyButton as copyButtonRecipe,
     iconButton as iconButtonRecipe,
     type RecipeClasses,
@@ -36,9 +37,12 @@ const styles = copyButton();
 <template>
     <!-- Copies the value; the icon turns into a check and "Copied to clipboard" is announced -->
     <Clipboard.Root
+        v-bind="{
+            ...attrs,
+            ...controlIds(attrs.id as string | undefined, 'root'),
+            class: styles.base({ class: normalizeClass(attrs.class) }),
+        }"
         :model-value="value"
-        :class="styles.base({ class: normalizeClass(attrs.class) })"
-        :style="attrs.style"
     >
         <span v-if="showValue" :class="styles.value()">{{ value }}</span>
         <Clipboard.Trigger

@@ -49,9 +49,8 @@ const check: SidebarNavCurrentCheck = (item) => isCurrentLink(item, props.curren
 <template>
     <!-- Navigation landmark with links and expandable groups (buttons with aria-expanded); optionally a rail of icons -->
     <nav
+        v-bind="{ ...attrs, class: styles.base({ class: normalizeClass(attrs.class) }) }"
         :aria-label="label"
-        :class="styles.base({ class: normalizeClass(attrs.class) })"
-        :style="attrs.style"
         :data-rail="rail ? '' : undefined"
     >
         <div v-if="slots.header" :class="styles.header()"><slot name="header" /></div>

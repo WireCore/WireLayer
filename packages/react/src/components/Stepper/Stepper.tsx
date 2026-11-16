@@ -1,7 +1,7 @@
 import { Steps } from '@ark-ui/react/steps';
-import { stepper as stepperRecipe, type RecipeClasses } from '@wirecore/wirelayer-recipes';
+import { controlIds, stepper as stepperRecipe, type RecipeClasses } from '@wirecore/wirelayer-recipes';
 import { Check, LoaderCircle } from 'lucide-react';
-import type { CSSProperties, ReactNode } from 'react';
+import type { ComponentProps, CSSProperties, ReactNode } from 'react';
 import { Button } from '../Button/Button.js';
 import { useTranslations } from '../LocaleProvider/LocaleProvider.js';
 import { useRecipe } from '../RecipesProvider/RecipesProvider.js';
@@ -16,7 +16,7 @@ export interface StepperItem {
     loading?: boolean;
 }
 
-export interface StepperProps {
+export interface StepperProps extends Omit<ComponentProps<'div'>, 'children'> {
     items: readonly StepperItem[];
     /** Current step (0-based; items.length = all done) */
     step?: number;
@@ -61,6 +61,7 @@ export function Stepper({
     completed,
     className,
     style,
+    ...rest
 }: StepperProps) {
     const stepper = useRecipe('stepper', stepperRecipe, classes);
     const styles = stepper({ vertical: orientation === 'vertical', labelBottom: labelPlacement === 'bottom' });
@@ -68,6 +69,8 @@ export function Stepper({
     const t = translations.stepper;
     return (
         <Steps.Root
+            {...rest}
+            {...controlIds(rest.id, 'root')}
             className={styles.base({ class: className })}
             style={style}
             count={items.length}

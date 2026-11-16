@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Steps } from '@ark-ui/vue/steps';
 import { Check, LoaderCircle } from '@lucide/vue';
-import { type RecipeClasses, stepper as stepperRecipe } from '@wirecore/wirelayer-recipes';
+import { controlIds, type RecipeClasses, stepper as stepperRecipe } from '@wirecore/wirelayer-recipes';
 import { computed, normalizeClass, useAttrs } from 'vue';
 import Button from '../Button/Button.vue';
 import { useTranslations } from '../../locale.js';
@@ -62,8 +62,11 @@ const noCurrent = null as unknown as undefined;
 <template>
     <!-- Steps list (tabs) with one panel per step and back/next buttons; the last "Next" finishes -->
     <Steps.Root
-        :class="styles.base({ class: normalizeClass(attrs.class) })"
-        :style="attrs.style"
+        v-bind="{
+            ...attrs,
+            ...controlIds(attrs.id as string | undefined, 'root'),
+            class: styles.base({ class: normalizeClass(attrs.class) }),
+        }"
         :count="items.length"
         :step="step"
         :default-step="defaultStep"

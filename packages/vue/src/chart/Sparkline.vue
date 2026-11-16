@@ -101,7 +101,13 @@ watch(() => [...props.data], update);
 </script>
 
 <template>
-    <span :class="sparkline({ class: normalizeClass(attrs.class) })" :style="[{ width, height }, attrs.style]">
+    <span
+        v-bind="{
+            ...attrs,
+            class: sparkline({ class: normalizeClass(attrs.class) }),
+            style: [{ width, height }, attrs.style],
+        }"
+    >
         <canvas ref="canvas" role="img" :aria-label="summary" />
     </span>
 </template>

@@ -89,8 +89,12 @@ const bottomStartPositioning = { placement: 'bottom-start', gutter: 4 } as const
 <template>
     <!-- Colour field: the button opens a panel with area, hue (and opacity) slider, hex input and presets -->
     <ColorPicker.Root
-        :class="styles.base({ class: normalizeClass(attrs.class) })"
-        :style="attrs.style"
+        v-bind="{
+            ...attrs,
+            'aria-label': undefined,
+            ...ids,
+            class: styles.base({ class: normalizeClass(attrs.class) }),
+        }"
         :model-value="parsed"
         :default-value="initial"
         :disabled="disabled ?? field?.disabled"
@@ -98,7 +102,6 @@ const bottomStartPositioning = { placement: 'bottom-start', gutter: 4 } as const
         :invalid="invalid ?? field?.invalid"
         :name="name"
         :positioning="bottomStartPositioning"
-        v-bind="ids"
         lazy-mount
         unmount-on-exit
         @value-change="emit('update:modelValue', textOf($event.value))"

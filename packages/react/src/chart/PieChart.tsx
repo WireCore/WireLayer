@@ -8,12 +8,12 @@ import {
     type RecipeClasses,
     type PieSlice,
 } from '@wirecore/wirelayer-recipes';
-import { useId, type CSSProperties } from 'react';
+import { type ComponentProps, useId, type CSSProperties } from 'react';
 import { useLocale } from '../components/LocaleProvider/LocaleProvider.js';
 import { useRecipe } from '../components/RecipesProvider/RecipesProvider.js';
 import { ChartCanvas } from './ChartCanvas.js';
 
-export interface PieChartProps {
+export interface PieChartProps extends ComponentProps<'figure'> {
     /** The slices: label, value, colour */
     slices: readonly PieSlice[];
     /** Title of the chart, also its accessible name */
@@ -51,6 +51,7 @@ export function PieChart({
     className,
     style,
     classes,
+    ...rest
 }: PieChartProps) {
     const locale = useLocale();
     const t = locale.translations.chart;
@@ -65,7 +66,7 @@ export function PieChart({
     };
     const rows = pieLegend(slices, format, locale.locale);
     return (
-        <figure className={styles.base({ class: className })} style={style}>
+        <figure {...rest} className={styles.base({ class: className })} style={style}>
             <figcaption id={`${id}title`} className={hideTitle ? styles.caption() : styles.title()}>
                 {title}
             </figcaption>

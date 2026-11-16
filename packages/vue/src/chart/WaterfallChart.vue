@@ -37,7 +37,7 @@ const rows = computed(() => waterfallBars(props.steps));
 
 <template>
     <!-- Floating bars: each change starts where the previous one ended, totals from zero; the table is the text -->
-    <figure :class="styles.base({ class: normalizeClass(attrs.class) })" :style="attrs.style">
+    <figure v-bind="{ ...attrs, class: styles.base({ class: normalizeClass(attrs.class) }) }">
         <figcaption :id="`${id}title`" :class="hideTitle ? styles.caption() : styles.title()">{{ title }}</figcaption>
         <div :class="styles.canvasBox()" :style="{ height }">
             <ChartCanvas :build="build" :labelledby="`${id}title`" />

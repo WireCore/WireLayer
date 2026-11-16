@@ -1,7 +1,14 @@
 import { Splitter as ArkSplitter, useSplitter } from '@ark-ui/react/splitter';
 import { readStored, splitter as splitterRecipe, writeStored, type RecipeClasses } from '@wirecore/wirelayer-recipes';
 import { GripHorizontal, GripVertical } from 'lucide-react';
-import { Fragment, useEffect, type CSSProperties, type KeyboardEvent, type ReactNode } from 'react';
+import {
+    type ComponentProps,
+    Fragment,
+    useEffect,
+    type CSSProperties,
+    type KeyboardEvent,
+    type ReactNode,
+} from 'react';
 import { useTranslations } from '../LocaleProvider/LocaleProvider.js';
 import { useRecipe } from '../RecipesProvider/RecipesProvider.js';
 
@@ -20,7 +27,7 @@ export interface SplitterPanel {
     collapsedSize?: number | string;
 }
 
-export interface SplitterProps {
+export interface SplitterProps extends Omit<ComponentProps<'div'>, 'children'> {
     panels: readonly SplitterPanel[];
     orientation?: 'horizontal' | 'vertical';
     /** Arrow keys on a handle change the size by this many percent (default 1) */
@@ -61,6 +68,7 @@ export function Splitter({
     children,
     className,
     style,
+    ...rest
 }: SplitterProps) {
     const splitter = useRecipe('splitter', splitterRecipe, classes);
     const styles = splitter();
@@ -124,7 +132,7 @@ export function Splitter({
     };
 
     return (
-        <div className={styles.base({ class: className })} style={style}>
+        <div {...rest} className={styles.base({ class: className })} style={style}>
             <ArkSplitter.RootProvider value={api} className={styles.root()}>
                 {panels.map((panel, index) => (
                     <Fragment key={panel.id}>

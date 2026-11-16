@@ -21,6 +21,7 @@ import {
 } from '@wirecore/wirelayer-recipes';
 import { Check, ChevronDown, ChevronRight, LoaderCircle, RotateCw, X } from 'lucide-react';
 import {
+    type ComponentProps,
     useEffect,
     useId,
     useMemo,
@@ -51,7 +52,10 @@ export interface CascadeOption<V = string> {
     leaf?: boolean;
 }
 
-export interface CascadeSelectProps<V = string> {
+export interface CascadeSelectProps<V = string> extends Omit<
+    ComponentProps<'div'>,
+    'defaultValue' | 'value' | 'onSelect'
+> {
     items: readonly CascadeOption<V>[];
     /** Chosen value; any type (see `valueKey`) */
     value?: V | null;
@@ -82,6 +86,7 @@ export interface CascadeSelectProps<V = string> {
     onLoadChildren?: (option: CascadeOption<V>) => void;
     /** Source of the options of lazy levels (`getChildren`) */
     dataSource?: DataSource<CascadeOption<V>>;
+    /** Accessible name of the field without a surrounding Field (not of the outer element) */
     'aria-label'?: string;
     /** Id of the field (the trigger, with `filter` the search field), e.g. for a `<label for>` */
     id?: string;
@@ -122,6 +127,7 @@ export function CascadeSelect<V = string>({
     id,
     className,
     style,
+    ...rest
 }: CascadeSelectProps<V>) {
     type Option = CascadeOption<V>;
     const cascadeSelect = useRecipe('cascadeSelect', cascadeSelectRecipe, classes);
@@ -336,6 +342,7 @@ export function CascadeSelect<V = string>({
     if (filter)
         return (
             <ArkCombobox.Root
+                {...rest}
                 className={styles.base({ class: className })}
                 style={style}
                 collection={collection}
@@ -457,7 +464,7 @@ export function CascadeSelect<V = string>({
             lazyMount
             unmountOnExit
         >
-            <div className={styles.base({ class: className })} style={style}>
+            <div {...rest} className={styles.base({ class: className })} style={style}>
                 {/* No wrapper without a clear button (unchanged DOM) */}
                 {clearable ? (
                     <div className={styles.control()}>

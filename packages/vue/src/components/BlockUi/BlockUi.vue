@@ -25,8 +25,7 @@ const styles = blockUi();
 <template>
     <!-- While blocked: the content is inert (no focus, no clicks) and busy; the overlay says why -->
     <div
-        :class="styles.base({ class: normalizeClass(attrs.class) })"
-        :style="attrs.style"
+        v-bind="{ ...attrs, class: styles.base({ class: normalizeClass(attrs.class) }) }"
         :aria-busy="blocked || undefined"
     >
         <div :inert="blocked || undefined"><slot /></div>

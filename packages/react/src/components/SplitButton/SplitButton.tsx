@@ -9,13 +9,13 @@ import {
     type RecipeClasses,
 } from '@wirecore/wirelayer-recipes';
 import { ChevronDown } from 'lucide-react';
-import type { CSSProperties, MouseEvent } from 'react';
+import type { ComponentProps, CSSProperties, MouseEvent } from 'react';
 import type { IconComponent } from '../../types.js';
 import { Menu, type MenuEntry } from '../Menu/Menu.js';
 import { useTranslations } from '../LocaleProvider/LocaleProvider.js';
 import { useRecipe } from '../RecipesProvider/RecipesProvider.js';
 
-export interface SplitButtonProps {
+export interface SplitButtonProps extends Omit<ComponentProps<'div'>, 'color' | 'onClick' | 'onSelect'> {
     /** Label of the main action */
     label: string;
     /** The other actions in the menu */
@@ -54,6 +54,7 @@ export function SplitButton({
     onSelect,
     className,
     style,
+    ...rest
 }: SplitButtonProps) {
     const button = useRecipe('button', buttonRecipe);
     const splitButton = useRecipe('splitButton', splitButtonRecipe, classes);
@@ -62,7 +63,7 @@ export function SplitButton({
     const menuLabel = menuLabelProp ?? translations.splitButton.more;
     const look = button({ variant, color: buttonColorKey(color), size, shape });
     return (
-        <div role="group" className={styles.base({ class: className })} style={style} aria-label={label}>
+        <div {...rest} role="group" className={styles.base({ class: className })} style={style} aria-label={label}>
             <button type="button" className={look.base({ class: styles.main() })} disabled={disabled} onClick={onClick}>
                 {Icon && <Icon className={look.icon()} aria-hidden="true" />}
                 {label}

@@ -119,7 +119,7 @@ function reset() {
         Panels with handles between them (role="separator"): drag, or arrow keys (Shift for bigger steps) and Home/End
         on the handle; Enter folds a collapsible panel; double click resets. Splitters can be nested in a panel.
     -->
-    <div :class="styles.base({ class: normalizeClass(attrs.class) })" :style="attrs.style">
+    <div v-bind="{ ...attrs, class: styles.base({ class: normalizeClass(attrs.class) }) }">
         <Splitter.RootProvider :value="api" :class="styles.root()">
             <template v-for="(panel, index) in panels" :key="panel.id">
                 <Splitter.ResizeTrigger

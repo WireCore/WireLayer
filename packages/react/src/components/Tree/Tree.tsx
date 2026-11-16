@@ -1,5 +1,6 @@
 import { TreeView as ArkTreeView } from '@ark-ui/react/tree-view';
 import {
+    controlIds,
     isLazyNode,
     tree as treeRecipe,
     treeRetryParent,
@@ -15,6 +16,7 @@ import {
     useContext,
     useImperativeHandle,
     useRef,
+    type ComponentProps,
     type CSSProperties,
     type DragEvent,
     type KeyboardEvent,
@@ -26,15 +28,15 @@ import { Highlight } from '../Highlight/Highlight.js';
 import { useTranslations } from '../LocaleProvider/LocaleProvider.js';
 import { useRecipe } from '../RecipesProvider/RecipesProvider.js';
 import type { TreeDropAllowed, TreeNode, TreeNodeState, TreeTransfer } from './types.js';
-import { useTree, type TreeModel } from './useTree.js';
+import { treeAttributes, useTree, type TreeModel } from './useTree.js';
 
 export type { TreeDropAllowed, TreeNode, TreeNodeState, TreeTransfer } from './types.js';
 
-export interface TreeProps {
+export interface TreeProps extends Omit<ComponentProps<'div'>, 'ref'> {
     items: readonly TreeNode[];
     /** Visible label, also the tree's accessible name */
     label?: string;
-    /** Accessible name without a visible label */
+    /** Accessible name of the tree without a visible label (not of the outer element) */
     'aria-label'?: string;
     selectionMode?: 'single' | 'multiple';
     selectedValue?: string[];
@@ -178,6 +180,8 @@ export function Tree({
 
     return (
         <ArkTreeView.Root
+            {...treeAttributes(rest)}
+            {...controlIds(rest.id, 'root')}
             ref={root}
             className={styles.base({ class: className })}
             style={style}
@@ -190,7 +194,10 @@ export function Tree({
             {...(model.ownChecks ? {} : { checkedValue, defaultCheckedValue })}
             onCheckedChange={(details) => model.ownChecks || model.onArkCheckedChange(details.checkedValue)}
             translations={{ treeLabel: label ?? ariaLabel ?? translations.tree.treeLabel }}
-            onKeyDownCapture={model.onKeyDown}
+            onKeyDownCapture={(event) => {
+                rest.onKeyDownCapture?.(event);
+                model.onKeyDown(event);
+            }}
         >
             {label && <ArkTreeView.Label className={styles.label()}>{label}</ArkTreeView.Label>}
             <TreeToolbar

@@ -6,13 +6,16 @@ import {
     type DateValueType,
     type RecipeClasses,
 } from '@wirecore/wirelayer-recipes';
-import { useId, useState, type CSSProperties } from 'react';
+import { type ComponentProps, useId, useState, type CSSProperties } from 'react';
 import { CalendarViews, type RenderDay } from '../DatePicker/DatePickerBase.js';
 import { fromDateLike, toOutput, unavailableDates, wallKey } from '../DatePicker/dates.js';
 import { useLocale, useTranslations } from '../LocaleProvider/LocaleProvider.js';
 import { useRecipe } from '../RecipesProvider/RecipesProvider.js';
 
-export interface CalendarProps<T extends DateLike[] = string[]> {
+export interface CalendarProps<T extends DateLike[] = string[]> extends Omit<
+    ComponentProps<'div'>,
+    'defaultValue' | 'value'
+> {
     /** One day, several days, or a range (start and end) */
     selectionMode?: 'single' | 'multiple' | 'range';
     /** Chosen days as ISO dates; Date objects are accepted too */
@@ -84,6 +87,7 @@ export function Calendar<T extends DateLike[] = string[]>({
     renderDay,
     className,
     style,
+    ...rest
 }: CalendarProps<T>) {
     const datePicker = useRecipe('datePicker', datePickerRecipe, classes);
     const styles = datePicker((numberOfMonths ?? 1) > 1 ? { multiMonth: true } : {});
@@ -98,9 +102,10 @@ export function Calendar<T extends DateLike[] = string[]>({
     const rootId = `${useId()}calendar`;
     return (
         <ArkDatePicker.Root
+            {...rest}
             className={styles.inline({ class: className })}
             style={style}
-            ids={{ root: rootId, content: rootId }}
+            ids={{ root: rest.id ?? rootId, content: rest.id ?? rootId }}
             inline
             value={current.map((date) => fromDateLike(date, false)).filter((date): date is DateValue => !!date)}
             onValueChange={(details) => {

@@ -1,9 +1,9 @@
 import { Progress } from '@ark-ui/react/progress';
-import { progressCircle as progressCircleRecipe, type RecipeClasses } from '@wirecore/wirelayer-recipes';
-import type { CSSProperties } from 'react';
+import { controlIds, progressCircle as progressCircleRecipe, type RecipeClasses } from '@wirecore/wirelayer-recipes';
+import type { ComponentProps, CSSProperties } from 'react';
 import { useRecipe } from '../RecipesProvider/RecipesProvider.js';
 
-export interface ProgressCircleProps {
+export interface ProgressCircleProps extends Omit<ComponentProps<'div'>, 'defaultValue' | 'value'> {
     value: number;
     max?: number;
     /** Visible label below the ring, also its accessible name */
@@ -31,12 +31,15 @@ export function ProgressCircle({
     formatValue = percent,
     className,
     style,
+    ...rest
 }: ProgressCircleProps) {
     const progressCircle = useRecipe('progressCircle', progressCircleRecipe, classes);
     const styles = progressCircle({ size, status });
     const text = formatValue(value, max);
     return (
         <Progress.Root
+            {...rest}
+            {...controlIds(rest.id, 'root')}
             className={styles.base({ class: className })}
             style={style}
             value={value}

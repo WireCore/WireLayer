@@ -527,8 +527,7 @@ function chooseMention(item: EditorMention) {
         aria-pressed) above a multi-line textbox. Shortcuts as usual (Strg+B …). Gives HTML.
     -->
     <div
-        :class="styles.base({ class: normalizeClass(attrs.class) })"
-        :style="attrs.style"
+        v-bind="{ ...attrs, 'aria-label': undefined, class: styles.base({ class: normalizeClass(attrs.class) }) }"
         :data-invalid="isInvalid || undefined"
         :data-disabled="isDisabled || undefined"
     >

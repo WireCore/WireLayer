@@ -1,12 +1,12 @@
 import { RatingGroup as ArkRatingGroup } from '@ark-ui/react/rating-group';
 import { controlIds, rating as ratingRecipe, type RecipeClasses } from '@wirecore/wirelayer-recipes';
 import { Star } from 'lucide-react';
-import { useRef, type ComponentType, type CSSProperties } from 'react';
+import { type ComponentProps, useRef, type ComponentType, type CSSProperties } from 'react';
 import { useTranslations } from '../LocaleProvider/LocaleProvider.js';
 import { useRecipe } from '../RecipesProvider/RecipesProvider.js';
 import { useLabelForWarning } from '../../utils/label-for.js';
 
-export interface RatingProps {
+export interface RatingProps extends Omit<ComponentProps<'div'>, 'defaultValue' | 'value'> {
     value?: number;
     defaultValue?: number;
     onValueChange?: (value: number) => void;
@@ -51,6 +51,7 @@ export function Rating({
     name,
     className,
     style,
+    ...rest
 }: RatingProps) {
     useLabelForWarning('Rating', id);
     const rating = useRecipe('rating', ratingRecipe, classes);
@@ -61,6 +62,7 @@ export function Rating({
 
     return (
         <ArkRatingGroup.Root
+            {...rest}
             {...controlIds(id, 'root')}
             className={styles.base({ class: className })}
             style={style}

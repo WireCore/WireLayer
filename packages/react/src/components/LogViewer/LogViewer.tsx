@@ -11,7 +11,7 @@ import {
     type RecipeClasses,
 } from '@wirecore/wirelayer-recipes';
 import { ArrowDown, Bug, CircleX, Info, Search, TriangleAlert } from 'lucide-react';
-import { useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
+import { type ComponentProps, useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import { Button } from '../Button/Button.js';
 import { Highlight } from '../Highlight/Highlight.js';
 import { Input } from '../Input/Input.js';
@@ -20,7 +20,7 @@ import { useRecipe } from '../RecipesProvider/RecipesProvider.js';
 import { ToggleButton } from '../ToggleButton/ToggleButton.js';
 import { useDataSource } from '../../utils/data-source.js';
 
-export interface LogViewerProps {
+export interface LogViewerProps extends ComponentProps<'div'> {
     /** The lines, oldest first – strings or { text, level, time, id } (with `dataSource`: the newest, after the loaded) */
     lines?: (LogLine | string)[];
     /**
@@ -88,6 +88,7 @@ export function LogViewer({
     rowHeight = 20,
     className,
     style,
+    ...rest
 }: LogViewerProps) {
     const logViewer = useRecipe('logViewer', logViewerRecipe, classes);
     const styles = logViewer();
@@ -192,7 +193,7 @@ export function LogViewer({
     const words = query.trim().split(/\s+/);
 
     return (
-        <div className={styles.base({ class: className })} style={style}>
+        <div {...rest} className={styles.base({ class: className })} style={style}>
             <div className={styles.toolbar()}>
                 {search && (
                     <Input

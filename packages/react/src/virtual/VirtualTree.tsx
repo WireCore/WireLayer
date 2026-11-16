@@ -1,6 +1,6 @@
 import { TreeView as ArkTreeView } from '@ark-ui/react/tree-view';
 import { useVirtualizer } from '@tanstack/react-virtual';
-import { flattenTree, tree as treeRecipe, type TreeRow } from '@wirecore/wirelayer-recipes';
+import { controlIds, flattenTree, tree as treeRecipe, type TreeRow } from '@wirecore/wirelayer-recipes';
 import { LoaderCircle } from 'lucide-react';
 import { useImperativeHandle, useMemo, useRef, type CSSProperties } from 'react';
 import { useTranslations } from '../components/LocaleProvider/LocaleProvider.js';
@@ -12,7 +12,7 @@ import {
     type TreeNode,
     type TreeProps,
 } from '../components/Tree/Tree.js';
-import { useTree } from '../components/Tree/useTree.js';
+import { treeAttributes, useTree } from '../components/Tree/useTree.js';
 
 export interface VirtualTreeProps extends Omit<TreeProps, 'showLines'> {
     /** Height of the scrolling tree (CSS length) */
@@ -115,6 +115,8 @@ export function VirtualTree({
 
     return (
         <ArkTreeView.Root
+            {...treeAttributes(rest)}
+            {...controlIds(rest.id, 'root')}
             ref={root}
             className={styles.base({ class: className })}
             style={style}
@@ -135,7 +137,10 @@ export function VirtualTree({
                 virtualizer.scrollToIndex(index, { align: 'auto' });
                 focusWhenRendered(getElement);
             }}
-            onKeyDownCapture={model.onKeyDown}
+            onKeyDownCapture={(event) => {
+                rest.onKeyDownCapture?.(event);
+                model.onKeyDown(event);
+            }}
         >
             {label && <ArkTreeView.Label className={styles.label()}>{label}</ArkTreeView.Label>}
             <TreeToolbar

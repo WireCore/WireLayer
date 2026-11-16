@@ -1,5 +1,5 @@
 import { meterGroup as meterGroupRecipe, type MeterColor, type RecipeClasses } from '@wirecore/wirelayer-recipes';
-import { useId, type CSSProperties } from 'react';
+import { type ComponentProps, useId, type CSSProperties } from 'react';
 import { useRecipe } from '../RecipesProvider/RecipesProvider.js';
 
 export interface MeterGroupItem {
@@ -8,7 +8,7 @@ export interface MeterGroupItem {
     color?: MeterColor;
 }
 
-export interface MeterGroupProps {
+export interface MeterGroupProps extends ComponentProps<'div'> {
     items: readonly MeterGroupItem[];
     /** Visible label, e.g. "Storage" */
     label: string;
@@ -43,6 +43,7 @@ export function MeterGroup({
     legendOrientation,
     className,
     style,
+    ...rest
 }: MeterGroupProps) {
     const meterGroup = useRecipe('meterGroup', meterGroupRecipe, classes);
     const styles = meterGroup({
@@ -55,7 +56,13 @@ export function MeterGroup({
     const total = max ?? items.reduce((sum, item) => sum + item.value, 0);
     const colorOf = (item: MeterGroupItem, index: number) => item.color ?? palette[index % palette.length]!;
     return (
-        <div role="group" aria-labelledby={`${id}label`} className={styles.base({ class: className })} style={style}>
+        <div
+            {...rest}
+            role="group"
+            aria-labelledby={`${id}label`}
+            className={styles.base({ class: className })}
+            style={style}
+        >
             <span id={`${id}label`} className={styles.label()}>
                 {label}
             </span>

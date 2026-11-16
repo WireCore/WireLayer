@@ -197,7 +197,7 @@ const sourceServer = computed(() => ({
 
 <template>
     <!-- Two lists with several choices each; the buttons move the chosen items across, the move is announced -->
-    <div :class="styles.base({ class: normalizeClass(attrs.class) })" :style="attrs.style">
+    <div v-bind="{ ...attrs, class: styles.base({ class: normalizeClass(attrs.class) }) }">
         <div
             v-if="draggable"
             :class="styles.dropZone()"

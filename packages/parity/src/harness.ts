@@ -185,6 +185,9 @@ export function toVue(node: El | string): VNode | string {
     };
     const props = resolveProps(rest, 'vue');
     if (!isComponent(node.type)) return h(node.type, props, node.children.map(toVue));
+    // React's `children` render function (e.g. Stepper panels) – Vue takes slots; as an attribute it would reach the
+    // root element, which passes extra attributes on
+    delete props.children;
     const slots = {
         ...Object.fromEntries(Object.entries($slots ?? {}).map(([name, content]) => [name, () => toVue(content)])),
         ...Object.fromEntries(

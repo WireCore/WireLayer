@@ -33,7 +33,11 @@ const meta = {
     title: 'Data/OrgChart',
     component: OrgChart,
     args: { node: company, label: 'Org chart', collapsible: true },
-    argTypes: { selectionMode: { control: 'inline-radio', options: ['none', 'single', 'multiple'] } },
+    argTypes: {
+        selectionMode: { control: 'inline-radio', options: ['none', 'single', 'multiple'] },
+        // View props reach the outermost view (react-native-web: data-testid)
+        testID: { control: 'text' },
+    },
     decorators: [(Story) => <View className="w-[360px]">{Story()}</View>],
 } satisfies Meta<typeof OrgChart>;
 

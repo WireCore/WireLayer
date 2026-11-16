@@ -14,6 +14,7 @@ import {
     View,
     type NativeScrollEvent,
     type NativeSyntheticEvent,
+    type ViewProps,
 } from 'react-native';
 import { useTranslations } from '../../locale.js';
 import { Icon, type IconComponent } from '../../utils/Icon.js';
@@ -21,7 +22,7 @@ import { useControllable } from '../../utils/useControllable.js';
 import { useReducedMotion } from '../../utils/useReducedMotion.js';
 import { announce } from '../LiveAnnouncer/LiveAnnouncer.js';
 
-export interface CarouselProps<T> {
+export interface CarouselProps<T> extends Omit<ViewProps, 'children'> {
     items: T[];
     /** Accessible name of the carousel */
     label: string;
@@ -69,6 +70,7 @@ export function Carousel<T>({
     defaultPage = 0,
     onPageChange,
     className,
+    ...rest
 }: CarouselProps<T>) {
     const translations = useTranslations();
     const t = translations.carousel;
@@ -142,6 +144,7 @@ export function Carousel<T>({
 
     return (
         <View
+            {...rest}
             role="region"
             aria-label={label}
             {...({ 'aria-roledescription': 'carousel' } as object)}

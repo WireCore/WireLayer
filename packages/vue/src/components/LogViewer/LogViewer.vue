@@ -199,7 +199,7 @@ onBeforeUnmount(() => observer?.disconnect());
         Log: a scrollable, focusable area (arrow keys scroll) with numbered lines; level as icon and text; search
         filters and marks; new lines stay in view until you scroll up. Only the visible lines are rendered.
     -->
-    <div :class="styles.base({ class: normalizeClass(attrs.class) })" :style="attrs.style">
+    <div v-bind="{ ...attrs, class: styles.base({ class: normalizeClass(attrs.class) }) }">
         <div :class="styles.toolbar()">
             <Input
                 v-if="search"

@@ -64,9 +64,12 @@ function onValueChange(details: { value: string[]; valueAsString: string }) {
 <template>
     <!-- Code input (OTP, PIN): one box per character, typing moves on, pasting fills all boxes -->
     <PinInput.Root
-        v-bind="rootIds"
-        :class="styles.base({ class: normalizeClass(attrs.class) })"
-        :style="attrs.style"
+        v-bind="{
+            ...attrs,
+            'aria-label': undefined,
+            ...rootIds,
+            class: styles.base({ class: normalizeClass(attrs.class) }),
+        }"
         :count="length"
         :model-value="toArray(modelValue)"
         :default-value="toArray(defaultValue)"

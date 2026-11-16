@@ -9,7 +9,7 @@ import {
 } from '@wirecore/wirelayer-recipes/native';
 import { ChevronDown, RotateCw } from 'lucide-react-native';
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
-import { Pressable, Text, View } from 'react-native';
+import { Pressable, Text, View, type ViewProps } from 'react-native';
 import { useLocale } from '../../locale.js';
 import { useAnnouncer } from '../../utils/announce.js';
 import { Icon } from '../../utils/Icon.js';
@@ -40,7 +40,7 @@ export interface OrgChartNodeState {
     loading: boolean;
 }
 
-export interface OrgChartProps {
+export interface OrgChartProps extends ViewProps {
     /** The top of the hierarchy */
     node: OrgChartNode;
     /** Accessible name, e.g. "Org chart" */
@@ -91,6 +91,7 @@ export function OrgChart({
     dataSource,
     renderContent,
     className,
+    ...rest
 }: OrgChartProps) {
     const { translations, locale } = useLocale();
     const t = translations.orgChart;
@@ -255,7 +256,7 @@ export function OrgChart({
     };
 
     return (
-        <View className={styles.base({ class: className })}>
+        <View {...rest} className={styles.base({ class: className })}>
             <View role="list" aria-label={label} className={styles.list()}>
                 <View role="listitem">{box(root, '0')}</View>
             </View>

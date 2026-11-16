@@ -32,7 +32,11 @@ const meta = {
     title: 'Data/Sortable',
     component: Sortable,
     args: { label: 'Order', orientation: 'vertical', disabled: false },
-    argTypes: { orientation: { control: 'inline-radio', options: ['vertical', 'horizontal'] } },
+    argTypes: {
+        orientation: { control: 'inline-radio', options: ['vertical', 'horizontal'] },
+        // View props reach the outermost view (react-native-web: data-testid)
+        testID: { control: 'text' },
+    },
     decorators: [(Story) => <View className="w-[340px]">{Story()}</View>],
     render: (args) => <Demo {...(args as SortableProps<Task>)} />,
 } satisfies Meta<typeof Sortable>;

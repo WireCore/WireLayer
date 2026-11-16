@@ -130,7 +130,7 @@ watch([() => props.data, () => props.options], update, { deep: true });
 
 <template>
     <!-- Canvas with role="img" named by the title; the data table is its text alternative (WCAG 1.1.1) -->
-    <figure :class="styles.base({ class: normalizeClass(attrs.class) })" :style="attrs.style">
+    <figure v-bind="{ ...attrs, class: styles.base({ class: normalizeClass(attrs.class) }) }">
         <figcaption :id="`${id}title`" :class="hideTitle ? styles.caption() : styles.title()">{{ title }}</figcaption>
         <div :class="styles.canvasBox()" :style="{ height }">
             <canvas ref="canvas" role="img" :aria-labelledby="`${id}title`" />

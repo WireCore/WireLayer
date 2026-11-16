@@ -6,11 +6,11 @@ import {
     type RecipeClasses,
 } from '@wirecore/wirelayer-recipes';
 import { Chart as ChartJs, type ChartConfiguration } from 'chart.js/auto';
-import { useEffect, useRef, type CSSProperties } from 'react';
+import { useEffect, useRef, type ComponentProps, type CSSProperties } from 'react';
 import { useLocale } from '../components/LocaleProvider/LocaleProvider.js';
 import { useRecipe } from '../components/RecipesProvider/RecipesProvider.js';
 
-export interface SparklineProps {
+export interface SparklineProps extends ComponentProps<'span'> {
     data: readonly number[];
     /** What the line shows, e.g. "Load over the last 24 hours" – starts the text alternative */
     label: string;
@@ -36,6 +36,7 @@ export function Sparkline({
     formatValue,
     className,
     style,
+    ...rest
 }: SparklineProps) {
     const sparkline = useRecipe('sparkline', sparklineRecipe, classes);
     const { locale, translations } = useLocale();
@@ -95,7 +96,7 @@ export function Sparkline({
         };
     }, [key, fill, locale]);
     return (
-        <span className={sparkline({ class: className })} style={{ width, height, ...style }}>
+        <span {...rest} className={sparkline({ class: className })} style={{ width, height, ...style }}>
             <canvas
                 ref={canvas}
                 role="img"

@@ -1,12 +1,12 @@
 import { AngleSlider as ArkAngleSlider } from '@ark-ui/react/angle-slider';
 import { useFieldContext } from '@ark-ui/react/field';
 import { controlIds, angleSlider as angleSliderRecipe, type RecipeClasses } from '@wirecore/wirelayer-recipes';
-import { useState, type CSSProperties } from 'react';
+import { type ComponentProps, useState, type CSSProperties } from 'react';
 import { useTranslations } from '../LocaleProvider/LocaleProvider.js';
 import { useRecipe } from '../RecipesProvider/RecipesProvider.js';
 import { useLabelForWarning } from '../../utils/label-for.js';
 
-export interface AngleSliderProps {
+export interface AngleSliderProps extends Omit<ComponentProps<'div'>, 'defaultValue' | 'value'> {
     /** Angle 0–360 (controlled) */
     value?: number;
     defaultValue?: number;
@@ -56,6 +56,7 @@ export function AngleSlider({
     id,
     className,
     style,
+    ...rest
 }: AngleSliderProps) {
     useLabelForWarning('AngleSlider', id);
     const angleSlider = useRecipe('angleSlider', angleSliderRecipe, classes);
@@ -68,6 +69,7 @@ export function AngleSlider({
     const spoken = formatValue ? formatValue(current) : t.value(current);
     return (
         <ArkAngleSlider.Root
+            {...rest}
             {...controlIds(id, 'root')}
             className={styles.base({ class: className })}
             style={style}

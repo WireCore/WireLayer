@@ -2,6 +2,7 @@
 import { Carousel } from '@ark-ui/vue/carousel';
 import { ChevronLeft, ChevronRight, Pause, Play } from '@lucide/vue';
 import {
+    controlIds,
     carousel as carouselRecipe,
     carouselBreakpoint,
     iconButton as iconButtonRecipe,
@@ -110,8 +111,11 @@ function change(page: number) {
     -->
     <Carousel.Root
         ref="root"
-        :class="styles.base({ class: normalizeClass(attrs.class) })"
-        :style="attrs.style"
+        v-bind="{
+            ...attrs,
+            ...controlIds(attrs.id as string | undefined, 'root'),
+            class: styles.base({ class: normalizeClass(attrs.class) }),
+        }"
         :aria-label="label"
         :slide-count="items.length"
         :slides-per-page="settings.slidesPerPage"

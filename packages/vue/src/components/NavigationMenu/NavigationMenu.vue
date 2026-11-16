@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { NavigationMenu } from '@ark-ui/vue/navigation-menu';
 import { ChevronDown } from '@lucide/vue';
-import { navigationMenu as navigationMenuRecipe, type RecipeClasses } from '@wirecore/wirelayer-recipes';
+import { controlIds, navigationMenu as navigationMenuRecipe, type RecipeClasses } from '@wirecore/wirelayer-recipes';
 import { normalizeClass, useAttrs, type Component } from 'vue';
 import { useTranslations } from '../../locale.js';
 import { useRecipe } from '../../recipes.js';
@@ -46,8 +46,11 @@ const styles = navigationMenu();
         links – on hover or click; Escape closes. Not a menu (role="menu"), so links behave like links.
     -->
     <NavigationMenu.Root
-        :class="styles.base({ class: normalizeClass(attrs.class) })"
-        :style="attrs.style"
+        v-bind="{
+            ...attrs,
+            ...controlIds(attrs.id as string | undefined, 'root'),
+            class: styles.base({ class: normalizeClass(attrs.class) }),
+        }"
         :translations="{ rootLabel: label ?? translations.navigationMenu.rootLabel }"
     >
         <NavigationMenu.List :class="styles.list()">

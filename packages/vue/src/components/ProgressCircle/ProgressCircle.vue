@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Progress } from '@ark-ui/vue/progress';
-import { progressCircle as progressCircleRecipe, type RecipeClasses } from '@wirecore/wirelayer-recipes';
+import { controlIds, progressCircle as progressCircleRecipe, type RecipeClasses } from '@wirecore/wirelayer-recipes';
 import { computed, normalizeClass, useAttrs } from 'vue';
 import { useRecipe } from '../../recipes.js';
 
@@ -33,8 +33,11 @@ const text = computed(() => props.formatValue(props.value, props.max));
 <template>
     <!-- Ring with the value in the middle; a progressbar named by its label, the value as aria-valuetext -->
     <Progress.Root
-        :class="styles.base({ class: normalizeClass(attrs.class) })"
-        :style="attrs.style"
+        v-bind="{
+            ...attrs,
+            ...controlIds(attrs.id as string | undefined, 'root'),
+            class: styles.base({ class: normalizeClass(attrs.class) }),
+        }"
         :model-value="value"
         :max="max"
         :translations="{ value: () => text }"

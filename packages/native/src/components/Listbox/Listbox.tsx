@@ -10,18 +10,18 @@ import {
 } from '@wirecore/wirelayer-recipes/native';
 import { Check, Minus, Search } from 'lucide-react-native';
 import { useEffect, useId } from 'react';
-import { Pressable, ScrollView, Text, TextInput, View } from 'react-native';
+import { Pressable, ScrollView, Text, TextInput, View, type ViewProps } from 'react-native';
 import { useResolveClassNames } from 'uniwind';
 import { useLocale } from '../../locale.js';
 import { useAnnouncer } from '../../utils/announce.js';
 import { Icon, type IconComponent } from '../../utils/Icon.js';
 import { toggleOnSpace } from '../../utils/keyboard.js';
 import { Loader } from '../../utils/Loader.js';
-import { useOptionList, type OptionListProps } from '../../utils/options.js';
+import { optionListAttributes, useOptionList, type OptionListProps } from '../../utils/options.js';
 import { useControllable } from '../../utils/useControllable.js';
 import type { SelectItem } from '../Select/Select.js';
 
-export interface ListboxProps<T = SelectItem, V = ItemValueOf<T>> extends OptionListProps<T, V> {
+export interface ListboxProps<T = SelectItem, V = ItemValueOf<T>> extends OptionListProps<T, V>, ViewProps {
     /** Visible label, also the list's accessible name */
     label?: string;
     /** Accessible name without a visible label */
@@ -64,6 +64,7 @@ export function Listbox<T = SelectItem, V = ItemValueOf<T>>(props: ListboxProps<
         loadingText,
         emptyText,
         className,
+        ...rest
     } = props;
     const { translations } = useLocale();
     const [selected, setSelected] = useControllable<V[]>(value, defaultValue, onValueChange);
@@ -131,7 +132,7 @@ export function Listbox<T = SelectItem, V = ItemValueOf<T>>(props: ListboxProps<
     };
 
     return (
-        <View className={styles.base({ class: className })}>
+        <View {...optionListAttributes(rest)} className={styles.base({ class: className })}>
             {!!label && (
                 <Text nativeID={`${id}label`} className={styles.label()}>
                     {label}

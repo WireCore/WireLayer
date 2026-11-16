@@ -1,12 +1,12 @@
 import { useFieldContext } from '@ark-ui/react/field';
 import { PinInput as ArkPinInput } from '@ark-ui/react/pin-input';
 import { controlIds, pinInput as pinInputRecipe, type RecipeClasses } from '@wirecore/wirelayer-recipes';
-import type { CSSProperties } from 'react';
+import type { ComponentProps, CSSProperties } from 'react';
 import { useTranslations } from '../LocaleProvider/LocaleProvider.js';
 import { useRecipe } from '../RecipesProvider/RecipesProvider.js';
 import { useLabelForWarning } from '../../utils/label-for.js';
 
-export interface PinInputProps {
+export interface PinInputProps extends Omit<ComponentProps<'div'>, 'defaultValue' | 'type' | 'value'> {
     /** Number of characters */
     length?: number;
     value?: string;
@@ -23,7 +23,7 @@ export interface PinInputProps {
     invalid?: boolean;
     disabled?: boolean;
     name?: string;
-    /** Accessible name of the group without a surrounding Field */
+    /** Accessible name of the group of boxes without a surrounding Field (not of the outer element) */
     'aria-label'?: string;
     /** Id of the root element; a `<label for>` cannot name the PIN input, use a Field or aria-label */
     id?: string;
@@ -54,6 +54,7 @@ export function PinInput({
     id,
     className,
     style,
+    ...rest
 }: PinInputProps) {
     useLabelForWarning('PinInput', id);
     const pinInput = useRecipe('pinInput', pinInputRecipe, classes);
@@ -63,6 +64,7 @@ export function PinInput({
 
     return (
         <ArkPinInput.Root
+            {...rest}
             {...controlIds(id, 'root')}
             className={styles.base({ class: className })}
             style={style}

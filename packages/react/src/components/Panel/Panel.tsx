@@ -1,10 +1,10 @@
 import { Collapsible } from '@ark-ui/react/collapsible';
-import { panel as panelRecipe, type RecipeClasses } from '@wirecore/wirelayer-recipes';
+import { controlIds, panel as panelRecipe, type RecipeClasses } from '@wirecore/wirelayer-recipes';
 import { ChevronRight } from 'lucide-react';
-import type { CSSProperties, ReactNode } from 'react';
+import type { ComponentProps, CSSProperties, ReactNode } from 'react';
 import { useRecipe } from '../RecipesProvider/RecipesProvider.js';
 
-export interface PanelProps {
+export interface PanelProps extends ComponentProps<'div'> {
     title: string;
     /** Heading level of the title */
     headingLevel?: 2 | 3 | 4;
@@ -37,6 +37,7 @@ export function Panel({
     children,
     className,
     style,
+    ...rest
 }: PanelProps) {
     const panel = useRecipe('panel', panelRecipe, classes);
     const styles = panel();
@@ -51,7 +52,7 @@ export function Panel({
 
     if (!toggleable)
         return (
-            <section className={styles.base({ class: className })} style={style}>
+            <section {...rest} className={styles.base({ class: className })} style={style}>
                 <div className={styles.header()}>
                     <Heading className={styles.title()}>{title}</Heading>
                     {actionBox}
@@ -61,6 +62,8 @@ export function Panel({
         );
     return (
         <Collapsible.Root
+            {...rest}
+            {...controlIds(rest.id, 'root')}
             className={styles.base({ class: className })}
             style={style}
             open={open}

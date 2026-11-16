@@ -7,11 +7,11 @@ import {
     themeChartOptions,
 } from '@wirecore/wirelayer-recipes';
 import { Chart as ChartJs, type ChartData, type ChartOptions, type ChartType, type Plugin } from 'chart.js/auto';
-import { useEffect, useId, useRef, useState, type CSSProperties } from 'react';
+import { type ComponentProps, useEffect, useId, useRef, useState, type CSSProperties } from 'react';
 import { useLocale } from '../components/LocaleProvider/LocaleProvider.js';
 import { useRecipe } from '../components/RecipesProvider/RecipesProvider.js';
 
-export interface ChartProps<TType extends ChartType> {
+export interface ChartProps<TType extends ChartType> extends Omit<ComponentProps<'figure'>, 'title' | 'type'> {
     /** Chart.js chart type – it alone decides the types of `data`, `options` and `plugins` */
     type: TType;
     data: ChartData<NoInfer<TType>>;
@@ -51,6 +51,7 @@ export function Chart<TType extends ChartType>({
     formatValue,
     className,
     style,
+    ...rest
 }: ChartProps<TType>) {
     const styles = useRecipe('chart', chartRecipe, classes)();
     const { locale, translations } = useLocale();
@@ -116,7 +117,7 @@ export function Chart<TType extends ChartType>({
     }, [data, options]);
 
     return (
-        <figure className={styles.base({ class: className })} style={style}>
+        <figure {...rest} className={styles.base({ class: className })} style={style}>
             <figcaption id={`${id}title`} className={hideTitle ? styles.caption() : styles.title()}>
                 {title}
             </figcaption>

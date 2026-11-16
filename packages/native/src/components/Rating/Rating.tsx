@@ -1,12 +1,20 @@
 import { rating } from '@wirecore/wirelayer-recipes/native';
 import { Star } from 'lucide-react-native';
 import { useId, useState } from 'react';
-import { Platform, Pressable, Text, View, type GestureResponderEvent, type LayoutChangeEvent } from 'react-native';
+import {
+    Platform,
+    Pressable,
+    Text,
+    View,
+    type GestureResponderEvent,
+    type LayoutChangeEvent,
+    type ViewProps,
+} from 'react-native';
 import { useTranslations } from '../../locale.js';
 import { Icon, type IconComponent } from '../../utils/Icon.js';
 import { useControllable } from '../../utils/useControllable.js';
 
-export interface RatingProps {
+export interface RatingProps extends ViewProps {
     value?: number;
     defaultValue?: number;
     onValueChange?: (value: number) => void;
@@ -45,6 +53,7 @@ export function Rating({
     'aria-label': ariaLabel,
     size,
     className,
+    ...rest
 }: RatingProps) {
     const translations = useTranslations();
     const [current, setCurrent] = useControllable(value, defaultValue, onValueChange);
@@ -73,7 +82,7 @@ export function Rating({
     };
 
     return (
-        <View className={styles.base({ class: className })}>
+        <View {...rest} className={styles.base({ class: className })}>
             {!!label && (
                 <Text nativeID={`${id}label`} className={styles.label()}>
                     {label}

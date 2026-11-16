@@ -215,7 +215,7 @@ const styles = computed(() => dataView({ layout: current.value }));
 
 <template>
     <!-- Items as a list or grid (a list either way); the switch is a radio group "View" -->
-    <div :class="styles.base({ class: normalizeClass(attrs.class) })" :style="attrs.style">
+    <div v-bind="{ ...attrs, class: styles.base({ class: normalizeClass(attrs.class) }) }">
         <div v-if="layoutToggle || $slots.header" :class="styles.header()">
             <slot name="header" />
             <SegmentedControl

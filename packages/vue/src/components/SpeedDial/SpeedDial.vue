@@ -2,6 +2,7 @@
 import { Menu } from '@ark-ui/vue/menu';
 import { Plus } from '@lucide/vue';
 import {
+    controlIds,
     type RecipeClasses,
     type SpeedDialDirection,
     type SpeedDialLayout,
@@ -73,10 +74,15 @@ const itemStyle = (index: number) => {
         A menu button: the actions open above it (or in a circle around it) as menu items with their labels (arrow
         keys, Escape)
     -->
-    <Menu.Root :positioning="positioning" lazy-mount unmount-on-exit @select="emit('select', $event.value)">
+    <Menu.Root
+        v-bind="controlIds(attrs.id as string | undefined, 'trigger')"
+        :positioning="positioning"
+        lazy-mount
+        unmount-on-exit
+        @select="emit('select', $event.value)"
+    >
         <Menu.Trigger
-            :class="styles.trigger({ class: normalizeClass(attrs.class) })"
-            :style="attrs.style"
+            v-bind="{ ...attrs, class: styles.trigger({ class: normalizeClass(attrs.class) }) }"
             :aria-label="label ?? translations.speedDial.label"
         >
             <Menu.Context v-slot="api">

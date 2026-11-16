@@ -7,13 +7,13 @@ import {
     type RecipeClasses,
 } from '@wirecore/wirelayer-recipes';
 import { Eraser, Keyboard, PenLine, Undo2 } from 'lucide-react';
-import { useEffect, useId, useRef, useState, type CSSProperties } from 'react';
+import { type ComponentProps, useEffect, useId, useRef, useState, type CSSProperties } from 'react';
 import { Button } from '../Button/Button.js';
 import { Input } from '../Input/Input.js';
 import { useTranslations } from '../LocaleProvider/LocaleProvider.js';
 import { useRecipe } from '../RecipesProvider/RecipesProvider.js';
 
-export interface SignaturePadProps {
+export interface SignaturePadProps extends Omit<ComponentProps<'div'>, 'color' | 'value'> {
     /** The signature as data URL ("" when empty, controlled) */
     value?: string;
     onValueChange?: (value: string) => void;
@@ -71,6 +71,7 @@ export function SignaturePad({
     name,
     className,
     style,
+    ...rest
 }: SignaturePadProps) {
     const signaturePad = useRecipe('signaturePad', signaturePadRecipe, classes);
     const styles = signaturePad();
@@ -104,7 +105,7 @@ export function SignaturePad({
     };
     const api = useSignaturePad({
         id,
-        ids: { label: labelId },
+        ids: { label: labelId, root: rest.id },
         paths: strokes,
         drawing: { fill: color, size: strokeWidth, simulatePressure: true },
         disabled: isDisabled,
@@ -142,6 +143,7 @@ export function SignaturePad({
 
     return (
         <ArkSignaturePad.RootProvider
+            {...rest}
             value={api}
             className={styles.base({ class: className })}
             style={style}
