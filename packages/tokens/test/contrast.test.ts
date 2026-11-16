@@ -23,6 +23,13 @@ describe.each(themes)('theme $name', (theme) => {
     });
 });
 
+describe('parse', () => {
+    it('reads oklch with the lightness and chroma in percent, as minified CSS writes it', () => {
+        expect(parse('oklch(47% .13 155)')).toEqual(parse('oklch(0.47 0.13 155)'));
+        expect(parse('oklch(47% 32.5% 155)')).toEqual(parse('oklch(0.47 0.13 155)'));
+    });
+});
+
 describe('checkTheme', () => {
     it('reports the pairs a custom theme misses', () => {
         const pale = defineTheme({
