@@ -1100,6 +1100,11 @@ export const pt: Translations = {
         dropped: (item, position, count) => `${item} largado, posição ${position} de ${count}.`,
         cancelled: (item, position, count) =>
             `Movimento cancelado. ${item} de volta à posição ${position} de ${count}.`,
+        copyHandle: (item) => `Copiar ${item}`,
+        copyInstructions:
+            'Prima Espaço ou Enter para agarrar uma cópia. Depois mova-a para uma lista com as teclas de seta, prima Espaço para largar ou Escape para cancelar. Com o rato: arraste, ou clique e volte a clicar no destino.',
+        copyCancelled: (item) => `Cópia de ${item} cancelada.`,
+        copyTo: (list) => `Copiar para «${list}»`,
     },
     logViewer: {
         label: 'Registo',

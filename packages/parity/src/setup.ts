@@ -35,6 +35,8 @@ if (typeof window !== 'undefined')
             removeEventListener() {},
         }) as unknown as MediaQueryList;
 if (typeof Element !== 'undefined') Element.prototype.scrollTo ??= () => {};
+// Tour scrolls the target of a step into view
+if (typeof Element !== 'undefined') Element.prototype.scrollIntoView ??= () => {};
 // The editor (ProseMirror) measures the selection when it scrolls it into view
 if (typeof Range !== 'undefined') {
     Range.prototype.getClientRects ??= () => [] as unknown as DOMRectList;

@@ -1264,6 +1264,11 @@ export const pl: Translations = {
         dropped: (item, position, count) => `Upuszczono: ${item}, pozycja ${position} z ${count}.`,
         cancelled: (item, position, count) =>
             `Anulowano przenoszenie. ${item} wraca na pozycję ${position} z ${count}.`,
+        copyHandle: (item) => `Kopiuj: ${item}`,
+        copyInstructions:
+            'Naciśnij Spację lub Enter, aby podnieść kopię. Następnie przesuń ją strzałkami do listy, naciśnij Spację, aby upuścić, lub Esc, aby anulować. Myszą: przeciągnij albo kliknij i kliknij ponownie w miejscu docelowym.',
+        copyCancelled: (item) => `Anulowano kopiowanie: ${item}.`,
+        copyTo: (list) => `Kopiuj do „${list}”`,
     },
     logViewer: {
         label: 'Dziennik',

@@ -77,6 +77,8 @@ export interface SortableTexts {
     movedTo: (item: string, container: string, position: number, count: number) => string;
     dropped: (item: string, position: number, count: number) => string;
     cancelled: (item: string, position: number, count: number) => string;
+    /** A copy out of a source list was dropped nowhere (or Escape) */
+    copyCancelled: (item: string) => string;
 }
 
 /** A move that changed the order: from and to which container (its `id`) and index */
@@ -105,6 +107,11 @@ export interface SortableContainer<T = unknown> {
     disabled: () => boolean;
     /** Whether an item from another container may come in (default: yes) */
     accepts?: (item: T, from: string) => boolean;
+    /**
+     * Makes the container a source (e.g. a palette): its items are copied out – this function makes the copy – and
+     * it keeps them, takes none in and is not sorted
+     */
+    clone?: () => ((item: T) => unknown) | undefined;
     texts: () => SortableTexts;
     /** Focuses the handle at `index` once the new order is rendered (default: in the next task) */
     focus?: (index: number) => void;
@@ -123,6 +130,8 @@ export interface SortableState {
 type Mode = 'keyboard' | 'pointer' | 'click';
 interface Active {
     item: unknown;
+    /** The item of a source the carried copy was made of (undefined: the item itself is carried) */
+    copyOf: unknown;
     origin: { container: SortableContainer; index: number };
     current: { container: SortableContainer; index: number; count: number };
     mode: Mode;
@@ -132,6 +141,8 @@ const idleState: SortableState = { grabbed: null, dragging: false, active: false
 const DRAG_THRESHOLD = 5;
 /** Attribute of the drag handles: the id of their container (several Sortables can be nested) */
 export const SORTABLE_HANDLE = 'data-sortable-handle';
+const CONTAINER = '[data-sortable-container]';
+const INDEX = 'data-sortable-index';
 
 /** Pick-up, keyboard and pointer moves of all Sortables on the page (one item at a time) */
 export class SortableController {
@@ -170,11 +181,11 @@ export class SortableController {
         const active = this.#active;
         if (!active) return idleState;
         const container = this.#containers.get(id);
-        const sameGroup = !!container && (container === active.current.container || this.#sameGroup(container));
         return {
             grabbed: active.current.container.id === id ? active.current.index : null,
             dragging: active.mode === 'pointer' && active.current.container.id === id,
-            active: sameGroup,
+            // Takes the item (a source only takes its copy back – not shown as a target)
+            active: !!container && !container.clone?.() && this.#accepts(container),
         };
     }
 
@@ -271,18 +282,30 @@ export class SortableController {
         const container = this.#containers.get(id);
         const active = this.#active;
         if (!container || !active || active.mode !== 'click') return;
-        if ((event.target as Element | null)?.closest(`[${SORTABLE_HANDLE}]`)) return;
+        const target = event.target as Element | null;
+        if (target?.closest(`[${SORTABLE_HANDLE}]`)) return;
+        // A click in a nested container belongs to that one (it bubbles up here)
+        if (target?.closest(CONTAINER) !== container.element()) return;
         if (!this.#accepts(container)) return;
         if (container !== active.current.container) this.#moveTo(container, container.items().length);
         this.drop();
     }
 
     pickUp(container: SortableContainer, index: number, mode: Mode) {
-        const item = container.items()[index];
-        if (item === undefined) return;
+        const original = container.items()[index];
+        if (original === undefined) return;
+        // A source carries a copy – made now, so the targets decide on it (`accepts`)
+        const clone = container.clone?.();
+        const item = clone ? clone(original) : original;
         const count = container.items().length;
-        this.#active = { item, origin: { container, index }, current: { container, index, count }, mode };
-        announce(container.texts().picked(container.itemLabel(item), index + 1, count));
+        this.#active = {
+            item,
+            copyOf: clone ? original : undefined,
+            origin: { container, index },
+            current: { container, index, count },
+            mode,
+        };
+        announce(container.texts().picked(container.itemLabel(original), index + 1, count));
         this.#notify();
     }
 
@@ -292,6 +315,12 @@ export class SortableController {
         this.#active = null;
         const { container, index, count } = active.current;
         const { origin } = active;
+        // A copy still at its source was not put anywhere
+        if (active.copyOf !== undefined && container === origin.container) {
+            announce(container.texts().copyCancelled(container.itemLabel(active.copyOf)));
+            this.#notify();
+            return;
+        }
         announce(container.texts().dropped(container.itemLabel(active.item), index + 1, count));
         if (origin.container !== container || origin.index !== index) {
             container.onMove?.({
@@ -311,8 +340,9 @@ export class SortableController {
             this.#moveTo(origin.container, origin.index, false);
         const count = active.current.count;
         this.#active = null;
-        const label = origin.container.itemLabel(active.item);
-        announce(origin.container.texts().cancelled(label, origin.index + 1, count));
+        const texts = origin.container.texts();
+        if (active.copyOf !== undefined) announce(texts.copyCancelled(origin.container.itemLabel(active.copyOf)));
+        else announce(texts.cancelled(origin.container.itemLabel(active.item), origin.index + 1, count));
         this.#focus(origin.container, origin.index);
         this.#notify();
     }
@@ -328,16 +358,36 @@ export class SortableController {
         const active = this.#active;
         if (!active) return;
         const { container, index: from } = active.current;
+        const origin = active.origin;
+        if (active.copyOf !== undefined && target === origin.container) {
+            // A source is not sorted; a copy that comes back leaves the container it was put in
+            if (container === target) return;
+            const rest = [...container.items()];
+            rest.splice(from, 1);
+            container.setItems(rest);
+            const count = target.items().length;
+            active.current = { container: target, index: origin.index, count };
+            if (speak) announce(target.texts().picked(target.itemLabel(active.copyOf), origin.index + 1, count));
+            if (active.mode !== 'pointer') this.#focus(target, origin.index);
+            this.#notify();
+            return;
+        }
         let next: unknown[];
         if (target === container) {
             next = moveItem(target.items(), from, index);
             target.setItems(next);
         } else {
             if (!this.#accepts(target)) return;
-            const moved = moveBetween(container.items(), target.items(), from, index);
-            container.setItems(moved.from);
-            target.setItems(moved.to);
-            next = moved.to;
+            if (active.copyOf !== undefined && container === origin.container) {
+                // The copy leaves its source: put into the target, the source keeps its item
+                next = [...target.items()];
+                next.splice(Math.max(0, Math.min(index, next.length)), 0, active.item);
+            } else {
+                const moved = moveBetween(container.items(), target.items(), from, index);
+                container.setItems(moved.from);
+                next = moved.to;
+            }
+            target.setItems(next);
         }
         const position = Math.max(0, Math.min(index, next.length - 1));
         active.current = { container: target, index: position, count: next.length };
@@ -357,8 +407,18 @@ export class SortableController {
         const active = this.#active;
         if (!active || container.disabled()) return false;
         if (container === active.current.container) return true;
-        if (!this.#sameGroup(container)) return false;
+        // A source takes nothing – only its own copy back
+        if (container.clone?.()) return active.copyOf !== undefined && container === active.origin.container;
+        if (!this.#sameGroup(container) || this.#inside(container)) return false;
         return container.accepts?.(active.item, active.current.container.id) ?? true;
+    }
+
+    /** The container is nested in the carried item – it cannot take the item it is part of */
+    #inside(container: SortableContainer): boolean {
+        const { current } = this.#active!;
+        const item = current.container.element()?.querySelector(`:scope > [${INDEX}="${current.index}"]`);
+        const element = container.element();
+        return !!item && !!element && item.contains(element);
     }
 
     #sameGroup(container: SortableContainer) {
@@ -386,12 +446,13 @@ export class SortableController {
     /** Container and index under the pointer: an item (its place) or the empty area of a container (the end) */
     #targetAt(x: number, y: number): { container: SortableContainer; index: number } | undefined {
         const element = document.elementFromPoint(x, y);
-        const item = element?.closest<HTMLElement>('[data-sortable-index]');
-        const owner = (item ?? element)?.closest<HTMLElement>('[data-sortable-container]');
+        // The innermost container: over a nested one (also its empty area) the item goes there, not to its parent
+        const owner = element?.closest<HTMLElement>(CONTAINER);
         const container = owner ? this.#containers.get(owner.dataset.sortableContainer ?? '') : undefined;
         if (!container || !this.#accepts(container)) return undefined;
         const active = this.#active!;
-        if (item && owner?.contains(item)) return { container, index: Number(item.dataset.sortableIndex) };
+        const item = element?.closest<HTMLElement>(`[${INDEX}]`);
+        if (item && item.parentElement === owner) return { container, index: Number(item.dataset.sortableIndex) };
         const end = container.items().length - (container === active.current.container ? 1 : 0);
         return { container, index: end };
     }

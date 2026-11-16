@@ -4,9 +4,9 @@ import { cleanup as cleanupVue, render as renderVue } from '@testing-library/vue
 import userEvent from '@testing-library/user-event';
 import * as React from '@wirecore/wirelayer-react';
 import * as Vue from '@wirecore/wirelayer-vue';
-import { createElement } from 'react';
-import { describe, expect, it, vi } from 'vitest';
-import { defineComponent, h, nextTick, type Component } from 'vue';
+import { createElement, useState as React_useState } from 'react';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { defineComponent, h, nextTick, ref, type Component } from 'vue';
 import { el, frameworks, icon, normalize, render, type El, type Framework } from './harness.js';
 
 // Overlays, menus and notifications: open states (portals) in both frameworks, services and imperative opening
@@ -861,6 +861,133 @@ describe.each(frameworks)('%s', (framework) => {
         it('is a live region with text per state', async () => {
             await render(framework, el('SaveStatus', { status: 'saving' }));
             expect(screen.getByRole('status')).toHaveTextContent('Saving …');
+        });
+    });
+
+    describe('Tour', () => {
+        const onStep = framework === 'vue' ? 'onUpdate:step' : 'onStepChange';
+        const onOpen = framework === 'vue' ? 'onUpdate:open' : 'onOpenChange';
+        const card = () => screen.getByRole('alertdialog');
+        // Ark's positioner is pointer-events: none until it is placed; the card takes pointers again with its class
+        // (pointer-events-auto) – jsdom has no stylesheet
+        const user = userEvent.setup({ pointerEventsCheck: 0 });
+        afterEach(() => document.getElementById('late')?.remove());
+
+        it('before and waitFor: the step waits for its target (busy meanwhile); a missing one is skipped both ways', async () => {
+            const onStepChange = vi.fn();
+            const onComplete = vi.fn();
+            const before = vi.fn(() => {
+                // The target renders later, e.g. after a tab switch and loading
+                setTimeout(() => {
+                    if (document.getElementById('late')) return;
+                    const late = document.createElement('button');
+                    late.id = 'late';
+                    late.textContent = 'Late';
+                    document.body.append(late);
+                }, 100);
+            });
+            const steps = [
+                { id: 'intro', title: 'Welcome', description: 'Hello' },
+                {
+                    id: 'late',
+                    title: 'Loaded',
+                    description: 'It took a moment',
+                    target: '#late',
+                    before,
+                    waitFor: 2000,
+                },
+                { id: 'gone', title: 'Gone', description: 'Not there', target: '#missing' },
+                { id: 'end', title: 'Done here', description: 'Bye' },
+            ];
+            await render(framework, el('Tour', { steps, open: true, [onStep]: onStepChange, onComplete }));
+            await waitFor(() => expect(card()).toHaveTextContent('Welcome'));
+            expect(onStepChange).toHaveBeenLastCalledWith('intro');
+            await user.click(within(card()).getByRole('button', { name: 'Next' }));
+            // The first step stays until the target is there, its buttons wait
+            expect(card()).toHaveTextContent('Welcome');
+            expect(card()).toHaveAttribute('aria-busy', 'true');
+            expect(within(card()).getByRole('button', { name: 'Next' })).toBeDisabled();
+            await waitFor(() => expect(card()).toHaveTextContent('Loaded'));
+            expect(card()).not.toHaveAttribute('aria-busy');
+            expect(before).toHaveBeenCalledTimes(1);
+            expect(onStepChange).toHaveBeenLastCalledWith('late');
+            // "Gone" has no target: skipped forwards …
+            await user.click(within(card()).getByRole('button', { name: 'Next' }));
+            await waitFor(() => expect(card()).toHaveTextContent('Done here'));
+            expect(onStepChange).not.toHaveBeenCalledWith('gone');
+            // … and backwards, where `before` runs again
+            await user.click(within(card()).getByRole('button', { name: 'Back' }));
+            await waitFor(() => expect(card()).toHaveTextContent('Loaded'));
+            expect(before).toHaveBeenCalledTimes(2);
+            await user.click(within(card()).getByRole('button', { name: 'Next' }));
+            await waitFor(() => expect(card()).toHaveTextContent('Done here'));
+            await user.click(within(card()).getByRole('button', { name: 'Done' }));
+            await waitFor(() => expect(screen.queryByRole('alertdialog')).toBeNull());
+            expect(onComplete).toHaveBeenCalledTimes(1);
+            expect(onStepChange).toHaveBeenLastCalledWith(null);
+        });
+
+        it('missingTarget dialog shows the step centred; step starts the tour there', async () => {
+            const steps = [
+                { id: 'intro', title: 'Welcome', description: 'Hello' },
+                { id: 'gone', title: 'Gone', description: 'Not there', target: '#missing' },
+            ];
+            await render(framework, el('Tour', { steps, open: true, step: 'gone', missingTarget: 'dialog' }));
+            await waitFor(() => expect(card()).toHaveTextContent('Gone'));
+            expect(card()).toHaveTextContent('2 of 2');
+        });
+
+        it('a missing last step ends the tour as completed', async () => {
+            const onComplete = vi.fn();
+            const onOpenChange = vi.fn();
+            const steps = [
+                { id: 'intro', title: 'Welcome', description: 'Hello' },
+                { id: 'gone', title: 'Gone', description: 'Not there', target: '#missing' },
+            ];
+            await render(framework, el('Tour', { steps, open: true, onComplete, [onOpen]: onOpenChange }));
+            await waitFor(() => expect(card()).toHaveTextContent('Welcome'));
+            await user.click(within(card()).getByRole('button', { name: 'Next' }));
+            await waitFor(() => expect(screen.queryByRole('alertdialog')).toBeNull());
+            expect(onComplete).toHaveBeenCalledTimes(1);
+            expect(onOpenChange).toHaveBeenLastCalledWith(false);
+        });
+
+        it('takes steps that are set right before it opens', async () => {
+            const steps = [{ id: 'intro', title: 'Welcome', description: 'Hello' }];
+            if (framework === 'vue') {
+                renderVue({
+                    setup() {
+                        const open = ref(false);
+                        const current = ref<typeof steps>([]);
+                        return () =>
+                            h('div', [
+                                h('button', { onClick: () => ((current.value = steps), (open.value = true)) }, 'Start'),
+                                h(Vue.Tour, {
+                                    steps: current.value,
+                                    open: open.value,
+                                    'onUpdate:open': (value: boolean) => (open.value = value),
+                                }),
+                            ]);
+                    },
+                });
+            } else {
+                function Starter() {
+                    const [state, setState] = React_useState({ open: false, steps: [] as typeof steps });
+                    return createElement(
+                        'div',
+                        {},
+                        createElement('button', { onClick: () => setState({ open: true, steps }) }, 'Start'),
+                        createElement(React.Tour, {
+                            steps: state.steps,
+                            open: state.open,
+                            onOpenChange: (open: boolean) => setState((current) => ({ ...current, open })),
+                        })
+                    );
+                }
+                renderReact(createElement(Starter));
+            }
+            await user.click(screen.getByRole('button', { name: 'Start' }));
+            await waitFor(() => expect(card()).toHaveTextContent('Welcome'));
         });
     });
 });

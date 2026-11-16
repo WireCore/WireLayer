@@ -4111,6 +4111,15 @@ export const cases: [string, El][] = [
         }),
     ],
     ['Sortable empty group', el('Sortable', { defaultValue: [], group: 'kanban', label: 'Done' })],
+    [
+        'Sortable source (clone)',
+        el('Sortable', {
+            defaultValue: sortableItems,
+            group: 'builder',
+            label: 'Blocks',
+            clone: (item: { id: string; label: string }) => ({ ...item, id: `${item.id}-copy` }),
+        }),
+    ],
     ['LogViewer', el('LogViewer', { lines: logLines })],
     [
         'LogViewer plain, more',

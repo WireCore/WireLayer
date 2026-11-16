@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite';
-import { ref, type ConcreteComponent } from 'vue';
+import { defineComponent, ref, type ConcreteComponent, type PropType } from 'vue';
 import Badge from '../Badge/Badge.vue';
 import SortableComponent from './Sortable.vue';
 
@@ -84,6 +84,67 @@ export const GridGroup: Story = {
             <div class="flex w-96 flex-col gap-4">
                 <Sortable v-model="chosen" group="tiles" orientation="grid" :columns="3" label="Selected" />
                 <Sortable v-model="pool" group="tiles" orientation="grid" :columns="3" label="Available" />
+            </div>`,
+    }),
+};
+
+interface Block {
+    id: string;
+    label: string;
+    /** Groups hold blocks */
+    children?: Block[];
+}
+
+const palette: Block[] = [
+    { id: 'heading', label: 'Heading' },
+    { id: 'text', label: 'Text' },
+    { id: 'group', label: 'Group', children: [] },
+];
+let copies = 0;
+const copyBlock = (block: Block): Block => ({
+    id: `${block.id}-${++copies}`,
+    label: block.label,
+    children: block.children ? [] : undefined,
+});
+const outline = (blocks: Block[]): string =>
+    blocks.map((block) => (block.children ? `${block.label} (${outline(block.children)})` : block.label)).join(', ');
+
+// A list of blocks; a group shows its own list inside (lists in lists)
+const BlockList = defineComponent({
+    name: 'BlockList',
+    components: { Sortable },
+    props: {
+        modelValue: { type: Array as PropType<Block[]>, required: true },
+        label: { type: String, required: true },
+    },
+    emits: ['update:modelValue'],
+    template: `
+        <Sortable :model-value="modelValue" group="page" :label="label" @update:model-value="$emit('update:modelValue', $event)">
+            <template #item="{ item }">
+                <div class="flex flex-col gap-2">
+                    {{ item.label }}
+                    <BlockList v-if="item.children" :model-value="item.children" :label="item.label + ' content'"
+                        @update:model-value="item.children = $event" />
+                </div>
+            </template>
+        </Sortable>`,
+});
+
+/**
+ * clone: the palette copies its blocks into the page (it keeps them, takes none in); groups hold lists of their own.
+ * Keyboard: Space on a block of the palette, arrow right into the page (and on into the groups), Space drops.
+ */
+export const Palette: Story = {
+    render: () => ({
+        components: { BlockList, Sortable },
+        setup: () => ({ palette, copyBlock, outline, page: ref<Block[]>([]) }),
+        template: `
+            <div class="flex w-[560px] gap-6">
+                <Sortable :default-value="palette" group="page" label="Blocks" :clone="copyBlock" class="w-40" />
+                <div class="flex flex-1 flex-col gap-3">
+                    <BlockList v-model="page" label="Page" />
+                    <span class="text-xs text-muted">{{ outline(page) || 'Empty page' }}</span>
+                </div>
             </div>`,
     }),
 };

@@ -378,6 +378,111 @@ describe.each(frameworks)('%s', (framework) => {
             expect(screen.getByText('No items – move here')).toBeInTheDocument();
             await userEvent.keyboard(' ');
         });
+
+        it('clone: a palette copies its items into a list – by keyboard, announced; Escape takes the copy back', async () => {
+            const blocks = [
+                { id: 'heading', label: 'Heading' },
+                { id: 'text', label: 'Text' },
+            ];
+            const onPalette = vi.fn();
+            const onCanvas = vi.fn();
+            let copies = 0;
+            await render(
+                framework,
+                el(
+                    'div',
+                    {},
+                    el('Sortable', {
+                        defaultValue: blocks,
+                        group: 'builder',
+                        label: 'Blocks',
+                        clone: (block: { id: string; label: string }) => ({ ...block, id: `copy-${++copies}` }),
+                        [onModel]: onPalette,
+                    }),
+                    el('Sortable', { defaultValue: [], group: 'builder', label: 'Canvas', [onModel]: onCanvas })
+                )
+            );
+            const handle = screen.getByRole('button', { name: 'Copy Heading' });
+            expect(handle).toHaveAccessibleDescription(/pick up a copy/);
+            handle.focus();
+            await userEvent.keyboard(' ');
+            await waitFor(() => expect(region()).toHaveTextContent('Heading picked up, position 1 of 2.'));
+            // The palette is not sorted
+            await userEvent.keyboard('{ArrowDown}');
+            expect(onPalette).not.toHaveBeenCalled();
+            await userEvent.keyboard('{ArrowRight}');
+            expect(onCanvas).toHaveBeenLastCalledWith([{ id: 'copy-1', label: 'Heading' }]);
+            await waitFor(() => expect(region()).toHaveTextContent('Heading in Canvas, position 1 of 1.'));
+            await waitFor(() => expect(screen.getByRole('button', { name: 'Move Heading' })).toHaveFocus());
+            await userEvent.keyboard(' ');
+            await waitFor(() => expect(region()).toHaveTextContent('Heading dropped, position 1 of 1.'));
+            expect(onPalette).not.toHaveBeenCalled();
+            expect(screen.getAllByRole('button', { name: 'Copy Heading' })).toHaveLength(1);
+            // Escape: the second copy leaves the canvas again, the focus goes back to the palette
+            screen.getByRole('button', { name: 'Copy Text' }).focus();
+            await userEvent.keyboard(' ');
+            await userEvent.keyboard('{ArrowRight}');
+            // At the same position as in the palette (the second)
+            expect(onCanvas).toHaveBeenLastCalledWith([
+                { id: 'copy-1', label: 'Heading' },
+                { id: 'copy-2', label: 'Text' },
+            ]);
+            await waitFor(() => expect(screen.getByRole('button', { name: 'Move Text' })).toHaveFocus());
+            await userEvent.keyboard('{Escape}');
+            expect(onCanvas).toHaveBeenLastCalledWith([{ id: 'copy-1', label: 'Heading' }]);
+            await waitFor(() => expect(region()).toHaveTextContent('Copy of Text cancelled.'));
+            await waitFor(() => expect(screen.getByRole('button', { name: 'Copy Text' })).toHaveFocus());
+        });
+
+        it('nested lists: an item moves into the list of a group, the group not into itself', async () => {
+            type Node = { id: string; label: string; children?: Node[] };
+            const onChildren = vi.fn();
+            const tree: Node[] = [
+                { id: 'g', label: 'Group', children: [] },
+                { id: 't', label: 'Text' },
+            ];
+            const item = (node: Node) =>
+                node.children
+                    ? el(
+                          'div',
+                          {},
+                          node.label,
+                          el('Sortable', {
+                              defaultValue: node.children,
+                              group: 'tree',
+                              label: `${node.label} content`,
+                              [onModel]: onChildren,
+                          })
+                      )
+                    : node.label;
+            await render(
+                framework,
+                el('Sortable', {
+                    defaultValue: tree,
+                    group: 'tree',
+                    label: 'Page',
+                    $scoped: {
+                        item: {
+                            react: 'renderItem',
+                            args: (entry: Node) => ({ item: entry }),
+                            render: ({ item: entry }: { item: Node }) => item(entry),
+                        },
+                    },
+                })
+            );
+            // The group itself: the arrow finds no list that takes it (its own is inside it)
+            screen.getByRole('button', { name: 'Move Group' }).focus();
+            await userEvent.keyboard(' ');
+            await userEvent.keyboard('{ArrowRight}');
+            expect(onChildren).not.toHaveBeenCalled();
+            await userEvent.keyboard('{Escape}');
+            screen.getByRole('button', { name: 'Move Text' }).focus();
+            await userEvent.keyboard(' ');
+            await userEvent.keyboard('{ArrowRight}');
+            expect(onChildren).toHaveBeenLastCalledWith([tree[1]]);
+            await waitFor(() => expect(region()).toHaveTextContent('Text in Group content, position 1 of 1.'));
+            await userEvent.keyboard(' ');
+        });
     });
 
     describe('SignaturePad', () => {

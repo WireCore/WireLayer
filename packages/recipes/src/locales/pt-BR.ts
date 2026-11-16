@@ -289,6 +289,8 @@ export const ptBR: Translations = {
         empty: 'Nenhum item – mova para cá',
         picked: (item, position, count) => `${item} pego, posição ${position} de ${count}.`,
         dropped: (item, position, count) => `${item} solto, posição ${position} de ${count}.`,
+        copyInstructions:
+            'Pressione Espaço ou Enter para pegar uma cópia. Depois mova-a para uma lista com as teclas de seta, pressione Espaço para soltar ou Escape para cancelar. Com o mouse: arraste, ou clique e clique novamente no destino.',
     },
     logViewer: {
         ...pt.logViewer,

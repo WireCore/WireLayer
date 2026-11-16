@@ -472,6 +472,7 @@ export {
     type SortableTexts,
 } from '../sortable.js';
 export { moveItem } from '../data-table.js';
+export { prepareTourStep, tourSkipTarget, type TourStepPreparation } from '../tour-steps.js';
 export { kanbanLimitState } from '../apps.js';
 // RN part 3: scheduler and gantt
 export { gantt, scheduler } from './scheduler.js';

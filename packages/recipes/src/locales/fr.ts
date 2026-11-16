@@ -1142,6 +1142,11 @@ export const fr: Translations = {
         dropped: (item, position, count) => `${item} déposé, position ${position} sur ${count}.`,
         cancelled: (item, position, count) =>
             `Déplacement annulé. ${item} revient en position ${position} sur ${count}.`,
+        copyHandle: (item) => `Copier ${item}`,
+        copyInstructions:
+            "Appuyez sur Espace ou Entrée pour saisir une copie. Déplacez-la ensuite dans une liste avec les flèches, puis appuyez sur Espace pour la déposer ou sur Échap pour annuler. À la souris\u00a0: faites-la glisser, ou cliquez dessus puis cliquez à nouveau à l'emplacement cible.",
+        copyCancelled: (item) => `Copie de ${item} annulée.`,
+        copyTo: (list) => `Copier vers « ${list} »`,
     },
     logViewer: {
         label: 'Journal',
