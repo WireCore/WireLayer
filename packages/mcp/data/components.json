@@ -609,7 +609,7 @@
             "description": "Dial for an angle: the needle is the slider (arrow keys, Home/End), drag anywhere on the dial",
             "category": "Forms",
             "story": "forms-angleslider--playground",
-            "extends": null,
+            "extends": "Omit<ComponentProps<'div'>, 'defaultValue' | 'value'>",
             "props": [
                 {
                     "name": "value",
@@ -2657,7 +2657,7 @@
             "description": "While blocked: the content is inert (no focus, no clicks) and busy; the overlay says why",
             "category": "Layout",
             "story": "layout-blockui--playground",
-            "extends": null,
+            "extends": "ComponentProps<'div'>",
             "props": [
                 {
                     "name": "blocked",
@@ -3423,7 +3423,7 @@
             "description": "Calendar on the page (no field, no popup): a grid with arrow keys, Page Up/Down, Home/End",
             "category": "Forms",
             "story": "forms-calendar--playground",
-            "extends": null,
+            "extends": "Omit<\n    ComponentProps<'div'>,\n    'defaultValue' | 'value'\n>",
             "props": [
                 {
                     "name": "selectionMode",
@@ -3888,7 +3888,7 @@
             "description": "Region \"carousel\" with slides labelled \"Image n of m\". Previous/next buttons, one dot per page (arrow keys move between pages there); autoplay only with a pause button.",
             "category": "Media",
             "story": "media-carousel--playground",
-            "extends": null,
+            "extends": "Omit<ComponentProps<'div'>, 'children'>",
             "props": [
                 {
                     "name": "items",
@@ -4132,7 +4132,7 @@
             "description": "Select with cascading levels: a menu whose groups open to the side (arrow right/left), the options are radio items. The trigger shows the whole path. With `filter` the field is a combobox: the hits are listed with their path, the button at its end opens the levels.",
             "category": "Forms",
             "story": "forms-cascadeselect--playground",
-            "extends": null,
+            "extends": "Omit<\n    ComponentProps<'div'>,\n    'defaultValue' | 'value' | 'onSelect'\n>",
             "props": [
                 {
                     "name": "items",
@@ -4246,7 +4246,7 @@
                     "name": "aria-label",
                     "type": "string",
                     "optional": true,
-                    "description": ""
+                    "description": "Accessible name of the field without a surrounding Field (not of the outer element)"
                 },
                 {
                     "name": "id",
@@ -4445,7 +4445,7 @@
             "description": "Canvas with role=\"img\" named by the title; the data table is its text alternative (WCAG 1.1.1)",
             "category": "Data",
             "story": "data-chart--playground",
-            "extends": null,
+            "extends": "Omit<ComponentProps<'figure'>, 'title' | 'type'>",
             "props": [
                 {
                     "name": "type",
@@ -6721,7 +6721,7 @@
             "description": "Colour field: the button opens a panel with area, hue (and opacity) slider, hex input and presets",
             "category": "Forms",
             "story": "forms-colorpicker--playground",
-            "extends": null,
+            "extends": "Omit<ComponentProps<'div'>, 'defaultValue' | 'value'>",
             "props": [
                 {
                     "name": "value",
@@ -6811,7 +6811,7 @@
                     "name": "aria-label",
                     "type": "string",
                     "optional": true,
-                    "description": "Accessible name without a surrounding Field"
+                    "description": "Accessible name of the button without a surrounding Field (not of the outer element)"
                 },
                 {
                     "name": "id",
@@ -8676,7 +8676,7 @@
             "description": "Copies the value; the icon turns into a check and \"Copied to clipboard\" is announced",
             "category": "Buttons",
             "story": "buttons-copybutton--playground",
-            "extends": null,
+            "extends": "Omit<ComponentProps<'div'>, 'defaultValue' | 'value'>",
             "props": [
                 {
                     "name": "value",
@@ -10605,7 +10605,7 @@
             "description": "Items as a list or grid (a list either way); the switch is a radio group \"View\"",
             "category": "Data",
             "story": "data-dataview--playground",
-            "extends": null,
+            "extends": "Omit<ComponentProps<'div'>, 'children'>",
             "props": [
                 {
                     "name": "items",
@@ -13144,7 +13144,7 @@
             "description": "Rich-text editor (Tiptap): a toolbar (role=\"toolbar\", one tab stop, arrow keys inside; toggle buttons with aria-pressed) above a multi-line textbox. Shortcuts as usual (Strg+B …). Gives HTML.",
             "category": "Forms",
             "story": "forms-editor--playground",
-            "extends": null,
+            "extends": "Omit<ComponentProps<'div'>, 'defaultValue' | 'value'>",
             "props": [
                 {
                     "name": "value",
@@ -13246,7 +13246,7 @@
                     "name": "aria-label",
                     "type": "string",
                     "optional": true,
-                    "description": "Accessible name without a Field"
+                    "description": "Accessible name of the text box without a Field (not of the outer element)"
                 },
                 {
                     "name": "className",
@@ -13823,13 +13823,19 @@
             "description": "<fieldset> with <legend>: names the group of fields; help and error text describe it",
             "category": "Forms",
             "story": "forms-fieldset--playground",
-            "extends": null,
+            "extends": "ComponentProps<'fieldset'>",
             "props": [
                 {
                     "name": "legend",
                     "type": "string",
                     "optional": false,
                     "description": ""
+                },
+                {
+                    "name": "id",
+                    "type": "string",
+                    "optional": true,
+                    "description": "Base of the ids of the legend and the texts (Ark) – unlike other attributes, not the fieldset's own id"
                 },
                 {
                     "name": "helperText",
@@ -13911,6 +13917,12 @@
                         "type": "string",
                         "optional": false,
                         "description": ""
+                    },
+                    {
+                        "name": "id",
+                        "type": "string",
+                        "optional": true,
+                        "description": "Base of the ids of the legend and the texts (Ark) – unlike other attributes, not the fieldset's own id"
                     },
                     {
                         "name": "helperText",
@@ -15587,7 +15599,7 @@
             "description": "Carousel of pictures with thumbnails (aria-current marks the shown one) and an optional fullscreen dialog",
             "category": "Media",
             "story": "media-gallery--playground",
-            "extends": null,
+            "extends": "ComponentProps<'div'>",
             "props": [
                 {
                     "name": "images",
@@ -17923,7 +17935,7 @@
             "description": "JSON as a tree (role=\"tree\"): arrow keys open and close, typing jumps to a key; values are coloured by type and readable as text (quotes, true/false, null). Ctrl+C copies the focused value.",
             "category": "Data",
             "story": "data-jsonviewer--playground",
-            "extends": null,
+            "extends": "Omit<ComponentProps<'div'>, 'onCopy'>",
             "props": [
                 {
                     "name": "data",
@@ -17971,7 +17983,7 @@
                     "name": "aria-label",
                     "type": "string",
                     "optional": true,
-                    "description": ""
+                    "description": "Accessible name of the tree, like `label` (not of the outer element)"
                 },
                 {
                     "name": "className",
@@ -18004,7 +18016,7 @@
                         "name": "label",
                         "type": "string",
                         "optional": true,
-                        "description": "Accessible name of the tree (default \"JSON data\")"
+                        "description": "Accessible name of the tree (default \"JSON data\"); `aria-label` also names the tree, not the outer element"
                     },
                     {
                         "name": "defaultExpandedDepth",
@@ -18433,7 +18445,7 @@
             "description": "Dial (270°): a slider – arrow keys, Page Up/Down, Home/End, or drag around the ring. The ring is drawing only; the dial is the focusable slider.",
             "category": "Forms",
             "story": "forms-knob--playground",
-            "extends": null,
+            "extends": "Omit<ComponentProps<'div'>, 'color' | 'defaultValue' | 'value'>",
             "props": [
                 {
                     "name": "value",
@@ -18481,7 +18493,7 @@
                     "name": "aria-label",
                     "type": "string",
                     "optional": true,
-                    "description": ""
+                    "description": "Accessible name of the dial without `label` (not of the outer element)"
                 },
                 {
                     "name": "id",
@@ -18586,7 +18598,7 @@
                         "name": "label",
                         "type": "string",
                         "optional": true,
-                        "description": "Visible label, also the accessible name"
+                        "description": "Visible label, also the accessible name (else `aria-label` – on the dial, not the outer element)"
                     },
                     {
                         "name": "formatValue",
@@ -18871,7 +18883,7 @@
             "description": "Always visible list (role=\"listbox\"): arrow keys move, Enter/Space choose, typing jumps to an option",
             "category": "Forms",
             "story": "forms-listbox--playground",
-            "extends": null,
+            "extends": "Omit<\n    ComponentProps<'div'>,\n    'defaultValue' | 'value' | 'onSelect'\n>",
             "props": [
                 {
                     "name": "items",
@@ -18889,7 +18901,7 @@
                     "name": "aria-label",
                     "type": "string",
                     "optional": true,
-                    "description": "Accessible name without a visible label"
+                    "description": "Accessible name of the list without a visible label (not of the outer element)"
                 },
                 {
                     "name": "id",
@@ -19078,7 +19090,7 @@
                         "name": "label",
                         "type": "string",
                         "optional": true,
-                        "description": "Visible label, also the list's accessible name"
+                        "description": "Visible label, also the list's accessible name (else `aria-label` – on the list, not the outer element)"
                     },
                     {
                         "name": "multiple",
@@ -19331,7 +19343,7 @@
             "description": "Log: a scrollable, focusable area (arrow keys scroll) with numbered lines; level as icon and text; search filters and marks; new lines stay in view until you scroll up. Only the visible lines are rendered.",
             "category": "Data",
             "story": "data-logviewer--playground",
-            "extends": null,
+            "extends": "ComponentProps<'div'>",
             "props": [
                 {
                     "name": "lines",
@@ -20833,7 +20845,7 @@
             "description": "One bar for the parts (visual), the legend lists every part with its value as text",
             "category": "Data",
             "story": "data-metergroup--playground",
-            "extends": null,
+            "extends": "ComponentProps<'div'>",
             "props": [
                 {
                     "name": "items",
@@ -22043,7 +22055,7 @@
             "description": "Website navigation (nav landmark): entries with children are buttons (aria-expanded) that open a panel with links – on hover or click; Escape closes. Not a menu (role=\"menu\"), so links behave like links.",
             "category": "Navigation",
             "story": "navigation-navigationmenu--playground",
-            "extends": null,
+            "extends": "Omit<ComponentProps<'nav'>, 'defaultValue'>",
             "props": [
                 {
                     "name": "items",
@@ -22809,7 +22821,7 @@
             "description": "Choose an item, then move it with the buttons (or Alt + arrow keys); the new position is announced",
             "category": "Data",
             "story": "data-orderlist--playground",
-            "extends": null,
+            "extends": "Omit<\n    ComponentProps<'div'>,\n    'defaultValue' | 'draggable' | 'value'\n>",
             "props": [
                 {
                     "name": "value",
@@ -22981,7 +22993,7 @@
             "description": "Hierarchy as nested lists – screen readers read the structure, the lines are drawn with CSS",
             "category": "Data",
             "story": "data-orgchart--playground",
-            "extends": null,
+            "extends": "ComponentProps<'div'>",
             "props": [
                 {
                     "name": "node",
@@ -23804,7 +23816,7 @@
             "description": "Card with a heading (and actions); toggleable: the heading holds a button with aria-expanded",
             "category": "Layout",
             "story": "layout-panel--playground",
-            "extends": null,
+            "extends": "ComponentProps<'div'>",
             "props": [
                 {
                     "name": "title",
@@ -24768,7 +24780,7 @@
             "description": "Two lists with several choices each; the buttons move the chosen items across, the move is announced",
             "category": "Data",
             "story": "data-picklist--playground",
-            "extends": null,
+            "extends": "Omit<\n    ComponentProps<'div'>,\n    'defaultValue' | 'draggable' | 'value'\n>",
             "props": [
                 {
                     "name": "items",
@@ -25034,7 +25046,7 @@
             "description": "Pie or doughnut on a canvas named by the title; the legend lists value and share, the table is the text",
             "category": "Data",
             "story": "data-piechart--playground",
-            "extends": null,
+            "extends": "ComponentProps<'figure'>",
             "props": [
                 {
                     "name": "slices",
@@ -25182,7 +25194,7 @@
             "description": "Code input (OTP, PIN): one box per character, typing moves on, pasting fills all boxes",
             "category": "Forms",
             "story": "forms-pininput--playground",
-            "extends": null,
+            "extends": "Omit<ComponentProps<'div'>, 'defaultValue' | 'type' | 'value'>",
             "props": [
                 {
                     "name": "length",
@@ -25260,7 +25272,7 @@
                     "name": "aria-label",
                     "type": "string",
                     "optional": true,
-                    "description": "Accessible name of the group without a surrounding Field"
+                    "description": "Accessible name of the group of boxes without a surrounding Field (not of the outer element)"
                 },
                 {
                     "name": "id",
@@ -25809,7 +25821,7 @@
             "description": "Ring with the value in the middle; a progressbar named by its label, the value as aria-valuetext",
             "category": "Feedback",
             "story": "feedback-progresscircle--playground",
-            "extends": null,
+            "extends": "Omit<ComponentProps<'div'>, 'defaultValue' | 'value'>",
             "props": [
                 {
                     "name": "value",
@@ -26647,7 +26659,7 @@
             "description": "Star rating: a radio group – arrow keys change the value, each star reads \"3 stars\"",
             "category": "Forms",
             "story": "forms-rating--playground",
-            "extends": null,
+            "extends": "Omit<ComponentProps<'div'>, 'defaultValue' | 'value'>",
             "props": [
                 {
                     "name": "value",
@@ -28017,7 +28029,7 @@
             "description": "Native scrolling with slim scrollbars; the viewport is a named, focusable region (arrow keys scroll)",
             "category": "Layout",
             "story": "layout-scrollpanel--playground",
-            "extends": null,
+            "extends": "ComponentProps<'div'>",
             "props": [
                 {
                     "name": "label",
@@ -29163,7 +29175,7 @@
             "description": "Navigation landmark with links and expandable groups (buttons with aria-expanded); optionally a rail of icons",
             "category": "Navigation",
             "story": "navigation-sidebarnav--playground",
-            "extends": null,
+            "extends": "ComponentProps<'nav'>",
             "props": [
                 {
                     "name": "items",
@@ -29322,7 +29334,7 @@
             "description": "Signature field (role=\"application\"): draw with mouse, pen or finger; \"Undo\" removes the last stroke. With typedAlternative the name can be typed instead – the field shows it in a handwriting font.",
             "category": "Forms",
             "story": "forms-signaturepad--playground",
-            "extends": null,
+            "extends": "Omit<ComponentProps<'div'>, 'color' | 'value'>",
             "props": [
                 {
                     "name": "value",
@@ -30122,7 +30134,7 @@
             "description": "Sortable list: every item has a handle – drag it, or press Space/Enter, move with the arrow keys and drop with Space (Escape cancels), or click it and click the target (WCAG 2.5.7). Every step is announced.",
             "category": "Data",
             "story": "data-sortable--playground",
-            "extends": null,
+            "extends": "Omit<ComponentProps<'div'>, 'defaultValue' | 'value'>",
             "props": [
                 {
                     "name": "value",
@@ -30230,7 +30242,7 @@
                     "name": "aria-label",
                     "type": "string",
                     "optional": true,
-                    "description": ""
+                    "description": "Name of the list without `label` – on the list, not the outer element like other attributes"
                 },
                 {
                     "name": "className",
@@ -30281,7 +30293,7 @@
                         "name": "label",
                         "type": "string",
                         "optional": true,
-                        "description": "Name of the list (visible label, also announced when an item moves in)"
+                        "description": "Name of the list (visible label, also announced when an item moves in). Without it `aria-label` names the list – unlike other attributes, it does not go on the outer element"
                     },
                     {
                         "name": "group",
@@ -30483,7 +30495,7 @@
             "description": "A menu button: the actions open above it (or in a circle around it) as menu items with their labels (arrow keys, Escape)",
             "category": "Buttons",
             "story": "buttons-speeddial--playground",
-            "extends": null,
+            "extends": "Omit<ComponentProps<'button'>, 'onSelect' | 'value'>",
             "props": [
                 {
                     "name": "items",
@@ -30659,7 +30671,7 @@
             "description": "Main action plus a menu with the other actions; both are separate buttons",
             "category": "Buttons",
             "story": "buttons-splitbutton--playground",
-            "extends": null,
+            "extends": "Omit<ComponentProps<'div'>, 'color' | 'onClick' | 'onSelect'>",
             "props": [
                 {
                     "name": "label",
@@ -30830,7 +30842,7 @@
             "description": "Panels with handles between them (role=\"separator\"): drag, or arrow keys (Shift for bigger steps) and Home/End on the handle; Enter folds a collapsible panel; double click resets. Splitters can be nested in a panel.",
             "category": "Layout",
             "story": "layout-splitter--playground",
-            "extends": null,
+            "extends": "Omit<ComponentProps<'div'>, 'children'>",
             "props": [
                 {
                     "name": "panels",
@@ -30987,7 +30999,7 @@
             "description": "Content cut to maxHeight; the button (aria-expanded) shows the rest. Hidden text stays in the reading order.",
             "category": "Layout",
             "story": "layout-spoiler--playground",
-            "extends": null,
+            "extends": "ComponentProps<'div'>",
             "props": [
                 {
                     "name": "maxHeight",
@@ -31477,7 +31489,7 @@
             "description": "Steps list (tabs) with one panel per step and back/next buttons; the last \"Next\" finishes",
             "category": "Navigation",
             "story": "navigation-stepper--playground",
-            "extends": null,
+            "extends": "Omit<ComponentProps<'div'>, 'children'>",
             "props": [
                 {
                     "name": "items",
@@ -32162,7 +32174,7 @@
             "description": "Navigation to the headings of the page; the section in view is marked (aria-current=\"location\")",
             "category": "Navigation",
             "story": "navigation-tableofcontents--playground",
-            "extends": null,
+            "extends": "ComponentProps<'div'>",
             "props": [
                 {
                     "name": "items",
@@ -33230,7 +33242,7 @@
             "description": "Events in order (ordered list); the markers are decoration, the status colour is not the only cue",
             "category": "Data",
             "story": "data-timeline--playground",
-            "extends": null,
+            "extends": "HTMLAttributes<HTMLElement>",
             "props": [
                 {
                     "name": "items",
@@ -34338,7 +34350,7 @@
             "description": "Groups controls (role=\"toolbar\"): one tab stop, arrow keys move between the controls (across all areas)",
             "category": "Layout",
             "story": "layout-toolbar--playground",
-            "extends": null,
+            "extends": "ComponentProps<'div'>",
             "props": [
                 {
                     "name": "label",
@@ -34801,7 +34813,7 @@
             "description": "Tree (role=\"tree\"): arrow keys move and open/close, Enter/Space select, typing jumps to a node. With `checkable`, Space checks the focused node instead (aria-checked on the treeitem).",
             "category": "Data",
             "story": "data-tree--playground",
-            "extends": null,
+            "extends": "Omit<ComponentProps<'div'>, 'ref'>",
             "props": [
                 {
                     "name": "items",
@@ -34819,7 +34831,7 @@
                     "name": "aria-label",
                     "type": "string",
                     "optional": true,
-                    "description": "Accessible name without a visible label"
+                    "description": "Accessible name of the tree without a visible label (not of the outer element)"
                 },
                 {
                     "name": "selectionMode",
@@ -35044,7 +35056,7 @@
                         "name": "label",
                         "type": "string",
                         "optional": true,
-                        "description": "Visible label, also the tree's accessible name"
+                        "description": "Visible label, also the tree's accessible name (else `aria-label` – on the tree, not the outer element)"
                     },
                     {
                         "name": "selectionMode",
@@ -35354,7 +35366,7 @@
             "description": "Select whose options are a tree: the button opens the tree in a panel, choosing a node closes it",
             "category": "Forms",
             "story": "forms-treeselect--playground",
-            "extends": null,
+            "extends": "Omit<\n    ComponentProps<'div'>,\n    'defaultValue' | 'value'\n>",
             "props": [
                 {
                     "name": "items",
@@ -35480,7 +35492,7 @@
                     "name": "aria-label",
                     "type": "string",
                     "optional": true,
-                    "description": "Accessible name without a surrounding Field"
+                    "description": "Accessible name of the field without a surrounding Field (not of the outer element)"
                 },
                 {
                     "name": "id",
@@ -36377,7 +36389,7 @@
                         "name": "label",
                         "type": "string",
                         "optional": true,
-                        "description": "Visible label, also the tree's accessible name"
+                        "description": "Visible label, also the tree's accessible name (else `aria-label` – on the tree, not the outer element)"
                     },
                     {
                         "name": "selectionMode",
@@ -36633,7 +36645,7 @@
             "description": "Floating bars: each change starts where the previous one ended, totals from zero; the table is the text",
             "category": "Data",
             "story": "data-waterfallchart--playground",
-            "extends": null,
+            "extends": "ComponentProps<'figure'>",
             "props": [
                 {
                     "name": "steps",
@@ -37960,7 +37972,7 @@
         {
             "id": "migration-pitfalls",
             "title": "Pitfalls",
-            "text": "- **An empty choice is `null`, not `''`.** For PrimeVue's Select `''` means \"nothing chosen\"; WireLayer's Select treats\n  `''` as a value (it warns in development that it is not among the items). Use `null`.\n- **TanStack fields start with `''`.** A required text in Zod therefore needs `.min(1)` – `z.string()` alone accepts\n  the empty field.\n- **Fonts:** set your own with `@theme { --font-sans: … }`. Import `theme.css` instead of `styles.css` (with the\n  sources files, or the Vite plugin `@wirecore/wirelayer-recipes/vite`) so the WireLayer fonts are not bundled\n  (_Getting started › Welcome › Smaller CSS_).\n- **Card spacing:** `Card` puts a `gap` between its direct children – wrap content that should sit tight in one\n  element.\n- **Overrides go per part and per variant.** `classes: { base: 'rounded-md' }` reaches every size; only the medium size\n  with `variants: { size: { md: { base: '…' } } }` – no selectors on the recipe's own classes. States such as `invalid`\n  stay visible over such classes; only `class` on the component itself replaces them.\n- **Sizes and corners in one place:** the height, text and corners of buttons and fields per size, the corners of\n  rounded buttons, the padding of cards and the backdrop of dialogs are CSS variables (`--wc-control-h-md` …).\n- **Labels:** wrap a control in `Field` (it links label, description and error). A native `<label for>` works with the\n  control's own `id`; date fields, sliders and groups need `Field` or `aria-label`.\n- **Brand colours:** `checkTheme` lists the pairs below WCAG AA, `suggestThemeFixes` the nearest colours (and `on-*`\n  colours) that meet them – an orange `primary` with white text, common in PrimeVue themes, does not."
+            "text": "- **An empty choice is `null`, not `''`.** For PrimeVue's Select `''` means \"nothing chosen\"; WireLayer's Select treats\n  `''` as a value (it warns in development that it is not among the items). Use `null`.\n- **TanStack fields start with `''`.** A required text in Zod therefore needs `.min(1)` – `z.string()` alone accepts\n  the empty field.\n- **Fonts:** set your own with `@theme { --font-sans: … }`. Import `theme.css` instead of `styles.css` (with the\n  sources files, or the Vite plugin `@wirecore/wirelayer-recipes/vite`) so the WireLayer fonts are not bundled\n  (_Getting started › Welcome › Smaller CSS_).\n- **Card spacing:** `Card` puts a `gap` between its direct children – wrap content that should sit tight in one\n  element.\n- **Overrides go per part and per variant.** `classes: { base: 'rounded-md' }` reaches every size; only the medium size\n  with `variants: { size: { md: { base: '…' } } }` – no selectors on the recipe's own classes. States such as `invalid`\n  stay visible over such classes; only `class` on the component itself replaces them.\n- **Sizes and corners in one place:** the height, text and corners of buttons and fields per size, the corners of\n  rounded buttons, the padding of cards and the backdrop of dialogs are CSS variables (`--wc-control-h-md` …).\n- **Labels:** wrap a control in `Field` (it links label, description and error). A native `<label for>` works with the\n  control's own `id`; date fields, sliders and groups need `Field` or `aria-label`.\n- **Extra attributes go to the outermost element.** `data-*`, `id`, `title`, `aria-describedby` and listeners without a\n  prop of their own land on the component's outermost element (React: the rest props, Vue: the attrs) – e.g.\n  `data-tour` as the target of a `Tour` step or a test selector, no wrapper `<div>` needed. Exceptions: `aria-label`\n  names what it labels (the list of `Sortable` and `Listbox`, the tree of `Tree`, `VirtualTree` and `JsonViewer`, the\n  dial of `Knob`, the field of `CascadeSelect`, `TreeSelect`, `ColorPicker`, `PinInput` and `Editor`); a control's own\n  `id` prop goes to that control (see _Labels_); `Fieldset` takes `id` as the base of its legend's and texts' ids.\n- **Brand colours:** `checkTheme` lists the pairs below WCAG AA, `suggestThemeFixes` the nearest colours (and `on-*`\n  colours) that meet them – an orange `primary` with white text, common in PrimeVue themes, does not."
         },
         {
             "id": "migration-desktop-apps-dense-ui-many-dialogs",

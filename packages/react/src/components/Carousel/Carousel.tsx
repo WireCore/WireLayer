@@ -1,5 +1,6 @@
 import { Carousel as ArkCarousel } from '@ark-ui/react/carousel';
 import {
+    controlIds,
     carousel as carouselRecipe,
     carouselBreakpoint,
     iconButton as iconButtonRecipe,
@@ -7,11 +8,11 @@ import {
     type RecipeClasses,
 } from '@wirecore/wirelayer-recipes';
 import { ChevronLeft, ChevronRight, Pause, Play } from 'lucide-react';
-import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
+import { type ComponentProps, useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import { useTranslations } from '../LocaleProvider/LocaleProvider.js';
 import { useRecipe } from '../RecipesProvider/RecipesProvider.js';
 
-export interface CarouselProps<T> {
+export interface CarouselProps<T> extends Omit<ComponentProps<'div'>, 'children'> {
     items: readonly T[];
     /** Accessible name of the carousel region, e.g. "References" */
     label: string;
@@ -72,6 +73,7 @@ export function Carousel<T>({
     onPageChange,
     className,
     style,
+    ...rest
 }: CarouselProps<T>) {
     const carousel = useRecipe('carousel', carouselRecipe, classes);
     const iconButton = useRecipe('iconButton', iconButtonRecipe);
@@ -113,6 +115,8 @@ export function Carousel<T>({
 
     return (
         <ArkCarousel.Root
+            {...rest}
+            {...controlIds(rest.id, 'root')}
             ref={root}
             className={styles.base({ class: className })}
             style={style}

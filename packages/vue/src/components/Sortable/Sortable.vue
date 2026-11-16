@@ -38,7 +38,10 @@ export interface SortableProps<T = unknown> {
     itemKey?: ItemAccessor<T, string | number>;
     /** Text of an item for its handle and the announcements (default `label`, `name` or `title`) */
     itemLabel?: ItemAccessor<T, string>;
-    /** Name of the list (visible label, also announced when an item moves in) */
+    /**
+     * Name of the list (visible label, also announced when an item moves in). Without it `aria-label` names the list –
+     * unlike other attributes, it does not go on the outer element
+     */
     label?: string;
     /** Lists of the same group exchange items (e.g. Kanban columns) */
     group?: string;
@@ -156,7 +159,7 @@ onBeforeUnmount(() => {
         Sortable list: every item has a handle – drag it, or press Space/Enter, move with the arrow keys and drop
         with Space (Escape cancels), or click it and click the target (WCAG 2.5.7). Every step is announced.
     -->
-    <div :class="styles.base({ class: normalizeClass(attrs.class) })" :style="attrs.style">
+    <div v-bind="{ ...attrs, 'aria-label': undefined, class: styles.base({ class: normalizeClass(attrs.class) }) }">
         <span v-if="label" :id="labelId" :class="styles.label()">{{ label }}</span>
         <ul
             ref="list"

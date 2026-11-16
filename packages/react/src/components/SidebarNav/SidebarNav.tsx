@@ -9,6 +9,7 @@ import {
 } from '@wirecore/wirelayer-recipes';
 import { ChevronRight } from 'lucide-react';
 import {
+    type ComponentProps,
     useContext,
     type CSSProperties,
     type ElementType,
@@ -35,7 +36,7 @@ export interface SidebarNavItem {
     badge?: number | string;
 }
 
-export interface SidebarNavProps {
+export interface SidebarNavProps extends ComponentProps<'nav'> {
     items: readonly SidebarNavItem[];
     /** Name of the navigation landmark, e.g. "Main navigation" */
     label: string;
@@ -85,6 +86,7 @@ export function SidebarNav({
     footer,
     className,
     style,
+    ...rest
 }: SidebarNavProps) {
     const sidebarNav = useRecipe('sidebarNav', sidebarNavRecipe, classes);
     const shell = useContext(AppShellRailContext);
@@ -94,6 +96,7 @@ export function SidebarNav({
     const check: CurrentCheck = (item) => isCurrentLink(item, currentHref, isCurrent);
     return (
         <nav
+            {...rest}
             aria-label={label}
             className={styles.base({ class: className })}
             style={style}

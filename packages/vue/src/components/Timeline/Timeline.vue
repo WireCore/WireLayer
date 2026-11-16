@@ -102,11 +102,13 @@ const styles = (item?: TimelineItem, index?: number) =>
 <template>
     <!-- Events in order (ordered list); the markers are decoration, the status colour is not the only cue -->
     <component
+        v-bind="{
+            ...attrs,
+            ...(feed ? { role: 'feed', 'aria-busy': loading || undefined } : {}),
+            class: styles().base({ class: normalizeClass(attrs.class) }),
+        }"
         :is="feed ? 'div' : 'ol'"
         :aria-label="label"
-        :class="styles().base({ class: normalizeClass(attrs.class) })"
-        :style="attrs.style"
-        v-bind="feed ? { role: 'feed', 'aria-busy': loading || undefined } : {}"
         @keydown="feed && onFeedKeydown($event)"
     >
         <component

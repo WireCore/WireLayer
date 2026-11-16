@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Toc } from '@ark-ui/vue/toc';
-import { type RecipeClasses, tableOfContents as tableOfContentsRecipe } from '@wirecore/wirelayer-recipes';
+import { controlIds, type RecipeClasses, tableOfContents as tableOfContentsRecipe } from '@wirecore/wirelayer-recipes';
 import { computed, normalizeClass, useAttrs } from 'vue';
 import { useTranslations } from '../../locale.js';
 import { useRecipe } from '../../recipes.js';
@@ -33,7 +33,14 @@ const labelOf = (id: string) => props.items.find((item) => item.id === id)?.labe
 
 <template>
     <!-- Navigation to the headings of the page; the section in view is marked (aria-current="location") -->
-    <Toc.Root :items="tocItems" :class="styles.base({ class: normalizeClass(attrs.class) })" :style="attrs.style">
+    <Toc.Root
+        v-bind="{
+            ...attrs,
+            ...controlIds(attrs.id as string | undefined, 'root'),
+            class: styles.base({ class: normalizeClass(attrs.class) }),
+        }"
+        :items="tocItems"
+    >
         <Toc.Nav :aria-label="title ?? translations.tableOfContents.title">
             <Toc.Title :class="styles.title()">{{ title ?? translations.tableOfContents.title }}</Toc.Title>
             <Toc.List :class="styles.list()">

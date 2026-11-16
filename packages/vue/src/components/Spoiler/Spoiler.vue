@@ -50,7 +50,7 @@ function toggle() {
 
 <template>
     <!-- Content cut to maxHeight; the button (aria-expanded) shows the rest. Hidden text stays in the reading order. -->
-    <div :class="styles.base({ class: normalizeClass(attrs.class) })" :style="attrs.style">
+    <div v-bind="{ ...attrs, class: styles.base({ class: normalizeClass(attrs.class) }) }">
         <div
             :id="`${id}content`"
             ref="content"

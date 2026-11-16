@@ -2,7 +2,7 @@
 import { TreeView, useTreeView } from '@ark-ui/vue/tree-view';
 import { LoaderCircle } from '@lucide/vue';
 import { useVirtualizer } from '@tanstack/vue-virtual';
-import { flattenTree, tree as treeRecipe, type TreeMove, type TreeRow } from '@wirecore/wirelayer-recipes';
+import { controlIds, flattenTree, tree as treeRecipe, type TreeMove, type TreeRow } from '@wirecore/wirelayer-recipes';
 import { computed, normalizeClass, provide, ref, useAttrs } from 'vue';
 import type { TreeProps } from '../components/Tree/Tree.vue';
 import { treeDragKey, treeModelKey } from '../components/Tree/context.js';
@@ -123,6 +123,7 @@ const treeLabel = computed(
 // Ark Vue's Root does not pass scrollToIndexFn on – the machine gets it here
 const treeView = useTreeView(
     computed(() => ({
+        ...controlIds(attrs.id as string | undefined, 'root'),
         collection: model.collection.value,
         selectionMode: props.selectionMode,
         selectedValue: model.selected.value,
@@ -165,10 +166,9 @@ defineExpose({
         aria-posinset, aria-setsize) – only the rows in view are in the DOM. Same props and keyboard as Tree.
     -->
     <TreeView.RootProvider
+        v-bind="{ ...attrs, 'aria-label': undefined, class: styles.base({ class: normalizeClass(attrs.class) }) }"
         ref="root"
         :value="treeView"
-        :class="styles.base({ class: normalizeClass(attrs.class) })"
-        :style="attrs.style"
         @keydown.capture="model.onKeydown"
     >
         <TreeView.Label v-if="label" :class="styles.label()">{{ label }}</TreeView.Label>

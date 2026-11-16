@@ -96,8 +96,7 @@ watch(
 <template>
     <!-- Carousel of pictures with thumbnails (aria-current marks the shown one) and an optional fullscreen dialog -->
     <div
-        :class="styles.base({ class: normalizeClass(attrs.class) })"
-        :style="attrs.style"
+        v-bind="{ ...attrs, class: styles.base({ class: normalizeClass(attrs.class) }) }"
         :aria-busy="loading || undefined"
     >
         <Dialog.Root lazy-mount unmount-on-exit>

@@ -68,9 +68,7 @@ function onChange(value: number) {
 <template>
     <!-- Dial for an angle: the needle is the slider (arrow keys, Home/End), drag anywhere on the dial -->
     <AngleSlider.Root
-        v-bind="rootIds"
-        :class="styles.base({ class: normalizeClass(attrs.class) })"
-        :style="attrs.style"
+        v-bind="{ ...attrs, ...rootIds, class: styles.base({ class: normalizeClass(attrs.class) }) }"
         :model-value="modelValue"
         :default-value="defaultValue"
         :step="step"

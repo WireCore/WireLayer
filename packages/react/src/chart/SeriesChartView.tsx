@@ -51,6 +51,7 @@ export function SeriesChartView({
     className,
     style,
     classes,
+    ...rest
 }: Props) {
     const locale = useLocale();
     const t = locale.translations.chart;
@@ -107,7 +108,7 @@ export function SeriesChartView({
     const referenceText = references?.length ? referenceSummary(references, format) : '';
 
     return (
-        <figure className={styles.base({ class: className })} style={style}>
+        <figure {...rest} className={styles.base({ class: className })} style={style}>
             <figcaption id={`${id}title`} className={hideTitle ? styles.caption() : styles.title()}>
                 {title}
             </figcaption>

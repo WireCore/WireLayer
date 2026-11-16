@@ -1,5 +1,6 @@
 import { createTreeCollection, TreeView as ArkTreeView } from '@ark-ui/react/tree-view';
 import {
+    controlIds,
     announce,
     copyText,
     jsonCopyText,
@@ -13,13 +14,21 @@ import {
     type RecipeClasses,
 } from '@wirecore/wirelayer-recipes';
 import { ChevronRight, Copy, Search } from 'lucide-react';
-import { createContext, useContext, useMemo, useState, type CSSProperties, type KeyboardEvent } from 'react';
+import {
+    type ComponentProps,
+    createContext,
+    useContext,
+    useMemo,
+    useState,
+    type CSSProperties,
+    type KeyboardEvent,
+} from 'react';
 import { Highlight } from '../Highlight/Highlight.js';
 import { Input } from '../Input/Input.js';
 import { useTranslations } from '../LocaleProvider/LocaleProvider.js';
 import { useRecipe } from '../RecipesProvider/RecipesProvider.js';
 
-export interface JsonViewerProps {
+export interface JsonViewerProps extends Omit<ComponentProps<'div'>, 'onCopy'> {
     /** The data to show (any JSON value) */
     data: unknown;
     /** Accessible name of the tree (default "JSON data") */
@@ -34,6 +43,7 @@ export interface JsonViewerProps {
     showTypes?: boolean;
     /** A value was copied: its path and the copied text */
     onCopy?: (path: string, text: string) => void;
+    /** Accessible name of the tree, like `label` (not of the outer element) */
     'aria-label'?: string;
     className?: string;
     style?: CSSProperties;
@@ -67,6 +77,7 @@ export function JsonViewer({
     'aria-label': ariaLabel,
     className,
     style,
+    ...rest
 }: JsonViewerProps) {
     const jsonViewer = useRecipe('jsonViewer', jsonViewerRecipe, classes);
     const styles = jsonViewer();
@@ -133,6 +144,8 @@ export function JsonViewer({
 
     return (
         <ArkTreeView.Root
+            {...rest}
+            {...controlIds(rest.id, 'root')}
             className={styles.base({ class: className })}
             style={style}
             collection={collection}

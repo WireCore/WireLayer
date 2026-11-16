@@ -1,16 +1,17 @@
 import { Clipboard } from '@ark-ui/react/clipboard';
 import {
+    controlIds,
     copyButton as copyButtonRecipe,
     iconButton as iconButtonRecipe,
     type Size,
     type RecipeClasses,
 } from '@wirecore/wirelayer-recipes';
 import { Check, Copy } from 'lucide-react';
-import type { CSSProperties } from 'react';
+import type { ComponentProps, CSSProperties } from 'react';
 import { useTranslations } from '../LocaleProvider/LocaleProvider.js';
 import { useRecipe } from '../RecipesProvider/RecipesProvider.js';
 
-export interface CopyButtonProps {
+export interface CopyButtonProps extends Omit<ComponentProps<'div'>, 'defaultValue' | 'value'> {
     /** Text that is copied */
     value: string;
     /** Shows the value next to the button (monospace) */
@@ -33,6 +34,7 @@ export function CopyButton({
     size = 'sm',
     className,
     style,
+    ...rest
 }: CopyButtonProps) {
     const copyButton = useRecipe('copyButton', copyButtonRecipe, classes);
     const iconButton = useRecipe('iconButton', iconButtonRecipe);
@@ -41,7 +43,13 @@ export function CopyButton({
     const label = labelProp ?? translations.copyButton.label;
     const look = iconButton({ variant: 'text', size });
     return (
-        <Clipboard.Root value={value} className={styles.base({ class: className })} style={style}>
+        <Clipboard.Root
+            {...rest}
+            {...controlIds(rest.id, 'root')}
+            value={value}
+            className={styles.base({ class: className })}
+            style={style}
+        >
             {showValue && <span className={styles.value()}>{value}</span>}
             <Clipboard.Trigger className={look.base()} aria-label={label}>
                 <Clipboard.Indicator copied={<Check className={look.icon()} aria-hidden="true" />}>

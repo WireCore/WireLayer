@@ -74,9 +74,7 @@ function onKeydown(api: RatingApi, event: KeyboardEvent) {
 <template>
     <!-- Star rating: a radio group – arrow keys change the value, each star reads "3 stars" -->
     <RatingGroup.Root
-        v-bind="rootIds"
-        :class="styles.base({ class: normalizeClass(attrs.class) })"
-        :style="attrs.style"
+        v-bind="{ ...attrs, ...rootIds, class: styles.base({ class: normalizeClass(attrs.class) }) }"
         :count="count"
         :model-value="modelValue"
         :default-value="defaultValue"

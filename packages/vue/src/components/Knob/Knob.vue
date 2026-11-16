@@ -18,7 +18,7 @@ export interface KnobProps {
     min?: number;
     max?: number;
     step?: number;
-    /** Visible label, also the accessible name */
+    /** Visible label, also the accessible name (else `aria-label` – on the dial, not the outer element) */
     label?: string;
     /** Formats the shown and announced value, e.g. (v) => `${v} %` */
     formatValue?: (value: number) => string;
@@ -102,7 +102,7 @@ function onPointerDown(event: PointerEvent) {
         Dial (270°): a slider – arrow keys, Page Up/Down, Home/End, or drag around the ring.
         The ring is drawing only; the dial is the focusable slider.
     -->
-    <div :class="styles.base({ class: normalizeClass(attrs.class) })" :style="attrs.style">
+    <div v-bind="{ ...attrs, 'aria-label': undefined, class: styles.base({ class: normalizeClass(attrs.class) }) }">
         <span v-if="label" :id="labelId" :class="styles.label()">{{ label }}</span>
         <div
             :id="id"

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ScrollArea } from '@ark-ui/vue/scroll-area';
-import { type RecipeClasses, scrollPanel as scrollPanelRecipe } from '@wirecore/wirelayer-recipes';
+import { controlIds, type RecipeClasses, scrollPanel as scrollPanelRecipe } from '@wirecore/wirelayer-recipes';
 import { computed, normalizeClass, useAttrs } from 'vue';
 import { useRecipe } from '../../recipes.js';
 
@@ -45,7 +45,13 @@ function onScroll(event: Event) {
 
 <template>
     <!-- Native scrolling with slim scrollbars; the viewport is a named, focusable region (arrow keys scroll) -->
-    <ScrollArea.Root :class="styles.base({ class: normalizeClass(attrs.class) })" :style="attrs.style">
+    <ScrollArea.Root
+        v-bind="{
+            ...attrs,
+            ...controlIds(attrs.id as string | undefined, 'root'),
+            class: styles.base({ class: normalizeClass(attrs.class) }),
+        }"
+    >
         <ScrollArea.Viewport
             :class="styles.viewport()"
             tabindex="0"

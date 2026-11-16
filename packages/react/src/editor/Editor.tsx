@@ -59,7 +59,16 @@ import {
     Underline,
     Undo2,
 } from 'lucide-react';
-import { useCallback, useEffect, useId, useRef, useState, type CSSProperties, type KeyboardEvent } from 'react';
+import {
+    type ComponentProps,
+    useCallback,
+    useEffect,
+    useId,
+    useRef,
+    useState,
+    type CSSProperties,
+    type KeyboardEvent,
+} from 'react';
 import { Button } from '../components/Button/Button.js';
 import { Checkbox } from '../components/Checkbox/Checkbox.js';
 import {
@@ -122,7 +131,7 @@ const icons = {
     source: CodeXml,
 };
 
-export interface EditorProps {
+export interface EditorProps extends Omit<ComponentProps<'div'>, 'defaultValue' | 'value'> {
     /** HTML; an empty editor gives '' */
     value?: string;
     defaultValue?: string;
@@ -154,7 +163,7 @@ export interface EditorProps {
     tableOfContents?: boolean;
     /** Suggestions after "@" (people, documents …) – inserted as a mention */
     mentions?: (query: string) => EditorMention[] | Promise<EditorMention[]>;
-    /** Accessible name without a Field */
+    /** Accessible name of the text box without a Field (not of the outer element) */
     'aria-label'?: string;
     className?: string;
     style?: CSSProperties;
@@ -187,6 +196,7 @@ export function Editor({
     'aria-label': ariaLabel,
     className,
     style,
+    ...rest
 }: EditorProps) {
     const styles = useRecipe('editor', editorRecipe, classes)({ sticky: stickyToolbar });
     const input = useRecipe('input', inputRecipe);
@@ -543,6 +553,7 @@ export function Editor({
 
     return (
         <div
+            {...rest}
             className={styles.base({ class: className })}
             style={style}
             data-invalid={isInvalid || undefined}

@@ -7,14 +7,17 @@ import {
     type RecipeClasses,
 } from '@wirecore/wirelayer-recipes';
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
-import { useMemo, useState, type CSSProperties, type DragEvent, type ReactNode } from 'react';
+import { type ComponentProps, useMemo, useState, type CSSProperties, type DragEvent, type ReactNode } from 'react';
 import { IconButton } from '../IconButton/IconButton.js';
 import { Listbox, type ListboxItem } from '../Listbox/Listbox.js';
 import { useTranslations } from '../LocaleProvider/LocaleProvider.js';
 import { useRecipe } from '../RecipesProvider/RecipesProvider.js';
 import { letDrag, type ListItemState } from '../Select/list.js';
 
-export interface PickListProps<T = ListboxItem, V = ItemValueOf<T>> {
+export interface PickListProps<T = ListboxItem, V = ItemValueOf<T>> extends Omit<
+    ComponentProps<'div'>,
+    'defaultValue' | 'draggable' | 'value'
+> {
     /** All items: ListboxItem objects – or any objects or values, read with itemValue/itemLabel/itemDisabled */
     items: readonly T[];
     /** Values of the chosen items, in their order; any type (see `valueKey`) */
@@ -84,6 +87,7 @@ export function PickList<T = ListboxItem, V = ItemValueOf<T>>({
     renderItem,
     className,
     style,
+    ...rest
 }: PickListProps<T, V>) {
     const pickList = useRecipe('pickList', pickListRecipe, classes);
     const styles = pickList();
@@ -218,7 +222,7 @@ export function PickList<T = ListboxItem, V = ItemValueOf<T>>({
     );
 
     return (
-        <div className={styles.base({ class: className })} style={style}>
+        <div {...rest} className={styles.base({ class: className })} style={style}>
             {draggable ? <div {...dropZone('source')}>{sourceList}</div> : sourceList}
             <div className={styles.controls()}>
                 <IconButton

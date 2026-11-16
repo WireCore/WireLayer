@@ -142,7 +142,7 @@ const listEvents = {
         drawer: grouped by day, unread marked with text, actions per item, "mark all as read", loading more; new
         notifications are announced politely
     -->
-    <div :class="styles.base({ class: normalizeClass(attrs.class) })" :style="attrs.style">
+    <div v-bind="{ ...attrs, class: styles.base({ class: normalizeClass(attrs.class) }) }">
         <Popover v-if="display === 'popover'" :open="isOpen" placement="bottom-end" @update:open="setOpen">
             <PopoverTrigger>
                 <IconButton :icon="Bell" :label="name" variant="text" :badge="unread" :badge-label="badgeLabel" />

@@ -1,6 +1,7 @@
 import { Menu } from '@ark-ui/react/menu';
 import { Portal } from '@ark-ui/react/portal';
 import {
+    controlIds,
     speedDial as speedDialRecipe,
     speedDialPositions,
     type RecipeClasses,
@@ -8,7 +9,7 @@ import {
     type SpeedDialLayout,
 } from '@wirecore/wirelayer-recipes';
 import { Plus } from 'lucide-react';
-import type { CSSProperties } from 'react';
+import type { ComponentProps, CSSProperties } from 'react';
 import type { IconComponent } from '../../types.js';
 import { useLocale, useTranslations } from '../LocaleProvider/LocaleProvider.js';
 import { useRecipe } from '../RecipesProvider/RecipesProvider.js';
@@ -20,7 +21,7 @@ export interface SpeedDialItem {
     disabled?: boolean;
 }
 
-export interface SpeedDialProps {
+export interface SpeedDialProps extends Omit<ComponentProps<'button'>, 'onSelect' | 'value'> {
     items: readonly SpeedDialItem[];
     /** Accessible name of the main button */
     label?: string;
@@ -54,6 +55,7 @@ export function SpeedDial({
     onSelect,
     className,
     style,
+    ...rest
 }: SpeedDialProps) {
     const speedDial = useRecipe('speedDial', speedDialRecipe, classes);
     const styles = speedDial(layout === 'column' ? undefined : { layout });
@@ -68,8 +70,14 @@ export function SpeedDial({
     const offsets =
         layout === 'column' ? [] : speedDialPositions(items.length, layout, direction, radius, dir === 'rtl');
     return (
-        <Menu.Root positioning={positioning} lazyMount unmountOnExit onSelect={(details) => onSelect?.(details.value)}>
-            <Menu.Trigger className={styles.trigger({ class: className })} style={style} aria-label={label}>
+        <Menu.Root
+            {...controlIds(rest.id, 'trigger')}
+            positioning={positioning}
+            lazyMount
+            unmountOnExit
+            onSelect={(details) => onSelect?.(details.value)}
+        >
+            <Menu.Trigger {...rest} className={styles.trigger({ class: className })} style={style} aria-label={label}>
                 <Menu.Context>
                     {(api) => (
                         <Plus

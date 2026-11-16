@@ -2,6 +2,7 @@
 import { createTreeCollection, TreeView } from '@ark-ui/vue/tree-view';
 import { Search } from '@lucide/vue';
 import {
+    controlIds,
     announce,
     copyText,
     jsonCopyText,
@@ -23,7 +24,7 @@ import { useRecipe } from '../../recipes.js';
 export interface JsonViewerProps {
     /** The data to show (any JSON value) */
     data: unknown;
-    /** Accessible name of the tree (default "JSON data") */
+    /** Accessible name of the tree (default "JSON data"); `aria-label` also names the tree, not the outer element */
     label?: string;
     /** Levels open at first (default 1; 0: all closed, Infinity: all open) */
     defaultExpandedDepth?: number;
@@ -109,8 +110,12 @@ provide(jsonViewerKey, {
         and readable as text (quotes, true/false, null). Ctrl+C copies the focused value.
     -->
     <TreeView.Root
-        :class="styles.base({ class: normalizeClass(attrs.class) })"
-        :style="attrs.style"
+        v-bind="{
+            ...attrs,
+            'aria-label': undefined,
+            ...controlIds(attrs.id as string | undefined, 'root'),
+            class: styles.base({ class: normalizeClass(attrs.class) }),
+        }"
         :collection="collection"
         :expanded-value="expanded"
         :translations="{ treeLabel: label ?? (attrs['aria-label'] as string | undefined) ?? t.label }"

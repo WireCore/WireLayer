@@ -56,9 +56,8 @@ const look = () =>
 <template>
     <!-- Main action plus a menu with the other actions; both are separate buttons -->
     <div
+        v-bind="{ ...attrs, class: styles.base({ class: normalizeClass(attrs.class) }) }"
         role="group"
-        :class="styles.base({ class: normalizeClass(attrs.class) })"
-        :style="attrs.style"
         :aria-label="label"
     >
         <button

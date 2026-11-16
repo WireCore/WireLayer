@@ -13,6 +13,7 @@ import {
 } from '@wirecore/wirelayer-recipes';
 import { GripVertical } from 'lucide-react';
 import {
+    type ComponentProps,
     useCallback,
     useEffect,
     useId,
@@ -27,7 +28,7 @@ import { flushSync } from 'react-dom';
 import { useTranslations } from '../LocaleProvider/LocaleProvider.js';
 import { useRecipe } from '../RecipesProvider/RecipesProvider.js';
 
-export interface SortableProps<T = unknown> {
+export interface SortableProps<T = unknown> extends Omit<ComponentProps<'div'>, 'defaultValue' | 'value'> {
     /** The items in their order (controlled) */
     value?: T[];
     defaultValue?: T[];
@@ -62,6 +63,7 @@ export interface SortableProps<T = unknown> {
     emptyText?: string;
     /** Content of an item (default: its text) */
     renderItem?: (item: T, state: { index: number; grabbed: boolean }) => ReactNode;
+    /** Name of the list without `label` – on the list, not the outer element like other attributes */
     'aria-label'?: string;
     className?: string;
     style?: CSSProperties;
@@ -105,6 +107,7 @@ export function Sortable<T = unknown>({
     'aria-label': ariaLabel,
     className,
     style,
+    ...rest
 }: SortableProps<T>) {
     const sortableStyles = useRecipe('sortable', sortableRecipe, classes);
     const styles = sortableStyles({ orientation });
@@ -204,7 +207,7 @@ export function Sortable<T = unknown>({
     );
 
     return (
-        <div className={styles.base({ class: className })} style={style}>
+        <div {...rest} className={styles.base({ class: className })} style={style}>
             {label && (
                 <span id={labelId} className={styles.label()}>
                     {label}

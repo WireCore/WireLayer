@@ -40,12 +40,11 @@ onBeforeUnmount(() => cleanup?.());
 <template>
     <!-- Groups controls (role="toolbar"): one tab stop, arrow keys move between the controls (across all areas) -->
     <div
+        v-bind="{ ...attrs, class: toolbar({ regions: regions || undefined, class: normalizeClass(attrs.class) }) }"
         ref="element"
         role="toolbar"
         :aria-label="label"
         :aria-orientation="orientation"
-        :class="toolbar({ regions: regions || undefined, class: normalizeClass(attrs.class) })"
-        :style="attrs.style"
     >
         <template v-if="regions">
             <div :class="toolbarRegion({ region: 'start' })"><slot name="start" /><slot /></div>

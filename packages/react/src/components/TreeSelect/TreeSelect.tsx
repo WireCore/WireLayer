@@ -10,7 +10,15 @@ import {
     type TreeCheckedStrategy,
 } from '@wirecore/wirelayer-recipes';
 import { ChevronDown, LoaderCircle, X } from 'lucide-react';
-import { useId, useMemo, useState, type CSSProperties, type KeyboardEvent, type ReactNode } from 'react';
+import {
+    type ComponentProps,
+    useId,
+    useMemo,
+    useState,
+    type CSSProperties,
+    type KeyboardEvent,
+    type ReactNode,
+} from 'react';
 import { findTreeNode, Tree, type TreeNode } from '../Tree/Tree.js';
 import { useTranslations } from '../LocaleProvider/LocaleProvider.js';
 import { useRecipe } from '../RecipesProvider/RecipesProvider.js';
@@ -18,7 +26,10 @@ import { useRecipe } from '../RecipesProvider/RecipesProvider.js';
 /** One node id, or several with `multiple` */
 export type TreeSelectValue = string | string[] | null;
 
-export interface TreeSelectProps<T extends TreeSelectValue = string | null> {
+export interface TreeSelectProps<T extends TreeSelectValue = string | null> extends Omit<
+    ComponentProps<'div'>,
+    'defaultValue' | 'value'
+> {
     items: readonly TreeNode[];
     /** Chosen node id (an array of ids with `multiple`) */
     value?: T;
@@ -52,7 +63,7 @@ export interface TreeSelectProps<T extends TreeSelectValue = string | null> {
     onLoadChildren?: (node: TreeNode) => void;
     /** Source of the children of lazy nodes (`getChildren`) */
     dataSource?: DataSource<TreeNode>;
-    /** Accessible name without a surrounding Field */
+    /** Accessible name of the field without a surrounding Field (not of the outer element) */
     'aria-label'?: string;
     /** Id of the field (the trigger), e.g. for a `<label for>` */
     id?: string;
@@ -89,6 +100,7 @@ export function TreeSelect<T extends TreeSelectValue = string | null>({
     id,
     className,
     style,
+    ...rest
 }: TreeSelectProps<T>) {
     const treeSelect = useRecipe('treeSelect', treeSelectRecipe, classes);
     const styles = treeSelect({ size, clearable: clearable && !multiple });
@@ -288,7 +300,7 @@ export function TreeSelect<T extends TreeSelectValue = string | null>({
             lazyMount
             unmountOnExit
         >
-            <div className={styles.base({ class: className })} style={style}>
+            <div {...rest} className={styles.base({ class: className })} style={style}>
                 {control}
             </div>
             <Portal>

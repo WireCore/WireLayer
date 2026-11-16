@@ -1,5 +1,5 @@
 import { timeline as timelineRecipe, type RecipeClasses } from '@wirecore/wirelayer-recipes';
-import { useId, type CSSProperties, type KeyboardEvent, type ReactNode } from 'react';
+import { useId, type CSSProperties, type HTMLAttributes, type KeyboardEvent, type ReactNode } from 'react';
 import type { IconComponent } from '../../types.js';
 import { Button } from '../Button/Button.js';
 import { useTranslations } from '../LocaleProvider/LocaleProvider.js';
@@ -19,7 +19,7 @@ export interface TimelineItem {
     opposite?: string;
 }
 
-export interface TimelineProps {
+export interface TimelineProps extends HTMLAttributes<HTMLElement> {
     items: readonly TimelineItem[];
     /** Accessible name of the list, e.g. "History" */
     label: string;
@@ -75,6 +75,7 @@ export function Timeline({
     onLoadMore,
     className,
     style,
+    ...rest
 }: TimelineProps) {
     const translations = useTranslations();
     const id = useId();
@@ -106,6 +107,7 @@ export function Timeline({
     const Item = feed ? 'article' : 'li';
     const list = (
         <List
+            {...rest}
             aria-label={label}
             className={styles.base({ class: className })}
             style={style}

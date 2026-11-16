@@ -7,7 +7,7 @@ import {
     type RecipeClasses,
 } from '@wirecore/wirelayer-recipes';
 import { Maximize2, X } from 'lucide-react';
-import { useEffect, useRef, useState, type CSSProperties } from 'react';
+import { type ComponentProps, useEffect, useRef, useState, type CSSProperties } from 'react';
 import { Carousel } from '../Carousel/Carousel.js';
 import { GalleryVideo } from './GalleryVideo.js';
 import { GalleryLightbox } from './Lightbox.js';
@@ -46,7 +46,7 @@ export interface GalleryImage {
     download?: string;
 }
 
-export interface GalleryProps {
+export interface GalleryProps extends ComponentProps<'div'> {
     images: readonly GalleryImage[];
     /** Accessible name of the gallery, also the title of the fullscreen view */
     label: string;
@@ -93,6 +93,7 @@ export function Gallery({
     onPageChange,
     className,
     style,
+    ...rest
 }: GalleryProps) {
     const dialog = useRecipe('dialog', dialogRecipe);
     const gallery = useRecipe('gallery', galleryRecipe, classes);
@@ -127,7 +128,7 @@ export function Gallery({
     }, [current, images.length, hasMore, loading, onLoadMore]);
 
     return (
-        <div className={styles.base({ class: className })} style={style} aria-busy={loading || undefined}>
+        <div {...rest} className={styles.base({ class: className })} style={style} aria-busy={loading || undefined}>
             <ArkDialog.Root lazyMount unmountOnExit>
                 <div className={styles.stage()}>
                     <Carousel

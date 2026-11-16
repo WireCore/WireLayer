@@ -82,7 +82,7 @@ const mime = computed(() => (props.format === 'svg' ? 'image/svg+xml' : 'image/p
 const api = useSignaturePad(
     computed(() => ({
         id,
-        ids: { label: labelId },
+        ids: { label: labelId, root: attrs.id as string | undefined },
         paths: strokes.value,
         drawing: { fill: props.color, size: props.strokeWidth, simulatePressure: true },
         disabled: disabled.value,
@@ -138,9 +138,8 @@ function toggleTyping() {
         With typedAlternative the name can be typed instead – the field shows it in a handwriting font.
     -->
     <SignaturePad.RootProvider
+        v-bind="{ ...attrs, class: styles.base({ class: normalizeClass(attrs.class) }) }"
         :value="api"
-        :class="styles.base({ class: normalizeClass(attrs.class) })"
-        :style="attrs.style"
         :data-invalid="(invalid ?? field?.invalid) || undefined"
     >
         <SignaturePad.Label v-if="label || !field" :class="styles.label()">{{ nameText }}</SignaturePad.Label>

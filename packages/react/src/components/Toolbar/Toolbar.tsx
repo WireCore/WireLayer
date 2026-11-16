@@ -4,10 +4,10 @@ import {
     toolbarRegion as toolbarRegionRecipe,
     type RecipeClasses,
 } from '@wirecore/wirelayer-recipes';
-import { useEffect, useRef, type CSSProperties, type ReactNode } from 'react';
+import { type ComponentProps, useEffect, useRef, type CSSProperties, type ReactNode } from 'react';
 import { useRecipe } from '../RecipesProvider/RecipesProvider.js';
 
-export interface ToolbarProps {
+export interface ToolbarProps extends ComponentProps<'div'> {
     /** Accessible name, e.g. "Formatting" */
     label: string;
     orientation?: 'horizontal' | 'vertical';
@@ -35,6 +35,7 @@ export function Toolbar({
     end,
     className,
     style,
+    ...rest
 }: ToolbarProps) {
     const toolbar = useRecipe('toolbar', toolbarRecipe, classes);
     const toolbarRegion = useRecipe('toolbarRegion', toolbarRegionRecipe);
@@ -43,6 +44,7 @@ export function Toolbar({
     const regions = !!(start || center || end);
     return (
         <div
+            {...rest}
             ref={element}
             role="toolbar"
             aria-label={label}

@@ -1,9 +1,9 @@
 import { ScrollArea } from '@ark-ui/react/scroll-area';
-import { scrollPanel as scrollPanelRecipe, type RecipeClasses } from '@wirecore/wirelayer-recipes';
-import { useRef, type CSSProperties, type ReactNode, type UIEvent } from 'react';
+import { controlIds, scrollPanel as scrollPanelRecipe, type RecipeClasses } from '@wirecore/wirelayer-recipes';
+import { type ComponentProps, useRef, type CSSProperties, type ReactNode, type UIEvent } from 'react';
 import { useRecipe } from '../RecipesProvider/RecipesProvider.js';
 
-export interface ScrollPanelProps {
+export interface ScrollPanelProps extends ComponentProps<'div'> {
     /** Names the scrollable region – it is focusable, so keyboard users can scroll it */
     label: string;
     children: ReactNode;
@@ -35,6 +35,7 @@ export function ScrollPanel({
     onReachEnd,
     className,
     style,
+    ...rest
 }: ScrollPanelProps) {
     const scrollPanel = useRecipe('scrollPanel', scrollPanelRecipe, classes);
     const styles = scrollPanel({ scrollbars, fade });
@@ -49,7 +50,12 @@ export function ScrollPanel({
         reached.current = { start, end };
     };
     return (
-        <ScrollArea.Root className={styles.base({ class: className })} style={style}>
+        <ScrollArea.Root
+            {...rest}
+            {...controlIds(rest.id, 'root')}
+            className={styles.base({ class: className })}
+            style={style}
+        >
             <ScrollArea.Viewport
                 className={styles.viewport()}
                 tabIndex={0}

@@ -1,6 +1,6 @@
 import { Toc } from '@ark-ui/react/toc';
-import { tableOfContents as tableOfContentsRecipe, type RecipeClasses } from '@wirecore/wirelayer-recipes';
-import type { CSSProperties } from 'react';
+import { controlIds, tableOfContents as tableOfContentsRecipe, type RecipeClasses } from '@wirecore/wirelayer-recipes';
+import type { ComponentProps, CSSProperties } from 'react';
 import { useTranslations } from '../LocaleProvider/LocaleProvider.js';
 import { useRecipe } from '../RecipesProvider/RecipesProvider.js';
 
@@ -12,7 +12,7 @@ export interface TocEntry {
     depth?: number;
 }
 
-export interface TableOfContentsProps {
+export interface TableOfContentsProps extends ComponentProps<'div'> {
     items: readonly TocEntry[];
     title?: string;
     className?: string;
@@ -22,14 +22,20 @@ export interface TableOfContentsProps {
 }
 
 /** Navigation to the headings of the page; the section in view is marked (aria-current="location") */
-export function TableOfContents({ classes, items, title: titleProp, className, style }: TableOfContentsProps) {
+export function TableOfContents({ classes, items, title: titleProp, className, style, ...rest }: TableOfContentsProps) {
     const tableOfContents = useRecipe('tableOfContents', tableOfContentsRecipe, classes);
     const styles = tableOfContents();
     const translations = useTranslations();
     const title = titleProp ?? translations.tableOfContents.title;
     const tocItems = items.map((item) => ({ value: item.id, depth: item.depth ?? 1 }));
     return (
-        <Toc.Root items={tocItems} className={styles.base({ class: className })} style={style}>
+        <Toc.Root
+            {...rest}
+            {...controlIds(rest.id, 'root')}
+            items={tocItems}
+            className={styles.base({ class: className })}
+            style={style}
+        >
             <Toc.Nav aria-label={title}>
                 <Toc.Title className={styles.title()}>{title}</Toc.Title>
                 <Toc.List className={styles.list()}>

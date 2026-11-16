@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Collapsible } from '@ark-ui/vue/collapsible';
 import { ChevronRight } from '@lucide/vue';
-import { panel as panelRecipe, type RecipeClasses } from '@wirecore/wirelayer-recipes';
+import { controlIds, panel as panelRecipe, type RecipeClasses } from '@wirecore/wirelayer-recipes';
 import { normalizeClass, useAttrs } from 'vue';
 import { useRecipe } from '../../recipes.js';
 
@@ -36,8 +36,11 @@ const styles = panel();
     <!-- Card with a heading (and actions); toggleable: the heading holds a button with aria-expanded -->
     <Collapsible.Root
         v-if="toggleable"
-        :class="styles.base({ class: normalizeClass(attrs.class) })"
-        :style="attrs.style"
+        v-bind="{
+            ...attrs,
+            ...controlIds(attrs.id as string | undefined, 'root'),
+            class: styles.base({ class: normalizeClass(attrs.class) }),
+        }"
         :open="open"
         :default-open="defaultOpen"
         @open-change="emit('update:open', $event.open)"
@@ -58,7 +61,7 @@ const styles = panel();
             <div v-if="$slots.footer" :class="styles.footer()"><slot name="footer" /></div>
         </Collapsible.Content>
     </Collapsible.Root>
-    <section v-else :class="styles.base({ class: normalizeClass(attrs.class) })" :style="attrs.style">
+    <section v-else v-bind="{ ...attrs, class: styles.base({ class: normalizeClass(attrs.class) }) }">
         <div :class="styles.header()">
             <component :is="`h${headingLevel}`" :class="styles.title()">{{ title }}</component>
             <div v-if="$slots.actions" :class="styles.actions()"><slot name="actions" /></div>

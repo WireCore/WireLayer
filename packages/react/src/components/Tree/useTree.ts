@@ -67,6 +67,43 @@ export interface TreeModelProps {
     onTransfer?: (transfer: TreeTransfer) => void;
 }
 
+// Every prop of the tree logic by name (the type makes sure none is missing)
+const treeModelKeys: Record<keyof TreeModelProps, true> = {
+    items: true,
+    selectedValue: true,
+    defaultSelectedValue: true,
+    onSelectionChange: true,
+    expandedValue: true,
+    defaultExpandedValue: true,
+    onExpandedChange: true,
+    checkable: true,
+    checkedValue: true,
+    defaultCheckedValue: true,
+    onCheckedChange: true,
+    checkStrictly: true,
+    checkedStrategy: true,
+    reorderable: true,
+    onMove: true,
+    loadChildren: true,
+    onLoadChildren: true,
+    dataSource: true,
+    filterValue: true,
+    onFilterValueChange: true,
+    filterMode: true,
+    allowDrop: true,
+    group: true,
+    name: true,
+    onTransfer: true,
+};
+
+/** A tree's other props without those of the tree logic: the HTML attributes for its root element */
+export function treeAttributes<P extends object>(props: P): Omit<P, keyof TreeModelProps> {
+    return Object.fromEntries(Object.entries(props).filter(([key]) => !(key in treeModelKeys))) as Omit<
+        P,
+        keyof TreeModelProps
+    >;
+}
+
 /** Drag and drop state of a tree, shared with the nodes */
 export interface TreeDragContext {
     reorderable: boolean;

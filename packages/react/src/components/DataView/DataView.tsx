@@ -8,7 +8,7 @@ import {
     type RecipeClasses,
 } from '@wirecore/wirelayer-recipes';
 import { LayoutGrid, List } from 'lucide-react';
-import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
+import { type ComponentProps, useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import { useDataSource } from '../../utils/data-source.js';
 import { Button } from '../Button/Button.js';
 import { Pagination } from '../Pagination/Pagination.js';
@@ -19,7 +19,7 @@ import { Skeleton } from '../Skeleton/Skeleton.js';
 import { useLocale } from '../LocaleProvider/LocaleProvider.js';
 import { useRecipe } from '../RecipesProvider/RecipesProvider.js';
 
-export interface DataViewProps<T> {
+export interface DataViewProps<T> extends Omit<ComponentProps<'div'>, 'children'> {
     items?: readonly T[];
     /** Accessible name of the list, e.g. "Server" */
     label: string;
@@ -116,6 +116,7 @@ export function DataView<T>({
     children,
     className,
     style,
+    ...attributes
 }: DataViewProps<T>) {
     const dataView = useRecipe('dataView', dataViewRecipe, classes);
     const { translations, locale } = useLocale();
@@ -264,7 +265,7 @@ export function DataView<T>({
         );
 
     return (
-        <div className={styles.base({ class: className })} style={style}>
+        <div {...attributes} className={styles.base({ class: className })} style={style}>
             {(layoutToggle || header) && (
                 <div className={styles.header()}>
                     {header}

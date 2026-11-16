@@ -129,7 +129,7 @@ function onDragEnd() {
 
 <template>
     <!-- Choose an item, then move it with the buttons (or Alt + arrow keys); the new position is announced -->
-    <div :class="styles.base({ class: normalizeClass(attrs.class) })" :style="attrs.style">
+    <div v-bind="{ ...attrs, class: styles.base({ class: normalizeClass(attrs.class) }) }">
         <div
             :class="styles.list({ class: draggable ? styles.dropZone() : undefined })"
             :data-drop="dropping || undefined"

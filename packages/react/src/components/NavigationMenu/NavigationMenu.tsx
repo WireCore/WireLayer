@@ -1,7 +1,7 @@
 import { NavigationMenu as ArkNavigationMenu } from '@ark-ui/react/navigation-menu';
-import { navigationMenu as navigationMenuRecipe, type RecipeClasses } from '@wirecore/wirelayer-recipes';
+import { controlIds, navigationMenu as navigationMenuRecipe, type RecipeClasses } from '@wirecore/wirelayer-recipes';
 import { ChevronDown } from 'lucide-react';
-import type { CSSProperties } from 'react';
+import type { ComponentProps, CSSProperties } from 'react';
 import type { IconComponent } from '../../types.js';
 import { useTranslations } from '../LocaleProvider/LocaleProvider.js';
 import { useRecipe } from '../RecipesProvider/RecipesProvider.js';
@@ -23,7 +23,7 @@ export interface NavigationMenuEntry {
     children?: NavigationMenuLink[];
 }
 
-export interface NavigationMenuProps {
+export interface NavigationMenuProps extends Omit<ComponentProps<'nav'>, 'defaultValue'> {
     items: readonly NavigationMenuEntry[];
     /** Name of the navigation landmark */
     label?: string;
@@ -37,13 +37,15 @@ export interface NavigationMenuProps {
  * Website navigation (nav landmark): entries with children are buttons (aria-expanded) that open a panel with
  * links – on hover or click; Escape closes. Not a menu (role="menu"), so links behave like links.
  */
-export function NavigationMenu({ classes, items, label: labelProp, className, style }: NavigationMenuProps) {
+export function NavigationMenu({ classes, items, label: labelProp, className, style, ...rest }: NavigationMenuProps) {
     const navigationMenu = useRecipe('navigationMenu', navigationMenuRecipe, classes);
     const styles = navigationMenu();
     const translations = useTranslations();
     const label = labelProp ?? translations.navigationMenu.rootLabel;
     return (
         <ArkNavigationMenu.Root
+            {...rest}
+            {...controlIds(rest.id, 'root')}
             className={styles.base({ class: className })}
             style={style}
             translations={{ rootLabel: label }}

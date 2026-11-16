@@ -6,11 +6,11 @@ import {
     knobValueForKey,
     type RecipeClasses,
 } from '@wirecore/wirelayer-recipes';
-import { useId, useState, type CSSProperties, type PointerEvent } from 'react';
+import { type ComponentProps, useId, useState, type CSSProperties, type PointerEvent } from 'react';
 import { useRecipe } from '../RecipesProvider/RecipesProvider.js';
 import { useLabelForWarning } from '../../utils/label-for.js';
 
-export interface KnobProps {
+export interface KnobProps extends Omit<ComponentProps<'div'>, 'color' | 'defaultValue' | 'value'> {
     value?: number;
     defaultValue?: number;
     onValueChange?: (value: number) => void;
@@ -19,6 +19,7 @@ export interface KnobProps {
     step?: number;
     /** Visible label, also the accessible name */
     label?: string;
+    /** Accessible name of the dial without `label` (not of the outer element) */
     'aria-label'?: string;
     /** Id of the dial (the slider); a `<label for>` cannot name it, use `label`, a Field or aria-label */
     id?: string;
@@ -63,6 +64,7 @@ export function Knob({
     name,
     className,
     style,
+    ...rest
 }: KnobProps) {
     useLabelForWarning('Knob', id);
     const knob = useRecipe('knob', knobRecipe, classes);
@@ -88,7 +90,7 @@ export function Knob({
         : (valueTemplate?.replaceAll('{value}', String(current)) ?? String(current));
 
     return (
-        <div className={styles.base({ class: className })} style={style}>
+        <div {...rest} className={styles.base({ class: className })} style={style}>
             {label && (
                 <span id={labelId} className={styles.label()}>
                     {label}

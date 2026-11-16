@@ -1,11 +1,13 @@
 import { Fieldset as ArkFieldset } from '@ark-ui/react/fieldset';
 import { fieldset as fieldsetRecipe, type RecipeClasses } from '@wirecore/wirelayer-recipes';
 import { ChevronRight } from 'lucide-react';
-import { useId, useState, type CSSProperties, type ReactNode } from 'react';
+import { type ComponentProps, useId, useState, type CSSProperties, type ReactNode } from 'react';
 import { useRecipe } from '../RecipesProvider/RecipesProvider.js';
 
-export interface FieldsetProps {
+export interface FieldsetProps extends ComponentProps<'fieldset'> {
     legend: string;
+    /** Base of the ids of the legend and the texts (Ark) – unlike other attributes, not the fieldset's own id */
+    id?: string;
     helperText?: string;
     /** Error of the whole group (e.g. "Please choose an option") */
     errorText?: string;
@@ -40,6 +42,7 @@ export function Fieldset({
     children,
     className,
     style,
+    ...rest
 }: FieldsetProps) {
     const fieldset = useRecipe('fieldset', fieldsetRecipe, classes);
     const styles = fieldset();
@@ -48,6 +51,7 @@ export function Fieldset({
     const isOpen = open ?? internal;
     return (
         <ArkFieldset.Root
+            {...rest}
             className={styles.base({ class: className })}
             style={style}
             invalid={invalid}

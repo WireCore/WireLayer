@@ -11,7 +11,7 @@ import {
     type RecipeClasses,
 } from '@wirecore/wirelayer-recipes';
 import { Check, Minus } from 'lucide-react';
-import { useEffect, useMemo, useState, type CSSProperties, type ReactNode } from 'react';
+import { type ComponentProps, useEffect, useMemo, useState, type CSSProperties, type ReactNode } from 'react';
 import type { IconComponent } from '../../types.js';
 import { useOptionSource } from '../../utils/data-source.js';
 import { useTranslations } from '../LocaleProvider/LocaleProvider.js';
@@ -30,12 +30,15 @@ export interface ListboxItem<V = string> {
     group?: string;
 }
 
-export interface ListboxProps<T = ListboxItem, V = ItemValueOf<T>> {
+export interface ListboxProps<T = ListboxItem, V = ItemValueOf<T>> extends Omit<
+    ComponentProps<'div'>,
+    'defaultValue' | 'value' | 'onSelect'
+> {
     /** Options: ListboxItem objects – or any objects or values, read with itemValue/itemLabel/itemDisabled/itemGroup */
     items: readonly T[];
     /** Visible label, also the list's accessible name */
     label?: string;
-    /** Accessible name without a visible label */
+    /** Accessible name of the list without a visible label (not of the outer element) */
     'aria-label'?: string;
     /** Id of the root element; a `<label for>` cannot name the list box, use a Field or aria-label */
     id?: string;
@@ -129,6 +132,7 @@ export function Listbox<T = ListboxItem, V = ItemValueOf<T>>({
     renderItem,
     className,
     style,
+    ...rest
 }: ListboxProps<T, V>) {
     useLabelForWarning('Listbox', id);
     const listbox = useRecipe('listbox', listboxRecipe, classes);
@@ -178,6 +182,7 @@ export function Listbox<T = ListboxItem, V = ItemValueOf<T>>({
     );
     return (
         <ArkListbox.Root
+            {...rest}
             {...controlIds(id, 'root')}
             className={styles.base({ class: className })}
             style={style}

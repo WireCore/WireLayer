@@ -7,6 +7,8 @@ import { useRecipe } from '../../recipes.js';
 
 export interface FieldsetProps {
     legend: string;
+    /** Base of the ids of the legend and the texts (Ark) – unlike other attributes, not the fieldset's own id */
+    id?: string;
     helperText?: string;
     /** Error of the whole group (e.g. "Please choose an option") */
     errorText?: string;
@@ -48,8 +50,8 @@ function toggle() {
 <template>
     <!-- <fieldset> with <legend>: names the group of fields; help and error text describe it -->
     <Fieldset.Root
-        :class="styles.base({ class: normalizeClass(attrs.class) })"
-        :style="attrs.style"
+        v-bind="{ ...attrs, class: styles.base({ class: normalizeClass(attrs.class) }) }"
+        :id="id"
         :invalid="invalid"
         :disabled="disabled"
     >
