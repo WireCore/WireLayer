@@ -1399,6 +1399,11 @@ export const ar: Translations = {
         movedTo: (item, container, position, count) => `${item} في ${container}، الموضع ${position} من ${count}.`,
         dropped: (item, position, count) => `تم إفلات ${item}، الموضع ${position} من ${count}.`,
         cancelled: (item, position, count) => `تم إلغاء النقل. عاد ${item} إلى الموضع ${position} من ${count}.`,
+        copyHandle: (item) => `نسخ ${item}`,
+        copyInstructions:
+            'اضغط مفتاح المسافة أو Enter لالتقاط نسخة، ثم انقلها إلى قائمة بمفاتيح الأسهم، واضغط مفتاح المسافة لإفلاتها أو Esc للإلغاء. باستخدام الماوس: اسحب العنصر، أو انقر عليه ثم انقر مرة أخرى في الموضع المطلوب.',
+        copyCancelled: (item) => `تم إلغاء نسخ ${item}.`,
+        copyTo: (list) => `نسخ إلى «${list}»`,
     },
     logViewer: {
         label: 'السجل',

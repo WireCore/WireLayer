@@ -70,6 +70,36 @@ test.describe('Sortable', () => {
         await page.keyboard.press('Space');
         await expect(page.getByRole('list', { name: 'Selected' }).getByRole('listitem').last()).toHaveText(/D/);
     });
+
+    test('palette: copies by keyboard and by dragging, also into a nested list; the palette keeps its blocks', async ({
+        page,
+    }) => {
+        await openStory(page, 'data-sortable--palette');
+        const pageList = page.getByRole('list', { name: 'Page', exact: true });
+        // Keyboard: the group into the page
+        await page.getByRole('button', { name: 'Copy Group' }).focus();
+        await page.keyboard.press('Space');
+        await page.keyboard.press('ArrowRight');
+        await expect(pageList.getByRole('button', { name: 'Move Group' })).toBeFocused();
+        await page.keyboard.press('Space');
+        await expect(page.getByText('Group ()', { exact: true })).toBeVisible();
+        // Drag: a heading onto the empty list of the group
+        const heading = (await page.getByRole('button', { name: 'Copy Heading' }).boundingBox())!;
+        const group = (await page.getByRole('list', { name: 'Group content' }).boundingBox())!;
+        await page.mouse.move(heading.x + heading.width / 2, heading.y + heading.height / 2);
+        await page.mouse.down();
+        await page.mouse.move(group.x + group.width / 2, group.y + group.height / 2, { steps: 10 });
+        await page.mouse.up();
+        await expect(page.getByText('Group (Heading)', { exact: true })).toBeVisible();
+        await expect(page.getByRole('list', { name: 'Blocks' }).getByRole('listitem')).toHaveCount(3);
+        // The group does not go into its own list
+        await pageList.getByRole('button', { name: 'Move Group' }).focus();
+        await page.keyboard.press('Space');
+        await page.keyboard.press('ArrowRight');
+        await expect(pageList.getByRole('button', { name: 'Move Group' })).toBeFocused();
+        await page.keyboard.press('Escape');
+        await expect(page.getByText('Group (Heading)', { exact: true })).toBeVisible();
+    });
 });
 
 test.describe('Mentions', () => {

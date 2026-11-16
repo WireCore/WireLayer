@@ -99,3 +99,33 @@ function Row() {
 
 /** A row of items (orientation horizontal): drag sideways */
 export const Horizontal: Story = { name: 'Horizontal', render: () => <Row /> };
+
+const palette = [
+    { id: 'heading', label: 'Heading' },
+    { id: 'text', label: 'Text' },
+    { id: 'image', label: 'Image' },
+];
+let copies = 0;
+
+function Builder() {
+    const [page, setPage] = useState<{ id: string; label: string }[]>([]);
+    return (
+        <View className="gap-4">
+            <Sortable
+                defaultValue={palette}
+                group="page"
+                label="Blocks"
+                clone={(block) => ({ id: `${block.id}-${++copies}`, label: block.label })}
+            />
+            <Sortable value={page} onValueChange={setPage} group="page" label="Page" />
+            <Text variant="muted">{page.map((block) => block.label).join(' → ') || 'Empty page'}</Text>
+        </View>
+    );
+}
+
+/**
+ * clone: the palette copies its blocks into the page and keeps them. Tap a block of the palette and then the page
+ * (or one of its blocks); screen readers: the action "Copy to “Page”"; web: Space, then arrow right moves the
+ * copy into the page
+ */
+export const Palette: Story = { render: () => <Builder /> };

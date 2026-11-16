@@ -1144,6 +1144,11 @@ export const hu: Translations = {
         movedTo: (item, container, index, count) => `${item} áthelyezve ide: ${container}, ${position(index, count)}.`,
         dropped: (item, index, count) => `${item} letéve, ${position(index, count)}.`,
         cancelled: (item, index, count) => `Áthelyezés megszakítva. ${item} visszakerült: ${position(index, count)}.`,
+        copyHandle: (item) => `${item} másolása`,
+        copyInstructions:
+            'Egy másolat felvételéhez nyomja meg a Szóköz vagy az Enter billentyűt. Ezután a nyílbillentyűkkel vigye egy listába, a Szóközzel tegye le, vagy az Esc billentyűvel szakítsa meg. Egérrel: húzza, vagy kattintson rá, majd kattintson újra a célhelyen.',
+        copyCancelled: (item) => `${item} másolása megszakítva.`,
+        copyTo: (list) => `Másolás ide: „${list}”`,
     },
     logViewer: {
         label: 'Napló',

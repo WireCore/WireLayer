@@ -1680,6 +1680,11 @@ export const de = {
             `${item} abgelegt, Position ${position} von ${count}.`,
         cancelled: (item: string, position: number, count: number) =>
             `Verschieben abgebrochen. ${item} wieder an Position ${position} von ${count}.`,
+        copyHandle: (item: string) => `${item} kopieren`,
+        copyInstructions:
+            'Leertaste oder Eingabetaste nimmt eine Kopie auf. Dann mit den Pfeiltasten in eine Liste verschieben, mit Leertaste ablegen oder mit Escape abbrechen. Mit der Maus: ziehen, oder klicken und an der Zielstelle erneut klicken.',
+        copyCancelled: (item: string) => `Kopieren von ${item} abgebrochen.`,
+        copyTo: (list: string) => `Nach „${list}“ kopieren`,
     },
     logViewer: {
         label: 'Protokoll',

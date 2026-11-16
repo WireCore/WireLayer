@@ -30197,6 +30197,12 @@
                     "description": "Whether an item from another list of the group may come in"
                 },
                 {
+                    "name": "clone",
+                    "type": "(item: T) => unknown",
+                    "optional": true,
+                    "description": "Makes the list a source (e.g. a palette): dragging an item out copies it – this function makes the copy, e.g. with a new id. The list keeps its items, takes none in and is not sorted."
+                },
+                {
                     "name": "animate",
                     "type": "boolean",
                     "optional": true,
@@ -30306,6 +30312,12 @@
                         "type": "(item: T, from: string) => boolean",
                         "optional": true,
                         "description": "Whether an item from another list of the group may come in"
+                    },
+                    {
+                        "name": "clone",
+                        "type": "(item: T) => unknown",
+                        "optional": true,
+                        "description": "Makes the list a source (e.g. a palette): dragging an item out copies it – this function makes the copy, e.g. with a new id. The list keeps its items, takes none in and is not sorted."
                     },
                     {
                         "name": "animate",
@@ -34700,6 +34712,24 @@
                     "description": ""
                 },
                 {
+                    "name": "step",
+                    "type": "string | null",
+                    "optional": true,
+                    "description": "Id of the step shown, null while the tour does not run; setting it moves there"
+                },
+                {
+                    "name": "onStepChange",
+                    "type": "(step: string | null) => void",
+                    "optional": true,
+                    "description": ""
+                },
+                {
+                    "name": "missingTarget",
+                    "type": "'skip' | 'dialog'",
+                    "optional": true,
+                    "description": "A step whose target is not there (after `waitFor`): skip it (default) or show it as a centred dialog"
+                },
+                {
                     "name": "onComplete",
                     "type": "() => void",
                     "optional": true,
@@ -34727,6 +34757,18 @@
                         "description": "Running – use with v-model:open"
                     },
                     {
+                        "name": "step",
+                        "type": "string | null",
+                        "optional": true,
+                        "description": "Id of the step shown, null while the tour does not run – use with v-model:step; setting it moves there"
+                    },
+                    {
+                        "name": "missingTarget",
+                        "type": "'skip' | 'dialog'",
+                        "optional": true,
+                        "description": "A step whose target is not there (after `waitFor`): skip it (default) or show it as a centred dialog"
+                    },
+                    {
                         "name": "classes",
                         "type": "RecipeClasses<typeof tourRecipe>",
                         "optional": true,
@@ -34738,6 +34780,11 @@
                     {
                         "name": "update:open",
                         "payload": "open: boolean",
+                        "description": ""
+                    },
+                    {
+                        "name": "update:step",
+                        "payload": "step: string | null",
                         "description": ""
                     },
                     {
@@ -49204,6 +49251,12 @@
                         "description": "Whether an item from another list of the group (its `name`) may come in"
                     },
                     {
+                        "name": "clone",
+                        "type": "(item: T) => unknown",
+                        "optional": true,
+                        "description": "Makes the list a source (e.g. a palette): an item taken out is copied – this function makes the copy, e.g. with a new id. The list keeps its items, takes none in and is not sorted."
+                    },
+                    {
                         "name": "disabled",
                         "type": "boolean",
                         "optional": true,
@@ -50736,6 +50789,24 @@
                         "type": "(open: boolean) => void",
                         "optional": true,
                         "description": "Called with false when it is finished, skipped or closed"
+                    },
+                    {
+                        "name": "step",
+                        "type": "string | null",
+                        "optional": true,
+                        "description": "Id of the step shown, null while the tour does not run; setting it moves there"
+                    },
+                    {
+                        "name": "onStepChange",
+                        "type": "(step: string | null) => void",
+                        "optional": true,
+                        "description": ""
+                    },
+                    {
+                        "name": "missingTarget",
+                        "type": "'skip' | 'dialog'",
+                        "optional": true,
+                        "description": "A step whose target is not there (after `waitFor`): skip it (default) or show it in the middle"
                     },
                     {
                         "name": "onComplete",

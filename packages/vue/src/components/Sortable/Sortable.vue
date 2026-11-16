@@ -50,6 +50,11 @@ export interface SortableProps<T = unknown> {
     columns?: number;
     /** Whether an item from another list of the group may come in */
     accepts?: (item: T, from: string) => boolean;
+    /**
+     * Makes the list a source (e.g. a palette): dragging an item out copies it – this function makes the copy, e.g.
+     * with a new id. The list keeps its items, takes none in and is not sorted.
+     */
+    clone?: (item: T) => unknown;
     /** Items glide to their new place when they move (default: yes; not with reduced motion) */
     animate?: boolean;
     disabled?: boolean;
@@ -132,6 +137,7 @@ onMounted(() => {
         columns: () => props.columns,
         disabled: () => !!props.disabled,
         accepts: props.accepts ? (item, from) => props.accepts!(item as T, from) : undefined,
+        clone: () => (props.clone ? (item) => props.clone!(item as T) : undefined),
         texts: () => t,
         // Right after Vue has rendered the new order (before the next key arrives)
         focus: (index) => void nextTick(() => focusHandle({ id: id.value, element: () => list.value }, index)),
@@ -176,7 +182,7 @@ onBeforeUnmount(() => {
                     type="button"
                     :class="styles.handle()"
                     v-bind="{ [SORTABLE_HANDLE]: id }"
-                    :aria-label="t.handle(labelOf(item))"
+                    :aria-label="clone ? t.copyHandle(labelOf(item)) : t.handle(labelOf(item))"
                     :aria-pressed="state.grabbed === index"
                     :aria-describedby="instructionsId"
                     :disabled="disabled"
@@ -196,6 +202,8 @@ onBeforeUnmount(() => {
             </li>
             <li v-if="!items.length" :class="styles.empty()">{{ emptyText ?? t.empty }}</li>
         </ul>
-        <span :id="instructionsId" :class="styles.instructions()">{{ t.instructions }}</span>
+        <span :id="instructionsId" :class="styles.instructions()">{{
+            clone ? t.copyInstructions : t.instructions
+        }}</span>
     </div>
 </template>

@@ -72,6 +72,24 @@ test.describe('Kanban', () => {
     });
 });
 
+test.describe('Sortable', () => {
+    test('palette: a tap on a block and one on the page copies it; the palette keeps it', async ({ page }) => {
+        await openStory(page, 'data-sortable--palette');
+        await page.getByRole('button', { name: 'Copy Text' }).click();
+        await page.getByText('No items – move here').click();
+        await expect(page.getByText('Text', { exact: true }).last()).toBeVisible();
+        await expect(page.getByRole('button', { name: 'Move Text' })).toBeVisible();
+        await expect(page.getByRole('button', { name: 'Copy Text' })).toBeVisible();
+        // Keyboard on the web: Space, arrow right into the page, Space
+        await page.getByRole('button', { name: 'Copy Image' }).focus();
+        await page.keyboard.press('Space');
+        await page.keyboard.press('ArrowRight');
+        await page.keyboard.press('Space');
+        await expect(page.getByText(/^Text → Image$|^Image → Text$/)).toBeVisible();
+        await expect(page.getByRole('status').filter({ hasText: 'Image dropped' })).toBeAttached();
+    });
+});
+
 test.describe('Chat', () => {
     test('sending shows the message, the answer streams and can be stopped', async ({ page }) => {
         await openStory(page, 'data-chat--playground');

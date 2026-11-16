@@ -35,6 +35,7 @@ import {
     parseMentionMarkup,
     parsePhoneNumber,
     phonePlaceholder,
+    prepareTourStep,
     ringParts,
     rgbToHsb,
     rgbToHsl,
@@ -46,6 +47,7 @@ import {
     toE164,
     toHex,
     toMentionMarkup,
+    tourSkipTarget,
     translations,
     typedSignature,
     updateMentions,
@@ -291,6 +293,188 @@ describe('sortable', () => {
         const controller = new SortableController();
         controller.register(container('list', ['a']));
         expect(controller.state('list')).toBe(controller.state('list'));
+    });
+
+    // A pointer event on a handle: pressed and released at the same place is a click
+    const pointer = (pointerId = 1, clientX = 0) =>
+        ({
+            button: 0,
+            clientX,
+            clientY: 0,
+            pointerId,
+            currentTarget: null,
+            preventDefault() {},
+        }) as unknown as PointerEvent;
+    const click = (controller: SortableController, id: string, index: number) => {
+        controller.pointerdown(id, index, pointer());
+        controller.pointerup(pointer());
+    };
+
+    it('a source copies its item out (clone), keeps it and takes nothing in', () => {
+        const controller = new SortableController();
+        const palette = container('palette', ['a', 'b']);
+        palette.clone = () => (item: unknown) => `${item}*`;
+        const accepts = vi.fn(() => true);
+        const canvas = container('canvas', ['x']);
+        canvas.accepts = accepts;
+        controller.register(palette);
+        controller.register(canvas);
+        click(controller, 'palette', 1);
+        expect(controller.state('palette').grabbed).toBe(1);
+        // The source is not sorted
+        controller.keydown('palette', 1, key('ArrowUp'));
+        expect(palette.list).toEqual(['a', 'b']);
+        click(controller, 'canvas', 1);
+        expect(accepts).toHaveBeenCalledWith('b*', 'palette');
+        expect(palette.list).toEqual(['a', 'b']);
+        expect(canvas.list).toEqual(['x', 'b*']);
+        expect(canvas.onMove).toHaveBeenCalledWith({
+            item: 'b*',
+            from: { container: 'palette', index: 1 },
+            to: { container: 'canvas', index: 1 },
+        });
+        // Items of other lists do not go into the source
+        click(controller, 'canvas', 0);
+        click(controller, 'palette', 0);
+        expect(palette.list).toEqual(['a', 'b']);
+        expect(canvas.list).toEqual(['x', 'b*']);
+    });
+
+    it('a copy dropped at its source or cancelled is not put anywhere', () => {
+        const controller = new SortableController();
+        const palette = container('palette', ['a']);
+        palette.clone = () => (item: unknown) => `${item}*`;
+        const canvas = container('canvas', []);
+        controller.register(palette);
+        controller.register(canvas);
+        controller.keydown('palette', 0, key(' '));
+        controller.keydown('palette', 0, key(' '));
+        expect(controller.state('palette').grabbed).toBeNull();
+        controller.keydown('palette', 0, key(' '));
+        controller.keydown('palette', 0, key('Escape'));
+        expect(palette.list).toEqual(['a']);
+        expect(canvas.list).toEqual([]);
+        expect(canvas.onMove).not.toHaveBeenCalled();
+    });
+
+    describe('nested lists', () => {
+        // outer: [group, b, c] – the group (item 0) holds the inner list
+        function nested() {
+            document.body.innerHTML = `
+                <ul data-sortable-container="outer">
+                    <li data-sortable-index="0"><ul data-sortable-container="inner"></ul></li>
+                    <li data-sortable-index="1"></li>
+                    <li data-sortable-index="2"></li>
+                </ul>`;
+            const element = (id: string) => () =>
+                document.querySelector<HTMLElement>(`[data-sortable-container="${id}"]`);
+            const outer = container('outer', ['group', 'b', 'c']);
+            outer.element = element('outer');
+            const inner = container('inner', []);
+            inner.element = element('inner');
+            const controller = new SortableController();
+            controller.register(outer);
+            controller.register(inner);
+            return { controller, outer, inner };
+        }
+        afterEach(() => {
+            document.body.innerHTML = '';
+        });
+
+        it('the arrow keys move an item into a nested list – not the list into itself', () => {
+            const { controller, outer, inner } = nested();
+            controller.keydown('outer', 0, key(' '));
+            controller.keydown('outer', 0, key('ArrowRight'));
+            expect(inner.list).toEqual([]);
+            expect(outer.list).toEqual(['group', 'b', 'c']);
+            controller.keydown('outer', 0, key('Escape'));
+            controller.keydown('outer', 1, key(' '));
+            controller.keydown('outer', 1, key('ArrowRight'));
+            expect(outer.list).toEqual(['group', 'c']);
+            expect(inner.list).toEqual(['b']);
+        });
+
+        it('a pointer over the empty area of a nested list puts the item there', () => {
+            const { controller, outer, inner } = nested();
+            const innerList = document.querySelector('[data-sortable-container="inner"]')!;
+            // jsdom has no layout: the pointer is over the inner list
+            document.elementFromPoint = () => innerList;
+            controller.pointerdown('outer', 2, pointer());
+            controller.pointermove(pointer(1, 20));
+            controller.pointerup(pointer(1, 20));
+            expect(outer.list).toEqual(['group', 'b']);
+            expect(inner.list).toEqual(['c']);
+            delete (document as { elementFromPoint?: unknown }).elementFromPoint;
+        });
+
+        it('a click in a nested list that does not take the item leaves the outer list alone', () => {
+            const { controller, outer, inner } = nested();
+            inner.accepts = () => false;
+            click(controller, 'outer', 1);
+            const event = {
+                target: document.querySelector('[data-sortable-container="inner"]'),
+            } as unknown as MouseEvent;
+            controller.containerClick('inner', event);
+            controller.containerClick('outer', event);
+            expect(outer.list).toEqual(['group', 'b', 'c']);
+            expect(controller.state('outer').grabbed).toBe(1);
+        });
+    });
+});
+
+describe('tour steps', () => {
+    it('runs `before`, then waits for the target until it is there', async () => {
+        vi.useFakeTimers();
+        const order: string[] = [];
+        let target: string | null = null;
+        const ready = vi.fn();
+        prepareTourStep(
+            {
+                before: async () => {
+                    order.push('before');
+                },
+                find: () => {
+                    order.push('find');
+                    return target;
+                },
+                waitFor: 500,
+            },
+            ready
+        );
+        await vi.advanceTimersByTimeAsync(0);
+        expect(order).toEqual(['before', 'find']);
+        expect(ready).not.toHaveBeenCalled();
+        target = 'tab';
+        await vi.advanceTimersByTimeAsync(100);
+        expect(ready).toHaveBeenCalledWith('tab', false);
+        vi.useRealTimers();
+    });
+
+    it('reports a missing target after the time; cancelled, it reports nothing', async () => {
+        vi.useFakeTimers();
+        const missing = vi.fn();
+        prepareTourStep({ find: () => null, waitFor: 200 }, missing);
+        await vi.advanceTimersByTimeAsync(250);
+        expect(missing).toHaveBeenCalledWith(null, true);
+        const cancelled = vi.fn();
+        const cancel = prepareTourStep({ find: () => null, waitFor: 200 }, cancelled);
+        cancel();
+        await vi.advanceTimersByTimeAsync(250);
+        expect(cancelled).not.toHaveBeenCalled();
+        // Without a target the step is ready at once
+        const plain = vi.fn();
+        prepareTourStep({}, plain);
+        await vi.advanceTimersByTimeAsync(0);
+        expect(plain).toHaveBeenCalledWith(null, false);
+        vi.useRealTimers();
+    });
+
+    it('skips in the direction the tour moves', () => {
+        expect(tourSkipTarget(2, 1, 5)).toBe(3);
+        expect(tourSkipTarget(4, 3, 5)).toBe('end');
+        expect(tourSkipTarget(2, 3, 5)).toBe(1);
+        expect(tourSkipTarget(0, 1, 5)).toBeUndefined();
+        expect(tourSkipTarget(0, -1, 5)).toBe(1);
     });
 });
 

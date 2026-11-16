@@ -1089,6 +1089,11 @@ export const tr: Translations = {
         dropped: (item, position, count) => `${item} bırakıldı, konum ${position} / ${count}.`,
         cancelled: (item, position, count) =>
             `Taşıma iptal edildi. ${item} eski yerine döndü, konum ${position} / ${count}.`,
+        copyHandle: (item) => `Kopyala: ${item}`,
+        copyInstructions:
+            'Bir kopya almak için Boşluk veya Enter tuşuna basın. Ardından ok tuşlarıyla bir listeye taşıyın, bırakmak için Boşluk, iptal etmek için Escape tuşuna basın. Fareyle: sürükleyin ya da tıklayıp hedef konumda tekrar tıklayın.',
+        copyCancelled: (item) => `${item} kopyalanması iptal edildi.`,
+        copyTo: (list) => `“${list}” listesine kopyala`,
     },
     logViewer: {
         label: 'Günlük',

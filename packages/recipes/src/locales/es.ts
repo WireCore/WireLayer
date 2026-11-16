@@ -1114,6 +1114,11 @@ export const es: Translations = {
         dropped: (item, position, count) => `Se ha soltado ${item}, posición ${position} de ${count}.`,
         cancelled: (item, position, count) =>
             `Movimiento cancelado. ${item} vuelve a la posición ${position} de ${count}.`,
+        copyHandle: (item) => `Copiar ${item}`,
+        copyInstructions:
+            'Presione Espacio o Entrar para tomar una copia. Después, muévala a una lista con las teclas de flecha y presione Espacio para soltarla o Esc para cancelar. Con el ratón: arrástrela, o haga clic y vuelva a hacer clic en el destino.',
+        copyCancelled: (item) => `Copia de ${item} cancelada.`,
+        copyTo: (list) => `Copiar a «${list}»`,
     },
     logViewer: {
         label: 'Registro',

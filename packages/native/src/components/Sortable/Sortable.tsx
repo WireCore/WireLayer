@@ -67,6 +67,11 @@ export interface SortableProps<T = unknown> {
     orientation?: 'vertical' | 'horizontal';
     /** Whether an item from another list of the group (its `name`) may come in */
     accepts?: (item: T, from: string) => boolean;
+    /**
+     * Makes the list a source (e.g. a palette): an item taken out is copied – this function makes the copy, e.g.
+     * with a new id. The list keeps its items, takes none in and is not sorted.
+     */
+    clone?: (item: T) => unknown;
     disabled?: boolean;
     /** Text of an empty list (it still takes items of the group) */
     emptyText?: string;
@@ -122,6 +127,7 @@ export function SortableList<T = unknown>({
     name,
     orientation = 'vertical',
     accepts,
+    clone,
     disabled = false,
     emptyText,
     renderItem,
@@ -147,10 +153,10 @@ export function SortableList<T = unknown>({
 
     // The latest props for the other lists of the group (they call back later); the order set last until it is
     // rendered, so quick successive moves build on each other
-    const latest = useRef({ items, setItems, labelOf, accepts, disabled, onMove, t, announce });
+    const latest = useRef({ items, setItems, labelOf, accepts, clone, disabled, onMove, t, announce });
     const pending = useRef<T[] | null>(null);
     useEffect(() => {
-        latest.current = { items, setItems, labelOf, accepts, disabled, onMove, t, announce };
+        latest.current = { items, setItems, labelOf, accepts, clone, disabled, onMove, t, announce };
         pending.current = null;
     });
     // The handle of a moved item gets the focus back (keyboard on the web, screen reader focus on iOS/Android)
@@ -171,6 +177,10 @@ export function SortableList<T = unknown>({
                     latest.current.setItems(next as T[]);
                 },
                 accepts: (item, from) => latest.current.accepts?.(item as T, from) ?? true,
+                clone: () => {
+                    const copy = latest.current.clone;
+                    return copy ? (item) => copy(item as T) : undefined;
+                },
                 disabled: () => latest.current.disabled,
                 onMove: (move) => latest.current.onMove?.(move as SortableMove<T>),
                 itemLabel: (item) => latest.current.labelOf(item as T),
@@ -186,6 +196,7 @@ export function SortableList<T = unknown>({
     // An item of another list of the group is carried: this list takes it (a tap on a handle or the empty list)
     const carriedFrom = carry ? store.entries.find((entry) => entry.id === carry.current.id) : undefined;
     const takesCarried =
+        !clone &&
         !!carry &&
         !!carriedFrom &&
         carriedFrom.id !== id &&
@@ -232,7 +243,8 @@ export function SortableList<T = unknown>({
     const along = (event: GestureResponderEvent) => (vertical ? event.nativeEvent.pageY : event.nativeEvent.pageX);
     const startDrag = (index: number) => {
         const item = items[index];
-        if (item === undefined || disabled) return;
+        // A source is not sorted – its items are copied with a tap and the target
+        if (item === undefined || disabled || clone) return;
         if (carriedItem()) cancelCarriedItem();
         const state = gesture.current;
         state.active = true;
@@ -344,10 +356,13 @@ export function SortableList<T = unknown>({
     // Screen reader actions: the steps, the other lists of the group, the extras of the board
     const actionsOf = (item: T, index: number): AccessibilityActionInfo[] => [
         { name: 'activate' },
-        ...orderSteps(index, items.length).map((which) => ({ name: which, label: translations.orderList[which] })),
-        ...sortableTargets(store.entries, id, group, item).map((target) => ({
+        ...(clone
+            ? []
+            : orderSteps(index, items.length).map((which) => ({ name: which, label: translations.orderList[which] }))),
+        // From a source the copy is offered (and checked by the targets)
+        ...sortableTargets(store.entries, id, group, clone ? clone(item) : item).map((target) => ({
             name: `move:${target.id}`,
-            label: translations.kanban.moveTo(target.label),
+            label: clone ? t.copyTo(target.label) : translations.kanban.moveTo(target.label),
         })),
         ...(actions?.(item, index) ?? []),
     ];
@@ -414,7 +429,7 @@ export function SortableList<T = unknown>({
                                     handles.current[index] = node;
                                 }}
                                 role="button"
-                                aria-label={t.handle(itemName)}
+                                aria-label={clone ? t.copyHandle(itemName) : t.handle(itemName)}
                                 aria-disabled={disabled || undefined}
                                 className={parts.handle()}
                                 accessibilityActions={disabled ? undefined : actionsOf(item, index)}
@@ -454,7 +469,7 @@ export function SortableList<T = unknown>({
             </View>
             {instructions && (
                 <Text nativeID={instructionsId} className={visuallyHidden()}>
-                    {t.instructions}
+                    {clone ? t.copyInstructions : t.instructions}
                 </Text>
             )}
             {region}

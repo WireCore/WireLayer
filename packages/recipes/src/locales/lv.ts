@@ -1145,6 +1145,11 @@ export const lv: Translations = {
         movedTo: (item, container, position, count) => `${item}: ${container}, pozīcija ${position} no ${count}.`,
         dropped: (item, position, count) => `${item}: nomests, pozīcija ${position} no ${count}.`,
         cancelled: (item, position, count) => `Pārvietošana atcelta. ${item}: atkal pozīcija ${position} no ${count}.`,
+        copyHandle: (item) => `Kopēt: ${item}`,
+        copyInstructions:
+            'Lai paceltu kopiju, nospiediet atstarpes taustiņu vai Enter. Pēc tam pārvietojiet to uz sarakstu ar bulttaustiņiem, nospiediet atstarpes taustiņu, lai nomestu, vai Esc, lai atceltu. Ar peli: velciet vai noklikšķiniet un vēlreiz noklikšķiniet mērķa vietā.',
+        copyCancelled: (item) => `Kopēšana atcelta: ${item}.`,
+        copyTo: (list) => `Kopēt uz “${list}”`,
     },
     logViewer: {
         label: 'Žurnāls',

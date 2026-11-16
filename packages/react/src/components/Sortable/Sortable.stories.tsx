@@ -109,3 +109,79 @@ function TileGroups() {
 
 /** Two grids of one group: the arrows past the first or last tile move it into the other grid */
 export const GridGroup: Story = { render: () => <TileGroups /> };
+
+interface Block {
+    id: string;
+    label: string;
+    /** Groups hold blocks */
+    children?: Block[];
+}
+
+const palette: Block[] = [
+    { id: 'heading', label: 'Heading' },
+    { id: 'text', label: 'Text' },
+    { id: 'group', label: 'Group', children: [] },
+];
+let copies = 0;
+const copyBlock = (block: Block): Block => ({
+    id: `${block.id}-${++copies}`,
+    label: block.label,
+    children: block.children ? [] : undefined,
+});
+const outline = (blocks: Block[]): string =>
+    blocks.map((block) => (block.children ? `${block.label} (${outline(block.children)})` : block.label)).join(', ');
+
+/** A list of blocks; a group shows its own list inside (lists in lists) */
+function BlockList({
+    blocks,
+    label,
+    onChange,
+}: {
+    blocks: Block[];
+    label: string;
+    onChange: (blocks: Block[]) => void;
+}) {
+    return (
+        <Sortable
+            value={blocks}
+            onValueChange={onChange}
+            group="page"
+            label={label}
+            renderItem={(block) => (
+                <div className="flex flex-col gap-2">
+                    {block.label}
+                    {block.children && (
+                        <BlockList
+                            blocks={block.children}
+                            label={`${block.label} content`}
+                            onChange={(children) =>
+                                onChange(
+                                    blocks.map((entry) => (entry.id === block.id ? { ...entry, children } : entry))
+                                )
+                            }
+                        />
+                    )}
+                </div>
+            )}
+        />
+    );
+}
+
+function Builder() {
+    const [page, setPage] = useState<Block[]>([]);
+    return (
+        <div className="flex w-[560px] gap-6">
+            <Sortable defaultValue={palette} group="page" label="Blocks" clone={copyBlock} className="w-40" />
+            <div className="flex flex-1 flex-col gap-3">
+                <BlockList blocks={page} label="Page" onChange={setPage} />
+                <span className="text-xs text-muted">{outline(page) || 'Empty page'}</span>
+            </div>
+        </div>
+    );
+}
+
+/**
+ * clone: the palette copies its blocks into the page (it keeps them, takes none in); groups hold lists of their own.
+ * Keyboard: Space on a block of the palette, arrow right into the page (and on into the groups), Space drops.
+ */
+export const Palette: Story = { render: () => <Builder /> };

@@ -1095,6 +1095,11 @@ export const nl: Translations = {
         dropped: (item, position, count) => `${item} neergezet, positie ${position} van ${count}.`,
         cancelled: (item, position, count) =>
             `Verplaatsen geannuleerd. ${item} terug op positie ${position} van ${count}.`,
+        copyHandle: (item) => `${item} kopiëren`,
+        copyInstructions:
+            'Druk op de spatiebalk of Enter om een kopie op te pakken. Verplaats deze daarna met de pijltoetsen naar een lijst, druk op de spatiebalk om neer te zetten of op Esc om te annuleren. Met de muis: slepen, of klikken en op de doelpositie opnieuw klikken.',
+        copyCancelled: (item) => `Kopiëren van ${item} geannuleerd.`,
+        copyTo: (list) => `Kopiëren naar ‘${list}’`,
     },
     logViewer: {
         label: 'Logboek',

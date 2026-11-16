@@ -50,6 +50,11 @@ export interface SortableProps<T = unknown> {
     columns?: number;
     /** Whether an item from another list of the group may come in */
     accepts?: (item: T, from: string) => boolean;
+    /**
+     * Makes the list a source (e.g. a palette): dragging an item out copies it – this function makes the copy, e.g.
+     * with a new id. The list keeps its items, takes none in and is not sorted.
+     */
+    clone?: (item: T) => unknown;
     /** Items glide to their new place when they move (default: yes; not with reduced motion) */
     animate?: boolean;
     disabled?: boolean;
@@ -92,6 +97,7 @@ export function Sortable<T = unknown>({
     orientation = 'vertical',
     columns = 3,
     accepts,
+    clone,
     animate = true,
     disabled,
     emptyText,
@@ -115,10 +121,34 @@ export function Sortable<T = unknown>({
         read(item, itemKey, ['id', 'value']) ?? (typeof item === 'object' ? index : String(item));
 
     // The latest props for the controller (it calls back later); the order set last until it comes back
-    const latest = useRef({ items, group, label, orientation, columns, disabled, accepts, onValueChange, onMove, t });
+    const latest = useRef({
+        items,
+        group,
+        label,
+        orientation,
+        columns,
+        disabled,
+        accepts,
+        clone,
+        onValueChange,
+        onMove,
+        t,
+    });
     const pending = useRef<T[] | null>(null);
     useEffect(() => {
-        latest.current = { items, group, label, orientation, columns, disabled, accepts, onValueChange, onMove, t };
+        latest.current = {
+            items,
+            group,
+            label,
+            orientation,
+            columns,
+            disabled,
+            accepts,
+            clone,
+            onValueChange,
+            onMove,
+            t,
+        };
         pending.current = null;
     });
     // After every render: items that changed place (also from another list of the group) glide there
@@ -155,6 +185,10 @@ export function Sortable<T = unknown>({
                 columns: () => latest.current.columns,
                 disabled: () => !!latest.current.disabled,
                 accepts: (item, from) => latest.current.accepts?.(item as T, from) ?? true,
+                clone: () => {
+                    const copy = latest.current.clone;
+                    return copy ? (item) => copy(item as T) : undefined;
+                },
                 texts: () => latest.current.t,
                 focus: (index) => focusHandle({ id, element: () => list.current }, index),
             }),
@@ -200,7 +234,7 @@ export function Sortable<T = unknown>({
                             type="button"
                             className={styles.handle()}
                             {...{ [SORTABLE_HANDLE]: id }}
-                            aria-label={t.handle(labelOf(item))}
+                            aria-label={clone ? t.copyHandle(labelOf(item)) : t.handle(labelOf(item))}
                             aria-pressed={state.grabbed === index}
                             aria-describedby={instructionsId}
                             disabled={disabled}
@@ -224,7 +258,7 @@ export function Sortable<T = unknown>({
                 {!items.length && <li className={styles.empty()}>{emptyText ?? t.empty}</li>}
             </ul>
             <span id={instructionsId} className={styles.instructions()}>
-                {t.instructions}
+                {clone ? t.copyInstructions : t.instructions}
             </span>
         </div>
     );

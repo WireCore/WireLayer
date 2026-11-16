@@ -1230,6 +1230,11 @@ export const cs: Translations = {
         movedTo: (item, container, position, count) => `${item}: ${container}, pozice ${position} z ${count}.`,
         dropped: (item, position, count) => `${item}: umístěno, pozice ${position} z ${count}.`,
         cancelled: (item, position, count) => `Přesun zrušen. ${item} je zpět na pozici ${position} z ${count}.`,
+        copyHandle: (item) => `Kopírovat ${item}`,
+        copyInstructions:
+            'Mezerníkem nebo Enterem uchopíte kopii. Pak ji šipkami přesuňte do seznamu a mezerníkem umístěte, nebo klávesou Esc akci zrušte. Myší: přetáhněte, nebo klikněte a znovu klikněte na cílovém místě.',
+        copyCancelled: (item) => `Kopírování položky ${item} zrušeno.`,
+        copyTo: (list) => `Kopírovat do „${list}“`,
     },
     logViewer: {
         label: 'Protokol',

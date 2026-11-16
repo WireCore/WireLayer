@@ -1132,6 +1132,11 @@ export const it: Translations = {
         dropped: (item, position, count) => `${item} rilasciato, posizione ${position} di ${count}.`,
         cancelled: (item, position, count) =>
             `Spostamento annullato. ${item} di nuovo in posizione ${position} di ${count}.`,
+        copyHandle: (item) => `Copia ${item}`,
+        copyInstructions:
+            'Premere Spazio o Invio per afferrare una copia. Spostarla in un elenco con i tasti freccia, premere Spazio per rilasciarla o Esc per annullare. Con il mouse: trascinare, oppure fare clic e poi di nuovo clic nella posizione di destinazione.',
+        copyCancelled: (item) => `Copia di ${item} annullata.`,
+        copyTo: (list) => `Copia in «${list}»`,
     },
     logViewer: {
         label: 'Registro',

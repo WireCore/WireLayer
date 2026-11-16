@@ -1073,6 +1073,11 @@ const en: Translations = {
         movedTo: (item, container, position, count) => `${item} in ${container}, position ${position} of ${count}.`,
         dropped: (item, position, count) => `${item} dropped, position ${position} of ${count}.`,
         cancelled: (item, position, count) => `Move cancelled. ${item} back at position ${position} of ${count}.`,
+        copyHandle: (item) => `Copy ${item}`,
+        copyInstructions:
+            'Press Space or Enter to pick up a copy. Then move it into a list with the arrow keys, press Space to drop or Escape to cancel. With a mouse: drag, or click and click again at the target.',
+        copyCancelled: (item) => `Copy of ${item} cancelled.`,
+        copyTo: (list) => `Copy to “${list}”`,
     },
     logViewer: {
         label: 'Log',
