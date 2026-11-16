@@ -13,7 +13,8 @@ const avatarColors: AvatarColor[] = ['primary', 'info', 'success', 'warn', 'dang
  * 4.5:1 in some themes (token contrast test)
  */
 const tintHover: Record<AvatarColor, string> = {
-    primary: 'hover:bg-[color-mix(in_srgb,var(--color-primary)_18%,var(--color-card))]',
+    // The text takes the theme's `primary-hover` (else it stays primary)
+    primary: 'hover:bg-[color-mix(in_srgb,var(--color-primary)_18%,var(--color-card))] hover:text-primary-hover',
     success: 'hover:bg-[color-mix(in_srgb,var(--color-success)_18%,var(--color-card))]',
     info: 'hover:bg-[color-mix(in_srgb,var(--color-info)_18%,var(--color-card))]',
     warn: 'hover:bg-[color-mix(in_srgb,var(--color-warn)_18%,var(--color-card))]',

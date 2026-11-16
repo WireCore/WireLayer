@@ -1,4 +1,4 @@
-import { modes, resolveColors, themes, type Mode, type Theme } from './tokens.js';
+import { colorValue, modes, optionalColorTokens, resolveColors, themes, type Mode, type Theme } from './tokens.js';
 
 // React Native (Uniwind) knows only flat themes, so every theme × mode pair becomes one Uniwind theme.
 // The default theme keeps Uniwind's built-in `light`/`dark` (and with it the system setting).
@@ -28,7 +28,12 @@ export const nativeFonts = {
 export const themeToNativeCss = (theme: Theme) =>
     modes
         .map((mode) => {
-            const declarations = Object.entries(resolveColors(theme, mode))
+            const colors = resolveColors(theme, mode);
+            // Uniwind gets fixed values: optional tokens the theme does not set get the colour of the token they follow
+            const declarations = Object.entries({
+                ...colors,
+                ...Object.fromEntries(optionalColorTokens.map((token) => [token, colorValue(colors, token)])),
+            })
                 .map(([token, value]) => `            --color-${token}: ${value};`)
                 .join('\n');
             return `        @variant ${nativeThemeName(theme.name, mode)} {\n${declarations}\n        }`;

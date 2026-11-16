@@ -49,7 +49,8 @@ const meta: Meta<typeof NotificationCenter> = {
             const more = ref(args.hasMore ?? true);
             const markRead = (id: string) =>
                 (items.value = items.value.map((item) => (item.id === id ? { ...item, read: true } : item)));
-            const markAllRead = () => (items.value = items.value.map((item) => ({ ...item, read: true })));
+            const markAllRead = (ids: string[]) =>
+                (items.value = items.value.map((item) => (ids.includes(item.id) ? { ...item, read: true } : item)));
             const loadMore = () => {
                 loading.value = true;
                 setTimeout(() => {
@@ -90,7 +91,7 @@ const meta: Meta<typeof NotificationCenter> = {
                     @load-more="loadMore"
                 >
                     <template #item-actions="{ item }">
-                        <IconButton v-if="!item.href" :icon="HardDrive" :label="'Details: ' + item.title" variant="text" size="xs" />
+                        <IconButton v-if="!item.href && !item.clickable" :icon="HardDrive" :label="'Details: ' + item.title" variant="text" size="xs" />
                     </template>
                 </NotificationCenter>
                 <Button size="sm" variant="outline" @click="simulate">Simulate new notification</Button>
@@ -109,3 +110,11 @@ export const Drawer: Story = { args: { display: 'drawer' } };
 
 /** Nothing there */
 export const Empty: Story = { args: { items: [], hasMore: false } };
+
+/**
+ * `clickable` items without `href`: the title is a button that reports `select` – e.g. to open the item in the app
+ * (here everything without a link). "Mark all as read" reports the ids of the unread items for one request.
+ */
+export const ClickableItems: Story = {
+    args: { items: start.map((item) => (item.href ? item : { ...item, clickable: true })) },
+};

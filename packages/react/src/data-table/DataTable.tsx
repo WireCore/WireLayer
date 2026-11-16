@@ -223,7 +223,7 @@ type Density = 'sm' | 'md' | 'lg';
 
 export interface DataTableProps<TData> extends Omit<
     ComponentProps<'div'>,
-    'children' | 'ref' | 'contextMenu' | 'onScrollEnd' | 'onRowClick'
+    'children' | 'ref' | 'contextMenu' | 'onScroll' | 'onScrollEnd' | 'onRowClick'
 > {
     /** The rows (with `dataSource` the table loads them itself) */
     data?: readonly TData[];
@@ -476,6 +476,11 @@ export interface DataTableProps<TData> extends Omit<
     onLoadMore?: () => void;
     /** @deprecated Same as `onLoadMore` (the name of the other lists) */
     onScrollEnd?: () => void;
+    /**
+     * The table's scroll area scrolled (down/up with `scrollHeight`, sideways when wider) – e.g. to close a popover
+     * anchored in a row that virtual scrolling removes
+     */
+    onScroll?: (event: UIEvent<HTMLDivElement>) => void;
     /** Keeps sorting, filters, page, widths, order and the other settings in the browser under this key */
     stateKey?: string;
     stateStorage?: 'local' | 'session';
@@ -678,6 +683,7 @@ export function DataTable<TData extends object>({
     rowHeight = 41,
     onLoadMore,
     onScrollEnd,
+    onScroll,
     stateKey,
     stateStorage = 'session',
     stateExclude = SELECTION_ONLY,
@@ -1590,7 +1596,7 @@ export function DataTable<TData extends object>({
 
     // Aggregates in group rows and the footer
     const aggregated = leafDefs.some((column) => column.aggregate);
-    const hasFooter = leafDefs.some((column) => column.aggregate || column.footer);
+    const hasFooter = leafDefs.some((column) => column.aggregate || column.footer || column.renderFooter);
     const formatAggregate = (column: DataTableColumn<TData>, value: unknown, row?: TData) => {
         if (value === null || value === undefined) return '';
         if (column.format && row) return column.format(value, row);
@@ -1612,6 +1618,19 @@ export function DataTable<TData extends object>({
         if (!column.aggregate) return '';
         const value = aggregateOf(column, table.getFilteredRowModel().flatRows as TableRow[]);
         return typeof column.aggregate === 'string' ? (t.aggregates[column.aggregate]?.(value) ?? value) : value;
+    };
+    /** Content of a footer cell: `renderFooter` with the total and its rows, else the text */
+    const footerContent = (column: DataTableColumn<TData>) => {
+        const text = footerText(column);
+        if (!column.renderFooter) return text;
+        const leaves = (table.getFilteredRowModel().flatRows as TableRow[]).filter((row) => !row.getIsGrouped());
+        const value = column.aggregate
+            ? aggregateValues(
+                  leaves.map((row) => rawValue(column, row.original)),
+                  column.aggregate
+              )
+            : undefined;
+        return column.renderFooter({ value, text, rows: leaves.map((row) => row.original) });
     };
 
     // Row actions and context menu
@@ -2739,7 +2758,9 @@ export function DataTable<TData extends object>({
     useEffect(() => {
         endReported.current = false;
     }, [data.length]);
-    const onScroll = (event: UIEvent<HTMLDivElement>) => {
+    const scrolled = (event: UIEvent<HTMLDivElement>) => {
+        onScroll?.(event);
+        if (!scrollHeight) return;
         const element = event.currentTarget;
         if (endReported.current || element.scrollTop + element.clientHeight < element.scrollHeight - 80) return;
         endReported.current = true;
@@ -3813,7 +3834,7 @@ export function DataTable<TData extends object>({
                 ref={scrollElement}
                 className={styles.scroll()}
                 style={scrollHeight ? { maxHeight: scrollHeight } : undefined}
-                onScroll={scrollHeight ? onScroll : undefined}
+                onScroll={scrolled}
             >
                 <table
                     ref={tableElement}
@@ -4194,7 +4215,7 @@ export function DataTable<TData extends object>({
                                         })}
                                         style={cellStyle(column.id, false)}
                                     >
-                                        {footerText(columnById.get(column.id)!)}
+                                        {footerContent(columnById.get(column.id)!)}
                                     </td>
                                 ))}
                                 {trailing.length > 0 && (

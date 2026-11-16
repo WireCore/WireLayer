@@ -635,6 +635,90 @@ export const Totals: Story = {
     }),
 };
 
+/** Machines per location, e.g. for a footer cell */
+const perLocation = (rows: readonly MachineRow[]) => {
+    const counts = new Map<string, number>();
+    for (const row of rows) counts.set(row.location, (counts.get(row.location) ?? 0) + 1);
+    return [...counts];
+};
+
+/**
+ * Own footer cells: the slot `#footer-<id>` gets the total (`value`), its text and the filtered rows it is computed
+ * from – here the machines per location as badges. The CSV export keeps the text.
+ */
+export const OwnFooter: Story = {
+    render: () => ({
+        components: { DataTable: DataTable as ConcreteComponent, Badge },
+        setup: () => ({
+            features,
+            rows: machines(12),
+            card,
+            getRowId: machineId,
+            perLocation,
+            columns: [
+                { id: 'name', header: 'Name', footer: 'Total' },
+                { id: 'location', header: 'Location' },
+                { id: 'cores', header: 'Cores', align: 'end', aggregate: 'sum' },
+            ],
+        }),
+        template: `
+            <DataTable
+                :features="features"
+                :data="rows"
+                :columns="columns"
+                caption="Machines per location"
+                :get-row-id="getRowId"
+                :class="card"
+                class="max-w-[720px]"
+            >
+                <template #footer-location="{ rows }">
+                    <span class="flex flex-wrap gap-1">
+                        <Badge v-for="[location, count] in perLocation(rows)" :key="location" variant="outline">
+                            {{ location }}: {{ count }}
+                        </Badge>
+                    </span>
+                </template>
+            </DataTable>`,
+    }),
+};
+
+/**
+ * `scroll` reports every scroll of the table's scroll area (down/up with `scrollHeight`, sideways when wider) – e.g. to
+ * close a popover anchored in a row that virtual scrolling removes
+ */
+export const ScrollEvent: Story = {
+    render: () => ({
+        components: { DataTable: DataTable as ConcreteComponent },
+        setup: () => {
+            const offset = ref(0);
+            return {
+                features,
+                rows: machines(200),
+                card,
+                offset,
+                columns: machineColumns.slice(0, 4),
+                getRowId: machineId,
+                onScroll: (event: Event) => (offset.value = Math.round((event.currentTarget as HTMLElement).scrollTop)),
+            };
+        },
+        template: `
+            <div class="flex max-w-[720px] flex-col gap-2">
+                <DataTable
+                    :features="features"
+                    :data="rows"
+                    :columns="columns"
+                    caption="Machines"
+                    :get-row-id="getRowId"
+                    virtual
+                    scroll-height="320px"
+                    :class="card"
+                    @scroll="onScroll"
+                />
+                <p class="text-sm text-muted">Scrolled {{ offset }} px</p>
+            </div>`,
+    }),
+};
+
 // The last of 500 machines has a long name – it is not rendered until scrolled there
 const widthRows = machines(500).map((row, index) =>
     index === 499 ? { ...row, name: 'vm-0500-reserve-datacenter-frankfurt' } : row

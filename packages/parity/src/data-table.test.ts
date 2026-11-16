@@ -1099,14 +1099,15 @@ describe.each(frameworks)('%s DataTable', (framework) => {
         expect(screen.getByRole('button', { name: 'Full screen' })).toHaveFocus();
     });
 
-    /** An own filter input or editor: a Vue scoped slot, a React render function of the column */
-    const ownContent = (kind: 'filter' | 'editor', columnId: string, content: (props: never) => El) =>
+    /** An own filter input, editor or footer cell: a Vue scoped slot, a React render function of the column */
+    const renderProps = { filter: 'renderFilter', editor: 'renderEditor', footer: 'renderFooter' } as const;
+    const ownContent = (kind: keyof typeof renderProps, columnId: string, content: (props: never) => El) =>
         framework === 'vue'
             ? { $scoped: { [`${kind}-${columnId}`]: { react: 'unused', args: () => ({}), render: content } } }
             : {};
     const withRender = (
         list: Record<string, unknown>[],
-        kind: 'filter' | 'editor',
+        kind: keyof typeof renderProps,
         columnId: string,
         content: (props: never) => El
     ) =>
@@ -1116,12 +1117,54 @@ describe.each(frameworks)('%s DataTable', (framework) => {
                   column.id === columnId
                       ? {
                             ...column,
-                            [kind === 'filter' ? 'renderFilter' : 'renderEditor']: (props: never) =>
-                                toReact(content(props)),
+                            [renderProps[kind]]: (props: never) => toReact(content(props)),
                         }
                       : column
               );
     const input = on('onInput', 'onChange');
+
+    it('own footer cells get the total, its text and the rows (renderFooter / #footer-<id>)', async () => {
+        const total = ({ value, text, rows }: { value: unknown; text: string; rows: { name: string }[] }) =>
+            el(
+                'span',
+                { class: 'own-total' },
+                `${text} = ${String(value)} of ${rows.map((row) => row.name).join(', ')}`
+            );
+        const ownColumns = withRender(
+            [
+                { id: 'name', header: 'Name', footer: 'Total' },
+                { id: 'load', header: 'Load', aggregate: 'sum' },
+            ],
+            'footer',
+            'load',
+            total
+        );
+        await render(framework, table({ columns: ownColumns, ...ownContent('footer', 'load', total) }));
+        const footer = screen.getByRole('table').querySelector('tfoot')!;
+        expect(footer.querySelector('.own-total')).toHaveTextContent(
+            'Total 131 = 131 of web-01, db-primary, k8s-node-3'
+        );
+        expect(footer).toHaveTextContent(/^Total/);
+    });
+
+    it('a footer cell of its own alone shows the footer row', async () => {
+        const count = ({ value, rows }: { value: unknown; rows: unknown[] }) =>
+            el('span', {}, `${rows.length} servers${value === undefined ? '' : ' (with a total)'}`);
+        const ownColumns = withRender([{ id: 'name', header: 'Name' }], 'footer', 'name', count);
+        await render(framework, table({ columns: ownColumns, ...ownContent('footer', 'name', count) }));
+        expect(screen.getByRole('table').querySelector('tfoot')).toHaveTextContent('3 servers');
+    });
+
+    it('reports every scroll of its scroll area, loadMore only near the end with scrollHeight', async () => {
+        const onScroll = vi.fn();
+        const onLoadMore = vi.fn();
+        await render(framework, table({ onScroll, onLoadMore }));
+        const area = screen.getByRole('table').parentElement!;
+        fireEvent.scroll(area, { target: { scrollLeft: 40 } });
+        expect(onScroll).toHaveBeenCalledTimes(1);
+        expect(onScroll.mock.calls[0]![0]).toMatchObject({ type: 'scroll' });
+        expect(onLoadMore).not.toHaveBeenCalled();
+    });
 
     it('own filter input and comparison in the filter row and the filter menu', async () => {
         const minimum = ({ value, setValue }: { value: unknown; setValue: (value: unknown) => void }) =>

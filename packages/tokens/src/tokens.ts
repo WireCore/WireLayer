@@ -25,7 +25,25 @@ export const colorTokens = [
 ] as const;
 export type ColorToken = (typeof colorTokens)[number];
 
-export type ColorSet = Record<ColorToken, string>;
+/**
+ * Colours a theme may set, but does not have to – without them they follow another token (`optionalColorFallbacks`),
+ * so existing themes stay as they are:
+ * - `accent` / `on-accent`: a second brand colour and the text on it (`bg-accent`, `text-accent`, `text-on-accent`)
+ * - `primary-hover`: the primary colour on hover – the fill of solid primary buttons and the text of tinted ones
+ *   (soft, outline, text, avatar buttons). Without it the fill fades to 85 % and the text stays `primary`.
+ */
+export const optionalColorTokens = ['accent', 'on-accent', 'primary-hover'] as const;
+export type OptionalColorToken = (typeof optionalColorTokens)[number];
+
+/** The token an optional token follows when a theme does not set it */
+export const optionalColorFallbacks: Record<OptionalColorToken, ColorToken> = {
+    accent: 'primary',
+    'on-accent': 'on-primary',
+    'primary-hover': 'primary',
+};
+
+/** All colours of a mode: the base tokens, plus the optional ones a theme sets */
+export type ColorSet = Record<ColorToken, string> & Partial<Record<OptionalColorToken, string>>;
 
 /**
  * Base colours (theme "wirecore") per mode. Every text/UI pair meets WCAG 2.2 AA – see contrast.ts,
@@ -78,8 +96,8 @@ export const colors: Record<Mode, ColorSet> = {
 };
 
 /**
- * A theme overrides any base colours per mode – typically `primary` and `on-primary`.
- * It is switched with `data-theme="<name>"` and combines with `data-mode`.
+ * A theme overrides any base colours per mode – typically `primary` and `on-primary` – and may set the optional ones
+ * (`accent`, `on-accent`, `primary-hover`). It is switched with `data-theme="<name>"` and combines with `data-mode`.
  */
 export interface Theme {
     name: string;
@@ -119,8 +137,14 @@ export const themes: Theme[] = [
     },
 ];
 
-/** Base colours with the theme's overrides applied. */
+/** Base colours with the theme's overrides applied – optional tokens only where the theme sets them. */
 export const resolveColors = (theme: Theme, mode: Mode): ColorSet => ({ ...colors[mode], ...theme.colors[mode] });
+
+const isOptionalColorToken = (token: string): token is OptionalColorToken => token in optionalColorFallbacks;
+
+/** The value of a token in a colour set – an optional one that is not set gives the token it follows */
+export const colorValue = (set: ColorSet, token: ColorToken | OptionalColorToken): string =>
+    isOptionalColorToken(token) ? (set[token] ?? set[optionalColorFallbacks[token]]) : set[token];
 
 export const fonts = {
     sans: ['"Schibsted Grotesk Variable"', '"Schibsted Grotesk"', 'ui-sans-serif', 'system-ui', 'sans-serif'],

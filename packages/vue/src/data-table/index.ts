@@ -21,6 +21,7 @@ export type {
     DataTableFilterInputProps,
     DataTableFilterRule,
     DataTableFilterType,
+    DataTableFooterProps,
     DataTableFilterValue,
     DataTableMatchMode,
     DataTableMatchModeDefinition,

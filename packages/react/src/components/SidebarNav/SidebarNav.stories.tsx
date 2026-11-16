@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { ChartColumn, House, LogOut, Server, Settings, Users } from 'lucide-react';
-import { useState } from 'react';
+import { useState, type ComponentProps } from 'react';
 import { SidebarNav, type SidebarNavItem, type SidebarNavProps } from './SidebarNav.js';
 
 const items: SidebarNavItem[] = [
@@ -96,3 +96,41 @@ export const RailExpandOnHover: Story = {
         </div>
     ),
 };
+
+// Stand-in for the Link of React Router or Next.js: gets `to` and renders the link for it
+const StoryLink = ({ to, ...props }: { to: string } & ComponentProps<'a'>) => <a {...props} href={`#${to}`} />;
+const routes: SidebarNavItem[] = [
+    { label: 'Overview', href: '/overview', to: '/overview', icon: House },
+    {
+        label: 'Infrastructure',
+        icon: Server,
+        children: [
+            { label: 'Server', href: '/server', to: '/server' },
+            { label: 'Networks', href: '/networks', to: '/networks' },
+        ],
+    },
+    { label: 'Settings', href: '/settings', to: '/settings', icon: Settings },
+];
+
+function RouterDemo(args: SidebarNavProps) {
+    const [path, setPath] = useState('/server');
+    return (
+        <SidebarNav
+            {...args}
+            items={routes}
+            linkAs={StoryLink}
+            currentHref={path}
+            className="w-60"
+            onNavigate={(item, event) => {
+                event.preventDefault();
+                setPath(item.href!);
+            }}
+        />
+    );
+}
+
+/**
+ * Router links: `linkAs` renders every link (React Router, Next.js, TanStack Link …) and gets `to`; `currentHref` (e.g.
+ * the route's path) marks the current page by `href` and opens its group – or `isCurrent` decides
+ */
+export const RouterLinks: Story = { render: (args) => <RouterDemo {...args} /> };

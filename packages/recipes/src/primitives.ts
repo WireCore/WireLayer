@@ -143,15 +143,22 @@ export const aspectRatio = tv({
     ],
 });
 
-/** Fixed in a corner of the window (`--wc-affix-offset`, default 24px) */
+/**
+ * Fixed in a corner of the window: `--wc-affix-offset` (default 24px) from both edges, `--wc-affix-offset-x` (start/end)
+ * and `--wc-affix-offset-y` (top/bottom) for one of them
+ */
 export const affix = tv({
     base: 'fixed z-40',
     variants: {
         position: {
-            'bottom-end': 'inset-e-[var(--wc-affix-offset,1.5rem)] bottom-[var(--wc-affix-offset,1.5rem)]',
-            'bottom-start': 'inset-s-[var(--wc-affix-offset,1.5rem)] bottom-[var(--wc-affix-offset,1.5rem)]',
-            'top-end': 'inset-e-[var(--wc-affix-offset,1.5rem)] top-[var(--wc-affix-offset,1.5rem)]',
-            'top-start': 'inset-s-[var(--wc-affix-offset,1.5rem)] top-[var(--wc-affix-offset,1.5rem)]',
+            'bottom-end':
+                'inset-e-[var(--wc-affix-offset-x,var(--wc-affix-offset,1.5rem))] bottom-[var(--wc-affix-offset-y,var(--wc-affix-offset,1.5rem))]',
+            'bottom-start':
+                'inset-s-[var(--wc-affix-offset-x,var(--wc-affix-offset,1.5rem))] bottom-[var(--wc-affix-offset-y,var(--wc-affix-offset,1.5rem))]',
+            'top-end':
+                'inset-e-[var(--wc-affix-offset-x,var(--wc-affix-offset,1.5rem))] top-[var(--wc-affix-offset-y,var(--wc-affix-offset,1.5rem))]',
+            'top-start':
+                'inset-s-[var(--wc-affix-offset-x,var(--wc-affix-offset,1.5rem))] top-[var(--wc-affix-offset-y,var(--wc-affix-offset,1.5rem))]',
         },
     },
     defaultVariants: {

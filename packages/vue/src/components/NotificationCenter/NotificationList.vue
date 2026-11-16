@@ -71,6 +71,17 @@ const itemStyles = (item: NotificationItem) => notificationCenter({ unread: !ite
                             >
                             {{ item.title }}
                         </a>
+                        <button
+                            v-else-if="item.clickable"
+                            type="button"
+                            :class="itemStyles(item).title({ class: [styles.titleLink(), styles.titleButton()] })"
+                            @click="emit('select', item, $event)"
+                        >
+                            <span v-if="!item.read" :class="styles.srOnly()"
+                                >{{ translations.notificationCenter.unread }}:</span
+                            >
+                            {{ item.title }}
+                        </button>
                         <span v-else :class="itemStyles(item).title()">
                             <span v-if="!item.read" :class="styles.srOnly()"
                                 >{{ translations.notificationCenter.unread }}:</span

@@ -2,7 +2,9 @@ import { screen, waitFor, within } from '@testing-library/dom';
 import { act, cleanup as cleanupReact } from '@testing-library/react';
 import { cleanup as cleanupVue } from '@testing-library/vue';
 import userEvent from '@testing-library/user-event';
+import { createElement } from 'react';
 import { describe, expect, it, vi } from 'vitest';
+import { defineComponent, h } from 'vue';
 import { el, frameworks, icon, normalize, render, type El, type Framework } from './harness.js';
 
 // Page shell: mega menu, app shell, banner, notification center, page header, bottom navigation, result,
@@ -357,7 +359,25 @@ describe.each(frameworks)('%s', (framework) => {
             await userEvent.click(within(panel).getByRole('button', { name: 'Mark as read: Backup complete' }));
             expect(onMarkRead).toHaveBeenCalledWith('a');
             await userEvent.click(within(panel).getByRole('button', { name: 'Mark all as read' }));
-            expect(onMarkAllRead).toHaveBeenCalledOnce();
+            // With the ids of the unread items shown, e.g. for one request to the server
+            expect(onMarkAllRead).toHaveBeenCalledExactlyOnceWith(['a', 'c']);
+        });
+
+        it('clickable items without href have a title button that reports select; others stay text', async () => {
+            const onSelect = vi.fn();
+            const list = [
+                { id: 'a', title: 'Nomination open', date: '2026-10-21T09:30:00', clickable: true },
+                { id: 'b', title: 'Invoice ready', date: '2026-10-21T08:00:00', read: true },
+            ];
+            await render(
+                framework,
+                el('NotificationCenter', { items: list, now: '2026-10-21T12:00:00', onSelect, open: true })
+            );
+            const panel = await screen.findByRole('dialog', { name: 'Notifications' });
+            await userEvent.click(within(panel).getByRole('button', { name: 'Unread: Nomination open' }));
+            expect(onSelect).toHaveBeenCalledWith(expect.objectContaining({ id: 'a' }), expect.anything());
+            expect(within(panel).queryByRole('button', { name: /Invoice ready/ })).not.toBeInTheDocument();
+            expect(within(panel).queryByRole('link')).not.toBeInTheDocument();
         });
 
         it('shows the empty state and loads more', async () => {
@@ -563,5 +583,77 @@ describe.each(frameworks)('%s', (framework) => {
             expect(screen.getByTestId('collapse')).toHaveAttribute('data-state', 'closed');
             expect(screen.getByRole('region', { name: 'Categories' })).toHaveAttribute('tabindex', '0');
         });
+    });
+});
+
+describe.each(frameworks)('%s SidebarNav with router links', (framework) => {
+    // Stand-in for RouterLink / React Router's Link: needs `to`, resolves the href itself
+    const RouterLink =
+        framework === 'vue'
+            ? defineComponent({
+                  props: { to: { type: String, required: true } },
+                  setup:
+                      (props, { slots }) =>
+                      () =>
+                          h('a', { href: `#${props.to}` }, slots.default?.()),
+              })
+            : ({ to, ...props }: { to: string }) => createElement('a', { ...props, href: `#${to}` });
+    const items = [
+        { label: 'Overview', to: '/' },
+        {
+            label: 'Infrastructure',
+            children: [
+                { label: 'Servers', href: '/servers', to: '/servers' },
+                { label: 'Networks', to: '/networks' },
+            ],
+        },
+    ];
+
+    it('hands `to` to linkAs and marks the item of currentHref, its group open', async () => {
+        const onNavigate = vi.fn();
+        await render(
+            framework,
+            el('SidebarNav', {
+                label: 'Main navigation',
+                items,
+                linkAs: RouterLink,
+                currentHref: '/servers',
+                onNavigate,
+            })
+        );
+        const overview = screen.getByRole('link', { name: 'Overview' });
+        expect(overview).toHaveAttribute('href', '#/');
+        expect(overview).not.toHaveAttribute('to');
+        expect(overview).not.toHaveAttribute('aria-current');
+        expect(screen.getByRole('link', { name: 'Servers' })).toHaveAttribute('aria-current', 'page');
+        await userEvent.click(overview);
+        expect(onNavigate).toHaveBeenCalledWith(expect.objectContaining({ label: 'Overview' }), expect.anything());
+    });
+
+    it('isCurrent decides for items without href', async () => {
+        await render(
+            framework,
+            el('SidebarNav', {
+                label: 'Main navigation',
+                items,
+                linkAs: RouterLink,
+                isCurrent: (item: { to?: string }) => item.to === '/networks',
+            })
+        );
+        expect(screen.getByRole('link', { name: 'Networks' })).toHaveAttribute('aria-current', 'page');
+        expect(screen.getByRole('link', { name: 'Servers' })).not.toHaveAttribute('aria-current');
+        expect(screen.getByRole('link', { name: 'Overview' })).not.toHaveAttribute('aria-current');
+    });
+});
+
+describe.each(frameworks)('%s Affix', (framework) => {
+    it('offsetX and offsetY set one edge each, offset stays the default of both', async () => {
+        await render(framework, el('Affix', { offset: '1rem', offsetY: '4rem' }, el('Button', {}, 'Help')));
+        const affix = screen.getByRole('button', { name: 'Help' }).parentElement!;
+        expect(affix.style.getPropertyValue('--wc-affix-offset')).toBe('1rem');
+        expect(affix.style.getPropertyValue('--wc-affix-offset-y')).toBe('4rem');
+        expect(affix.style.getPropertyValue('--wc-affix-offset-x')).toBe('');
+        expect(affix).toHaveClass('bottom-[var(--wc-affix-offset-y,var(--wc-affix-offset,1.5rem))]');
+        expect(affix).toHaveClass('inset-e-[var(--wc-affix-offset-x,var(--wc-affix-offset,1.5rem))]');
     });
 });

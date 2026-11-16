@@ -337,6 +337,18 @@
                     "description": "Distance from the edges, e.g. \"1rem\" (default 1.5rem)"
                 },
                 {
+                    "name": "offsetX",
+                    "type": "string",
+                    "optional": true,
+                    "description": "Distance from the side edge (start/end) only, e.g. \"1rem\" – instead of `offset`"
+                },
+                {
+                    "name": "offsetY",
+                    "type": "string",
+                    "optional": true,
+                    "description": "Distance from the top or bottom edge only, e.g. \"4rem\" above a banner – instead of `offset`"
+                },
+                {
                     "name": "classes",
                     "type": "RecipeClasses<typeof affixRecipe>",
                     "optional": true,
@@ -356,6 +368,18 @@
                         "type": "string",
                         "optional": true,
                         "description": "Distance from the edges, e.g. \"1rem\" (default 1.5rem)"
+                    },
+                    {
+                        "name": "offsetX",
+                        "type": "string",
+                        "optional": true,
+                        "description": "Distance from the side edge (start/end) only, e.g. \"1rem\" – instead of `offset`"
+                    },
+                    {
+                        "name": "offsetY",
+                        "type": "string",
+                        "optional": true,
+                        "description": "Distance from the top or bottom edge only, e.g. \"4rem\" above a banner – instead of `offset`"
                     },
                     {
                         "name": "classes",
@@ -9015,7 +9039,7 @@
             "description": "Data table on TanStack Table: sorting (also by several columns), search, filter row or filter menus with match modes, pagination, selection, column menu (pin, move, hide, group), resizing, column groups, totals, row details, row actions, row reordering, editing (cell or row), virtual scrolling, full screen, CSV export and saved state",
             "category": "Data",
             "story": "data-datatable--playground",
-            "extends": "Omit<\n    ComponentProps<'div'>,\n    'children' | 'ref' | 'contextMenu' | 'onScrollEnd' | 'onRowClick'\n>",
+            "extends": "Omit<\n    ComponentProps<'div'>,\n    'children' | 'ref' | 'contextMenu' | 'onScroll' | 'onScrollEnd' | 'onRowClick'\n>",
             "props": [
                 {
                     "name": "data",
@@ -9726,6 +9750,12 @@
                     "description": ""
                 },
                 {
+                    "name": "onScroll",
+                    "type": "(event: UIEvent<HTMLDivElement>) => void",
+                    "optional": true,
+                    "description": "The table's scroll area scrolled (down/up with `scrollHeight`, sideways when wider) – e.g. to close a popover anchored in a row that virtual scrolling removes"
+                },
+                {
                     "name": "stateKey",
                     "type": "string",
                     "optional": true,
@@ -10360,6 +10390,11 @@
                         "description": "Content of a cell, by column id"
                     },
                     {
+                        "name": "footer-<id>",
+                        "props": "DataTableFooterProps<TData>",
+                        "description": "Own content of a footer cell, by column id – e.g. totals as badges; the CSV export keeps the text"
+                    },
+                    {
                         "name": "filter-<id>",
                         "props": "DataTableFilterInputProps<TData>",
                         "description": "Own filter input of a column (filter row and filter menu), by column id"
@@ -10540,6 +10575,11 @@
                         "name": "scrollEnd",
                         "payload": "",
                         "description": ""
+                    },
+                    {
+                        "name": "scroll",
+                        "payload": "event: Event",
+                        "description": "The table's scroll area scrolled (down/up with `scrollHeight`, sideways when wider) – e.g. to close a popover anchored in a row that virtual scrolling removes"
                     },
                     {
                         "name": "cellSelectionChange",
@@ -22189,9 +22229,9 @@
                 },
                 {
                     "name": "onMarkAllRead",
-                    "type": "() => void",
+                    "type": "(ids: string[]) => void",
                     "optional": true,
-                    "description": ""
+                    "description": "\"Mark all as read\": the ids of the unread items shown – e.g. for one request to the server"
                 },
                 {
                     "name": "onLoadMore",
@@ -22201,9 +22241,9 @@
                 },
                 {
                     "name": "onSelect",
-                    "type": "(item: NotificationItem, event: MouseEvent<HTMLAnchorElement>) => void",
+                    "type": "(item: NotificationItem, event: MouseEvent<HTMLAnchorElement | HTMLButtonElement>) => void",
                     "optional": true,
-                    "description": "The title link of an item was clicked"
+                    "description": "The title of an item was clicked: its link, or its button (`clickable` without `href`)"
                 },
                 {
                     "name": "renderActions",
@@ -22313,8 +22353,8 @@
                     },
                     {
                         "name": "markAllRead",
-                        "payload": "",
-                        "description": ""
+                        "payload": "ids: string[]",
+                        "description": "\"Mark all as read\": the ids of the unread items shown – e.g. for one request to the server"
                     },
                     {
                         "name": "loadMore",
@@ -22324,7 +22364,7 @@
                     {
                         "name": "select",
                         "payload": "item: NotificationItem, event: MouseEvent",
-                        "description": "The title link of an item was clicked"
+                        "description": "The title of an item was clicked: its link, or its button (`clickable` without `href`)"
                     }
                 ]
             }
@@ -29141,7 +29181,25 @@
                     "name": "onNavigate",
                     "type": "(item: SidebarNavItem, event: MouseEvent<HTMLAnchorElement>) => void",
                     "optional": true,
-                    "description": "A link was clicked – call event.preventDefault() and route yourself in a single-page app"
+                    "description": "A link was clicked – call event.preventDefault() and route yourself in a single-page app (or use `linkAs`)"
+                },
+                {
+                    "name": "linkAs",
+                    "type": "ElementType",
+                    "optional": true,
+                    "description": "Component for the links, e.g. Link of React Router or Next.js (gets `to` for items with `to`, else `href`); default <a>"
+                },
+                {
+                    "name": "currentHref",
+                    "type": "string",
+                    "optional": true,
+                    "description": "Path of the current page – the item with exactly this href gets aria-current=\"page\" (its groups start open)"
+                },
+                {
+                    "name": "isCurrent",
+                    "type": "(item: SidebarNavItem) => boolean",
+                    "optional": true,
+                    "description": "Own check for the current page, e.g. with the router"
                 },
                 {
                     "name": "rail",
@@ -29199,6 +29257,24 @@
                         "type": "string",
                         "optional": false,
                         "description": "Name of the navigation landmark, e.g. \"Main navigation\""
+                    },
+                    {
+                        "name": "linkAs",
+                        "type": "string | Component",
+                        "optional": true,
+                        "description": "Component for the links, e.g. RouterLink or NuxtLink (gets `to` for items with `to`, else `href`); default <a>"
+                    },
+                    {
+                        "name": "currentHref",
+                        "type": "string",
+                        "optional": true,
+                        "description": "Path of the current page – the item with exactly this href gets aria-current=\"page\" (its groups start open)"
+                    },
+                    {
+                        "name": "isCurrent",
+                        "type": "(item: SidebarNavItem) => boolean",
+                        "optional": true,
+                        "description": "Own check for the current page, e.g. with the router"
                     },
                     {
                         "name": "rail",
@@ -37850,6 +37926,11 @@
             "text": "A theme overrides any colors per mode. `themeToCss` generates the CSS for it,\n`checkTheme` checks all contrasts against WCAG 2.2 AA – ideally as a test in your project:\n\n```ts\nimport { checkTheme, defineTheme, themeToCss } from '@wirecore/wirelayer-tokens';\n\nexport const brand = defineTheme({\n    name: 'brand',\n    label: 'Brand',\n    colors: {\n        light: { primary: 'oklch(0.5 0.18 30)', 'on-primary': '#FFFFFF' },\n        dark: { primary: 'oklch(0.75 0.14 30)', 'on-primary': '#050505' },\n    },\n});\n\n// brand.test.ts\nexpect(checkTheme(brand)).toEqual([]);\n\n// build script → brand.css, import it after @wirecore/wirelayer-vue/styles.css\nwriteFileSync('brand.css', themeToCss(brand));\n```\n\nAll bundled themes pass this check in both modes.\n\nWhen a pair misses its contrast, `suggestThemeFixes` says how to fix it: per pair the nearest variant of a colour that\nmeets it – its lightness moved in OKLCH, the hue kept – and, where text sits on the colour, a light or dark `on-*`\ncolour. A suggestion never breaks a pair that passed:\n\n```ts\nimport { suggestThemeFixes } from '@wirecore/wirelayer-tokens';\n\nsuggestThemeFixes(brand);\n// [{ name: 'primary: text-on-primary on bg-primary', mode: 'light', ratio: 2.6, min: 4.5,\n//    color: { token: 'primary', value: '#a35c00', ratio: 4.5 },\n//    on: { token: 'on-primary', value: '#050505', ratio: 8.1 } }, …]\n```"
         },
         {
+            "id": "themes-second-brand-color-and-hover-color",
+            "title": "Second brand color and hover color",
+            "text": "Three more tokens are optional – a theme sets them only when it needs them. Without them they follow another token, so\na theme without them looks as before:\n\n| Token           | Without it   | Used by                                                                                                                                           |\n| --------------- | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------- |\n| `accent`        | `primary`    | A second brand color for your own markup: `bg-accent`, `text-accent`, `border-accent` (no component uses it)                                      |\n| `on-accent`     | `on-primary` | Text on the accent: `text-on-accent`                                                                                                              |\n| `primary-hover` | see right    | Hover of the primary color: the fill of solid primary buttons (else the fill fades to 85 %) and the text of tinted ones (else it stays `primary`) |\n\n`primary-hover` is the answer to a strong brand color: a fill that fades on hover, or a tint behind the text, can drop\nit below 4.5:1 although the color itself passes. Tinted means `soft`, `outline` and `text` buttons in the primary color\nand avatar buttons with `color=\"primary\"`.\n\n```ts\nexport const brand = defineTheme({\n    name: 'brand',\n    label: 'Brand',\n    colors: {\n        light: {\n            primary: '#a33d00',\n            'on-primary': '#FFFFFF',\n            'primary-hover': '#8a3300',\n            accent: '#00696d',\n            'on-accent': '#FFFFFF',\n        },\n        dark: {\n            primary: '#e95a00',\n            'on-primary': '#050505',\n            'primary-hover': '#f5772a',\n            accent: '#2aa0a5',\n            'on-accent': '#050505',\n        },\n    },\n});\n```\n\n`checkTheme` checks the accent (text on it, and as text on `bg`, `bg-2` and `card`) once a theme sets `accent` or\n`on-accent` in a mode. The hover pairs of the primary color use `primary-hover` when it is set, and `suggestThemeFixes`\nsuggests one `primary-hover` that meets all of them, before it would change `primary` itself.\n\n**Changed with `@wirecore/wirelayer-tokens` 0.6 and `@wirecore/wirelayer-recipes` 0.9:**\n\n- Solid primary buttons without `primary-hover` fade only their fill on hover (`color-mix`, 85 %); before, the whole\n  button faded with `opacity`, the text included. In the bundled themes this looks the same – the text has the color\n  of the page – and the contrast is never lower. Solid success, danger, info, warn and contrast buttons still fade with\n  `opacity`.\n- `checkTheme` checks tinted primary text at rest as well: `soft primary: text-primary on bg-primary/10` (on `bg`,\n  `bg-2`, `card`) and `avatar primary: text-primary on primary/14 (card)`. Before, the stricter hover pairs covered\n  them; with `primary-hover` the hover has a text color of its own. A theme that missed a tinted hover may therefore be\n  reported for these pairs as well."
+        },
+        {
             "id": "themes-component-sizes-and-shapes",
             "title": "Component sizes and shapes",
             "text": "Besides the colors, a few measures that a brand usually changes are CSS variables. Without them every component looks as\nbefore – their defaults are the values of the recipes. Set them on `:root` (all pages), on a `[data-theme]` or on any\nelement (that part of the page):\n\n```css\n:root {\n    --wc-control-h-md: 2.625rem; /* buttons and fields of the medium size: 42px */\n    --wc-control-text-md: 1rem;\n    --wc-control-radius-md: 0.375rem;\n    --wc-button-radius: 0.375rem;\n    --wc-card-p: 1.25rem;\n    --wc-backdrop: rgb(0 0 0 / 0.4);\n}\n```\n\n| Variable                                              | Default                    | Applies to                                                                                                                                                                                     |\n| ----------------------------------------------------- | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |\n| `--wc-control-h-sm` / `-md` / `-lg`                   | `2rem` / `2.5rem` / `3rem` | Height of the sizes sm, md, lg: Button, IconButton, Input, NativeSelect, Select, MultiSelect, Combobox, NumberInput, PasswordInput, the date and time fields, ColorPicker, TagsInput (minimum) |\n| `--wc-control-radius-sm` / `-md` / `-lg`              | `6px` / `8px` / `10px`     | Corners of the fields above and of Textarea (not of buttons)                                                                                                                                   |\n| `--wc-control-text-sm` / `-md` / `-lg`                | `13px` / `15px` / `16px`   | Text in the fields above and in Textarea                                                                                                                                                       |\n| `--wc-button-radius`                                  | `8px`                      | Corners of Button and IconButton with `shape=\"rounded\"` (`pill` and `square` stay)                                                                                                             |\n| `--wc-card-p`                                         | `1.5rem`                   | Padding of Card                                                                                                                                                                                |\n| `--wc-backdrop`                                       | `rgb(0 0 0 / 0.6)`         | Dimming behind Dialog, Drawer and ConfirmDialog                                                                                                                                                |\n| `--radius-card` / `--radius-panel` / `--radius-popup` | `20px` / `28px` / `12px`   | Corners of cards, panels and popups (menus, lists, popovers)                                                                                                                                   |\n| `--wc-dialog-w`                                       | by `size`                  | Width of a DialogContent                                                                                                                                                                       |\n\nThe rest – the padding of a dialog or of table cells, the size of a single variant – is set per part with `classes` or\n`RecipesProvider` (_Getting started › Welcome › Customizing_). The React Native components keep their fixed sizes."
@@ -45748,9 +45829,9 @@
                     },
                     {
                         "name": "onMarkAllRead",
-                        "type": "() => void",
+                        "type": "(ids: string[]) => void",
                         "optional": true,
-                        "description": ""
+                        "description": "\"Mark all as read\": the ids of the unread items shown – e.g. for one request to the server"
                     },
                     {
                         "name": "onLoadMore",

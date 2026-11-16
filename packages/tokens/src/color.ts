@@ -75,7 +75,11 @@ export function parse(color: string): Rgba {
     }
     const oklch = color.match(/^oklch\(([^)]+)\)$/)?.[1];
     if (oklch) {
-        const [l = 0, c = 0, h = 0] = oklch.trim().split(/\s+/).map(Number);
+        // Minified CSS writes the lightness in percent: `oklch(47% .13 155)`; 100% chroma is 0.4 (CSS Color 4)
+        const [l = 0, c = 0, h = 0] = oklch
+            .trim()
+            .split(/\s+/)
+            .map((part, i) => (part.endsWith('%') ? (parseFloat(part) / 100) * (i === 1 ? 0.4 : 1) : Number(part)));
         return oklchToRgb(l, c, h);
     }
     throw new Error(`Unsupported colour: ${color}`);

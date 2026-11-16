@@ -292,6 +292,15 @@ Worth reading before changing the affected areas.
 - **Info and warn buttons** only fade to 90 % on hover (`hover:opacity-90`): at 85 %, white text would drop below 4.5:1.
   Tinted buttons (`soft`) use the tint of the badges (`/10`, hover `/14`), colored outline/text buttons `/8` – all pairs
   are in the token contrast test.
+- **Hover of a strong primary colour:** an orange `primary` with white text met 4.5:1, its faded hover (85 %) and the
+  primary text on its tints (`/8`, `/14`, avatar 18 %) did not. The optional token `primary-hover` is the fill of solid
+  primary buttons and the text of tinted ones on hover. Without it the fill fades via
+  `color-mix(… var(--wc-primary) 85%, transparent)` (an `opacity` cannot depend on whether a variable is set), the text
+  stays `primary`. Since the hover may now have its own text colour, the contrast check also covers tinted primary at
+  rest (soft `/10`, avatar 14 %) – the hover pairs no longer imply it.
+- **Optional colour tokens** (`accent`, `on-accent`, `primary-hover`) are not declared on `:root`: the Tailwind colour
+  reads `var(--wc-accent, var(--wc-primary))`, so it follows the `primary` of a nested `data-theme`. A value on `:root`
+  would be resolved there and inherited as a fixed colour. React Native gets the resolved values per theme.
 - **Contrast on bg-2:** tinted badges and the hover of `soft` buttons were at ~4.2:1 on `bg-2` (light only). Status
   tones are darker (`info` 0.50, `warn` 0.505, `danger` 0.515); the contrast test now checks every tint on bg, bg-2 and
   card.

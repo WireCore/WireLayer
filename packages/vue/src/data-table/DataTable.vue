@@ -178,6 +178,7 @@ import type {
     DataTableEditorProps,
     DataTableFeature,
     DataTableFilterInputProps,
+    DataTableFooterProps,
     DataTablePivot,
     DataTablePrintOptions,
     DataTableRowAction,
@@ -489,6 +490,11 @@ const emit = defineEmits<{
     loadMore: [];
     /** @deprecated Same as `loadMore` (the name of the other lists) */
     scrollEnd: [];
+    /**
+     * The table's scroll area scrolled (down/up with `scrollHeight`, sideways when wider) – e.g. to close a popover
+     * anchored in a row that virtual scrolling removes
+     */
+    scroll: [event: Event];
     /** The selected range of cells changed (`cellSelection`; null: none) */
     cellSelectionChange: [selection: DataTableCellSelection<TData> | null];
     /** Cells were pasted – call `preventDefault()` to keep them out of the table (cell-edit events follow otherwise) */
@@ -500,6 +506,9 @@ defineSlots<
     {
         /** Content of a cell, by column id */
         [cell: `cell-${string}`]: (props: { row: TData; value: unknown }) => unknown;
+    } & {
+        /** Own content of a footer cell, by column id – e.g. totals as badges; the CSV export keeps the text */
+        [footer: `footer-${string}`]: (props: DataTableFooterProps<TData>) => unknown;
     } & {
         /** Own filter input of a column (filter row and filter menu), by column id */
         [filter: `filter-${string}`]: (props: DataTableFilterInputProps<TData>) => unknown;
@@ -1515,7 +1524,9 @@ const allExpanded = computed(() => table.getIsAllRowsExpanded());
 
 // Aggregates in group rows and the footer
 const aggregated = computed(() => leafDefs.value.some((column) => column.aggregate));
-const hasFooter = computed(() => leafDefs.value.some((column) => column.aggregate || column.footer));
+const hasFooter = computed(() =>
+    leafDefs.value.some((column) => column.aggregate || column.footer || slots[`footer-${column.id}`])
+);
 function formatAggregate(column: DataTableColumn<TData>, value: unknown, row?: TData) {
     if (value === null || value === undefined) return '';
     if (column.format && row) return column.format(value, row);
@@ -1537,6 +1548,17 @@ function footerText(column: DataTableColumn<TData>) {
     if (!column.aggregate) return '';
     const value = aggregateOf(column, table.getFilteredRowModel().flatRows as TableRow[]);
     return typeof column.aggregate === 'string' ? (t.aggregates[column.aggregate]?.(value) ?? value) : value;
+}
+/** What the slot of a footer cell gets: the total and the rows it is computed from */
+function footerProps(column: DataTableColumn<TData>): DataTableFooterProps<TData> {
+    const leaves = (table.getFilteredRowModel().flatRows as TableRow[]).filter((row) => !row.getIsGrouped());
+    const value = column.aggregate
+        ? aggregateValues(
+              leaves.map((row) => rawValue(column, row.original)),
+              column.aggregate
+          )
+        : undefined;
+    return { value, text: footerText(column), rows: leaves.map((row) => row.original) };
 }
 
 // Row actions and context menu
@@ -2794,6 +2816,8 @@ watch(
     () => (endReported = false)
 );
 function onScroll(event: Event) {
+    emit('scroll', event);
+    if (!props.scrollHeight) return;
     const element = event.currentTarget as HTMLElement;
     if (endReported || element.scrollTop + element.clientHeight < element.scrollHeight - 80) return;
     endReported = true;
@@ -3347,7 +3371,7 @@ const bottomEndPositioning = { placement: 'bottom-end', gutter: 4 } as const;
                 ref="scroll"
                 :class="styles.scroll()"
                 :style="scrollHeight ? { maxHeight: scrollHeight } : undefined"
-                @scroll="scrollHeight ? onScroll($event) : undefined"
+                @scroll="onScroll"
             >
                 <table
                     ref="tableElement"
@@ -4309,7 +4333,12 @@ const bottomEndPositioning = { placement: 'bottom-end', gutter: 4 } as const;
                                 "
                                 :style="cellStyle(column.id, false)"
                             >
-                                {{ footerText(columnById.get(column.id)!) }}
+                                <slot
+                                    v-if="$slots[`footer-${column.id}`]"
+                                    :name="`footer-${column.id}`"
+                                    v-bind="footerProps(columnById.get(column.id)!)"
+                                />
+                                <template v-else>{{ footerText(columnById.get(column.id)!) }}</template>
                             </td>
                             <td
                                 v-if="trailing.length"
