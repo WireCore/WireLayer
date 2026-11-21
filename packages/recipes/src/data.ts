@@ -251,6 +251,14 @@ export const dataTable = tv({
             false: {},
         },
         /**
+         * Every column with a value can be sorted (`sortable` on the table) – no classes of its own: a variant so
+         * `defaultVariants: { sortable: true }` makes the columns of every table of the app sortable
+         */
+        sortable: {
+            true: {},
+            false: {},
+        },
+        /**
          * Place of the search field (`searchAlign`, only with `search`): `start` right after the toolbar start, `center`
          * in the middle between the controls at the start and the end – the end group stays at the end
          */

@@ -289,6 +289,11 @@ export interface DataTableProps<T> {
      */
     advancedFilter?: boolean | ConditionField[];
     advancedFilterValue?: ConditionGroup;
+    /**
+     * Every column with a value can be sorted, unless the column sets `sortable: false`; columns without a value (only
+     * a slot, e.g. actions) stay out. App-wide: `dataTable: { defaultVariants: { sortable: true } }`
+     */
+    sortable?: boolean;
     /** Search field above the table: filters over all columns (v-model:global-filter) */
     search?: boolean;
     /**
@@ -438,6 +443,7 @@ const props = withDefaults(defineProps<DataTableProps<TData>>(), {
     stateExclude: () => ['selection'],
     allSelection: undefined,
     showFilters: undefined,
+    sortable: undefined,
     gridlines: undefined,
     bordered: undefined,
     striped: undefined,
@@ -1188,7 +1194,15 @@ const headLabelClass = (column: TableColumn) =>
 
 // Sorting
 /** Whether the user can sort by the column (its header button, the column menu) */
-const canSort = (columnId: string) => !!columnById.value.get(columnId)?.sortable;
+const canSort = (columnId: string) => {
+    const column = columnById.value.get(columnId);
+    return !!column && (column.sortable ?? ((props.sortable ?? !!recipeDefaults().sortable) && hasValue(column)));
+};
+/** A column with a value of its own (an own sort, an accessor or a field of the rows) – not one only for a slot */
+const hasValue = (column: DataTableColumn<TData>) => {
+    const first = tableData.value[0] as object | undefined;
+    return !!column.sortFn || column.accessor !== undefined || (!!first && column.id in first);
+};
 const ariaSort = (columnId: string) => {
     const first = sorting.value[0];
     if (first?.id === columnId) return first.desc ? 'descending' : 'ascending';

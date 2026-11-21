@@ -795,6 +795,36 @@ describe.each(frameworks)('%s DataTable', (framework) => {
         expect(plain).toHaveClass('ms-auto');
     });
 
+    it('sortable on the table (or app-wide): every column with a value, not sortable: false, not a slot column', async () => {
+        const mixed = [
+            { id: 'name', header: 'Name' },
+            { id: 'location', header: 'Location', sortable: false },
+            { id: 'load', header: 'Load' },
+            { id: 'tools', header: 'Tools' },
+        ];
+        const sortButton = (caption: string, header: string) =>
+            within(
+                within(screen.getByRole('table', { name: caption })).getByRole('columnheader', { name: header })
+            ).queryByRole('button');
+        await render(
+            framework,
+            el(
+                'RecipesProvider',
+                { recipes: { dataTable: { defaultVariants: { sortable: true } } } },
+                table({ columns: mixed }),
+                table({ caption: 'Own', columns: mixed, sortable: false })
+            )
+        );
+        expect(sortButton('Server', 'Name')).not.toBeNull();
+        expect(sortButton('Server', 'Load')).not.toBeNull();
+        expect(sortButton('Server', 'Location')).toBeNull();
+        expect(sortButton('Server', 'Tools')).toBeNull();
+        expect(sortButton('Own', 'Name')).toBeNull();
+        await userEvent.click(sortButton('Server', 'Load')!);
+        const firstRow = within(screen.getByRole('table', { name: 'Server' })).getAllByRole('row')[1]!;
+        expect(firstRow).toHaveTextContent('k8s-node-3');
+    });
+
     it('defaultSorting also sorts by a column the user cannot sort', async () => {
         const fixed = columns.map((column) => (column.id === 'load' ? { ...column, sortable: false } : column));
         await render(framework, table({ columns: fixed, defaultSorting: { id: 'load', desc: true } }));

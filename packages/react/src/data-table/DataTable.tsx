@@ -339,6 +339,11 @@ export interface DataTableProps<TData> extends Omit<
      * `@wirecore/wirelayer-blocks-react`: gets the fields, the tree, the setter and the label of the panel
      */
     renderAdvancedFilter?: (props: DataTableAdvancedFilterProps) => ReactNode;
+    /**
+     * Every column with a value can be sorted, unless the column sets `sortable: false`; columns without a value (only
+     * a slot, e.g. actions) stay out. App-wide: `dataTable: { defaultVariants: { sortable: true } }`
+     */
+    sortable?: boolean;
     /** Search field above the table: filters over all columns */
     search?: boolean;
     /**
@@ -632,6 +637,7 @@ export function DataTable<TData extends object>({
     advancedFilterValue,
     onAdvancedFilterValueChange,
     renderAdvancedFilter,
+    sortable: sortableProp,
     search = false,
     searchAlign: searchAlignProp,
     globalFilter: globalFilterProp,
@@ -1273,7 +1279,15 @@ export function DataTable<TData extends object>({
 
     // Sorting
     /** Whether the user can sort by the column (its header button, the column menu) */
-    const canSort = (columnId: string) => !!columnById.get(columnId)?.sortable;
+    const canSort = (columnId: string) => {
+        const column = columnById.get(columnId);
+        return !!column && (column.sortable ?? ((sortableProp ?? !!recipeDefaults.sortable) && hasValue(column)));
+    };
+    /** A column with a value of its own (an own sort, an accessor or a field of the rows) – not one only for a slot */
+    const hasValue = (column: DataTableColumn<TData>) => {
+        const first = data[0] as object | undefined;
+        return !!column.sortFn || column.accessor !== undefined || (!!first && column.id in first);
+    };
     const ariaSort = (columnId: string) => {
         const first = sorting[0];
         if (first?.id === columnId) return first.desc ? 'descending' : 'ascending';
