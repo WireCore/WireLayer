@@ -457,6 +457,8 @@ describe.each(frameworks)('%s', (framework) => {
                 void open('Server');
             });
             expect(titleIn(await screen.findByRole('dialog', { name: 'Server' }), 'Server')).toBe('header');
+            // Let the first dialog hide the page below it before the second one opens
+            await tick(20);
             await act(async () => {
                 void open('Log', 'body');
             });
