@@ -921,6 +921,50 @@ describe.each(frameworks)('%s DataTable', (framework) => {
         expect(container.querySelector('[data-scope="date-picker"]')).not.toBeNull();
     });
 
+    it('filter row: select, multiSelect and date fields are small like the text fields', async () => {
+        const container = await render(
+            framework,
+            table({
+                columns: [
+                    { id: 'name', header: 'Name', filter: 'text' },
+                    { id: 'location', header: 'Location', filter: 'select', filterOptions: ['Frankfurt'] },
+                    { id: 'load', header: 'Load', filter: 'multiSelect', filterOptions: ['42'] },
+                    { id: 'since', header: 'Since', filter: 'date' },
+                ],
+                features: [feature('dateInput')],
+            })
+        );
+        const filterRow = container.querySelector('thead tr:last-child')!;
+        const small = 'h-[var(--wc-control-h-sm,2rem)]';
+        // The select and multi select triggers have the small control height of the text field
+        for (const name of ['Filter Location', 'Filter Load'])
+            expect(
+                within(filterRow as HTMLElement)
+                    .getByRole('combobox', { name })
+                    .closest(`.${CSS.escape(small)}`)
+            ).not.toBeNull();
+    });
+
+    it('dateRangeInput: one DateRangePicker for a between date filter instead of two fields', async () => {
+        const columnsWithSince = [
+            ...columns,
+            { id: 'since', header: 'Since', filter: 'date', filterMatchMode: 'between' },
+        ];
+        const container = await render(
+            framework,
+            el(
+                'div',
+                {},
+                table({ columns: columnsWithSince, features: [feature('dateInput'), feature('dateRangeInput')] }),
+                table({ caption: 'Two', columns: columnsWithSince, features: [feature('dateInput')] })
+            )
+        );
+        const [withRange, withoutRange] = container.querySelectorAll('table');
+        expect(withRange!.querySelectorAll('thead [data-scope="date-picker"][data-part="root"]')).toHaveLength(1);
+        expect(within(withRange!).queryByRole('textbox', { name: /Filter Since, from/ })).toBeNull();
+        expect(withoutRange!.querySelectorAll('thead [data-scope="date-picker"][data-part="root"]')).toHaveLength(2);
+    });
+
     const many = Array.from({ length: 200 }, (_, index) => ({
         ...fleet[0]!,
         id: `web-${index}`,

@@ -37485,6 +37485,11 @@
             "description": "DataTable feature: the DatePicker for `date` and `datetime` filters and editors (without: the browser's date input)"
         },
         {
+            "name": "dateRangeInput",
+            "subpath": "/data-table",
+            "description": "DataTable feature: the DateRangePicker for `between` filters of `date` and `datetime` columns – one field for from and to (without: two fields)"
+        },
+        {
             "name": "defaultBubbleTools",
             "subpath": "/editor",
             "description": "Tools of the bubble menu (text selected) by default"
@@ -52073,6 +52078,11 @@
                 "name": "dateInput",
                 "subpath": "/data-table",
                 "description": "DataTable feature: the DatePicker for `date` and `datetime` filters and editors (without: the browser's date input)"
+            },
+            {
+                "name": "dateRangeInput",
+                "subpath": "/data-table",
+                "description": "DataTable feature: the DateRangePicker for `between` filters of `date` and `datetime` columns – one field for from and to (without: two fields)"
             },
             {
                 "name": "defaultBubbleTools",

@@ -1515,6 +1515,9 @@ export function DataTable<TData extends object>({
         setFilter(column.id, { operator: 'and', constraints: [{ matchMode: rowMode(column), value }] });
     };
     /** From (0) or to (1) of a range in the filter row */
+    /** A date range in one field (dateRangeInput feature) instead of from and to */
+    const dateRange = (column: DataTableColumn<TData>) =>
+        !!feature.dateRangeInput && ['date', 'datetime'].includes(rowInput(column));
     const rangePart = (column: DataTableColumn<TData>, part: 0 | 1) => {
         const current = rowFilterValue(column);
         return Array.isArray(current) ? current[part] : null;
@@ -4126,6 +4129,15 @@ export function DataTable<TData extends object>({
                                                         setValue: (next) => setRowFilter(def, next),
                                                         column: def,
                                                     })
+                                                ) : isRangeMatchMode(rowMode(def)) && dateRange(def) ? (
+                                                    <ValueInput
+                                                        range
+                                                        type={rowInput(def)}
+                                                        label={t.filter(label(column))}
+                                                        inputProps={def.filterInputProps}
+                                                        value={rowFilterValue(def)}
+                                                        onChange={(next) => setRowFilter(def, next)}
+                                                    />
                                                 ) : isRangeMatchMode(rowMode(def)) ? (
                                                     <div className={styles.filterRowRange()}>
                                                         {([0, 1] as const).map((part) => (

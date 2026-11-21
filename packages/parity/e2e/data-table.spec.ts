@@ -376,3 +376,21 @@ test.describe('DataTable search in the middle', () => {
         expect(start.height).toBe(columns.height);
     });
 });
+
+test.describe('DataTable filter row', () => {
+    test('all fields of the filter row are equally high; a date range is one field', async ({ page }) => {
+        await openStory(page, 'data-datatable--own-filters');
+        const heights = await page.getByRole('table', { name: 'Services' }).evaluate((table) =>
+            [...table.querySelectorAll('thead tr:last-child td')]
+                .map((cell) => cell.firstElementChild)
+                .filter(
+                    (field): field is Element =>
+                        !!field && !field.querySelector('[role=checkbox], button[role=checkbox]')
+                )
+                .map((field) => Math.round(field.getBoundingClientRect().height))
+        );
+        expect(heights.length).toBeGreaterThan(3);
+        expect(new Set(heights).size).toBe(1);
+        await expect(page.getByRole('textbox', { name: /Filter Since, from/ })).toHaveCount(0);
+    });
+});

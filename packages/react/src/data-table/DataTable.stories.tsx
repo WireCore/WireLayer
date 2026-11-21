@@ -11,7 +11,7 @@ import { Progress } from '../components/Progress/Progress.js';
 import { Select } from '../components/Select/Select.js';
 import { Switch } from '../components/Switch/Switch.js';
 import { DataTable, type DataTableHandle, type DataTableProps } from './DataTable.js';
-import { dateInput, defineMatchMode, moveItem, moveTreeRow, numberInput } from './index.js';
+import { dateInput, dateRangeInput, defineMatchMode, moveItem, moveTreeRow, numberInput } from './index.js';
 import { virtualRows } from '../virtual/index.js';
 import type { DataTableColumn, DataTablePivot, RowsRequest } from './types.js';
 import type { ConditionGroup } from '@wirecore/wirelayer-recipes';
@@ -774,13 +774,15 @@ const serviceColumns: DataTableColumn<ServiceRow>[] = [
 
 /**
  * Own filters: an own input per column (renderFilter), an own comparison (`filterFn`), an own match mode for lists,
- * ranges in the filter row, choices with values of their own (grouped, several). The filter row can be hidden.
+ * ranges in the filter row (dates in one field with the feature dateRangeInput), choices with values of their own
+ * (grouped, several). The filter row can be hidden.
  */
 export const OwnFilters: Story = {
     name: 'Custom filters',
     render: () => (
         <DataTable<ServiceRow>
-            features={features}
+            // The date range of `since` in one field
+            features={[...features, dateRangeInput]}
             data={services}
             columns={serviceColumns}
             caption="Services"

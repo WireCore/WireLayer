@@ -2,7 +2,15 @@ import { Container, Database, EllipsisVertical, HardDrive, Pencil, Server } from
 import type { Meta, StoryObj } from '@storybook/vue3-vite';
 import type { ConditionGroup } from '@wirecore/wirelayer-recipes';
 import { computed, ref, type ConcreteComponent } from 'vue';
-import { dateInput, defineMatchMode, moveItem, moveTreeRow, numberInput, type RowsRequest } from './index.js';
+import {
+    dateInput,
+    dateRangeInput,
+    defineMatchMode,
+    moveItem,
+    moveTreeRow,
+    numberInput,
+    type RowsRequest,
+} from './index.js';
 import { virtualRows } from '../virtual/index.js';
 import Badge from '../components/Badge/Badge.vue';
 import Button from '../components/Button/Button.vue';
@@ -886,14 +894,16 @@ const serviceColumns = [
 
 /**
  * Own filters: an own input per column (slot), an own comparison (`filterFn`), an own match mode for lists,
- * ranges in the filter row, choices with values of their own (grouped, several). The filter row can be hidden.
+ * ranges in the filter row (dates in one field with the feature dateRangeInput), choices with values of their own
+ * (grouped, several). The filter row can be hidden.
  */
 export const OwnFilters: Story = {
     name: 'Custom filters',
     render: () => ({
         components: { Badge, Checkbox, DataTable: DataTable as ConcreteComponent },
         setup: () => ({
-            features,
+            // The date range of `since` in one field
+            features: [...features, dateRangeInput],
             rows: services,
             columns: serviceColumns,
             card,

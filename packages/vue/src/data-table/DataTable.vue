@@ -1432,6 +1432,9 @@ function setRowRange(column: DataTableColumn<TData>, part: 0 | 1, value: unknown
     range[part] = value;
     setRowFilter(column, range);
 }
+/** A date range in one field (dateRangeInput feature) instead of from and to */
+const dateRange = (column: DataTableColumn<TData>) =>
+    !!feature.dateRangeInput && ['date', 'datetime'].includes(rowInput(column));
 const rangePart = (column: DataTableColumn<TData>, part: 0 | 1) => {
     const current = rowFilterValue(column);
     return Array.isArray(current) ? current[part] : null;
@@ -3651,6 +3654,18 @@ const toolbarSize = sizeOverrides('sm') as RecipeConfig;
                                                 setRowFilter(columnById.get(column.id)!, value),
                                             column: columnById.get(column.id)!,
                                         }"
+                                    />
+                                    <ValueInput
+                                        v-else-if="
+                                            isRangeMatchMode(rowMode(columnById.get(column.id)!)) &&
+                                            dateRange(columnById.get(column.id)!)
+                                        "
+                                        range
+                                        :type="rowInput(columnById.get(column.id)!)"
+                                        :label="t.filter(label(column))"
+                                        :input-props="columnById.get(column.id)!.filterInputProps"
+                                        :model-value="rowFilterValue(columnById.get(column.id)!)"
+                                        @update:model-value="setRowFilter(columnById.get(column.id)!, $event)"
                                     />
                                     <div
                                         v-else-if="isRangeMatchMode(rowMode(columnById.get(column.id)!))"

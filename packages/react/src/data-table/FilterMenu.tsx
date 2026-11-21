@@ -15,12 +15,13 @@ import {
     type DataTableMatchMode,
 } from '@wirecore/wirelayer-recipes';
 import { Filter, Plus, Trash2 } from 'lucide-react';
-import { useState, type ReactNode } from 'react';
+import { useContext, useState, type ReactNode } from 'react';
 import { Button } from '../components/Button/Button.js';
 import { IconButton } from '../components/IconButton/IconButton.js';
 import type { ListItemState } from '../components/Select/list.js';
 import { Select } from '../components/Select/Select.js';
 import { useLocale, useTranslations } from '../components/LocaleProvider/LocaleProvider.js';
+import { FeatureContext } from './features.js';
 import type { DataTableFilterInputOptions } from './types.js';
 import { ValueInput } from './ValueInput.js';
 import { useRecipe } from '../components/RecipesProvider/RecipesProvider.js';
@@ -64,6 +65,10 @@ export function FilterMenu({
     const modes = matchModesFor(type, matchModes);
     /** Input of a condition: the one of an own match mode, or of the filter type */
     const inputType = (mode: DataTableMatchMode) => matchModeDefinition(mode)?.input ?? type;
+    // A date range in one field (dateRangeInput feature) instead of from and to
+    const feature = useContext(FeatureContext);
+    const dateRange = (mode: DataTableMatchMode) =>
+        !!feature.dateRangeInput && ['date', 'datetime'].includes(inputType(mode));
 
     const onOpenChange = (next: boolean) => {
         // A copy: nothing changes until "Apply"
@@ -175,6 +180,15 @@ export function FilterMenu({
                                             value: constraint.value,
                                             setValue: (next) => update(index, { value: next }),
                                         })
+                                    ) : isRangeMatchMode(constraint.matchMode) && dateRange(constraint.matchMode) ? (
+                                        <ValueInput
+                                            range
+                                            type={inputType(constraint.matchMode)}
+                                            label={t.value(index)}
+                                            inputProps={inputProps}
+                                            value={constraint.value}
+                                            onChange={(next) => update(index, { value: next })}
+                                        />
                                     ) : isRangeMatchMode(constraint.matchMode) ? (
                                         <div className={styles.filterRange()}>
                                             <ValueInput

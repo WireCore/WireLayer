@@ -23,6 +23,8 @@ export interface ValueInputProps {
     inputProps?: DataTableFilterInputOptions;
     /** The value of a filter: a text field shows "Filter …" (translations `filterText`) without its own placeholder */
     filter?: boolean;
+    /** Both ends of a range (`[from, to]`) in one field – dates with the dateRangeInput feature */
+    range?: boolean;
     /** An option of select and multiSelect (the column's `renderOption`) */
     renderOption?: (item: unknown, state: ListItemState) => ReactNode;
 }
@@ -38,12 +40,17 @@ export function ValueInput({
     invalid,
     inputProps,
     filter = false,
+    range = false,
     renderOption,
 }: ValueInputProps) {
     const translations = useTranslations();
     const t = translations.dataTable;
     // DatePicker and NumberInput come from the features dateInput and numberInput – without them the browser's inputs
-    const { dateInput: DatePicker, numberInput: NumberInput } = useContext(FeatureContext);
+    const {
+        dateInput: DatePicker,
+        numberInput: NumberInput,
+        dateRangeInput: DateRangePicker,
+    } = useContext(FeatureContext);
     // Choices with values of their own keep them (objects, numbers); text choices stay text as before
     const byValue = (options ?? []).some((option) => typeof option !== 'string');
     const items: unknown[] = [
@@ -59,6 +66,23 @@ export function ValueInput({
     ];
     const text = value === null || value === undefined ? '' : String(value);
 
+    if (range && (type === 'date' || type === 'datetime') && DateRangePicker)
+        return (
+            <DateRangePicker
+                size="sm"
+                aria-label={label}
+                invalid={invalid}
+                placeholder={inputProps?.placeholder}
+                withTime={type === 'datetime'}
+                // The range [from, to] as the picker's { start, end } and back
+                value={
+                    Array.isArray(value) && (value[0] || value[1])
+                        ? { start: value[0] ?? null, end: value[1] ?? null }
+                        : null
+                }
+                onValueChange={(next) => onChange([next?.start ?? null, next?.end ?? null])}
+            />
+        );
     if (type === 'text')
         return (
             <Input
@@ -110,6 +134,7 @@ export function ValueInput({
     if ((type === 'date' || type === 'datetime') && DatePicker)
         return (
             <DatePicker
+                size="sm"
                 aria-label={label}
                 invalid={invalid}
                 placeholder={inputProps?.placeholder}
@@ -132,6 +157,7 @@ export function ValueInput({
     if (type === 'multiSelect')
         return (
             <MultiSelect
+                size="sm"
                 aria-label={label}
                 items={items}
                 invalid={invalid}
@@ -155,6 +181,7 @@ export function ValueInput({
         );
     return (
         <Select
+            size="sm"
             aria-label={label}
             items={items}
             invalid={invalid}

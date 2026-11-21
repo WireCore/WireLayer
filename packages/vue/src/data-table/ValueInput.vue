@@ -24,6 +24,8 @@ const props = defineProps<{
     inputProps?: DataTableFilterInputOptions;
     /** The value of a filter: a text field shows "Filter …" (translations `filterText`) without its own placeholder */
     filter?: boolean;
+    /** Both ends of a range (`[from, to]`) in one field – dates with the dateRangeInput feature */
+    range?: boolean;
 }>();
 defineSlots<{
     /** An option of select and multiSelect (the column's `#option-<id>`) */
@@ -51,14 +53,29 @@ const items = computed(() => [
 const text = computed(() =>
     props.modelValue === null || props.modelValue === undefined ? '' : String(props.modelValue)
 );
+/** A range `[from, to]` as the DateRangePicker's `{ start, end }` and back */
+const toRange = (value: unknown) =>
+    Array.isArray(value) && (value[0] || value[1]) ? { start: value[0] ?? null, end: value[1] ?? null } : null;
+const fromRange = (value: { start?: unknown; end?: unknown } | null) => [value?.start ?? null, value?.end ?? null];
 /** The browser's number input: an empty or invalid entry is no number */
 const toNumber = (value: string | undefined) => (value && Number.isFinite(Number(value)) ? Number(value) : null);
 const selected = computed(() => (byValue.value ? (props.modelValue ?? (props.any ? '' : null)) : text.value));
 </script>
 
 <template>
+    <component
+        :is="feature.dateRangeInput"
+        v-if="range && (type === 'date' || type === 'datetime') && feature.dateRangeInput"
+        size="sm"
+        :aria-label="label"
+        :invalid="invalid"
+        :placeholder="inputProps?.placeholder"
+        :with-time="type === 'datetime'"
+        :model-value="toRange(modelValue)"
+        @update:model-value="emit('update:modelValue', fromRange($event))"
+    />
     <Input
-        v-if="type === 'text'"
+        v-else-if="type === 'text'"
         size="sm"
         :aria-label="label"
         :invalid="invalid"
@@ -98,6 +115,7 @@ const selected = computed(() => (byValue.value ? (props.modelValue ?? (props.any
     <component
         :is="feature.dateInput"
         v-else-if="(type === 'date' || type === 'datetime') && feature.dateInput"
+        size="sm"
         :aria-label="label"
         :invalid="invalid"
         :placeholder="inputProps?.placeholder"
@@ -116,6 +134,7 @@ const selected = computed(() => (byValue.value ? (props.modelValue ?? (props.any
     />
     <MultiSelect
         v-else-if="type === 'multiSelect'"
+        size="sm"
         :aria-label="label"
         :items="items"
         :invalid="invalid"
@@ -139,6 +158,7 @@ const selected = computed(() => (byValue.value ? (props.modelValue ?? (props.any
     />
     <Select
         v-else
+        size="sm"
         :aria-label="label"
         :items="items"
         :invalid="invalid"

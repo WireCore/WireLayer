@@ -45,7 +45,7 @@ export type {
     RowsResult,
 } from './types.js';
 /** Feature modules for `features`: the DatePicker and NumberInput of date and number filters and editors */
-export { dateInput, numberInput } from './inputs.js';
+export { dateInput, dateRangeInput, numberInput } from './inputs.js';
 /** Registers an own match mode for the filter menus of all tables (label, value input, test) */
 export { defineMatchMode } from '@wirecore/wirelayer-recipes';
 /** Moves a row in your data after a row-reorder event: `data = moveItem(data, from, to)` */
