@@ -817,6 +817,35 @@ export const SearchInTheMiddle: Story = {
     ),
 };
 
+/**
+ * The search in the middle of the toolbar also without controls at the start: an empty start group takes as much room
+ * as the tools at the end, however wide they are
+ */
+export const SearchInTheMiddleWithoutStart: Story = {
+    name: 'Search in the middle, nothing at the start',
+    render: () => (
+        <DataTable<ServiceRow>
+            features={features}
+            data={services}
+            columns={serviceColumns}
+            caption="Services"
+            search
+            searchAlign="center"
+            filterToggle
+            filterReset
+            densityToggle
+            columnToggle
+            toolbarEnd={
+                <>
+                    <Button variant="outline">Refresh</Button>
+                    <Button variant="outline">Print</Button>
+                </>
+            }
+            className={`${card} max-w-[1100px]`}
+        />
+    ),
+};
+
 const fillRows = machines(500);
 
 /**

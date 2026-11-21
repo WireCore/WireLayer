@@ -378,25 +378,48 @@ test.describe('DataTable selectable rows in a scroll area', () => {
 });
 
 test.describe('DataTable search in the middle', () => {
-    test('the search sits with equal room to the start actions and the end tools, which stay at the end', async ({
-        page,
-    }) => {
+    // The field around the input (the search icon sits before the input) and the toolbar around it
+    const measure = async (page: Page) => {
+        const search = (await page.getByRole('searchbox').locator('xpath=..').boundingBox())!;
+        const toolbar = (await page.getByRole('searchbox').locator('xpath=../..').boundingBox())!;
+        const columns = (await page.getByRole('button', { name: 'Columns' }).boundingBox())!;
+        return { search, toolbar, columns };
+    };
+
+    test('the search sits in the middle of the toolbar, the tools stay at the end', async ({ page }) => {
         await openStory(page, 'data-datatable--search-in-the-middle');
         await page.setViewportSize({ width: 1280, height: 800 });
-        const start = (await page.getByRole('button', { name: 'New service' }).boundingBox())!;
-        // The field around the input (the search icon sits before the input)
-        const search = (await page.getByRole('searchbox').locator('xpath=..').boundingBox())!;
-        const end = (await page.getByRole('button', { name: 'Refresh' }).boundingBox())!;
-        const columns = (await page.getByRole('button', { name: 'Columns' }).boundingBox())!;
-        const toolbar = (await page.getByRole('button', { name: 'Refresh' }).locator('xpath=../..').boundingBox())!;
-        const before = search.x - (start.x + start.width);
-        const after = end.x - (search.x + search.width);
-        expect(Math.abs(before - after)).toBeLessThanOrEqual(2);
-        expect(before).toBeGreaterThan(40);
+        const { search, toolbar, columns } = await measure(page);
+        expect(Math.abs(search.x + search.width / 2 - (toolbar.x + toolbar.width / 2))).toBeLessThanOrEqual(2);
         // The end group still ends at the end of the toolbar
         expect(toolbar.x + toolbar.width - (columns.x + columns.width)).toBeLessThan(30);
         // Own controls are as high as the built-in ones
+        const start = (await page.getByRole('button', { name: 'New service' }).boundingBox())!;
         expect(start.height).toBe(columns.height);
+        expect(start.x - toolbar.x).toBeLessThan(30);
+    });
+
+    test('also without controls at the start and with a wide end group; narrow toolbars wrap', async ({ page }) => {
+        await openStory(page, 'data-datatable--search-in-the-middle-without-start');
+        await page.setViewportSize({ width: 1280, height: 800 });
+        const wide = await measure(page);
+        expect(
+            Math.abs(wide.search.x + wide.search.width / 2 - (wide.toolbar.x + wide.toolbar.width / 2))
+        ).toBeLessThanOrEqual(2);
+        expect(wide.toolbar.x + wide.toolbar.width - (wide.columns.x + wide.columns.width)).toBeLessThan(30);
+        // One row
+        expect(
+            Math.abs(wide.search.y + wide.search.height / 2 - (wide.columns.y + wide.columns.height / 2))
+        ).toBeLessThanOrEqual(1);
+
+        await page.setViewportSize({ width: 520, height: 800 });
+        const narrow = await measure(page);
+        // Nothing runs out of the toolbar; the tools wrap below the search, which is centred on its own row
+        expect(narrow.columns.x + narrow.columns.width).toBeLessThanOrEqual(narrow.toolbar.x + narrow.toolbar.width);
+        expect(narrow.columns.y).toBeGreaterThan(narrow.search.y + narrow.search.height);
+        expect(
+            Math.abs(narrow.search.x + narrow.search.width / 2 - (narrow.toolbar.x + narrow.toolbar.width / 2))
+        ).toBeLessThanOrEqual(2);
     });
 });
 

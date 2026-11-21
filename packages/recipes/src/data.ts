@@ -94,6 +94,8 @@ export const dataTable = tv({
         // Toolbar above the table: search, own controls, density, columns, full screen, export
         toolbar: 'flex flex-wrap items-center gap-2 border-b border-line px-[18px] py-3',
         search: 'max-w-72',
+        /** Own controls at the start (`toolbarStart`) as one group – only with `searchAlign: 'center'` */
+        toolbarStart: 'flex items-center gap-2',
         toolbarEnd: 'ms-auto flex items-center gap-2',
         menuCheck: 'size-4 shrink-0',
         /** Announces the number of rows after filtering and moved rows/columns */
@@ -260,11 +262,19 @@ export const dataTable = tv({
             false: {},
         },
         /**
-         * `searchAlign: 'center'` (only with `search`): the search in the middle between the controls at the start and
-         * the end of the toolbar – the end group stays at the end
+         * `searchAlign: 'center'` (only with `search`): the search in the middle of the toolbar. The start group (also
+         * when empty) and the end group (own `toolbar` controls and the built-in buttons) share the room on both sides
+         * equally (`grow basis-0`); a group wider than its half moves the search aside instead of overflowing, and when
+         * they do not fit next to it the toolbar wraps. Narrow toolbars (below 42rem): the search takes the start,
+         * wrapped onto a line of its own it is centred
          */
         searchCentered: {
-            true: { search: 'mx-auto', toolbarEnd: 'ms-0' },
+            true: {
+                toolbar: '@container',
+                toolbarStart: 'grow basis-0 @max-2xl:grow-0 @max-2xl:basis-auto @max-2xl:empty:hidden',
+                search: '@max-2xl:mx-auto',
+                toolbarEnd: 'ms-0 grow basis-0 justify-end',
+            },
         },
         /**
          * Every other row tinted. The components mark each data row with `data-stripe="true|false"` by its place among

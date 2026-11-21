@@ -959,6 +959,38 @@ export const SearchInTheMiddle: Story = {
 };
 
 /**
+ * The search in the middle of the toolbar also without controls at the start: an empty start group takes as much room
+ * as the tools at the end, however wide they are
+ */
+export const SearchInTheMiddleWithoutStart: Story = {
+    name: 'Search in the middle, nothing at the start',
+    render: () => ({
+        components: { Button, DataTable: DataTable as ConcreteComponent },
+        setup: () => ({ features, rows: services, columns: serviceColumns, card }),
+        template: `
+            <DataTable
+                :features="features"
+                :data="rows"
+                :columns="columns"
+                caption="Services"
+                search
+                search-align="center"
+                filter-toggle
+                filter-reset
+                density-toggle
+                column-toggle
+                :class="card"
+                class="max-w-[1100px]"
+            >
+                <template #toolbarEnd>
+                    <Button variant="outline">Refresh</Button>
+                    <Button variant="outline">Print</Button>
+                </template>
+            </DataTable>`,
+    }),
+};
+
+/**
  * The table fills the rest of a column (`scroll-height="fill"`): heading and figures above it, the rows scroll in the
  * room left down to the bottom edge – at least `min-scroll-height`, then the page scrolls. Here a column 560px high; on a
  * page: `<main class="flex min-h-screen flex-col">`.

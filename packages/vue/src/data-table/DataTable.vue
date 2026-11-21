@@ -297,8 +297,9 @@ export interface DataTableProps<T> {
     /** Search field above the table: filters over all columns (v-model:global-filter) */
     search?: boolean;
     /**
-     * Place of the search field: `start` (default) after the controls of the toolbar start, `center` in the middle
-     * between them and the controls at the end. App-wide: `dataTable: { defaultVariants: { searchCentered: true } }`
+     * Place of the search field: `start` (default) after the controls of the toolbar start, `center` in the middle of
+     * the toolbar – also when there are no controls at the start; own `toolbar` controls then join the end group.
+     * App-wide: `dataTable: { defaultVariants: { searchCentered: true } }`
      */
     searchAlign?: 'start' | 'center';
     globalFilter?: string;
@@ -3173,7 +3174,13 @@ const toolbarSize = sizeOverrides('sm') as RecipeConfig;
             @keydown="onRootKey"
         >
             <div v-if="showToolbar" :class="styles.toolbar()">
-                <RecipesProvider v-if="$slots.toolbarStart" :recipes="toolbarSize">
+                <!-- Search in the middle: the start controls as one group – also empty, it keeps the search centred -->
+                <div v-if="searchCentered" :class="styles.toolbarStart()">
+                    <RecipesProvider v-if="$slots.toolbarStart" :recipes="toolbarSize">
+                        <slot name="toolbarStart" />
+                    </RecipesProvider>
+                </div>
+                <RecipesProvider v-else-if="$slots.toolbarStart" :recipes="toolbarSize">
                     <slot name="toolbarStart" />
                 </RecipesProvider>
                 <Input
@@ -3187,8 +3194,13 @@ const toolbarSize = sizeOverrides('sm') as RecipeConfig;
                     :model-value="globalFilter"
                     @update:model-value="table.setGlobalFilter($event ?? '')"
                 />
-                <RecipesProvider v-if="$slots.toolbar" :recipes="toolbarSize"><slot name="toolbar" /></RecipesProvider>
+                <RecipesProvider v-if="$slots.toolbar && !searchCentered" :recipes="toolbarSize">
+                    <slot name="toolbar" />
+                </RecipesProvider>
                 <div :class="styles.toolbarEnd()">
+                    <RecipesProvider v-if="$slots.toolbar && searchCentered" :recipes="toolbarSize">
+                        <slot name="toolbar" />
+                    </RecipesProvider>
                     <RecipesProvider v-if="$slots.toolbarEnd" :recipes="toolbarSize">
                         <slot name="toolbarEnd" />
                     </RecipesProvider>

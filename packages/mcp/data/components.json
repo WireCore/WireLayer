@@ -9381,7 +9381,7 @@
                     "name": "searchAlign",
                     "type": "'start' | 'center'",
                     "optional": true,
-                    "description": "Place of the search field: `start` (default) after the controls of the toolbar start, `center` in the middle between them and the controls at the end. App-wide: `dataTable: { defaultVariants: { searchCentered: true } }`"
+                    "description": "Place of the search field: `start` (default) after the controls of the toolbar start, `center` in the middle of the toolbar – also when there are no controls at the start; own `toolbar` controls then join the end group. App-wide: `dataTable: { defaultVariants: { searchCentered: true } }`"
                 },
                 {
                     "name": "globalFilter",
@@ -10116,7 +10116,7 @@
                         "name": "searchAlign",
                         "type": "'start' | 'center'",
                         "optional": true,
-                        "description": "Place of the search field: `start` (default) after the controls of the toolbar start, `center` in the middle between them and the controls at the end. App-wide: `dataTable: { defaultVariants: { searchCentered: true } }`"
+                        "description": "Place of the search field: `start` (default) after the controls of the toolbar start, `center` in the middle of the toolbar – also when there are no controls at the start; own `toolbar` controls then join the end group. App-wide: `dataTable: { defaultVariants: { searchCentered: true } }`"
                     },
                     {
                         "name": "globalFilter",
