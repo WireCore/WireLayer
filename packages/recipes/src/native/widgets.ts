@@ -63,7 +63,7 @@ export const timeGrid = tv({
         label: 'font-sans-medium text-[13px] text-fg',
         grid: 'flex-row flex-wrap -m-1',
         cell: 'p-1',
-        slot: ['items-center justify-center rounded-lg border border-line-2', pressable],
+        slot: ['items-center justify-center rounded-[var(--wc-control-radius-md,8px)] border border-line-2', pressable],
         slotText: 'font-sans-medium text-fg',
         status: 'font-sans text-sm text-muted',
         statusRow: 'flex-row items-center gap-2',
@@ -117,7 +117,7 @@ export const miniCalendar = tv({
 /** DurationInput: one number field per unit */
 export const durationInput = tv({
     slots: {
-        base: 'w-full flex-row items-center gap-2 rounded-lg border border-line-strong bg-bg px-3',
+        base: 'w-full flex-row items-center gap-2 rounded-[var(--wc-control-radius-md,8px)] border border-line-strong bg-bg px-3',
         part: 'flex-row items-baseline gap-1',
         control: 'w-10 py-2 text-right font-mono text-[15px] text-fg web:outline-none',
         unit: 'font-sans text-xs text-muted',
@@ -125,9 +125,9 @@ export const durationInput = tv({
     },
     variants: {
         size: {
-            sm: { base: 'h-8 rounded-md px-2.5' },
+            sm: { base: 'h-8 rounded-[var(--wc-control-radius-sm,6px)] px-2.5' },
             md: { base: 'h-10' },
-            lg: { base: 'h-12 rounded-[10px] px-4' },
+            lg: { base: 'h-12 rounded-[var(--wc-control-radius-lg,10px)] px-4' },
         },
         focused: {
             true: { base: 'border-primary' },

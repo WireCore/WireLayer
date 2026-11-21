@@ -8,7 +8,7 @@ export const checkbox = tv({
     slots: {
         base: 'inline-flex cursor-pointer items-start gap-2.5 text-sm leading-[1.45] text-muted data-disabled:cursor-not-allowed data-disabled:opacity-40',
         control: [
-            'mt-px flex size-[18px] shrink-0 items-center justify-center rounded-[5px] border border-line-strong text-on-primary',
+            'mt-px flex size-[18px] shrink-0 items-center justify-center rounded-[var(--wc-checkbox-radius,5px)] border border-line-strong text-on-primary',
             'transition-colors motion-reduce:transition-none data-invalid:border-danger',
             'data-[state=checked]:border-primary data-[state=checked]:bg-primary data-[state=indeterminate]:border-primary data-[state=indeterminate]:bg-primary',
             'forced-colors:data-[state=checked]:forced-color-adjust-none forced-colors:data-[state=checked]:border-[Highlight] forced-colors:data-[state=checked]:bg-[Highlight] forced-colors:data-[state=checked]:text-[HighlightText]',

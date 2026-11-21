@@ -27,9 +27,9 @@ export const dialog = tv({
         backdrop: 'flex-1 items-center justify-center bg-black/60 p-4',
         /** Behind the content: pressing outside closes */
         dismissArea: 'absolute inset-0',
-        content: 'w-full max-w-[400px] rounded-[14px] border border-line-2 bg-card',
+        content: 'w-full max-w-[400px] rounded-dialog border border-line-2 bg-card',
         header: 'flex-row items-center justify-between gap-3 pt-4 pr-4 pl-[18px]',
-        iconBox: 'size-9 items-center justify-center rounded-[10px]',
+        iconBox: 'size-9 items-center justify-center rounded-[var(--wc-dialog-icon-radius,10px)]',
         icon: 'size-[18px]',
         close: [
             'ml-auto size-8 items-center justify-center rounded-full',

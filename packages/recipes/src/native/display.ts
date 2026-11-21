@@ -168,11 +168,11 @@ export const avatar = tv({
         },
     },
     compoundVariants: [
-        { shape: 'square', size: 'sm', class: { base: 'rounded-lg' } },
-        { shape: 'square', size: 'md', class: { base: 'rounded-[10px]' } },
-        { shape: 'square', size: 'lg', class: { base: 'rounded-xl' } },
-        { shape: 'square', size: 'xl', class: { base: 'rounded-2xl' } },
-        { shape: 'square', size: '2xl', class: { base: 'rounded-[20px]' } },
+        { shape: 'square', size: 'sm', class: { base: 'rounded-[var(--wc-avatar-radius,8px)]' } },
+        { shape: 'square', size: 'md', class: { base: 'rounded-[var(--wc-avatar-radius,10px)]' } },
+        { shape: 'square', size: 'lg', class: { base: 'rounded-[var(--wc-avatar-radius,12px)]' } },
+        { shape: 'square', size: 'xl', class: { base: 'rounded-[var(--wc-avatar-radius,16px)]' } },
+        { shape: 'square', size: '2xl', class: { base: 'rounded-[var(--wc-avatar-radius,20px)]' } },
     ],
     defaultVariants: {
         variant: 'soft',

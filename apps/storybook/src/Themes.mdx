@@ -128,16 +128,56 @@ element (that part of the page):
 }
 ```
 
-| Variable                                              | Default                    | Applies to                                                                                                                                                                                     |
-| ----------------------------------------------------- | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `--wc-control-h-sm` / `-md` / `-lg`                   | `2rem` / `2.5rem` / `3rem` | Height of the sizes sm, md, lg: Button, IconButton, Input, NativeSelect, Select, MultiSelect, Combobox, NumberInput, PasswordInput, the date and time fields, ColorPicker, TagsInput (minimum) |
-| `--wc-control-radius-sm` / `-md` / `-lg`              | `6px` / `8px` / `10px`     | Corners of the fields above and of Textarea (not of buttons)                                                                                                                                   |
-| `--wc-control-text-sm` / `-md` / `-lg`                | `13px` / `15px` / `16px`   | Text in the fields above and in Textarea                                                                                                                                                       |
-| `--wc-button-radius`                                  | `8px`                      | Corners of Button and IconButton with `shape="rounded"` (`pill` and `square` stay)                                                                                                             |
-| `--wc-card-p`                                         | `1.5rem`                   | Padding of Card                                                                                                                                                                                |
-| `--wc-backdrop`                                       | `rgb(0 0 0 / 0.6)`         | Dimming behind Dialog, Drawer and ConfirmDialog                                                                                                                                                |
-| `--radius-card` / `--radius-panel` / `--radius-popup` | `20px` / `28px` / `12px`   | Corners of cards, panels and popups (menus, lists, popovers)                                                                                                                                   |
-| `--wc-dialog-w`                                       | by `size`                  | Width of a DialogContent                                                                                                                                                                       |
+| Variable                                              | Default                                              | Applies to                                                                                                                                                                                     |
+| ----------------------------------------------------- | ---------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `--wc-control-h-sm` / `-md` / `-lg`                   | `2rem` / `2.5rem` / `3rem`                           | Height of the sizes sm, md, lg: Button, IconButton, Input, NativeSelect, Select, MultiSelect, Combobox, NumberInput, PasswordInput, the date and time fields, ColorPicker, TagsInput (minimum) |
+| `--wc-control-radius-sm` / `-md` / `-lg`              | `6px` / `8px` / `10px`                               | Corners of the fields above and of Textarea, TreeSelect, CascadeSelect and the TimeGrid slots (not of buttons); `-lg` also the drop outline of OrderList and PickList                          |
+| `--wc-control-text-sm` / `-md` / `-lg`                | `13px` / `15px` / `16px`                             | Text in the fields above and in Textarea                                                                                                                                                       |
+| `--wc-button-radius`                                  | `8px`                                                | Corners of Button and IconButton with `shape="rounded"` (`pill` and `square` stay)                                                                                                             |
+| `--wc-avatar-radius`                                  | by `size`: `8px` / `10px` / `12px` / `16px` / `24px` | Corners of Avatar with `shape="square"` – one value for all sizes                                                                                                                              |
+| `--wc-checkbox-radius`                                | `5px` (`4px` in lists)                               | Corners of Checkbox and SelectionCard (`type="checkbox"`), and of the check boxes in Listbox, MultiSelect and Tree                                                                             |
+| `--wc-dialog-icon-radius`                             | `10px`                                               | Icon box in the header of a Dialog                                                                                                                                                             |
+| `--wc-card-p`                                         | `1.5rem`                                             | Padding of Card                                                                                                                                                                                |
+| `--wc-backdrop`                                       | `rgb(0 0 0 / 0.6)`                                   | Dimming behind Dialog, Drawer and ConfirmDialog                                                                                                                                                |
+| `--radius-card` / `--radius-panel` / `--radius-popup` | `20px` / `28px` / `12px`                             | Corners of cards, panels and popups (menus, lists, popovers)                                                                                                                                   |
+| `--radius-dialog`                                     | `14px`                                               | Corners of Dialog, ConfirmDialog, CommandPalette and the fullscreen view of Gallery and Image                                                                                                  |
+| `--wc-dialog-w`                                       | by `size`                                            | Width of a DialogContent                                                                                                                                                                       |
 
 The rest – the padding of a dialog or of table cells, the size of a single variant – is set per part with `classes` or
-`RecipesProvider` (_Getting started › Welcome › Customizing_). The React Native components keep their fixed sizes.
+`RecipesProvider` (_Getting started › Welcome › Customizing_). The React Native components keep their fixed sizes; of
+the variables above they read only the corners `--radius-*`, `--wc-control-radius-*` (Input, Textarea, Select,
+DurationInput, TagsInput and the TimeGrid slots, which take `-md` in every size there), `--wc-avatar-radius`,
+`--wc-checkbox-radius` and `--wc-dialog-icon-radius` (set in the app's `global.css`).
+
+### Square corners
+
+`--radius-*` are Tailwind theme variables (`rounded-card`, `rounded-dialog` …). A theme without rounded corners sets
+them and the `--wc-*` corners to 0 – this is every corner the components take from a variable:
+
+```css
+@theme {
+    --radius-card: 0;
+    --radius-panel: 0;
+    --radius-popup: 0;
+    --radius-dialog: 0;
+}
+
+:root {
+    --wc-control-radius-sm: 0;
+    --wc-control-radius-md: 0;
+    --wc-control-radius-lg: 0;
+    --wc-button-radius: 0;
+    --wc-avatar-radius: 0;
+    --wc-checkbox-radius: 0;
+    --wc-dialog-icon-radius: 0;
+}
+```
+
+Not part of it:
+
+- Small parts use Tailwind's radius scale (`rounded-md`, `rounded-lg` …): menu and list items, tooltips, tabs, the icon
+  box of Alert, Drawer with `offset`. They follow `--radius-xs` to `--radius-4xl`; set those in `@theme` as well for no
+  rounded corner at all (your own `rounded-*` classes change with them).
+- Shapes stay round: everything with `rounded-full` (Button and IconButton with the default `shape="pill"` – use
+  `shape="rounded"` or `"square"` –, Switch, Badge, Radio, Avatar with `shape="circle"`), the thin bars of Progress, the
+  marks of Highlight and the diamond of a Gantt milestone.
