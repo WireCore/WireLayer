@@ -243,6 +243,14 @@ export const dataTable = tv({
             true: { resizer: 'inset-e-0 after:bg-transparent' },
         },
         /**
+         * Filter row or filter menus shown at the start (`showFilters`, with `filterToggle`) – no classes of its own:
+         * a variant so `defaultVariants: { showFilters: false }` starts every table of the app with closed filters
+         */
+        showFilters: {
+            true: {},
+            false: {},
+        },
+        /**
          * Every other row tinted. The components mark each data row with `data-stripe="true|false"` by its place among
          * the data rows of the page (also with virtual scrolling, group and detail rows not counted); rows without the
          * attribute (plain HTML) follow their position (`:nth-child(even)`). Hover and selection win.

@@ -22,6 +22,8 @@ const props = defineProps<{
     invalid?: boolean;
     /** Settings of the input (the column's `filterInputProps`) */
     inputProps?: DataTableFilterInputOptions;
+    /** The value of a filter: a text field shows "Filter …" (translations `filterText`) without its own placeholder */
+    filter?: boolean;
 }>();
 defineSlots<{
     /** An option of select and multiSelect (the column's `#option-<id>`) */
@@ -60,7 +62,7 @@ const selected = computed(() => (byValue.value ? (props.modelValue ?? (props.any
         size="sm"
         :aria-label="label"
         :invalid="invalid"
-        :placeholder="inputProps?.placeholder"
+        :placeholder="inputProps?.placeholder ?? (filter ? t.filterText : undefined)"
         :model-value="text"
         @update:model-value="emit('update:modelValue', $event ?? '')"
     />

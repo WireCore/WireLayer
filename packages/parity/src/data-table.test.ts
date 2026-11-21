@@ -719,6 +719,60 @@ describe.each(frameworks)('%s DataTable', (framework) => {
         expect(stripes).toContain(null);
     });
 
+    it('app-wide defaults (recipe defaultVariants): filters closed at the start, striped; the props win', async () => {
+        const stripes = (caption: string) =>
+            within(screen.getByRole('table', { name: caption }))
+                .getAllByRole('row')
+                .filter((row) => row.closest('tbody'))
+                .map((row) => row.getAttribute('data-stripe'));
+        await render(
+            framework,
+            el(
+                'RecipesProvider',
+                { recipes: { dataTable: { defaultVariants: { showFilters: false, striped: true } } } },
+                table({ filterToggle: true }),
+                table({ caption: 'Own', filterToggle: true, showFilters: true, striped: false })
+            )
+        );
+        const [defaults, own] = screen.getAllByRole('button', { name: 'Show filters' });
+        expect(defaults).toHaveAttribute('aria-pressed', 'false');
+        expect(own).toHaveAttribute('aria-pressed', 'true');
+        expect(stripes('Server')).toEqual(['false', 'true', 'false']);
+        expect(stripes('Own')).toEqual([null, null, null]);
+        await userEvent.click(defaults!);
+        expect(defaults).toHaveAttribute('aria-pressed', 'true');
+    });
+
+    it('a text filter shows "Filter …" unless filterInputProps has its own placeholder', async () => {
+        const own = columns.map((column) =>
+            column.id === 'name' ? { ...column, filterInputProps: { placeholder: 'Name …' } } : column
+        );
+        await render(framework, el('div', {}, table(), table({ caption: 'Own', columns: own })));
+        const [first, second] = screen.getAllByRole('textbox', { name: 'Filter Name' });
+        expect(first).toHaveAttribute('placeholder', 'Filter …');
+        expect(second).toHaveAttribute('placeholder', 'Name …');
+    });
+
+    it('own controls in the toolbar slots take the toolbar size sm; an explicit size wins', async () => {
+        await render(
+            framework,
+            table({
+                search: true,
+                $slots: {
+                    toolbarStart: el('Button', {}, 'Refresh'),
+                    toolbar: el('Input', { 'aria-label': 'Own field' }),
+                    toolbarEnd: el('Button', { size: 'md' }, 'Print'),
+                },
+            })
+        );
+        const small = 'h-[var(--wc-control-h-sm,2rem)]';
+        expect(screen.getByRole('button', { name: 'Refresh' })).toHaveClass(small);
+        expect(screen.getByRole('button', { name: 'Print' })).not.toHaveClass(small);
+        expect(screen.getByRole('textbox', { name: 'Own field' })).toHaveClass(
+            'text-[length:var(--wc-control-text-sm,13px)]'
+        );
+    });
+
     it('defaultSorting also sorts by a column the user cannot sort', async () => {
         const fixed = columns.map((column) => (column.id === 'load' ? { ...column, sortable: false } : column));
         await render(framework, table({ columns: fixed, defaultSorting: { id: 'load', desc: true } }));

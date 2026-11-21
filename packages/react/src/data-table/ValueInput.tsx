@@ -21,6 +21,8 @@ export interface ValueInputProps {
     invalid?: boolean;
     /** Settings of the input (the column's `filterInputProps`) */
     inputProps?: DataTableFilterInputOptions;
+    /** The value of a filter: a text field shows "Filter …" (translations `filterText`) without its own placeholder */
+    filter?: boolean;
     /** An option of select and multiSelect (the column's `renderOption`) */
     renderOption?: (item: unknown, state: ListItemState) => ReactNode;
 }
@@ -35,6 +37,7 @@ export function ValueInput({
     any = false,
     invalid,
     inputProps,
+    filter = false,
     renderOption,
 }: ValueInputProps) {
     const translations = useTranslations();
@@ -62,7 +65,7 @@ export function ValueInput({
                 size="sm"
                 aria-label={label}
                 invalid={invalid}
-                placeholder={inputProps?.placeholder}
+                placeholder={inputProps?.placeholder ?? (filter ? t.filterText : undefined)}
                 value={text}
                 onChange={(event) => onChange(event.target.value)}
             />

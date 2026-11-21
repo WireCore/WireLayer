@@ -523,6 +523,7 @@ export const it: Translations = {
         searchPlaceholder: 'Cerca…',
         filter: (header) => `Filtra ${header}`,
         filterAll: 'Tutti',
+        filterText: 'Filtra…',
         columns: 'Colonne',
         export: 'Esporta (CSV)',
         resize: (header) => `Larghezza di ${header}`,

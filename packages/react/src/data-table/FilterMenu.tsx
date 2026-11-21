@@ -200,6 +200,7 @@ export function FilterMenu({
                                             label={t.value(index)}
                                             options={options}
                                             inputProps={inputProps}
+                                            filter
                                             renderOption={renderOption}
                                             value={constraint.value}
                                             onChange={(next) => update(index, { value: next })}

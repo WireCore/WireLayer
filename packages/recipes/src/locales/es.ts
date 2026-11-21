@@ -496,6 +496,7 @@ export const es: Translations = {
         searchPlaceholder: 'Buscar…',
         filter: (header) => `Filtrar ${header}`,
         filterAll: 'Todos',
+        filterText: 'Filtrar…',
         columns: 'Columnas',
         export: 'Exportar (CSV)',
         resize: (header) => `Ancho de ${header}`,

@@ -717,6 +717,7 @@ export const ar: Translations = {
         searchPlaceholder: 'بحث…',
         filter: (header) => `تصفية ${header}`,
         filterAll: 'الكل',
+        filterText: 'تصفية…',
         columns: 'الأعمدة',
         export: 'تصدير (CSV)',
         resize: (header) => `عرض ${header}`,

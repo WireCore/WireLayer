@@ -510,6 +510,7 @@ export const fr: Translations = {
         searchPlaceholder: 'Rechercher…',
         filter: (header) => `Filtrer ${header}`,
         filterAll: 'Tous',
+        filterText: 'Filtrer…',
         columns: 'Colonnes',
         export: 'Exporter (CSV)',
         resize: (header) => `Largeur de ${header}`,

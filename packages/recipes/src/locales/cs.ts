@@ -572,6 +572,7 @@ export const cs: Translations = {
         searchPlaceholder: 'Hledat…',
         filter: (header) => `Filtrovat sloupec ${header}`,
         filterAll: 'Vše',
+        filterText: 'Filtrovat…',
         columns: 'Sloupce',
         export: 'Exportovat (CSV)',
         resize: (header) => `Šířka sloupce ${header}`,

@@ -129,6 +129,8 @@ import {
     type XlsxRow,
     type XlsxValue,
     warnInDevelopment,
+    sizeOverrides,
+    type RecipeConfig,
 } from '@wirecore/wirelayer-recipes';
 import {
     computed,
@@ -158,6 +160,7 @@ import Input from '../components/Input/Input.vue';
 import MenuComponent from '../components/Menu/Menu.vue';
 import type { MenuEntry } from '../components/Menu/types.js';
 import Pagination from '../components/Pagination/Pagination.vue';
+import RecipesProvider from '../components/RecipesProvider/RecipesProvider.vue';
 import Select from '../components/Select/Select.vue';
 import Skeleton from '../components/Skeleton/Skeleton.vue';
 import Spinner from '../components/Spinner/Spinner.vue';
@@ -188,7 +191,7 @@ import type {
     DataTableXlsxOptions,
 } from './types.js';
 import ValueInput from './ValueInput.vue';
-import { useRecipe } from '../recipes.js';
+import { useRecipe, useRecipeDefaults } from '../recipes.js';
 
 export interface DataTableProps<T> {
     /** The rows (with `dataSource` the table loads them itself) */
@@ -300,7 +303,10 @@ export interface DataTableProps<T> {
     filters?: Record<string, DataTableFilterValue>;
     /** Filters in a row below the headers, as a menu per column with match modes and conditions, or none */
     filterDisplay?: 'row' | 'menu' | 'none';
-    /** Shows the filter row or menus – use with v-model:show-filters (`filterToggle`); the filters keep working */
+    /**
+     * Shows the filter row or menus – use with v-model:show-filters (`filterToggle`); the filters keep working. Default
+     * true; app-wide `dataTable: { defaultVariants: { showFilters: false } }`, a saved state (`stateKey`) wins
+     */
     showFilters?: boolean;
     /** Button in the toolbar that shows and hides the filters */
     filterToggle?: boolean;
@@ -383,7 +389,7 @@ export interface DataTableProps<T> {
     gridlines?: boolean;
     /** A border around the whole table */
     bordered?: boolean;
-    /** Every other row tinted */
+    /** Every other row tinted (app-wide: `dataTable: { defaultVariants: { striped: true } }`) */
     striped?: boolean;
     /** Button above the table to show it on the whole screen */
     fullscreenToggle?: boolean;
@@ -427,6 +433,11 @@ const props = withDefaults(defineProps<DataTableProps<TData>>(), {
     stateExclude: () => ['selection'],
     allSelection: undefined,
     showFilters: undefined,
+    gridlines: undefined,
+    bordered: undefined,
+    striped: undefined,
+    wrapHeaders: undefined,
+    verticalHeaders: undefined,
     rowHref: undefined,
     isRowSelectable: undefined,
     getSubRows: undefined,
@@ -459,6 +470,10 @@ const props = withDefaults(defineProps<DataTableProps<TData>>(), {
     navigation: 'tab',
 });
 const dataTable = useRecipe('dataTable', dataTableRecipe, () => props.classes);
+// App-wide defaults of props that are variants of the recipe (RecipesProvider/ConfigProvider): the prop wins
+const recipeDefaults = useRecipeDefaults('dataTable', dataTableRecipe);
+const variantFlag = (name: 'gridlines' | 'bordered' | 'striped' | 'wrapHeaders' | 'verticalHeaders') =>
+    props[name] ?? !!recipeDefaults()[name];
 const menu = useRecipe('menu', menuRecipe);
 const emit = defineEmits<{
     'update:page': [page: number];
@@ -531,11 +546,11 @@ defineSlots<
          * `<template #advancedFilter="{ fields, value, setValue, label }">`
          */
         advancedFilter?: (props: DataTableAdvancedFilterProps) => unknown;
-        /** Own controls in the toolbar, after the search */
+        /** Own controls in the toolbar, after the search – buttons, fields and menus default to the toolbar size (sm) */
         toolbar?: () => unknown;
-        /** Own controls at the start of the toolbar, before the search */
+        /** Own controls at the start of the toolbar, before the search (default size sm, like the built-in ones) */
         toolbarStart?: () => unknown;
-        /** Own controls at the end of the toolbar, before the built-in buttons */
+        /** Own controls at the end of the toolbar, before the built-in buttons (default size sm, like them) */
         toolbarEnd?: () => unknown;
         /** Shown when there are no rows */
         empty?: () => unknown;
@@ -780,7 +795,7 @@ watchProp(
     () => props.allSelection,
     (value) => value !== undefined && (allSelection.value = value)
 );
-const showFilters = ref(props.showFilters ?? true);
+const showFilters = ref(props.showFilters ?? recipeDefaults().showFilters ?? true);
 watchProp(
     () => props.showFilters,
     (value) => value !== undefined && (showFilters.value = value)
@@ -1025,13 +1040,13 @@ function setDensity(next: Density) {
 // Styles
 const look = computed(() => ({
     size: density.value,
-    gridlines: !!props.gridlines,
-    bordered: !!props.bordered,
+    gridlines: variantFlag('gridlines'),
+    bordered: variantFlag('bordered'),
     paginatorAlign: paginatorAlignKey(props.paginatorAlign),
-    striped: !!props.striped,
+    striped: variantFlag('striped'),
     scrollable: !!props.scrollHeight,
-    wrapHeaders: !!props.wrapHeaders,
-    verticalHeaders: !!props.verticalHeaders,
+    wrapHeaders: variantFlag('wrapHeaders'),
+    verticalHeaders: variantFlag('verticalHeaders'),
 }));
 const fullscreen = ref(false);
 const grid = computed(() => props.navigation === 'grid');
@@ -1528,7 +1543,7 @@ const rowNumberById = computed(() => {
  * window of the rows); group and detail rows do not count
  */
 const stripe = (row: TableRow) =>
-    props.striped ? String(((rowNumberById.value.get(row.id) ?? 0) - pageOffset.value) % 2 === 0) : undefined;
+    variantFlag('striped') ? String(((rowNumberById.value.get(row.id) ?? 0) - pageOffset.value) % 2 === 0) : undefined;
 const detailsId = (row: TableRow) => `${id}-details-${row.id}`;
 const allExpanded = computed(() => table.getIsAllRowsExpanded());
 
@@ -3095,6 +3110,8 @@ defineExpose({
 // Fixed objects: a new literal in the template on every render makes Ark update the machine, which can re-render
 // endlessly (Vue only stops it in development)
 const bottomEndPositioning = { placement: 'bottom-end', gutter: 4 } as const;
+// Own buttons, fields and menus in the toolbar slots take the size of the built-in ones unless they set their own
+const toolbarSize = sizeOverrides('sm') as RecipeConfig;
 </script>
 
 <template>
@@ -3108,7 +3125,9 @@ const bottomEndPositioning = { placement: 'bottom-end', gutter: 4 } as const;
             @keydown="onRootKey"
         >
             <div v-if="showToolbar" :class="styles.toolbar()">
-                <slot name="toolbarStart" />
+                <RecipesProvider v-if="$slots.toolbarStart" :recipes="toolbarSize">
+                    <slot name="toolbarStart" />
+                </RecipesProvider>
                 <Input
                     v-if="search"
                     type="search"
@@ -3120,9 +3139,11 @@ const bottomEndPositioning = { placement: 'bottom-end', gutter: 4 } as const;
                     :model-value="globalFilter"
                     @update:model-value="table.setGlobalFilter($event ?? '')"
                 />
-                <slot name="toolbar" />
+                <RecipesProvider v-if="$slots.toolbar" :recipes="toolbarSize"><slot name="toolbar" /></RecipesProvider>
                 <div :class="styles.toolbarEnd()">
-                    <slot name="toolbarEnd" />
+                    <RecipesProvider v-if="$slots.toolbarEnd" :recipes="toolbarSize">
+                        <slot name="toolbarEnd" />
+                    </RecipesProvider>
                     <IconButton
                         v-if="find"
                         data-find-toggle=""
@@ -3630,6 +3651,7 @@ const bottomEndPositioning = { placement: 'bottom-end', gutter: 4 } as const;
                                         :options="filterOptions(columnById.get(column.id)!)"
                                         :input-props="columnById.get(column.id)!.filterInputProps"
                                         any
+                                        filter
                                         :model-value="rowFilterValue(columnById.get(column.id)!)"
                                         @update:model-value="setRowFilter(columnById.get(column.id)!, $event)"
                                     >
@@ -3658,7 +3680,7 @@ const bottomEndPositioning = { placement: 'bottom-end', gutter: 4 } as const;
                             :data-state="isSelected(row) ? 'selected' : undefined"
                             :aria-selected="grid && selectable ? isSelected(row) : undefined"
                             :data-row-id="row.id"
-                            :data-stripe="striped ? String(frozenIndex % 2 === 1) : undefined"
+                            :data-stripe="variantFlag('striped') ? String(frozenIndex % 2 === 1) : undefined"
                         >
                             <td
                                 v-for="utility in leading"

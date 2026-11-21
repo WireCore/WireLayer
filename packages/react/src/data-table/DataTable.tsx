@@ -104,6 +104,8 @@ import {
     type XlsxRow,
     type XlsxValue,
     warnInDevelopment,
+    sizeOverrides,
+    type RecipeConfig,
 } from '@wirecore/wirelayer-recipes';
 import {
     ArrowDown,
@@ -191,7 +193,7 @@ import type {
     DataTableXlsxOptions,
 } from './types.js';
 import { ValueInput } from './ValueInput.js';
-import { useRecipe } from '../components/RecipesProvider/RecipesProvider.js';
+import { RecipesProvider, useRecipe, useRecipeDefaults } from '../components/RecipesProvider/RecipesProvider.js';
 
 /** Methods of the table (`ref`) */
 export interface DataTableHandle {
@@ -353,7 +355,10 @@ export interface DataTableProps<TData> extends Omit<
     onFiltersChange?: (filters: Record<string, DataTableFilterValue>) => void;
     /** Filters in a row below the headers, as a menu per column with match modes and conditions, or none */
     filterDisplay?: 'row' | 'menu' | 'none';
-    /** Shows the filter row or menus (`filterToggle`); controlled with onShowFiltersChange – the filters keep working */
+    /**
+     * Shows the filter row or menus (`filterToggle`); controlled with onShowFiltersChange – the filters keep working.
+     * Default true; app-wide `dataTable: { defaultVariants: { showFilters: false } }`, a saved state (`stateKey`) wins
+     */
     showFilters?: boolean;
     onShowFiltersChange?: (show: boolean) => void;
     /** Button in the toolbar that shows and hides the filters */
@@ -456,7 +461,7 @@ export interface DataTableProps<TData> extends Omit<
     gridlines?: boolean;
     /** A border around the whole table */
     bordered?: boolean;
-    /** Every other row tinted */
+    /** Every other row tinted (app-wide: `dataTable: { defaultVariants: { striped: true } }`) */
     striped?: boolean;
     /** Button above the table to show it on the whole screen */
     fullscreenToggle?: boolean;
@@ -486,11 +491,11 @@ export interface DataTableProps<TData> extends Omit<
     stateStorage?: 'local' | 'session';
     /** Parts of the state that `stateKey` does not keep – default: the selection (`[]` keeps it, too) */
     stateExclude?: readonly DataTableStateKey[];
-    /** Own controls in the toolbar, after the search */
+    /** Own controls in the toolbar, after the search – buttons, fields and menus default to the toolbar size (sm) */
     toolbar?: ReactNode;
-    /** Own controls at the start of the toolbar, before the search */
+    /** Own controls at the start of the toolbar, before the search (default size sm, like the built-in ones) */
     toolbarStart?: ReactNode;
-    /** Own controls at the end of the toolbar, before the built-in buttons */
+    /** Own controls at the end of the toolbar, before the built-in buttons (default size sm, like them) */
     toolbarEnd?: ReactNode;
     /** Shown when there are no rows */
     empty?: ReactNode;
@@ -561,6 +566,9 @@ const UTILITY_WIDTH = { drag: 40, select: 48, expand: 40, number: 56, actions: 8
 type Utility = keyof typeof UTILITY_WIDTH;
 /** Without the feature virtualRows: no virtualizer, all rows are rendered */
 const noVirtualizer = () => undefined;
+
+// Own buttons, fields and menus in the toolbar slots take the size of the built-in ones unless they set their own
+const toolbarSize = sizeOverrides('sm') as RecipeConfig;
 
 /** Data table on TanStack Table: sorting (also by several columns), search, filter row or filter menus with match modes, pagination, selection, column menu (pin, move, hide, group), resizing, column groups, totals, row details, row actions, row reordering, editing (cell or row), virtual scrolling, full screen, CSV export and saved state */
 export function DataTable<TData extends object>({
@@ -664,8 +672,8 @@ export function DataTable<TData extends object>({
     onCellPaste,
     onSave,
     find = false,
-    wrapHeaders = false,
-    verticalHeaders = false,
+    wrapHeaders: wrapHeadersProp,
+    verticalHeaders: verticalHeadersProp,
     editMode = 'cell',
     editTrigger = 'click',
     onCellEdit,
@@ -673,9 +681,9 @@ export function DataTable<TData extends object>({
     size,
     onSizeChange,
     densityToggle = false,
-    gridlines = false,
-    bordered = false,
-    striped = false,
+    gridlines: gridlinesProp,
+    bordered: borderedProp,
+    striped: stripedProp,
     fullscreenToggle = false,
     scrollHeight,
     features,
@@ -698,6 +706,13 @@ export function DataTable<TData extends object>({
     ...props
 }: DataTableProps<TData>) {
     const dataTable = useRecipe('dataTable', dataTableRecipe, classes);
+    // App-wide defaults of props that are variants of the recipe (RecipesProvider/ConfigProvider): the prop wins
+    const recipeDefaults = useRecipeDefaults('dataTable', dataTableRecipe);
+    const gridlines = gridlinesProp ?? !!recipeDefaults.gridlines;
+    const bordered = borderedProp ?? !!recipeDefaults.bordered;
+    const striped = stripedProp ?? !!recipeDefaults.striped;
+    const wrapHeaders = wrapHeadersProp ?? !!recipeDefaults.wrapHeaders;
+    const verticalHeaders = verticalHeadersProp ?? !!recipeDefaults.verticalHeaders;
     const menu = useRecipe('menu', menuRecipe);
     const menuStyles = menu();
     type TableRow = Row<Features, TData>;
@@ -875,7 +890,7 @@ export function DataTable<TData extends object>({
     const [internalAllSelection, setInternalAllSelection] = useState<DataTableAllSelection | null>(null);
     const allSelectionValue = useSameValue(allSelectionProp);
     const allSelection = allSelectionValue === undefined ? internalAllSelection : allSelectionValue;
-    const [internalShowFilters, setInternalShowFilters] = useState(true);
+    const [internalShowFilters, setInternalShowFilters] = useState(recipeDefaults.showFilters ?? true);
     const showFilters = showFiltersProp ?? internalShowFilters;
     const [grouping, setInternalGrouping] = useState<string[]>(() => toArray(groupBy));
     const groupKey = toArray(groupBy).join('\u0000');
@@ -3532,7 +3547,7 @@ export function DataTable<TData extends object>({
         >
             {showToolbar && (
                 <div className={styles.toolbar()}>
-                    {toolbarStart}
+                    {toolbarStart && <RecipesProvider recipes={toolbarSize}>{toolbarStart}</RecipesProvider>}
                     {search && (
                         <Input
                             type="search"
@@ -3545,9 +3560,9 @@ export function DataTable<TData extends object>({
                             onChange={(event) => table.setGlobalFilter(event.target.value)}
                         />
                     )}
-                    {toolbar}
+                    {toolbar && <RecipesProvider recipes={toolbarSize}>{toolbar}</RecipesProvider>}
                     <div className={styles.toolbarEnd()}>
-                        {toolbarEnd}
+                        {toolbarEnd && <RecipesProvider recipes={toolbarSize}>{toolbarEnd}</RecipesProvider>}
                         {find && (
                             <IconButton
                                 data-find-toggle=""
@@ -4111,6 +4126,7 @@ export function DataTable<TData extends object>({
                                                         inputProps={def.filterInputProps}
                                                         renderOption={def.renderOption}
                                                         any
+                                                        filter
                                                         value={rowFilterValue(def)}
                                                         onChange={(next) => setRowFilter(def, next)}
                                                     />

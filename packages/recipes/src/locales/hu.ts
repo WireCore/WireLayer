@@ -532,6 +532,7 @@ export const hu: Translations = {
         searchPlaceholder: 'Keresés…',
         filter: (header) => `Szűrés: ${header}`,
         filterAll: 'Mind',
+        filterText: 'Szűrés…',
         columns: 'Oszlopok',
         export: 'Exportálás (CSV)',
         resize: (header) => `${header} szélessége`,

@@ -480,6 +480,7 @@ export const tr: Translations = {
         searchPlaceholder: 'Ara…',
         filter: (header) => `Filtrele: ${header}`,
         filterAll: 'Tümü',
+        filterText: 'Filtrele…',
         columns: 'Sütunlar',
         export: 'Dışa aktar (CSV)',
         resize: (header) => `Genişlik: ${header}`,

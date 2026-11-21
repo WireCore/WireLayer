@@ -171,6 +171,7 @@ const bottomEndPositioning = { placement: 'bottom-end', gutter: 4 } as const;
                                 :label="t.value(index)"
                                 :options="options"
                                 :input-props="inputProps"
+                                filter
                                 :model-value="constraint.value"
                                 @update:model-value="constraint.value = $event"
                             >
