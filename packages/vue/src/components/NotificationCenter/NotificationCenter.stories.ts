@@ -1,4 +1,4 @@
-import { CreditCard, HardDrive, ShieldAlert, UserPlus } from '@lucide/vue';
+import { CreditCard, HardDrive, Languages, ShieldAlert, UserPlus, UserRound } from '@lucide/vue';
 import type { Meta, StoryObj } from '@storybook/vue3-vite';
 import { ref } from 'vue';
 import NotificationCenter from './NotificationCenter.vue';
@@ -117,4 +117,18 @@ export const Empty: Story = { args: { items: [], hasMore: false } };
  */
 export const ClickableItems: Story = {
     args: { items: start.map((item) => (item.href ? item : { ...item, clickable: true })) },
+};
+
+/** In a header next to other outlined icon buttons: the bell takes the same look (`variant`) and size */
+export const InHeader: Story = {
+    render: () => ({
+        components: { IconButton, NotificationCenter },
+        setup: () => ({ start, Languages, UserRound }),
+        template: `
+            <header class="flex items-center justify-end gap-2 border-b border-line pb-3">
+                <IconButton :icon="Languages" label="Language" variant="outline" size="sm" />
+                <NotificationCenter :items="start" variant="outline" size="sm" />
+                <IconButton :icon="UserRound" label="Account" variant="outline" size="sm" />
+            </header>`,
+    }),
 };

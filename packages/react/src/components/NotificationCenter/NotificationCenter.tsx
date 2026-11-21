@@ -5,7 +5,10 @@ import {
     newUnread,
     notificationCenter as notificationCenterRecipe,
     notificationTime,
+    type ButtonColor,
+    type ButtonSize,
     type DataSource,
+    type IconButtonVariant,
     type RecipeClasses,
 } from '@wirecore/wirelayer-recipes';
 import { Bell, Check } from 'lucide-react';
@@ -55,6 +58,12 @@ export interface NotificationCenterProps extends Omit<ComponentProps<'div'>, 'on
     onOpenChange?: (open: boolean) => void;
     /** Name of the bell and title of the panel (default "Notifications") */
     label?: string;
+    /** Look of the bell (IconButton `variant`), e.g. `outline` next to other outlined buttons in a header (default `text`) */
+    variant?: IconButtonVariant;
+    /** Colour of the bell, combined with the variant (IconButton `color`) */
+    color?: ButtonColor;
+    /** Size of the bell (IconButton `size`), e.g. `sm` in a compact header */
+    size?: ButtonSize;
     /** Reference time for "Today"/"Yesterday" (default: now) */
     now?: Date | string;
     /** Text without notifications (default "No notifications") */
@@ -221,6 +230,9 @@ export function NotificationCenter({
     open,
     onOpenChange,
     label,
+    variant = 'text',
+    color,
+    size,
     now,
     emptyText,
     onMarkRead,
@@ -301,7 +313,16 @@ export function NotificationCenter({
         />
     );
     const bell = (extra: Pick<ComponentProps<'button'>, 'aria-haspopup' | 'aria-expanded' | 'onClick'> = {}) => (
-        <IconButton {...extra} icon={Bell} label={name} variant="text" badge={unread} badgeLabel={badgeLabel} />
+        <IconButton
+            {...extra}
+            icon={Bell}
+            label={name}
+            variant={variant}
+            color={color}
+            size={size}
+            badge={unread}
+            badgeLabel={badgeLabel}
+        />
     );
     return (
         <div {...props} className={styles.base({ class: className })}>

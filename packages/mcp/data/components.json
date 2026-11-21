@@ -22244,6 +22244,24 @@
                     "description": "Name of the bell and title of the panel (default \"Notifications\")"
                 },
                 {
+                    "name": "variant",
+                    "type": "IconButtonVariant",
+                    "optional": true,
+                    "description": "Look of the bell (IconButton `variant`), e.g. `outline` next to other outlined buttons in a header (default `text`)"
+                },
+                {
+                    "name": "color",
+                    "type": "ButtonColor",
+                    "optional": true,
+                    "description": "Colour of the bell, combined with the variant (IconButton `color`)"
+                },
+                {
+                    "name": "size",
+                    "type": "ButtonSize",
+                    "optional": true,
+                    "description": "Size of the bell (IconButton `size`), e.g. `sm` in a compact header"
+                },
+                {
                     "name": "now",
                     "type": "Date | string",
                     "optional": true,
@@ -22347,6 +22365,24 @@
                         "type": "string",
                         "optional": true,
                         "description": "Name of the bell and title of the panel (default \"Notifications\")"
+                    },
+                    {
+                        "name": "variant",
+                        "type": "IconButtonVariant",
+                        "optional": true,
+                        "description": "Look of the bell (IconButton `variant`), e.g. `outline` next to other outlined buttons in a header (default `text`)"
+                    },
+                    {
+                        "name": "color",
+                        "type": "ButtonColor",
+                        "optional": true,
+                        "description": "Colour of the bell, combined with the variant (IconButton `color`)"
+                    },
+                    {
+                        "name": "size",
+                        "type": "ButtonSize",
+                        "optional": true,
+                        "description": "Size of the bell (IconButton `size`), e.g. `sm` in a compact header"
                     },
                     {
                         "name": "now",
@@ -45906,6 +45942,24 @@
                         "type": "string",
                         "optional": true,
                         "description": "Name of the bell and title of the sheet (default \"Notifications\")"
+                    },
+                    {
+                        "name": "variant",
+                        "type": "IconButtonVariant",
+                        "optional": true,
+                        "description": "Look of the bell (IconButton `variant`), e.g. `outline` next to other outlined buttons in a header"
+                    },
+                    {
+                        "name": "color",
+                        "type": "ButtonColor",
+                        "optional": true,
+                        "description": "Colour of the bell, combined with the variant (IconButton `color`)"
+                    },
+                    {
+                        "name": "size",
+                        "type": "Size",
+                        "optional": true,
+                        "description": "Size of the bell (IconButton `size`)"
                     },
                     {
                         "name": "now",
