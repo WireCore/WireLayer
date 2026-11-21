@@ -362,7 +362,8 @@ test.describe('DataTable search in the middle', () => {
         await openStory(page, 'data-datatable--search-in-the-middle');
         await page.setViewportSize({ width: 1280, height: 800 });
         const start = (await page.getByRole('button', { name: 'New service' }).boundingBox())!;
-        const search = (await page.getByRole('searchbox').boundingBox())!;
+        // The field around the input (the search icon sits before the input)
+        const search = (await page.getByRole('searchbox').locator('xpath=..').boundingBox())!;
         const end = (await page.getByRole('button', { name: 'Refresh' }).boundingBox())!;
         const columns = (await page.getByRole('button', { name: 'Columns' }).boundingBox())!;
         const toolbar = (await page.getByRole('button', { name: 'Refresh' }).locator('xpath=../..').boundingBox())!;
@@ -383,9 +384,12 @@ test.describe('DataTable filter row', () => {
         const heights = await page.getByRole('table', { name: 'Services' }).evaluate((table) =>
             [...table.querySelectorAll('thead tr:last-child td')]
                 .map((cell) => cell.firstElementChild)
+                // One field per cell – not an own checkbox (slot) or a range of two fields below each other
                 .filter(
                     (field): field is Element =>
-                        !!field && !field.querySelector('[role=checkbox], button[role=checkbox]')
+                        !!field &&
+                        field.tagName !== 'LABEL' &&
+                        field.querySelectorAll(':scope > [data-scope]').length < 2
                 )
                 .map((field) => Math.round(field.getBoundingClientRect().height))
         );
