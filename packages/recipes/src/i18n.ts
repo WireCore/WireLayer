@@ -490,6 +490,8 @@ const en: Translations = {
         searchPlaceholder: 'Search …',
         filter: (header) => `Filter ${header}`,
         filterAll: 'All',
+        /** Placeholder of a text field in the filter row and the filter menu */
+        filterText: 'Filter …',
         columns: 'Columns',
         export: 'Export (CSV)',
         resize: (header) => `Width of ${header}`,

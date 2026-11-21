@@ -12,6 +12,10 @@ export interface SheetProps {
     open: boolean;
     onClose: () => void;
     title: string;
+    /** Names the sheet without showing the title (`aria-label`) */
+    hideTitle?: boolean;
+    /** Own content in the header row, before the close button */
+    header?: ReactNode;
     closeLabel: string;
     /** Role of the list: radiogroup (Select), menu (Menu), group (checkboxes) – none for other content */
     listRole?: 'radiogroup' | 'menu' | 'group';
@@ -47,6 +51,8 @@ export function Sheet({
     open,
     onClose,
     title,
+    hideTitle = false,
+    header,
     closeLabel,
     listRole,
     before,
@@ -84,14 +90,19 @@ export function Sheet({
                 <View
                     role="dialog"
                     aria-modal
-                    aria-labelledby={titleId}
+                    {...(hideTitle ? { 'aria-label': title } : { 'aria-labelledby': titleId })}
                     {...({ 'aria-describedby': description ? `${id}description` : undefined } as object)}
                     className={styles.sheet({ class: className })}
                 >
                     <View className={styles.sheetHeader()}>
-                        <Text nativeID={titleId} role="heading" className={styles.sheetTitle()}>
-                            {title}
-                        </Text>
+                        {header !== undefined && header !== null && header !== false && (
+                            <View className={styles.sheetHeaderContent()}>{header}</View>
+                        )}
+                        {!hideTitle && (
+                            <Text nativeID={titleId} role="heading" className={styles.sheetTitle()}>
+                                {title}
+                            </Text>
+                        )}
                         {closable && (
                             <Pressable
                                 ref={closeButton}
@@ -114,7 +125,10 @@ export function Sheet({
                     {scroll ? (
                         <ScrollView contentContainerClassName={styles.list()} keyboardShouldPersistTaps="handled">
                             {listRole ? (
-                                <View role={listRole} aria-labelledby={titleId}>
+                                <View
+                                    role={listRole}
+                                    {...(hideTitle ? { 'aria-label': title } : { 'aria-labelledby': titleId })}
+                                >
                                     {children}
                                 </View>
                             ) : (

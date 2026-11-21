@@ -136,6 +136,34 @@ describe('open overlays render the same DOM', () => {
             '[role=dialog]',
         ],
         [
+            'Drawer and Dialog: own content in the header',
+            el(
+                'div',
+                {},
+                el(
+                    'Drawer',
+                    { defaultOpen: true, modal: false },
+                    el('DrawerContent', {
+                        title: 'Menu',
+                        placement: 'left',
+                        $slots: { header: el('span', { class: 'logo' }, 'Acme') },
+                    })
+                ),
+                el(
+                    'Dialog',
+                    { defaultOpen: true, modal: false },
+                    el('DialogContent', {
+                        title: 'Invoice',
+                        titlePosition: 'header',
+                        hideTitle: false,
+                        icon: icon('Mail'),
+                        $slots: { header: el('span', {}, 'Paid') },
+                    })
+                )
+            ),
+            '[role=dialog]',
+        ],
+        [
             'Menu: links, checkbox and radio items, filter field',
             el('Menu', { items: menuItems, defaultOpen: true, searchable: true }, el('Button', {}, 'View')),
             '[role=menu]',
@@ -194,6 +222,59 @@ describe.each(frameworks)('%s', (framework) => {
             expect(screen.getByText('Video')).toHaveClass('sr-only');
             expect(await screen.findByRole('dialog', { name: 'Help' })).toBeInTheDocument();
             expect(screen.getByText('Help')).toHaveClass('sr-only');
+        });
+
+        it('header: own content in the header row before the close button, the title still names it', async () => {
+            await render(
+                framework,
+                el(
+                    'div',
+                    {},
+                    el(
+                        'Drawer',
+                        { defaultOpen: true, modal: false },
+                        el('DrawerContent', {
+                            title: 'Menu',
+                            description: 'Main navigation',
+                            placement: 'left',
+                            $slots: { header: el('span', {}, 'Acme') },
+                        })
+                    ),
+                    el(
+                        'Dialog',
+                        { defaultOpen: true, modal: false },
+                        el('DialogContent', {
+                            title: 'Invoice',
+                            titlePosition: 'header',
+                            hideTitle: false,
+                            $slots: { header: el('span', {}, 'Paid') },
+                        })
+                    )
+                )
+            );
+            const drawer = await screen.findByRole('dialog', { name: 'Menu' });
+            expect(drawer).toHaveAccessibleDescription('Main navigation');
+            const logo = within(drawer).getByText('Acme');
+            const close = within(drawer).getByRole('button', { name: 'Close' });
+            expect(logo.parentElement?.parentElement).toBe(close.parentElement);
+            expect(logo.compareDocumentPosition(close) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+            // With header content the title is for screen readers only – unless hideTitle is false
+            expect(within(drawer).getByText('Menu')).toHaveClass('sr-only');
+            const dialog = await screen.findByRole('dialog', { name: 'Invoice' });
+            expect(within(dialog).getByText('Invoice')).not.toHaveClass('sr-only');
+            expect(within(dialog).getByText('Paid').parentElement).toBe(
+                within(dialog).getByText('Invoice').parentElement
+            );
+        });
+
+        it('without header content nothing changes: no extra element in the header row', async () => {
+            await render(
+                framework,
+                el('Drawer', { defaultOpen: true, modal: false }, el('DrawerContent', { title: 'Help' }))
+            );
+            const drawer = await screen.findByRole('dialog', { name: 'Help' });
+            expect(within(drawer).getByText('Help')).not.toHaveClass('sr-only');
+            expect(within(drawer).getByRole('button', { name: 'Close' }).parentElement?.children).toHaveLength(2);
         });
 
         it('maximize button switches to the whole screen and back, reports the state', async () => {
@@ -329,6 +410,59 @@ describe.each(frameworks)('%s', (framework) => {
             await render(framework, el('DialogHost', {}));
             await tick(20);
             expect(document.querySelector('[data-scope="dialog"][data-part="content"]')).toBeNull();
+        });
+    });
+
+    describe('app-wide title position (dialog recipe default titleInHeader)', () => {
+        const titleIn = (dialog: HTMLElement, title: string) => {
+            const close = within(dialog).getByRole('button', { name: 'Close' });
+            return within(dialog).getByText(title).parentElement === close.parentElement ? 'header' : 'body';
+        };
+        const inHeader = { dialog: { defaultVariants: { titleInHeader: true } } };
+
+        it('DialogContent follows the default; titlePosition on the dialog wins', async () => {
+            await render(
+                framework,
+                el(
+                    'RecipesProvider',
+                    { recipes: inHeader },
+                    el('Dialog', { defaultOpen: true, modal: false }, el('DialogContent', { title: 'Default' })),
+                    el(
+                        'Dialog',
+                        { defaultOpen: true, modal: false },
+                        el('DialogContent', { title: 'Own', titlePosition: 'body' })
+                    )
+                )
+            );
+            expect(titleIn(await screen.findByRole('dialog', { name: 'Default' }), 'Default')).toBe('header');
+            expect(titleIn(await screen.findByRole('dialog', { name: 'Own' }), 'Own')).toBe('body');
+        });
+
+        it('confirm() follows it as well', async () => {
+            const { confirm } = lib(framework);
+            await render(framework, el('RecipesProvider', { recipes: inHeader }, el('ConfirmDialog', {})));
+            await act(async () => {
+                void confirm({ title: 'Archive?' });
+            });
+            expect(titleIn(await screen.findByRole('alertdialog', { name: 'Archive?' }), 'Archive?')).toBe('header');
+        });
+
+        it('openDialog() follows it as well; the option titlePosition wins', async () => {
+            await render(framework, el('RecipesProvider', { recipes: inHeader }, el('DialogHost', {})));
+            const open = (title: string, titlePosition?: 'body' | 'header') =>
+                framework === 'vue'
+                    ? Vue.openDialog({ title, titlePosition, component: () => 'Details' })
+                    : React.openDialog({ title, titlePosition, content: () => 'Details' });
+            await act(async () => {
+                void open('Server');
+            });
+            expect(titleIn(await screen.findByRole('dialog', { name: 'Server' }), 'Server')).toBe('header');
+            // Let the first dialog hide the page below it before the second one opens
+            await tick(20);
+            await act(async () => {
+                void open('Log', 'body');
+            });
+            expect(titleIn(await screen.findByRole('dialog', { name: 'Log' }), 'Log')).toBe('body');
         });
     });
 

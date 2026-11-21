@@ -266,7 +266,12 @@ export { Countdown, type CountdownProps, type CountdownUnit } from './components
 export { NumberFormatter, type NumberFormatterProps } from './components/NumberFormatter/NumberFormatter.js';
 export { Autocomplete, type AutocompleteProps } from './components/Autocomplete/Autocomplete.js';
 export { YearPicker, type YearPickerProps } from './components/YearPicker/YearPicker.js';
-export { RecipesProvider, useRecipe, type RecipesProviderProps } from './components/RecipesProvider/RecipesProvider.js';
+export {
+    RecipesProvider,
+    useRecipe,
+    useRecipeDefaults,
+    type RecipesProviderProps,
+} from './components/RecipesProvider/RecipesProvider.js';
 export { Gauge, type GaugeProps, type GaugeStatus } from './components/Gauge/Gauge.js';
 export { Heatmap, type HeatmapProps } from './components/Heatmap/Heatmap.js';
 export { Treemap, type TreemapItem, type TreemapProps } from './components/Treemap/Treemap.js';

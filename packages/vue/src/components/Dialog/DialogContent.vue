@@ -14,17 +14,21 @@ import { computed, inject, normalizeClass, ref, useAttrs, useTemplateRef, watch,
 import { dialogContentKey, dialogRootKey } from './context.js';
 import { useDialogDrag } from './drag.js';
 import { useTranslations } from '../../locale.js';
-import { useRecipe } from '../../recipes.js';
+import { useRecipe, useRecipeDefaults } from '../../recipes.js';
 
 const translations = useTranslations();
 
 export interface DialogContentProps {
     title: string;
-    /** The title only for screen readers – it still names the dialog (e.g. a video in a dialog) */
+    /**
+     * The title only for screen readers – it still names the dialog (e.g. a video in a dialog). With the `#header`
+     * slot this is the default; `false` shows the title where `titlePosition` puts it
+     */
     hideTitle?: boolean;
     /**
      * `body` (default): the title below the header row; `header`: in the row of the close button, after a smaller
-     * icon, the header separated by a line (as on the Drawer)
+     * icon, the header separated by a line (as on the Drawer). App-wide default: `titleInHeader` in the
+     * `defaultVariants` of the `dialog` recipe (RecipesProvider/ConfigProvider)
      */
     titlePosition?: 'body' | 'header';
     description?: string;
@@ -67,18 +71,27 @@ export interface DialogContentProps {
 
 defineOptions({ inheritAttrs: false });
 const props = withDefaults(defineProps<DialogContentProps>(), {
+    hideTitle: undefined,
     maximized: undefined,
     closable: true,
     responsive: true,
 });
 const emit = defineEmits<{ 'update:maximized': [maximized: boolean] }>();
-defineSlots<{
+const slots = defineSlots<{
+    /**
+     * Own content in the header row, after the icon and before the close button – e.g. a logo or a badge; the title
+     * then only names the dialog for screen readers (unless `hide-title` is `false`)
+     */
+    header?(): unknown;
     /** The content below the title */
     default?(): unknown;
     /** Buttons at the bottom, e.g. Cancel and Save (right-aligned) */
     footer?(): unknown;
 }>();
 const dialog = useRecipe('dialog', dialogRecipe, () => props.classes);
+const defaults = useRecipeDefaults('dialog', dialogRecipe);
+// The prop wins, otherwise the app-wide default of the recipe (`titleInHeader`)
+const titlePosition = computed(() => props.titlePosition ?? (defaults().titleInHeader ? 'header' : 'body'));
 const attrs = useAttrs();
 const root = inject(dialogRootKey, null);
 const modal = computed(() => root?.value.modal ?? true);
@@ -126,8 +139,8 @@ const styles = computed(() =>
         responsive: props.responsive,
         draggable: props.draggable && !isMaximized.value,
         maximizable: props.maximizable,
-        hideTitle: props.hideTitle,
-        titleInHeader: props.titlePosition === 'header',
+        hideTitle: props.hideTitle ?? !!slots.header,
+        titleInHeader: titlePosition.value === 'header',
     })
 );
 </script>
@@ -150,7 +163,15 @@ const styles = computed(() =>
                     <span v-if="icon" :class="styles.iconBox()">
                         <component :is="icon" :class="styles.icon()" aria-hidden="true" />
                     </span>
-                    <Dialog.Title v-if="titlePosition === 'header'" :class="styles.title()">{{ title }}</Dialog.Title>
+                    <div v-if="$slots.header" :class="styles.headerContent()">
+                        <slot name="header" />
+                        <Dialog.Title v-if="titlePosition === 'header'" :class="styles.title()">{{
+                            title
+                        }}</Dialog.Title>
+                    </div>
+                    <Dialog.Title v-else-if="titlePosition === 'header'" :class="styles.title()">
+                        {{ title }}
+                    </Dialog.Title>
                     <button
                         v-if="maximizable"
                         type="button"

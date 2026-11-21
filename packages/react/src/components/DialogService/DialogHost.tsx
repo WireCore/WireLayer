@@ -5,7 +5,7 @@ import { X } from 'lucide-react';
 import { useEffect, useSyncExternalStore } from 'react';
 import { dialogStore } from './dialogs.js';
 import { useTranslations } from '../LocaleProvider/LocaleProvider.js';
-import { useRecipe } from '../RecipesProvider/RecipesProvider.js';
+import { useRecipe, useRecipeDefaults } from '../RecipesProvider/RecipesProvider.js';
 
 export interface DialogHostProps {
     /** Accessible name of the close button */
@@ -19,18 +19,23 @@ const noDialogs: never[] = [];
 /** Place once in the app; open with `await openDialog({ title, content })` */
 export function DialogHost({ classes, closeLabel }: DialogHostProps) {
     const dialog = useRecipe('dialog', dialogRecipe, classes);
+    const defaults = useRecipeDefaults('dialog', dialogRecipe);
     const translations = useTranslations();
     const stack = useSyncExternalStore(dialogStore.subscribe, dialogStore.get, () => noDialogs);
     // Closed dialogs would otherwise stay in the stack when their exit animation never ends
     useEffect(() => dialogStore.removeClosed, []);
     return stack.map((request) => {
+        // The request wins, otherwise the app-wide default of the recipe (`titleInHeader`)
+        const inHeader = (request.titlePosition ?? (defaults.titleInHeader ? 'header' : 'body')) === 'header';
         const styles = dialog({
+            titleInHeader: inHeader,
             size: request.size,
             position: request.position,
             fullscreen: request.fullscreen,
             scrollBehavior: request.scrollBehavior,
             responsive: true,
         });
+        const title = <ArkDialog.Title className={styles.title()}>{request.title}</ArkDialog.Title>;
         return (
             <ArkDialog.Root
                 key={request.id}
@@ -46,6 +51,7 @@ export function DialogHost({ classes, closeLabel }: DialogHostProps) {
                     <ArkDialog.Positioner className={styles.positioner()}>
                         <ArkDialog.Content className={styles.content()}>
                             <div className={styles.header()}>
+                                {inHeader && title}
                                 {request.closable !== false && (
                                     <ArkDialog.CloseTrigger
                                         className={styles.close()}
@@ -56,7 +62,7 @@ export function DialogHost({ classes, closeLabel }: DialogHostProps) {
                                 )}
                             </div>
                             <div className={styles.body()}>
-                                <ArkDialog.Title className={styles.title()}>{request.title}</ArkDialog.Title>
+                                {!inHeader && title}
                                 {request.description && (
                                     <ArkDialog.Description className={styles.description()}>
                                         {request.description}

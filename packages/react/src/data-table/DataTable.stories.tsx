@@ -11,7 +11,7 @@ import { Progress } from '../components/Progress/Progress.js';
 import { Select } from '../components/Select/Select.js';
 import { Switch } from '../components/Switch/Switch.js';
 import { DataTable, type DataTableHandle, type DataTableProps } from './DataTable.js';
-import { dateInput, defineMatchMode, moveItem, moveTreeRow, numberInput } from './index.js';
+import { dateInput, dateRangeInput, defineMatchMode, moveItem, moveTreeRow, numberInput } from './index.js';
 import { virtualRows } from '../virtual/index.js';
 import type { DataTableColumn, DataTablePivot, RowsRequest } from './types.js';
 import type { ConditionGroup } from '@wirecore/wirelayer-recipes';
@@ -774,13 +774,15 @@ const serviceColumns: DataTableColumn<ServiceRow>[] = [
 
 /**
  * Own filters: an own input per column (renderFilter), an own comparison (`filterFn`), an own match mode for lists,
- * ranges in the filter row, choices with values of their own (grouped, several). The filter row can be hidden.
+ * ranges in the filter row (dates in one field with the feature dateRangeInput), choices with values of their own
+ * (grouped, several). The filter row can be hidden.
  */
 export const OwnFilters: Story = {
     name: 'Custom filters',
     render: () => (
         <DataTable<ServiceRow>
-            features={features}
+            // The date range of `since` in one field
+            features={[...features, dateRangeInput]}
             data={services}
             columns={serviceColumns}
             caption="Services"
@@ -790,6 +792,56 @@ export const OwnFilters: Story = {
             toolbarStart={<Badge>15 services</Badge>}
             className={`${card} max-w-[1100px]`}
         />
+    ),
+};
+
+/**
+ * Actions at the start, the search in the middle (`searchAlign="center"`), the tools at the end – toolbar controls of
+ * your own take the size of the built-in ones
+ */
+export const SearchInTheMiddle: Story = {
+    render: () => (
+        <DataTable<ServiceRow>
+            features={features}
+            data={services}
+            columns={serviceColumns}
+            caption="Services"
+            search
+            searchAlign="center"
+            filterToggle
+            columnToggle
+            toolbarStart={<Button>New service</Button>}
+            toolbarEnd={<Button variant="outline">Refresh</Button>}
+            className={`${card} max-w-[1100px]`}
+        />
+    ),
+};
+
+const fillRows = machines(500);
+
+/**
+ * The table fills the rest of a column (`scrollHeight="fill"`): heading and figures above it, the rows scroll in the
+ * room left down to the bottom edge – at least `minScrollHeight`, then the page scrolls. Here a column 560px high; on a
+ * page: `<main className="flex min-h-screen flex-col">`.
+ */
+export const FillTheRest: Story = {
+    render: () => (
+        <div data-testid="column" className="flex h-[560px] max-w-[900px] flex-col gap-3">
+            <h2 className="text-lg font-semibold">Machines</h2>
+            <p className="text-sm text-muted">500 machines in 3 locations</p>
+            <DataTable<MachineRow>
+                features={features}
+                data={fillRows}
+                columns={machineColumns.slice(0, 5)}
+                caption="Machines"
+                getRowId={machineId}
+                search
+                virtual
+                scrollHeight="fill"
+                minScrollHeight="200px"
+                className={card}
+            />
+        </div>
     ),
 };
 

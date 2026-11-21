@@ -356,4 +356,6 @@ export interface DataTableFeature {
     dateInput?: Component;
     /** Input of `number` filters and editors – without it the browser's number input */
     numberInput?: Component;
+    /** One field for both ends of a `between` filter of `date` and `datetime` columns – without it two fields */
+    dateRangeInput?: Component;
 }

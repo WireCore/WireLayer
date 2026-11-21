@@ -22,6 +22,11 @@ export interface ConfirmOptions {
     typeToConfirm?: string;
     /** Where the dialog sits: centred (default), top, bottom, start or end */
     position?: DialogPosition;
+    /**
+     * `body` (default): the title below the header row; `header`: in the row of the close button. App-wide default:
+     * `titleInHeader` in the `defaultVariants` of the `dialog` recipe
+     */
+    titlePosition?: 'body' | 'header';
     /** Look of the confirm button – wins over ConfirmDialog `confirmButton`, e.g. `{ size: 'md' }` */
     confirmButton?: ConfirmButtonOptions;
     /** Look of the cancel button – wins over ConfirmDialog `cancelButton` */

@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { CreditCard, HardDrive, ShieldAlert, UserPlus } from 'lucide-react';
+import { CreditCard, HardDrive, Languages, ShieldAlert, UserPlus, UserRound } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '../Button/Button.js';
 import { IconButton } from '../IconButton/IconButton.js';
@@ -114,4 +114,15 @@ export const Empty: Story = { args: { items: [], hasMore: false } };
  */
 export const ClickableItems: Story = {
     args: { items: start.map((item) => (item.href ? item : { ...item, clickable: true })) },
+};
+
+/** In a header next to other outlined icon buttons: the bell takes the same look (`variant`) and size */
+export const InHeader: Story = {
+    render: () => (
+        <header className="flex items-center justify-end gap-2 border-b border-line pb-3">
+            <IconButton icon={Languages} label="Language" variant="outline" size="sm" />
+            <NotificationCenter items={start} variant="outline" size="sm" />
+            <IconButton icon={UserRound} label="Account" variant="outline" size="sm" />
+        </header>
+    ),
 };

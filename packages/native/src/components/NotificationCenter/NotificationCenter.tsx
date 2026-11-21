@@ -8,9 +8,12 @@ import {
     notificationTime,
     toDate,
     visuallyHidden,
+    type ButtonColor,
     type DataList,
     type DataListState,
     type DataSource,
+    type IconButtonVariant,
+    type Size,
 } from '@wirecore/wirelayer-recipes/native';
 import { Bell, Check } from 'lucide-react-native';
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
@@ -51,6 +54,12 @@ export interface NotificationCenterProps {
     onOpenChange?: (open: boolean) => void;
     /** Name of the bell and title of the sheet (default "Notifications") */
     label?: string;
+    /** Look of the bell (IconButton `variant`), e.g. `outline` next to other outlined buttons in a header */
+    variant?: IconButtonVariant;
+    /** Colour of the bell, combined with the variant (IconButton `color`) */
+    color?: ButtonColor;
+    /** Size of the bell (IconButton `size`) */
+    size?: Size;
     /** Reference time for "Today"/"Yesterday" (default now) */
     now?: Date | string;
     /** Text without notifications */
@@ -89,6 +98,9 @@ export function NotificationCenter({
     open: openProp,
     onOpenChange,
     label,
+    variant,
+    color,
+    size,
     now,
     emptyText,
     onMarkRead,
@@ -158,6 +170,9 @@ export function NotificationCenter({
             <IconButton
                 icon={Bell}
                 label={name}
+                variant={variant}
+                color={color}
+                size={size}
                 badge={unread}
                 badgeLabel={(count) => (count ? t.unreadCount(count) : '')}
                 aria-expanded={open}

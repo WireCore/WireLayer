@@ -235,9 +235,43 @@ export const dataTable = tv({
             paginatorCenter: { footer: 'justify-center' },
             paginatorEnd: { footer: 'justify-end' },
         },
-        /** Every other row tinted */
+        /**
+         * Resize handle of the last column at the end of the table (passed to the `resizer` part): inside the column
+         * instead of half over the edge – no overflow, no line after the last column (hover and focus still show it)
+         */
+        edge: {
+            true: { resizer: 'inset-e-0 after:bg-transparent' },
+        },
+        /**
+         * Filter row or filter menus shown at the start (`showFilters`, with `filterToggle`) – no classes of its own:
+         * a variant so `defaultVariants: { showFilters: false }` starts every table of the app with closed filters
+         */
+        showFilters: {
+            true: {},
+            false: {},
+        },
+        /**
+         * Every column with a value can be sorted (`sortable` on the table) – no classes of its own: a variant so
+         * `defaultVariants: { sortable: true }` makes the columns of every table of the app sortable
+         */
+        sortable: {
+            true: {},
+            false: {},
+        },
+        /**
+         * `searchAlign: 'center'` (only with `search`): the search in the middle between the controls at the start and
+         * the end of the toolbar – the end group stays at the end
+         */
+        searchCentered: {
+            true: { search: 'mx-auto', toolbarEnd: 'ms-0' },
+        },
+        /**
+         * Every other row tinted. The components mark each data row with `data-stripe="true|false"` by its place among
+         * the data rows of the page (also with virtual scrolling, group and detail rows not counted); rows without the
+         * attribute (plain HTML) follow their position (`:nth-child(even)`). Hover and selection win.
+         */
         striped: {
-            true: { row: 'even:bg-bg-2/60' },
+            true: { row: '[&:where(:nth-child(even):not([data-stripe]),[data-stripe=true])]:bg-bg-2/60' },
         },
         /** Fixed height (`scrollHeight`): the table scrolls inside, header and footer stay visible */
         scrollable: {
@@ -248,6 +282,13 @@ export const dataTable = tv({
                 th: 'bg-card',
                 filterCell: 'bg-card',
             },
+        },
+        /**
+         * `scrollHeight="fill"`: the table is a flex item that takes the rest of its column, the rows scroll in the
+         * room left between toolbar and footer (contain: size – the rows do not stretch the page)
+         */
+        fill: {
+            true: { base: 'min-h-0 flex-1', scroll: 'min-h-0 flex-1 [contain:size]' },
         },
         /** Keyboard navigation as a grid (`navigation="grid"`): the focused cell gets the focus ring */
         grid: {

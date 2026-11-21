@@ -511,6 +511,7 @@ export const de = {
         searchPlaceholder: 'Suchen …',
         filter: (header: string) => `${header} filtern`,
         filterAll: 'Alle',
+        filterText: 'Filtern …',
         columns: 'Spalten',
         export: 'Exportieren (CSV)',
         resize: (header: string) => `Breite von ${header}`,

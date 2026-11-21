@@ -4,7 +4,10 @@ import {
     newestTime,
     newUnread,
     notificationCenter as notificationCenterRecipe,
+    type ButtonColor,
+    type ButtonSize,
     type DataSource,
+    type IconButtonVariant,
     type RecipeClasses,
 } from '@wirecore/wirelayer-recipes';
 import { computed, normalizeClass, onMounted, ref, useAttrs, watch } from 'vue';
@@ -42,6 +45,12 @@ export interface NotificationCenterProps {
     open?: boolean;
     /** Name of the bell and title of the panel (default "Notifications") */
     label?: string;
+    /** Look of the bell (IconButton `variant`), e.g. `outline` next to other outlined buttons in a header (default `text`) */
+    variant?: IconButtonVariant;
+    /** Colour of the bell, combined with the variant (IconButton `color`) */
+    color?: ButtonColor;
+    /** Size of the bell (IconButton `size`), e.g. `sm` in a compact header */
+    size?: ButtonSize;
     /** Reference time for "Today"/"Yesterday" (default: now) */
     now?: Date | string;
     /** Text without notifications (default "No notifications") */
@@ -57,6 +66,7 @@ const props = withDefaults(defineProps<NotificationCenterProps>(), {
     pageSize: 20,
     display: 'popover',
     open: undefined,
+    variant: 'text',
 });
 const notificationCenter = useRecipe('notificationCenter', notificationCenterRecipe, () => props.classes);
 const emit = defineEmits<{
@@ -145,7 +155,15 @@ const listEvents = {
     <div v-bind="{ ...attrs, class: styles.base({ class: normalizeClass(attrs.class) }) }">
         <Popover v-if="display === 'popover'" :open="isOpen" placement="bottom-end" @update:open="setOpen">
             <PopoverTrigger>
-                <IconButton :icon="Bell" :label="name" variant="text" :badge="unread" :badge-label="badgeLabel" />
+                <IconButton
+                    :icon="Bell"
+                    :label="name"
+                    :variant="variant"
+                    :color="color"
+                    :size="size"
+                    :badge="unread"
+                    :badge-label="badgeLabel"
+                />
             </PopoverTrigger>
             <PopoverContent
                 :title="name"
@@ -169,7 +187,9 @@ const listEvents = {
             <IconButton
                 :icon="Bell"
                 :label="name"
-                variant="text"
+                :variant="variant"
+                :color="color"
+                :size="size"
                 :badge="unread"
                 :badge-label="badgeLabel"
                 aria-haspopup="dialog"

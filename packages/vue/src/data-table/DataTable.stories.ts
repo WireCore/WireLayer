@@ -2,7 +2,15 @@ import { Container, Database, EllipsisVertical, HardDrive, Pencil, Server } from
 import type { Meta, StoryObj } from '@storybook/vue3-vite';
 import type { ConditionGroup } from '@wirecore/wirelayer-recipes';
 import { computed, ref, type ConcreteComponent } from 'vue';
-import { dateInput, defineMatchMode, moveItem, moveTreeRow, numberInput, type RowsRequest } from './index.js';
+import {
+    dateInput,
+    dateRangeInput,
+    defineMatchMode,
+    moveItem,
+    moveTreeRow,
+    numberInput,
+    type RowsRequest,
+} from './index.js';
 import { virtualRows } from '../virtual/index.js';
 import Badge from '../components/Badge/Badge.vue';
 import Button from '../components/Button/Button.vue';
@@ -886,14 +894,16 @@ const serviceColumns = [
 
 /**
  * Own filters: an own input per column (slot), an own comparison (`filterFn`), an own match mode for lists,
- * ranges in the filter row, choices with values of their own (grouped, several). The filter row can be hidden.
+ * ranges in the filter row (dates in one field with the feature dateRangeInput), choices with values of their own
+ * (grouped, several). The filter row can be hidden.
  */
 export const OwnFilters: Story = {
     name: 'Custom filters',
     render: () => ({
         components: { Badge, Checkbox, DataTable: DataTable as ConcreteComponent },
         setup: () => ({
-            features,
+            // The date range of `since` in one field
+            features: [...features, dateRangeInput],
             rows: services,
             columns: serviceColumns,
             card,
@@ -918,6 +928,68 @@ export const OwnFilters: Story = {
                     </Checkbox>
                 </template>
             </DataTable>`,
+    }),
+};
+
+/**
+ * Actions at the start, the search in the middle (`search-align="center"`), the tools at the end – toolbar controls of
+ * your own take the size of the built-in ones
+ */
+export const SearchInTheMiddle: Story = {
+    render: () => ({
+        components: { Button, DataTable: DataTable as ConcreteComponent },
+        setup: () => ({ features, rows: services, columns: serviceColumns, card }),
+        template: `
+            <DataTable
+                :features="features"
+                :data="rows"
+                :columns="columns"
+                caption="Services"
+                search
+                search-align="center"
+                filter-toggle
+                column-toggle
+                :class="card"
+                class="max-w-[1100px]"
+            >
+                <template #toolbarStart><Button>New service</Button></template>
+                <template #toolbarEnd><Button variant="outline">Refresh</Button></template>
+            </DataTable>`,
+    }),
+};
+
+/**
+ * The table fills the rest of a column (`scroll-height="fill"`): heading and figures above it, the rows scroll in the
+ * room left down to the bottom edge – at least `min-scroll-height`, then the page scrolls. Here a column 560px high; on a
+ * page: `<main class="flex min-h-screen flex-col">`.
+ */
+export const FillTheRest: Story = {
+    render: () => ({
+        components: { DataTable: DataTable as ConcreteComponent },
+        setup: () => ({
+            features,
+            rows: machines(500),
+            columns: machineColumns.slice(0, 5),
+            getRowId: machineId,
+            card,
+        }),
+        template: `
+            <div data-testid="column" class="flex h-[560px] max-w-[900px] flex-col gap-3">
+                <h2 class="text-lg font-semibold">Machines</h2>
+                <p class="text-sm text-muted">500 machines in 3 locations</p>
+                <DataTable
+                    :features="features"
+                    :data="rows"
+                    :columns="columns"
+                    caption="Machines"
+                    :get-row-id="getRowId"
+                    search
+                    virtual
+                    scroll-height="fill"
+                    min-scroll-height="200px"
+                    :class="card"
+                />
+            </div>`,
     }),
 };
 

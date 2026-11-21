@@ -15,10 +15,11 @@ import {
     matchModesFor,
     toFilterRule,
 } from '@wirecore/wirelayer-recipes';
-import { computed, ref } from 'vue';
+import { computed, inject, ref } from 'vue';
 import Button from '../components/Button/Button.vue';
 import IconButton from '../components/IconButton/IconButton.vue';
 import Select from '../components/Select/Select.vue';
+import { featureKey } from './features.js';
 import type { DataTableFilterInputOptions } from './types.js';
 import ValueInput from './ValueInput.vue';
 import { useLocale, useTranslations } from '../locale.js';
@@ -57,6 +58,10 @@ const modeItems = computed(() =>
 );
 /** Input of a condition: the one of an own match mode, or of the filter type */
 const inputType = (mode: DataTableMatchMode) => matchModeDefinition(mode)?.input ?? props.type;
+// A date range in one field (dateRangeInput feature) instead of from and to
+const feature = inject(featureKey, {});
+const dateRange = (mode: DataTableMatchMode) =>
+    !!feature.dateRangeInput && ['date', 'datetime'].includes(inputType(mode));
 // Plain copy – the filter values are text, numbers and lists; reactive proxies cannot be structured-cloned
 const clone = <T,>(value: T): T => JSON.parse(JSON.stringify(value)) as T;
 
@@ -147,6 +152,15 @@ const bottomEndPositioning = { placement: 'bottom-end', gutter: 4 } as const;
                                     setValue: (value: unknown) => (constraint.value = value),
                                 }"
                             />
+                            <ValueInput
+                                v-else-if="isRangeMatchMode(constraint.matchMode) && dateRange(constraint.matchMode)"
+                                range
+                                :type="inputType(constraint.matchMode)"
+                                :label="t.value(index)"
+                                :input-props="inputProps"
+                                :model-value="constraint.value"
+                                @update:model-value="constraint.value = $event"
+                            />
                             <div v-else-if="isRangeMatchMode(constraint.matchMode)" :class="styles.filterRange()">
                                 <ValueInput
                                     :type="inputType(constraint.matchMode)"
@@ -171,6 +185,7 @@ const bottomEndPositioning = { placement: 'bottom-end', gutter: 4 } as const;
                                 :label="t.value(index)"
                                 :options="options"
                                 :input-props="inputProps"
+                                filter
                                 :model-value="constraint.value"
                                 @update:model-value="constraint.value = $event"
                             >

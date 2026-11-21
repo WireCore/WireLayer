@@ -33,3 +33,19 @@ export function useRecipe<R extends AnyRecipe>(name: string, recipe: R, classes?
     checkRecipeSources(name);
     return withRecipeOverrides(recipe, [provided[name], classes ? { classes } : undefined]);
 }
+
+/**
+ * The default variants of a recipe – its own, overridden by the nearest RecipesProvider. For props that change the
+ * markup as well as the classes (DialogContent `titlePosition` ↔ `titleInHeader`, DataTable `showFilters` …): the
+ * component reads the default here when the prop is not set.
+ */
+export function useRecipeDefaults<R extends AnyRecipe>(
+    name: string,
+    recipe: R
+): Partial<Omit<NonNullable<Parameters<R>[0]>, 'class' | 'className'>> {
+    const provided = useContext(RecipesContext);
+    const own = (recipe as { defaultVariants?: Record<string, unknown> }).defaultVariants;
+    return { ...own, ...provided[name]?.defaultVariants } as Partial<
+        Omit<NonNullable<Parameters<R>[0]>, 'class' | 'className'>
+    >;
+}

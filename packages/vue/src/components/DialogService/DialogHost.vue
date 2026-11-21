@@ -5,7 +5,7 @@ import { dialog as dialogRecipe, type RecipeClasses } from '@wirecore/wirelayer-
 import { onBeforeUnmount } from 'vue';
 import { dialogStack, removeClosedDialogs, removeDialog, type DialogRequest } from './dialogs.js';
 import { useTranslations } from '../../locale.js';
-import { useRecipe } from '../../recipes.js';
+import { useRecipe, useRecipeDefaults } from '../../recipes.js';
 
 const translations = useTranslations();
 
@@ -18,8 +18,13 @@ export interface DialogHostProps {
 
 const props = defineProps<DialogHostProps>();
 const dialog = useRecipe('dialog', dialogRecipe, () => props.classes);
+const defaults = useRecipeDefaults('dialog', dialogRecipe);
+// The request wins, otherwise the app-wide default of the recipe (`titleInHeader`)
+const inHeader = (request: DialogRequest) =>
+    (request.titlePosition ?? (defaults().titleInHeader ? 'header' : 'body')) === 'header';
 const stylesOf = (request: DialogRequest) =>
     dialog({
+        titleInHeader: inHeader(request),
         size: request.size,
         position: request.position,
         fullscreen: request.fullscreen,
@@ -49,6 +54,9 @@ onBeforeUnmount(removeClosedDialogs);
             <Dialog.Positioner :class="stylesOf(request).positioner()">
                 <Dialog.Content :class="stylesOf(request).content()">
                     <div :class="stylesOf(request).header()">
+                        <Dialog.Title v-if="inHeader(request)" :class="stylesOf(request).title()">
+                            {{ request.title }}
+                        </Dialog.Title>
                         <Dialog.CloseTrigger
                             v-if="request.closable !== false"
                             :class="stylesOf(request).close()"
@@ -58,7 +66,9 @@ onBeforeUnmount(removeClosedDialogs);
                         </Dialog.CloseTrigger>
                     </div>
                     <div :class="stylesOf(request).body()">
-                        <Dialog.Title :class="stylesOf(request).title()">{{ request.title }}</Dialog.Title>
+                        <Dialog.Title v-if="!inHeader(request)" :class="stylesOf(request).title()">
+                            {{ request.title }}
+                        </Dialog.Title>
                         <Dialog.Description v-if="request.description" :class="stylesOf(request).description()">
                             {{ request.description }}
                         </Dialog.Description>

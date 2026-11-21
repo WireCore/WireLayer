@@ -104,6 +104,8 @@ import {
     type XlsxRow,
     type XlsxValue,
     warnInDevelopment,
+    sizeOverrides,
+    type RecipeConfig,
 } from '@wirecore/wirelayer-recipes';
 import {
     ArrowDown,
@@ -191,7 +193,7 @@ import type {
     DataTableXlsxOptions,
 } from './types.js';
 import { ValueInput } from './ValueInput.js';
-import { useRecipe } from '../components/RecipesProvider/RecipesProvider.js';
+import { RecipesProvider, useRecipe, useRecipeDefaults } from '../components/RecipesProvider/RecipesProvider.js';
 
 /** Methods of the table (`ref`) */
 export interface DataTableHandle {
@@ -337,8 +339,18 @@ export interface DataTableProps<TData> extends Omit<
      * `@wirecore/wirelayer-blocks-react`: gets the fields, the tree, the setter and the label of the panel
      */
     renderAdvancedFilter?: (props: DataTableAdvancedFilterProps) => ReactNode;
+    /**
+     * Every column with a value can be sorted, unless the column sets `sortable: false`; columns without a value (only
+     * a slot, e.g. actions) stay out. App-wide: `dataTable: { defaultVariants: { sortable: true } }`
+     */
+    sortable?: boolean;
     /** Search field above the table: filters over all columns */
     search?: boolean;
+    /**
+     * Place of the search field: `start` (default) after the controls of the toolbar start, `center` in the middle
+     * between them and the controls at the end. App-wide: `dataTable: { defaultVariants: { searchCentered: true } }`
+     */
+    searchAlign?: 'start' | 'center';
     globalFilter?: string;
     onGlobalFilterChange?: (value: string) => void;
     /**
@@ -353,7 +365,10 @@ export interface DataTableProps<TData> extends Omit<
     onFiltersChange?: (filters: Record<string, DataTableFilterValue>) => void;
     /** Filters in a row below the headers, as a menu per column with match modes and conditions, or none */
     filterDisplay?: 'row' | 'menu' | 'none';
-    /** Shows the filter row or menus (`filterToggle`); controlled with onShowFiltersChange – the filters keep working */
+    /**
+     * Shows the filter row or menus (`filterToggle`); controlled with onShowFiltersChange – the filters keep working.
+     * Default true; app-wide `dataTable: { defaultVariants: { showFilters: false } }`, a saved state (`stateKey`) wins
+     */
     showFilters?: boolean;
     onShowFiltersChange?: (show: boolean) => void;
     /** Button in the toolbar that shows and hides the filters */
@@ -456,12 +471,18 @@ export interface DataTableProps<TData> extends Omit<
     gridlines?: boolean;
     /** A border around the whole table */
     bordered?: boolean;
-    /** Every other row tinted */
+    /** Every other row tinted (app-wide: `dataTable: { defaultVariants: { striped: true } }`) */
     striped?: boolean;
     /** Button above the table to show it on the whole screen */
     fullscreenToggle?: boolean;
-    /** Fixed height (CSS length): the table scrolls inside, header and footer stay visible */
+    /**
+     * Height of the scroll area: a CSS length (its maximum – the table scrolls inside, header and footer stay visible)
+     * or `fill`: the table takes the rest of a flex column (e.g. a page with `min-h-screen flex flex-col`), the rows
+     * scroll in the room left – set `minScrollHeight` so it does not collapse on small screens
+     */
     scrollHeight?: string;
+    /** `scrollHeight="fill"`: minimum height of the scroll area (CSS length, e.g. 60vh) – below it the page scrolls */
+    minScrollHeight?: string;
     /**
      * Feature modules, imported on their own so apps only bundle what they use (fixed for the life of the table):
      * `virtualRows` from `/virtual` for `virtual`, `dateInput` and `numberInput` for date and number filters and
@@ -486,11 +507,11 @@ export interface DataTableProps<TData> extends Omit<
     stateStorage?: 'local' | 'session';
     /** Parts of the state that `stateKey` does not keep – default: the selection (`[]` keeps it, too) */
     stateExclude?: readonly DataTableStateKey[];
-    /** Own controls in the toolbar, after the search */
+    /** Own controls in the toolbar, after the search – buttons, fields and menus default to the toolbar size (sm) */
     toolbar?: ReactNode;
-    /** Own controls at the start of the toolbar, before the search */
+    /** Own controls at the start of the toolbar, before the search (default size sm, like the built-in ones) */
     toolbarStart?: ReactNode;
-    /** Own controls at the end of the toolbar, before the built-in buttons */
+    /** Own controls at the end of the toolbar, before the built-in buttons (default size sm, like them) */
     toolbarEnd?: ReactNode;
     /** Shown when there are no rows */
     empty?: ReactNode;
@@ -562,6 +583,9 @@ type Utility = keyof typeof UTILITY_WIDTH;
 /** Without the feature virtualRows: no virtualizer, all rows are rendered */
 const noVirtualizer = () => undefined;
 
+// Own buttons, fields and menus in the toolbar slots take the size of the built-in ones unless they set their own
+const toolbarSize = sizeOverrides('sm') as RecipeConfig;
+
 /** Data table on TanStack Table: sorting (also by several columns), search, filter row or filter menus with match modes, pagination, selection, column menu (pin, move, hide, group), resizing, column groups, totals, row details, row actions, row reordering, editing (cell or row), virtual scrolling, full screen, CSV export and saved state */
 export function DataTable<TData extends object>({
     classes,
@@ -619,7 +643,9 @@ export function DataTable<TData extends object>({
     advancedFilterValue,
     onAdvancedFilterValueChange,
     renderAdvancedFilter,
+    sortable: sortableProp,
     search = false,
+    searchAlign: searchAlignProp,
     globalFilter: globalFilterProp,
     onGlobalFilterChange,
     rowKeywords,
@@ -664,8 +690,8 @@ export function DataTable<TData extends object>({
     onCellPaste,
     onSave,
     find = false,
-    wrapHeaders = false,
-    verticalHeaders = false,
+    wrapHeaders: wrapHeadersProp,
+    verticalHeaders: verticalHeadersProp,
     editMode = 'cell',
     editTrigger = 'click',
     onCellEdit,
@@ -673,11 +699,12 @@ export function DataTable<TData extends object>({
     size,
     onSizeChange,
     densityToggle = false,
-    gridlines = false,
-    bordered = false,
-    striped = false,
+    gridlines: gridlinesProp,
+    bordered: borderedProp,
+    striped: stripedProp,
     fullscreenToggle = false,
     scrollHeight,
+    minScrollHeight,
     features,
     virtual = false,
     rowHeight = 41,
@@ -698,6 +725,13 @@ export function DataTable<TData extends object>({
     ...props
 }: DataTableProps<TData>) {
     const dataTable = useRecipe('dataTable', dataTableRecipe, classes);
+    // App-wide defaults of props that are variants of the recipe (RecipesProvider/ConfigProvider): the prop wins
+    const recipeDefaults = useRecipeDefaults('dataTable', dataTableRecipe);
+    const gridlines = gridlinesProp ?? !!recipeDefaults.gridlines;
+    const bordered = borderedProp ?? !!recipeDefaults.bordered;
+    const striped = stripedProp ?? !!recipeDefaults.striped;
+    const wrapHeaders = wrapHeadersProp ?? !!recipeDefaults.wrapHeaders;
+    const verticalHeaders = verticalHeadersProp ?? !!recipeDefaults.verticalHeaders;
     const menu = useRecipe('menu', menuRecipe);
     const menuStyles = menu();
     type TableRow = Row<Features, TData>;
@@ -875,7 +909,7 @@ export function DataTable<TData extends object>({
     const [internalAllSelection, setInternalAllSelection] = useState<DataTableAllSelection | null>(null);
     const allSelectionValue = useSameValue(allSelectionProp);
     const allSelection = allSelectionValue === undefined ? internalAllSelection : allSelectionValue;
-    const [internalShowFilters, setInternalShowFilters] = useState(true);
+    const [internalShowFilters, setInternalShowFilters] = useState(recipeDefaults.showFilters ?? true);
     const showFilters = showFiltersProp ?? internalShowFilters;
     const [grouping, setInternalGrouping] = useState<string[]>(() => toArray(groupBy));
     const groupKey = toArray(groupBy).join('\u0000');
@@ -1034,6 +1068,8 @@ export function DataTable<TData extends object>({
         features: tableFeatures,
         columns,
         data,
+        // The language for sorting texts (features.ts)
+        meta: { locale },
         getRowId: (row: TData, index: number) =>
             pivotModel ? (row as { id: string }).id : (getRowId?.(row, index) ?? String(index)),
         state: {
@@ -1125,6 +1161,7 @@ export function DataTable<TData extends object>({
         paginatorAlign: paginatorAlignKey(paginatorAlign),
         striped,
         scrollable: !!scrollHeight,
+        fill: scrollHeight === 'fill',
         wrapHeaders,
         verticalHeaders,
     };
@@ -1133,7 +1170,9 @@ export function DataTable<TData extends object>({
     const treeGrid = grid && !!getSubRows;
     const virtualOn = virtual && !!scrollHeight && !!feature.useVirtualizer;
     const paged = !!pageSize;
-    const styles = dataTable({ ...look, fullscreen, grid });
+    // Only a toolbar with the search has a place for it; the end group stays at the end without one
+    const searchCentered = search && (searchAlignProp ? searchAlignProp === 'center' : !!recipeDefaults.searchCentered);
+    const styles = dataTable({ ...look, fullscreen, grid, searchCentered });
     const styleFor = (columnId: string) => {
         const column = columnById.get(columnId);
         return dataTable({
@@ -1161,6 +1200,8 @@ export function DataTable<TData extends object>({
     ];
     const trailing: Utility[] = rowActions || (editMode === 'row' && editable) ? ['actions'] : [];
     const leafColumns = table.getVisibleLeafColumns();
+    /** The column ends the table (no action column after it): its resize handle stays inside the table */
+    const atEnd = (columnId: string) => !trailing.length && leafColumns.at(-1)?.id === columnId;
     const columnCount = leafColumns.length + leading.length + trailing.length;
 
     // Fixed widths: needed for resizing and pinning (sticky offsets)
@@ -1246,7 +1287,15 @@ export function DataTable<TData extends object>({
 
     // Sorting
     /** Whether the user can sort by the column (its header button, the column menu) */
-    const canSort = (columnId: string) => !!columnById.get(columnId)?.sortable;
+    const canSort = (columnId: string) => {
+        const column = columnById.get(columnId);
+        return !!column && (column.sortable ?? ((sortableProp ?? !!recipeDefaults.sortable) && hasValue(column)));
+    };
+    /** A column with a value of its own (an own sort, an accessor or a field of the rows) – not one only for a slot */
+    const hasValue = (column: DataTableColumn<TData>) => {
+        const first = data[0] as object | undefined;
+        return !!column.sortFn || column.accessor !== undefined || (!!first && column.id in first);
+    };
     const ariaSort = (columnId: string) => {
         const first = sorting[0];
         if (first?.id === columnId) return first.desc ? 'descending' : 'ascending';
@@ -1474,6 +1523,9 @@ export function DataTable<TData extends object>({
         setFilter(column.id, { operator: 'and', constraints: [{ matchMode: rowMode(column), value }] });
     };
     /** From (0) or to (1) of a range in the filter row */
+    /** A date range in one field (dateRangeInput feature) instead of from and to */
+    const dateRange = (column: DataTableColumn<TData>) =>
+        !!feature.dateRangeInput && ['date', 'datetime'].includes(rowInput(column));
     const rangePart = (column: DataTableColumn<TData>, part: 0 | 1) => {
         const current = rowFilterValue(column);
         return Array.isArray(current) ? current[part] : null;
@@ -1590,6 +1642,12 @@ export function DataTable<TData extends object>({
     const rowNumbers = new Map(
         items.filter((item) => item.kind === 'row').map((item, index) => [item.row.id, pageOffset + index + 1])
     );
+    /**
+     * `striped`: every second data row of the page by its place, not by the DOM (virtual scrolling renders a spacer and
+     * a window of the rows); group and detail rows do not count
+     */
+    const stripe = (row: TableRow) =>
+        striped ? String(((rowNumbers.get(row.id) ?? 0) - pageOffset) % 2 === 0) : undefined;
     const detailsId = (row: TableRow) => `${id}-details-${row.id}`;
     const allExpanded = table.getIsAllRowsExpanded();
     const treeIndent = !!getSubRows || grouping.length > 0;
@@ -2736,6 +2794,7 @@ export function DataTable<TData extends object>({
         overscan: 8,
         getItemKey: (index: number) => items[index]?.key ?? index,
         // Rows of the first screen before the table is measured (no empty flash, SSR)
+        // (`fill` has no number – the virtualizer measures the scroll area once it is shown)
         initialRect: { width: 0, height: Number.parseInt(scrollHeight ?? '', 10) || 400 },
     });
     useEffect(() => {
@@ -3346,6 +3405,7 @@ export function DataTable<TData extends object>({
                         data-state={isSelected(row) ? 'selected' : undefined}
                         aria-selected={grid && selectable ? isSelected(row) : undefined}
                         data-row-id={row.id}
+                        data-stripe={stripe(row)}
                         data-index={item.index}
                         aria-rowindex={rowIndex}
                         aria-level={treeGrid ? row.depth + 1 : undefined}
@@ -3521,7 +3581,7 @@ export function DataTable<TData extends object>({
         >
             {showToolbar && (
                 <div className={styles.toolbar()}>
-                    {toolbarStart}
+                    {toolbarStart && <RecipesProvider recipes={toolbarSize}>{toolbarStart}</RecipesProvider>}
                     {search && (
                         <Input
                             type="search"
@@ -3534,9 +3594,9 @@ export function DataTable<TData extends object>({
                             onChange={(event) => table.setGlobalFilter(event.target.value)}
                         />
                     )}
-                    {toolbar}
+                    {toolbar && <RecipesProvider recipes={toolbarSize}>{toolbar}</RecipesProvider>}
                     <div className={styles.toolbarEnd()}>
-                        {toolbarEnd}
+                        {toolbarEnd && <RecipesProvider recipes={toolbarSize}>{toolbarEnd}</RecipesProvider>}
                         {find && (
                             <IconButton
                                 data-find-toggle=""
@@ -3833,7 +3893,17 @@ export function DataTable<TData extends object>({
             <div
                 ref={scrollElement}
                 className={styles.scroll()}
-                style={scrollHeight ? { maxHeight: scrollHeight } : undefined}
+                style={
+                    // A fixed height is the maximum of the scroll area; `fill` takes the rest of the column (recipe
+                    // `fill`), at least minScrollHeight
+                    scrollHeight === 'fill'
+                        ? minScrollHeight
+                            ? { minHeight: minScrollHeight }
+                            : undefined
+                        : scrollHeight
+                          ? { maxHeight: scrollHeight }
+                          : undefined
+                }
                 onScroll={scrolled}
             >
                 <table
@@ -4029,7 +4099,7 @@ export function DataTable<TData extends object>({
                                                     aria-valuemin={MIN_WIDTH}
                                                     aria-valuemax={1200}
                                                     tabIndex={0}
-                                                    className={styles.resizer()}
+                                                    className={styles.resizer({ edge: atEnd(column.id) })}
                                                     data-resizing={column.getIsResizing() || undefined}
                                                     onMouseDown={cell.header.getResizeHandler()}
                                                     onTouchStart={cell.header.getResizeHandler()}
@@ -4078,6 +4148,15 @@ export function DataTable<TData extends object>({
                                                         setValue: (next) => setRowFilter(def, next),
                                                         column: def,
                                                     })
+                                                ) : isRangeMatchMode(rowMode(def)) && dateRange(def) ? (
+                                                    <ValueInput
+                                                        range
+                                                        type={rowInput(def)}
+                                                        label={t.filter(label(column))}
+                                                        inputProps={def.filterInputProps}
+                                                        value={rowFilterValue(def)}
+                                                        onChange={(next) => setRowFilter(def, next)}
+                                                    />
                                                 ) : isRangeMatchMode(rowMode(def)) ? (
                                                     <div className={styles.filterRowRange()}>
                                                         {([0, 1] as const).map((part) => (
@@ -4100,6 +4179,7 @@ export function DataTable<TData extends object>({
                                                         inputProps={def.filterInputProps}
                                                         renderOption={def.renderOption}
                                                         any
+                                                        filter
                                                         value={rowFilterValue(def)}
                                                         onChange={(next) => setRowFilter(def, next)}
                                                     />
@@ -4116,13 +4196,14 @@ export function DataTable<TData extends object>({
                     </thead>
                     {frozen.length > 0 && (
                         <tbody className={styles.frozenBody()} style={scrollHeight ? { top: headHeight } : undefined}>
-                            {frozen.map((row) => (
+                            {frozen.map((row, frozenIndex) => (
                                 <tr
                                     key={row.id}
                                     className={styles.row({ class: rowClass?.(row.original) })}
                                     data-state={isSelected(row) ? 'selected' : undefined}
                                     aria-selected={grid && selectable ? isSelected(row) : undefined}
                                     data-row-id={row.id}
+                                    data-stripe={striped ? String(frozenIndex % 2 === 1) : undefined}
                                 >
                                     {leading.map((utility) => (
                                         <td

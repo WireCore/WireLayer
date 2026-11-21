@@ -226,11 +226,54 @@ ${Object.entries(radius)
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
     }
+    /* A mode or theme forced on a part of the page: body sets the text colour once and it is inherited as a fixed
+       value, so the part takes the text colour of its own mode/theme again. No background – the part may stay
+       transparent (set bg-bg or bg-card where it needs one). In the base layer, so text-* utilities still win */
+    [data-mode],
+    [data-theme] {
+        color: var(--wc-fg);
+    }
     /* Popups positioned by Ark (Select, Menu, Popover …): Ark copies the z-index of the content to the positioner as
        an inline style – Vue removes it again when it patches the positioner's style, which drops a list behind a
        dialog. In the base layer, so a z-index utility on a positioner still wins */
     [data-scope][data-part='positioner'] {
         z-index: var(--z-index);
+    }
+    /* Scrollbars of the page and of every scrolling area in the look of ScrollPanel: thin, the thumb in line-strong
+       (3:1 against the surfaces, checked with the contrast of the input borders), the track transparent. Colours per
+       element, so a part with its own mode/theme follows it. Change them with --wc-scrollbar-thumb / -thumb-hover /
+       -track / -width; <html data-scrollbars="native"> keeps the browser's own. In the base layer, so utilities such
+       as [scrollbar-width:none] still win */
+    :where(:root:not([data-scrollbars='native'])),
+    :where(:root:not([data-scrollbars='native'])) * {
+        scrollbar-width: var(--wc-scrollbar-width, thin);
+        scrollbar-color: var(--wc-scrollbar-thumb, var(--wc-line-strong)) var(--wc-scrollbar-track, transparent);
+    }
+    /* Browsers without scrollbar-color (Safari): the same look through the WebKit scrollbar */
+    @supports not (scrollbar-color: auto) {
+        :where(:root:not([data-scrollbars='native'])) ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+            background: var(--wc-scrollbar-track, transparent);
+        }
+        :where(:root:not([data-scrollbars='native'])) ::-webkit-scrollbar-thumb {
+            border: 2px solid transparent;
+            border-radius: 9999px;
+            background: var(--wc-scrollbar-thumb, var(--wc-line-strong)) padding-box;
+        }
+        :where(:root:not([data-scrollbars='native'])) ::-webkit-scrollbar-thumb:hover {
+            background-color: var(--wc-scrollbar-thumb-hover, var(--wc-muted));
+        }
+        :where(:root:not([data-scrollbars='native'])) ::-webkit-scrollbar-corner {
+            background: transparent;
+        }
+    }
+    /* Forced colours (Windows contrast themes): the system scrollbars */
+    @media (forced-colors: active) {
+        :where(:root),
+        :where(:root) * {
+            scrollbar-color: auto;
+        }
     }
 }
 `;

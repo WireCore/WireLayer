@@ -502,6 +502,7 @@ export const pt: Translations = {
         searchPlaceholder: 'Pesquisar…',
         filter: (header) => `Filtrar ${header}`,
         filterAll: 'Todos',
+        filterText: 'Filtrar…',
         columns: 'Colunas',
         export: 'Exportar (CSV)',
         resize: (header) => `Largura de ${header}`,

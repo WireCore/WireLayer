@@ -167,6 +167,17 @@ test.describe('Drawer', () => {
         await expect(drawer).toBeHidden();
         await expect(page.getByText('Locations: vie')).toBeVisible();
     });
+
+    test('own header content: the logo next to the close button, the hidden title still names the drawer', async ({
+        page,
+    }) => {
+        await openStory(page, 'overlays-drawer--logo-in-header');
+        await page.getByRole('button', { name: 'Menu' }).click();
+        const drawer = page.getByRole('dialog', { name: 'Menu' });
+        await expect(drawer.getByText('Acme')).toBeVisible();
+        await expect(drawer.getByRole('heading')).toHaveCount(0);
+        await expect(drawer.getByRole('button', { name: 'Close' })).toBeVisible();
+    });
 });
 
 test.describe('LocaleProvider', () => {

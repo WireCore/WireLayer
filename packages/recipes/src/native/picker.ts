@@ -10,6 +10,8 @@ const sheet = {
     sheet: 'max-h-[70%] rounded-t-2xl border-t border-line-2 bg-card pb-6',
     sheetHeader: 'flex-row items-center justify-between gap-3 border-b border-line py-3 pr-3 pl-5',
     sheetTitle: 'font-sans-semibold text-base text-fg',
+    /** Own content of the header row (Drawer `header`), before the title */
+    sheetHeaderContent: 'min-w-0 shrink flex-row items-center gap-3',
     close: ['size-8 items-center justify-center rounded-full', pressable, 'active:bg-line active:opacity-100'],
     closeIcon: 'size-4 text-muted',
     list: 'px-2 pt-2',

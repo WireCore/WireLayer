@@ -2312,6 +2312,22 @@ export const cases: [string, El][] = [
         }),
     ],
     [
+        'NotificationCenter bell look: outline, colour, small (popover and drawer)',
+        el(
+            'div',
+            {},
+            el('NotificationCenter', { items: notifications, now: notificationNow, variant: 'outline', size: 'sm' }),
+            el('NotificationCenter', {
+                items: notifications,
+                now: notificationNow,
+                display: 'drawer',
+                variant: 'soft',
+                color: 'info',
+                size: 'sm',
+            })
+        ),
+    ],
+    [
         'AppShell rail, resizable, footer, headroom, navbar first',
         el(
             'AppShell',

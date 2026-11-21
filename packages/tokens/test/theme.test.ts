@@ -57,12 +57,30 @@ describe('light and dark', () => {
         );
     });
 
+    it('gives a part with a forced mode or theme its own text colour, in the base layer', () => {
+        // Inherited text would keep the colour body computed from the page's mode (light text on a light card)
+        expect(css).toMatch(/@layer base \{[^@]*\[data-mode\],\s*\[data-theme\] \{\s*color: var\(--wc-fg\);/);
+    });
+
     it('gives every theme with dark colours the system case, too', () => {
         for (const theme of themes.filter((theme) => Object.keys(theme.colors.dark).length)) {
             const rules = themeToCss(theme);
             expect(rules, theme.name).toContain(`:root:not([data-mode])[data-theme=${theme.name}]`);
             expect(css, theme.name).toContain(rules);
         }
+    });
+});
+
+describe('scrollbars', () => {
+    it('gives every scrolling area thin scrollbars in the theme colours, in the base layer, with a way out', () => {
+        const base = css.slice(css.indexOf('@layer base {'));
+        expect(base).toContain(
+            'scrollbar-color: var(--wc-scrollbar-thumb, var(--wc-line-strong)) var(--wc-scrollbar-track, transparent);'
+        );
+        expect(base).toContain('scrollbar-width: var(--wc-scrollbar-width, thin);');
+        expect(base).toContain(":where(:root:not([data-scrollbars='native'])) *");
+        expect(base).toMatch(/@supports not \(scrollbar-color: auto\) \{[^@]*::-webkit-scrollbar-thumb:hover/);
+        expect(base).toMatch(/@media \(forced-colors: active\) \{[^@]*scrollbar-color: auto;/);
     });
 });
 

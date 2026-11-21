@@ -484,6 +484,7 @@ export const nl: Translations = {
         searchPlaceholder: 'Zoeken…',
         filter: (header) => `${header} filteren`,
         filterAll: 'Alle',
+        filterText: 'Filteren…',
         columns: 'Kolommen',
         export: 'Exporteren (CSV)',
         resize: (header) => `Breedte van ${header}`,

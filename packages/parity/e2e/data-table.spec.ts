@@ -300,3 +300,120 @@ test.describe('DataTable virtual widths', () => {
         expect(await cell.evaluate((element) => element.scrollWidth <= element.clientWidth)).toBe(true);
     });
 });
+
+test.describe('DataTable resize handles', () => {
+    test('the handle of the last column stays inside the table and still resizes it with the keyboard', async ({
+        page,
+    }) => {
+        await openStory(page, 'data-datatable--tools');
+        const table = page.getByRole('table', { name: 'Servers' });
+        const handles = table.getByRole('separator');
+        const last = handles.last();
+        const tableBox = (await table.boundingBox())!;
+        const lastBox = (await last.boundingBox())!;
+        expect(lastBox.x + lastBox.width).toBeLessThanOrEqual(tableBox.x + tableBox.width + 0.5);
+        // The handles in between still sit on the border to the next column
+        const firstBox = (await handles.first().boundingBox())!;
+        const firstHead = (await handles.first().locator('xpath=..').boundingBox())!;
+        expect(firstBox.x + firstBox.width).toBeGreaterThan(firstHead.x + firstHead.width);
+        // No line after the last column
+        expect(await last.evaluate((element) => getComputedStyle(element, '::after').backgroundColor)).toBe(
+            'rgba(0, 0, 0, 0)'
+        );
+        const before = Number(await last.getAttribute('aria-valuenow'));
+        await last.focus();
+        await page.keyboard.press('ArrowRight');
+        await expect.poll(async () => Number(await last.getAttribute('aria-valuenow'))).toBeGreaterThan(before);
+    });
+});
+
+test.describe('DataTable striped with virtual scrolling', () => {
+    test('every data row keeps its tint wherever the table is scrolled', async ({ page }) => {
+        await openStory(page, 'data-datatable--large');
+        const table = page.getByRole('table', { name: 'All machines' });
+        const seen = new Map<string, string>();
+        for (const top of [0, 113, 565, 791, 1808, 2486]) {
+            await table.evaluate((element, y) => element.parentElement!.scrollTo({ top: y }), top);
+            await nextFrame(page);
+            const rows = await table.evaluate((element) =>
+                [...element.querySelectorAll('tbody:not([class*=sticky]) tr[data-row-id]')].map((row) => [
+                    row.getAttribute('aria-rowindex')!,
+                    getComputedStyle(row).backgroundColor,
+                ])
+            );
+            expect(rows.length).toBeGreaterThan(4);
+            for (const [index, color] of rows) {
+                if (seen.has(index!)) expect(color, `row ${index} at ${top}px`).toBe(seen.get(index!));
+                seen.set(index!, color!);
+            }
+        }
+        // Alternating: neighbours differ
+        const indexes = [...seen.keys()].map(Number).sort((a, b) => a - b);
+        const pairs = indexes.slice(1).filter((index, i) => index === indexes[i]! + 1);
+        expect(pairs.length).toBeGreaterThan(10);
+        for (const index of pairs) expect(seen.get(String(index))).not.toBe(seen.get(String(index - 1)));
+    });
+});
+
+test.describe('DataTable search in the middle', () => {
+    test('the search sits with equal room to the start actions and the end tools, which stay at the end', async ({
+        page,
+    }) => {
+        await openStory(page, 'data-datatable--search-in-the-middle');
+        await page.setViewportSize({ width: 1280, height: 800 });
+        const start = (await page.getByRole('button', { name: 'New service' }).boundingBox())!;
+        // The field around the input (the search icon sits before the input)
+        const search = (await page.getByRole('searchbox').locator('xpath=..').boundingBox())!;
+        const end = (await page.getByRole('button', { name: 'Refresh' }).boundingBox())!;
+        const columns = (await page.getByRole('button', { name: 'Columns' }).boundingBox())!;
+        const toolbar = (await page.getByRole('button', { name: 'Refresh' }).locator('xpath=../..').boundingBox())!;
+        const before = search.x - (start.x + start.width);
+        const after = end.x - (search.x + search.width);
+        expect(Math.abs(before - after)).toBeLessThanOrEqual(2);
+        expect(before).toBeGreaterThan(40);
+        // The end group still ends at the end of the toolbar
+        expect(toolbar.x + toolbar.width - (columns.x + columns.width)).toBeLessThan(30);
+        // Own controls are as high as the built-in ones
+        expect(start.height).toBe(columns.height);
+    });
+});
+
+test.describe('DataTable filter row', () => {
+    test('all fields of the filter row are equally high; a date range is one field', async ({ page }) => {
+        await openStory(page, 'data-datatable--own-filters');
+        const heights = await page.getByRole('table', { name: 'Services' }).evaluate((table) =>
+            [...table.querySelectorAll('thead tr:last-child td')]
+                .map((cell) => cell.firstElementChild)
+                // One field per cell – not an own checkbox (slot) or a range of two fields below each other
+                .filter(
+                    (field): field is Element =>
+                        !!field &&
+                        field.tagName !== 'LABEL' &&
+                        field.querySelectorAll(':scope > [data-scope]').length < 2
+                )
+                .map((field) => Math.round(field.getBoundingClientRect().height))
+        );
+        expect(heights.length).toBeGreaterThan(3);
+        expect(new Set(heights).size).toBe(1);
+        await expect(page.getByRole('textbox', { name: /Filter Since, from/ })).toHaveCount(0);
+    });
+});
+
+test.describe('DataTable filling the rest of a column', () => {
+    test('scrollHeight fill: the table ends at the bottom of its column, the rows scroll virtually inside', async ({
+        page,
+    }) => {
+        await openStory(page, 'data-datatable--fill-the-rest');
+        const column = (await page.getByTestId('column').boundingBox())!;
+        const table = page.getByRole('table', { name: 'Machines' });
+        const scroll = table.locator('xpath=..');
+        const area = (await scroll.boundingBox())!;
+        // The scroll area reaches down to the bottom of the column (the card border below it)
+        expect(column.y + column.height - (area.y + area.height)).toBeLessThan(4);
+        expect(area.height).toBeGreaterThan(250);
+        // Virtual: only a window of the 500 rows is rendered, scrolling brings later ones
+        expect(await table.locator('tbody tr[data-row-id]').count()).toBeLessThan(60);
+        await scroll.evaluate((element) => element.scrollTo({ top: element.scrollHeight }));
+        await expect(table.getByRole('row', { name: /vm-0500/ })).toBeVisible();
+    });
+});

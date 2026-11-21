@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import type { DrawerPlacement, OverlaySize } from '@wirecore/wirelayer-recipes';
-import { SlidersHorizontal } from 'lucide-react';
+import { Hexagon, Menu as MenuIcon, SlidersHorizontal } from 'lucide-react';
 import { Button } from '../Button/Button.js';
 import { Checkbox } from '../Checkbox/Checkbox.js';
 import { Field } from '../Field/Field.js';
@@ -75,3 +75,40 @@ export const Floating: Story = { args: { offset: true, size: 'sm' } };
 
 /** Non-modal: no backdrop, the page stays usable while the panel is open */
 export const NonModal: Story = { args: { modal: false, placement: 'bottom', size: 'sm' } };
+
+/**
+ * Navigation from the left with the logo of the app next to the close button (`header`). The title names the drawer
+ * for screen readers only – with `header` that is the default (`hideTitle`)
+ */
+export const LogoInHeader: Story = {
+    render: () => (
+        <Drawer>
+            <DrawerTrigger>
+                <Button variant="outline" leadingIcon={MenuIcon}>
+                    Menu
+                </Button>
+            </DrawerTrigger>
+            <DrawerContent
+                title="Menu"
+                placement="left"
+                size="sm"
+                hideTitle
+                closable
+                header={
+                    <span className="flex items-center gap-2 font-semibold">
+                        <Hexagon className="size-6 text-primary" aria-hidden="true" />
+                        Acme
+                    </span>
+                }
+            >
+                <nav aria-label="Main" className="flex flex-col gap-1">
+                    <a href="#" aria-current="page">
+                        Dashboard
+                    </a>
+                    <a href="#">Servers</a>
+                    <a href="#">Invoices</a>
+                </nav>
+            </DrawerContent>
+        </Drawer>
+    ),
+};

@@ -674,6 +674,157 @@ describe.each(frameworks)('%s DataTable', (framework) => {
         expect(screen.queryByRole('button', { name: 'First page' })).not.toBeInTheDocument();
     });
 
+    it('sorts texts by the language (case and umlauts) without a warning, Date values by time', async () => {
+        const warn = vi.spyOn(console, 'warn');
+        const people = [
+            { id: '1', name: 'zoe', born: new Date(2001, 4, 1) },
+            { id: '2', name: 'Ärger', born: new Date(1999, 0, 1) },
+            { id: '3', name: 'bert', born: new Date(2010, 2, 1) },
+            { id: '4', name: 'Anna', born: new Date(1985, 11, 24) },
+            { id: '5', name: 'Server 10', born: new Date(1990, 6, 1) },
+            { id: '6', name: 'Server 2', born: new Date(1990, 6, 2) },
+        ];
+        await render(
+            framework,
+            el(
+                'LocaleProvider',
+                { locale: 'de-DE' },
+                el('DataTable', {
+                    data: people,
+                    columns: [
+                        { id: 'name', header: 'Name', sortable: true },
+                        { id: 'born', header: 'Born', sortable: true },
+                    ],
+                    caption: 'People',
+                    getRowId: (row: { id: string }) => row.id,
+                })
+            )
+        );
+        await userEvent.click(within(screen.getByRole('columnheader', { name: /Name/ })).getByRole('button'));
+        expect(names()).toEqual(['Anna', 'Ärger', 'bert', 'Server 2', 'Server 10', 'zoe']);
+        await userEvent.click(within(screen.getByRole('columnheader', { name: /Born/ })).getByRole('button'));
+        expect(names()).toEqual(['Anna', 'Server 10', 'Server 2', 'Ärger', 'zoe', 'bert']);
+        expect(warn.mock.calls.flat().join(' ')).not.toContain('is not registered');
+        warn.mockRestore();
+    });
+
+    it('striped: every second data row by its place among the data rows, group rows not counted', async () => {
+        await render(framework, table({ striped: true, groupBy: ['location'] }));
+        const stripes = within(screen.getByRole('table'))
+            .getAllByRole('row')
+            .filter((row) => row.closest('tbody'))
+            .map((row) => row.getAttribute('data-stripe'));
+        // Group rows have no stripe; the data rows alternate across the groups
+        expect(stripes.filter(Boolean)).toEqual(['false', 'true', 'false']);
+        expect(stripes).toContain(null);
+    });
+
+    it('app-wide defaults (recipe defaultVariants): filters closed at the start, striped; the props win', async () => {
+        const stripes = (caption: string) =>
+            within(screen.getByRole('table', { name: caption }))
+                .getAllByRole('row')
+                .filter((row) => row.closest('tbody'))
+                .map((row) => row.getAttribute('data-stripe'));
+        await render(
+            framework,
+            el(
+                'RecipesProvider',
+                { recipes: { dataTable: { defaultVariants: { showFilters: false, striped: true } } } },
+                table({ filterToggle: true }),
+                table({ caption: 'Own', filterToggle: true, showFilters: true, striped: false })
+            )
+        );
+        const [defaults, own] = screen.getAllByRole('button', { name: 'Show filters' });
+        expect(defaults).toHaveAttribute('aria-pressed', 'false');
+        expect(own).toHaveAttribute('aria-pressed', 'true');
+        expect(stripes('Server')).toEqual(['false', 'true', 'false']);
+        expect(stripes('Own')).toEqual([null, null, null]);
+        await userEvent.click(defaults!);
+        expect(defaults).toHaveAttribute('aria-pressed', 'true');
+    });
+
+    it('a text filter shows "Filter …" unless filterInputProps has its own placeholder', async () => {
+        const own = columns.map((column) =>
+            column.id === 'name' ? { ...column, filterInputProps: { placeholder: 'Name …' } } : column
+        );
+        await render(framework, el('div', {}, table(), table({ caption: 'Own', columns: own })));
+        const [first, second] = screen.getAllByRole('textbox', { name: 'Filter Name' });
+        expect(first).toHaveAttribute('placeholder', 'Filter …');
+        expect(second).toHaveAttribute('placeholder', 'Name …');
+    });
+
+    it('own controls in the toolbar slots take the toolbar size sm; an explicit size wins', async () => {
+        await render(
+            framework,
+            table({
+                search: true,
+                $slots: {
+                    toolbarStart: el('Button', {}, 'Refresh'),
+                    toolbar: el('Input', { 'aria-label': 'Own field' }),
+                    toolbarEnd: el('Button', { size: 'md' }, 'Print'),
+                },
+            })
+        );
+        const small = 'h-[var(--wc-control-h-sm,2rem)]';
+        expect(screen.getByRole('button', { name: 'Refresh' })).toHaveClass(small);
+        expect(screen.getByRole('button', { name: 'Print' })).not.toHaveClass(small);
+        expect(screen.getByRole('textbox', { name: 'Own field' })).toHaveClass(
+            'text-[length:var(--wc-control-text-sm,13px)]'
+        );
+    });
+
+    it('searchAlign center: the search takes the free room on both sides; app-wide default; no search, no change', async () => {
+        await render(
+            framework,
+            el(
+                'RecipesProvider',
+                { recipes: { dataTable: { defaultVariants: { searchCentered: true } } } },
+                table({ search: true, filterToggle: true }),
+                table({ caption: 'Own', search: true, searchAlign: 'start', filterToggle: true }),
+                table({ caption: 'Plain', filterToggle: true })
+            )
+        );
+        const [centred, own] = screen.getAllByRole('searchbox');
+        const [server, ownEnd, plain] = screen
+            .getAllByRole('button', { name: 'Show filters' })
+            .map((button) => button.parentElement!);
+        expect(centred!.closest('.mx-auto')).not.toBeNull();
+        expect(own!.closest('.mx-auto')).toBeNull();
+        expect(server).toHaveClass('ms-0');
+        expect(ownEnd).toHaveClass('ms-auto');
+        expect(plain).toHaveClass('ms-auto');
+    });
+
+    it('sortable on the table (or app-wide): every column with a value, not sortable: false, not a slot column', async () => {
+        const mixed = [
+            { id: 'name', header: 'Name' },
+            { id: 'location', header: 'Location', sortable: false },
+            { id: 'load', header: 'Load' },
+            { id: 'tools', header: 'Tools' },
+        ];
+        const sortButton = (caption: string, header: string) =>
+            within(
+                within(screen.getByRole('table', { name: caption })).getByRole('columnheader', { name: header })
+            ).queryByRole('button');
+        await render(
+            framework,
+            el(
+                'RecipesProvider',
+                { recipes: { dataTable: { defaultVariants: { sortable: true } } } },
+                table({ columns: mixed }),
+                table({ caption: 'Own', columns: mixed, sortable: false })
+            )
+        );
+        expect(sortButton('Server', 'Name')).not.toBeNull();
+        expect(sortButton('Server', 'Load')).not.toBeNull();
+        expect(sortButton('Server', 'Location')).toBeNull();
+        expect(sortButton('Server', 'Tools')).toBeNull();
+        expect(sortButton('Own', 'Name')).toBeNull();
+        await userEvent.click(sortButton('Server', 'Load')!);
+        const firstRow = within(screen.getByRole('table', { name: 'Server' })).getAllByRole('row')[1]!;
+        expect(firstRow).toHaveTextContent('k8s-node-3');
+    });
+
     it('defaultSorting also sorts by a column the user cannot sort', async () => {
         const fixed = columns.map((column) => (column.id === 'load' ? { ...column, sortable: false } : column));
         await render(framework, table({ columns: fixed, defaultSorting: { id: 'load', desc: true } }));
@@ -768,6 +919,59 @@ describe.each(frameworks)('%s DataTable', (framework) => {
         expect(load).not.toHaveAttribute('type', 'number');
         expect(load.closest('[data-scope="number-input"]')).not.toBeNull();
         expect(container.querySelector('[data-scope="date-picker"]')).not.toBeNull();
+    });
+
+    it('filter row: select, multiSelect and date fields are small like the text fields', async () => {
+        const container = await render(
+            framework,
+            table({
+                columns: [
+                    { id: 'name', header: 'Name', filter: 'text' },
+                    { id: 'location', header: 'Location', filter: 'select', filterOptions: ['Frankfurt'] },
+                    { id: 'load', header: 'Load', filter: 'multiSelect', filterOptions: ['42'] },
+                    { id: 'since', header: 'Since', filter: 'date' },
+                ],
+                features: [feature('dateInput')],
+            })
+        );
+        const filterRow = container.querySelector('thead tr:last-child')!;
+        const small = 'h-[var(--wc-control-h-sm,2rem)]';
+        // The select and multi select triggers have the small control height of the text field
+        for (const name of ['Filter Location', 'Filter Load'])
+            expect(
+                within(filterRow as HTMLElement)
+                    .getByRole('combobox', { name })
+                    .closest(`.${CSS.escape(small)}`)
+            ).not.toBeNull();
+    });
+
+    it('dateRangeInput: one DateRangePicker for a between date filter instead of two fields', async () => {
+        const columnsWithSince = [
+            ...columns,
+            { id: 'since', header: 'Since', filter: 'date', filterMatchMode: 'between' },
+        ];
+        const container = await render(
+            framework,
+            el(
+                'div',
+                {},
+                table({ columns: columnsWithSince, features: [feature('dateInput'), feature('dateRangeInput')] }),
+                table({ caption: 'Two', columns: columnsWithSince, features: [feature('dateInput')] })
+            )
+        );
+        const [withRange, withoutRange] = container.querySelectorAll('table');
+        expect(withRange!.querySelectorAll('thead [data-scope="date-picker"][data-part="root"]')).toHaveLength(1);
+        expect(within(withRange!).queryByRole('textbox', { name: /Filter Since, from/ })).toBeNull();
+        expect(withoutRange!.querySelectorAll('thead [data-scope="date-picker"][data-part="root"]')).toHaveLength(2);
+    });
+
+    it('scrollHeight fill: a flex item, the scroll area takes the rest with a minimum instead of a maximum', async () => {
+        await render(framework, table({ scrollHeight: 'fill', minScrollHeight: '60vh' }));
+        const scroll = screen.getByRole('table').parentElement!;
+        expect(scroll).toHaveClass('flex-1', 'min-h-0', 'overflow-auto');
+        expect(scroll.style.minHeight).toBe('60vh');
+        expect(scroll.style.maxHeight).toBe('');
+        expect(scroll.parentElement).toHaveClass('flex-1', 'min-h-0');
     });
 
     const many = Array.from({ length: 200 }, (_, index) => ({

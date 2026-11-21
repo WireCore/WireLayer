@@ -90,7 +90,9 @@ export const el = (type: El['type'], props: Record<string, unknown> = {}, ...chi
 const isComponent = (type: El['type']): type is ComponentName => /^[A-Z]/.test(type);
 
 /** Placeholder for a DataTable feature module – resolved to the export of the rendering framework. */
-export const feature = (name: 'virtualRows' | 'dateInput' | 'numberInput') => ({ $feature: name });
+export const feature = (name: 'virtualRows' | 'dateInput' | 'numberInput' | 'dateRangeInput') => ({
+    $feature: name,
+});
 
 /** Replaces icon and feature placeholders – also inside arrays and plain objects, e.g. `items: [{ icon }]`. */
 function resolveIcons(value: unknown, framework: Framework): unknown {

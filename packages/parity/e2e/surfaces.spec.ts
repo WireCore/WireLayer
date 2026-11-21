@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test, type Page } from '@playwright/test';
 import { nextFrame, openStory } from './story.ts';
 
 test.describe('Splitter', () => {
@@ -100,5 +100,68 @@ test.describe('SpeedDial', () => {
         await page.keyboard.press('Enter');
         await expect(page.getByText('Selected: user')).toBeVisible();
         await expect(trigger).toBeFocused();
+    });
+});
+
+test.describe('Mode for a part of the page', () => {
+    // The colour a part of the page shows for text that inherits it, and the text colour of its mode
+    const probe = (page: Page, mode: 'light' | 'dark') =>
+        page.evaluate((forced) => {
+            const part = document.createElement('div');
+            part.dataset.mode = forced;
+            const text = document.createElement('p');
+            text.textContent = 'Text';
+            const reference = document.createElement('span');
+            reference.style.color = 'var(--wc-fg)';
+            part.append(text, reference);
+            document.body.append(part);
+            const colors = {
+                text: getComputedStyle(text).color,
+                mode: getComputedStyle(reference).color,
+                page: getComputedStyle(document.body).color,
+            };
+            part.remove();
+            return colors;
+        }, mode);
+
+    test('text in a data-mode="light" part of a dark page has the light text colour, and the other way round', async ({
+        page,
+    }) => {
+        await openStory(page, 'data-card--playground', 'dark');
+        const light = await probe(page, 'light');
+        expect(light.text).toBe(light.mode);
+        expect(light.text).not.toBe(light.page);
+        await openStory(page, 'data-card--playground', 'light');
+        const dark = await probe(page, 'dark');
+        expect(dark.text).toBe(dark.mode);
+        expect(dark.text).not.toBe(dark.page);
+    });
+});
+
+test.describe('Scrollbars', () => {
+    test('thin, in the colours of the theme; data-scrollbars="native" keeps the browser ones', async ({ page }) => {
+        await openStory(page, 'data-card--playground', 'dark');
+        const look = () =>
+            page.evaluate(() => {
+                const area = document.createElement('div');
+                area.style.overflow = 'auto';
+                const reference = document.createElement('span');
+                reference.style.color = 'var(--wc-line-strong)';
+                document.body.append(area, reference);
+                const style = getComputedStyle(area);
+                const result = {
+                    width: style.scrollbarWidth,
+                    color: style.scrollbarColor,
+                    thumb: getComputedStyle(reference).color,
+                };
+                area.remove();
+                reference.remove();
+                return result;
+            });
+        const themed = await look();
+        expect(themed.width).toBe('thin');
+        expect(themed.color.startsWith(themed.thumb)).toBe(true);
+        await page.evaluate(() => (document.documentElement.dataset.scrollbars = 'native'));
+        expect(await look()).toMatchObject({ width: 'auto', color: 'auto' });
     });
 });

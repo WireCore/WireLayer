@@ -22,7 +22,8 @@ describe('@wirecore/wirelayer-css', () => {
     });
 
     // Every slot and every variant value of every recipe ends up in the compiled CSS. Default values have no
-    // class of their own – they apply as long as no other value is set (`:not(...)`), so writing them is optional.
+    // class of their own – they apply as long as no other value is set (`:not(...)`), so writing them is optional;
+    // values without classes have none either.
     it.each(blocks.map((block) => [block.name, block] as const))('%s: all slots and variants', (name) => {
         const [, recipe] = exported.find(([key]) => (key === 'switchControl' ? 'switch' : kebab(key)) === name)! as [
             string,
@@ -37,6 +38,8 @@ describe('@wirecore/wirelayer-css', () => {
             const fallback = String(recipe.defaultVariants?.[variant]);
             for (const value of keys) {
                 if (!boolean && value === fallback) continue;
+                // Variants without classes only carry an app-wide default (DataTable showFilters, sortable)
+                if (!hasClasses(values[value])) continue;
                 expected.add(`wc-${name}-${kebab(boolean ? variant : value)}`);
             }
             if (!boolean && keys.length > 1 && hasClasses(values[fallback])) {

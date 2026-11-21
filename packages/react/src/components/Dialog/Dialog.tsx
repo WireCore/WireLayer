@@ -26,7 +26,7 @@ import {
 } from 'react';
 import type { IconComponent } from '../../types.js';
 import { useTranslations } from '../LocaleProvider/LocaleProvider.js';
-import { useRecipe } from '../RecipesProvider/RecipesProvider.js';
+import { useRecipe, useRecipeDefaults } from '../RecipesProvider/RecipesProvider.js';
 
 /**
  * Settings of the surrounding Dialog/Drawer that its content needs (no backdrop when non-modal); the Dialog's initial
@@ -167,11 +167,20 @@ function useDialogDrag(enabled: boolean, open: boolean) {
 
 export interface DialogContentProps extends Omit<ComponentProps<'div'>, 'title'> {
     title: string;
-    /** The title only for screen readers – it still names the dialog (e.g. a video in a dialog) */
+    /**
+     * The title only for screen readers – it still names the dialog (e.g. a video in a dialog). With `header` this is
+     * the default; `false` shows the title where `titlePosition` puts it
+     */
     hideTitle?: boolean;
     /**
+     * Own content in the header row, after the icon and before the close button – e.g. a logo or a badge; the title
+     * then only names the dialog for screen readers (unless `hideTitle` is `false`)
+     */
+    header?: ReactNode;
+    /**
      * `body` (default): the title below the header row; `header`: in the row of the close button, after a smaller
-     * icon, the header separated by a line (as on the Drawer)
+     * icon, the header separated by a line (as on the Drawer). App-wide default: `titleInHeader` in the
+     * `defaultVariants` of the `dialog` recipe (RecipesProvider/ConfigProvider)
      */
     titlePosition?: 'body' | 'header';
     description?: string;
@@ -220,7 +229,8 @@ export function DialogContent({
     classes,
     title,
     hideTitle,
-    titlePosition = 'body',
+    header,
+    titlePosition: titlePositionProp,
     description,
     icon: Icon,
     status,
@@ -248,6 +258,9 @@ export function DialogContent({
     ...props
 }: DialogContentProps) {
     const dialog = useRecipe('dialog', dialogRecipe, classes);
+    const defaults = useRecipeDefaults('dialog', dialogRecipe);
+    // The prop wins, otherwise the app-wide default of the recipe (`titleInHeader`)
+    const titlePosition = titlePositionProp ?? (defaults.titleInHeader ? 'header' : 'body');
     const translations = useTranslations();
     const { modal, contentRef } = useContext(DialogRootContext);
     const context = useDialogContext();
@@ -258,6 +271,7 @@ export function DialogContent({
         onMaximizedChange?.(!isMaximized);
     };
     const canDrag = !!draggable && !isMaximized && !fullscreen;
+    const customHeader = header !== undefined && header !== null && header !== false;
     const drag = useDialogDrag(canDrag, context.open);
     const styles = dialog({
         status,
@@ -268,7 +282,7 @@ export function DialogContent({
         responsive,
         draggable: draggable && !isMaximized,
         maximizable,
-        hideTitle,
+        hideTitle: hideTitle ?? customHeader,
         titleInHeader: titlePosition === 'header',
     });
     const titleElement = <ArkDialog.Title className={styles.title()}>{title}</ArkDialog.Title>;
@@ -300,7 +314,14 @@ export function DialogContent({
                                 <Icon className={styles.icon()} aria-hidden="true" />
                             </span>
                         )}
-                        {titlePosition === 'header' && titleElement}
+                        {customHeader ? (
+                            <div className={styles.headerContent()}>
+                                {header}
+                                {titlePosition === 'header' && titleElement}
+                            </div>
+                        ) : (
+                            titlePosition === 'header' && titleElement
+                        )}
                         {maximizable && (
                             <button
                                 type="button"

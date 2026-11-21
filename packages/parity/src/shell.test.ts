@@ -333,6 +333,21 @@ describe.each(frameworks)('%s', (framework) => {
             { id: 'c', title: 'Certificate expiring', date: '2026-09-01T08:00:00' },
         ];
 
+        it('variant and size of the bell: same classes as an IconButton with them', async () => {
+            await render(
+                framework,
+                el(
+                    'div',
+                    {},
+                    el('NotificationCenter', { items, variant: 'outline', size: 'sm' }),
+                    el('IconButton', { icon: icon('Bell'), label: 'Reference', variant: 'outline', size: 'sm' })
+                )
+            );
+            expect(screen.getByRole('button', { name: 'Notifications, 2 unread' }).className).toBe(
+                screen.getByRole('button', { name: 'Reference' }).className
+            );
+        });
+
         it('shows the unread count in the name of the bell and groups by day', async () => {
             await render(framework, el('NotificationCenter', { items, now: '2026-10-21T12:00:00' }));
             const bell = screen.getByRole('button', { name: 'Notifications, 2 unread' });

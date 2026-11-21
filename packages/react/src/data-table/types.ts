@@ -1,5 +1,6 @@
 import type { ComponentType, ReactNode } from 'react';
 import type { DatePickerProps } from '../components/DatePicker/DatePicker.js';
+import type { DateRangePickerProps } from '../components/DateRangePicker/DateRangePicker.js';
 import type { NumberInputProps } from '../components/NumberInput/NumberInput.js';
 export type {
     DataTableAggregate,
@@ -365,4 +366,6 @@ export interface DataTableFeature {
     dateInput?: ComponentType<DatePickerProps>;
     /** Input of `number` filters and editors – without it the browser's number input */
     numberInput?: ComponentType<NumberInputProps>;
+    /** One field for both ends of a `between` filter of `date` and `datetime` columns – without it two fields */
+    dateRangeInput?: ComponentType<DateRangePickerProps>;
 }

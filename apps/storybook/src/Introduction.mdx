@@ -212,6 +212,23 @@ const recipes: RecipeConfig = {
 };
 ```
 
+Some defaults change more than classes – where the title of a dialog sits, for example. They are variants of the recipe
+as well, so the same `defaultVariants` set them once for the whole app; a prop on the single component still wins:
+
+| Recipe default                                             | Instead of on every component                                                                                     |
+| ---------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| `dialog: { defaultVariants: { titleInHeader: true } }`     | `DialogContent title-position="header"`, also `confirm()`, `prompt()` and `openDialog()` (option `titlePosition`) |
+| `dataTable: { defaultVariants: { showFilters: false } }`   | `DataTable :show-filters="false"` – filters closed at the start (a saved `stateKey` state still wins)             |
+| `dataTable: { defaultVariants: { searchCentered: true } }` | `DataTable search-align="center"` – the search between the actions at the start and the tools at the end          |
+| `dataTable: { defaultVariants: { sortable: true } }`       | `DataTable sortable` – every column with a value sorts (not `sortable: false`, not a slot-only column)            |
+| `dataTable: { defaultVariants: { striped: true } }`        | `DataTable striped` – the same for `gridlines`, `bordered`, `wrapHeaders`, `verticalHeaders`                      |
+
+Own buttons, fields and menus in the toolbar slots of a DataTable (`#toolbar`, `#toolbarStart`, `#toolbarEnd`) default
+to the size of the built-in toolbar controls (`sm`); a `size` on them still wins. A text filter shows the placeholder
+“Filter …” (translations `dataTable.filterText`) unless the column's `filterInputProps` has one.
+
+React Native has no `RecipesProvider`; there the props stay on the single component.
+
 Per part the classes come in this order: `classes`, the matching `variants` and `compoundVariants`, the states of the
 recipe, the overrides of states (`invalid: { true: … }`), and last the class passed to the component. Inner providers
 extend outer ones (classes of the same value are joined, the inner ones win).
@@ -278,11 +295,12 @@ import { DataTable } from '@wirecore/wirelayer-react/data-table';
 Parts of the DataTable that bring a lot of code along are imported on their own – an app only bundles the ones it passes
 in `features` (fixed for the life of a table). The DatePicker alone is about 40 KB (gzip).
 
-| Feature       | Import                                                                 | Adds                                                 | Without it                                   |
-| ------------- | ---------------------------------------------------------------------- | ---------------------------------------------------- | -------------------------------------------- |
-| `virtualRows` | `@wirecore/wirelayer-react/virtual` (peer dependency TanStack Virtual) | only the visible rows are rendered with `virtual`    | all rows are rendered, a hint in development |
-| `dateInput`   | `@wirecore/wirelayer-react/data-table`                                 | DatePicker for `date` and `datetime` filters/editors | the browser's date input                     |
-| `numberInput` | `@wirecore/wirelayer-react/data-table`                                 | NumberInput for `number` filters and editors         | the browser's number input                   |
+| Feature          | Import                                                                 | Adds                                                 | Without it                                   |
+| ---------------- | ---------------------------------------------------------------------- | ---------------------------------------------------- | -------------------------------------------- |
+| `virtualRows`    | `@wirecore/wirelayer-react/virtual` (peer dependency TanStack Virtual) | only the visible rows are rendered with `virtual`    | all rows are rendered, a hint in development |
+| `dateInput`      | `@wirecore/wirelayer-react/data-table`                                 | DatePicker for `date` and `datetime` filters/editors | the browser's date input                     |
+| `numberInput`    | `@wirecore/wirelayer-react/data-table`                                 | NumberInput for `number` filters and editors         | the browser's number input                   |
+| `dateRangeInput` | `@wirecore/wirelayer-react/data-table`                                 | one DateRangePicker for `between` filters of dates   | two fields (from, to)                        |
 
 ```tsx
 import { DataTable, dateInput, numberInput } from '@wirecore/wirelayer-react/data-table';
@@ -299,6 +317,18 @@ const features = [virtualRows, dateInput, numberInput];
 ```
 
 Vue: the same imports from `@wirecore/wirelayer-vue/data-table` and `@wirecore/wirelayer-vue/virtual`.
+
+`scrollHeight` takes a CSS length – the maximum height, the rows scroll inside – or `fill`: the table takes the rest of a
+flex column and the rows scroll in the room left down to its bottom, whatever is above it (headings, figures that wrap on
+narrow screens). `minScrollHeight` keeps it from collapsing; below that the page scrolls.
+
+```vue
+<main class="flex min-h-screen flex-col gap-4 p-6">
+    <PageHeader title="Machines" />
+    <StatsRow />
+    <DataTable :data="rows" :columns="columns" :features="features" scroll-height="fill" min-scroll-height="60vh" virtual />
+</main>
+```
 
 ## AI assistants (MCP, llms.txt)
 

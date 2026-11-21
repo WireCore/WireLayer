@@ -1,4 +1,4 @@
-import { SlidersHorizontal } from '@lucide/vue';
+import { Hexagon, Menu as MenuIcon, SlidersHorizontal } from '@lucide/vue';
 import type { Meta, StoryObj } from '@storybook/vue3-vite';
 import Button from '../Button/Button.vue';
 import Checkbox from '../Checkbox/Checkbox.vue';
@@ -48,3 +48,31 @@ export const Floating: Story = { args: { offset: true, size: 'sm' } };
 
 /** Non-modal: no backdrop, the page stays usable while the panel is open */
 export const NonModal: Story = { args: { modal: false, placement: 'bottom', size: 'sm' } };
+
+/**
+ * Navigation from the left with the logo of the app next to the close button (`#header`). The title names the drawer
+ * for screen readers only – with the slot that is the default (`hide-title`)
+ */
+export const LogoInHeader: Story = {
+    render: () => ({
+        components: { Button, Drawer, DrawerContent, DrawerTrigger },
+        setup: () => ({ Hexagon, MenuIcon }),
+        template: `
+            <Drawer>
+                <DrawerTrigger><Button variant="outline" :leading-icon="MenuIcon">Menu</Button></DrawerTrigger>
+                <DrawerContent title="Menu" placement="left" size="sm" hide-title closable>
+                    <template #header>
+                        <span class="flex items-center gap-2 font-semibold">
+                            <component :is="Hexagon" class="size-6 text-primary" aria-hidden="true" />
+                            Acme
+                        </span>
+                    </template>
+                    <nav aria-label="Main" class="flex flex-col gap-1">
+                        <a href="#" aria-current="page">Dashboard</a>
+                        <a href="#">Servers</a>
+                        <a href="#">Invoices</a>
+                    </nav>
+                </DrawerContent>
+            </Drawer>`,
+    }),
+};

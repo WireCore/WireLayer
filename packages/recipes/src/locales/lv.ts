@@ -530,6 +530,7 @@ export const lv: Translations = {
         searchPlaceholder: 'Meklēt…',
         filter: (header) => `Filtrēt: ${header}`,
         filterAll: 'Visi',
+        filterText: 'Filtrēt…',
         columns: 'Kolonnas',
         export: 'Eksportēt (CSV)',
         resize: (header) => `Kolonnas platums: ${header}`,

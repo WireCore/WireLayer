@@ -16,7 +16,10 @@ const translations = useTranslations();
 
 export interface DrawerContentProps {
     title: string;
-    /** The title only for screen readers – it still names the drawer (e.g. a video in a dialog) */
+    /**
+     * The title only for screen readers – it still names the drawer (e.g. a video in a dialog). With the `#header`
+     * slot this is the default; `false` shows the title next to the slot content
+     */
     hideTitle?: boolean;
     description?: string;
     placement?: DrawerPlacement;
@@ -36,8 +39,13 @@ export interface DrawerContentProps {
 }
 
 defineOptions({ inheritAttrs: false });
-const props = withDefaults(defineProps<DrawerContentProps>(), { closable: true });
-defineSlots<{
+const props = withDefaults(defineProps<DrawerContentProps>(), { hideTitle: undefined, closable: true });
+const slots = defineSlots<{
+    /**
+     * Own content in the header row, before the close button – e.g. the logo of the app; the title then only names
+     * the drawer for screen readers (unless `hide-title` is `false`)
+     */
+    header?(): unknown;
     /** The content below the title (scrolls) */
     default?(): unknown;
     /** Buttons at the bottom, e.g. Cancel and Save */
@@ -47,7 +55,13 @@ const drawer = useRecipe('drawer', drawerRecipe, () => props.classes);
 const attrs = useAttrs();
 const root = inject(dialogRootKey, null);
 const styles = computed(() =>
-    drawer({ placement: props.placement, size: props.size, offset: props.offset, hideTitle: props.hideTitle })
+    drawer({
+        placement: props.placement,
+        size: props.size,
+        offset: props.offset,
+        hideTitle: props.hideTitle ?? !!slots.header,
+        customHeader: !!slots.header,
+    })
 );
 </script>
 
@@ -57,7 +71,16 @@ const styles = computed(() =>
         <Dialog.Positioner :class="styles.positioner()">
             <Dialog.Content v-bind="{ ...attrs, class: styles.content({ class: normalizeClass(attrs.class) }) }">
                 <div :class="styles.header()">
-                    <div :class="styles.text()">
+                    <div v-if="$slots.header" :class="styles.headerContent()">
+                        <slot name="header" />
+                        <div :class="styles.text()">
+                            <Dialog.Title :class="styles.title()">{{ title }}</Dialog.Title>
+                            <Dialog.Description v-if="description" :class="styles.description()">
+                                {{ description }}
+                            </Dialog.Description>
+                        </div>
+                    </div>
+                    <div v-else :class="styles.text()">
                         <Dialog.Title :class="styles.title()">{{ title }}</Dialog.Title>
                         <Dialog.Description v-if="description" :class="styles.description()">
                             {{ description }}

@@ -129,6 +129,8 @@ import {
     type XlsxRow,
     type XlsxValue,
     warnInDevelopment,
+    sizeOverrides,
+    type RecipeConfig,
 } from '@wirecore/wirelayer-recipes';
 import {
     computed,
@@ -158,6 +160,7 @@ import Input from '../components/Input/Input.vue';
 import MenuComponent from '../components/Menu/Menu.vue';
 import type { MenuEntry } from '../components/Menu/types.js';
 import Pagination from '../components/Pagination/Pagination.vue';
+import RecipesProvider from '../components/RecipesProvider/RecipesProvider.vue';
 import Select from '../components/Select/Select.vue';
 import Skeleton from '../components/Skeleton/Skeleton.vue';
 import Spinner from '../components/Spinner/Spinner.vue';
@@ -188,7 +191,7 @@ import type {
     DataTableXlsxOptions,
 } from './types.js';
 import ValueInput from './ValueInput.vue';
-import { useRecipe } from '../recipes.js';
+import { useRecipe, useRecipeDefaults } from '../recipes.js';
 
 export interface DataTableProps<T> {
     /** The rows (with `dataSource` the table loads them itself) */
@@ -286,8 +289,18 @@ export interface DataTableProps<T> {
      */
     advancedFilter?: boolean | ConditionField[];
     advancedFilterValue?: ConditionGroup;
+    /**
+     * Every column with a value can be sorted, unless the column sets `sortable: false`; columns without a value (only
+     * a slot, e.g. actions) stay out. App-wide: `dataTable: { defaultVariants: { sortable: true } }`
+     */
+    sortable?: boolean;
     /** Search field above the table: filters over all columns (v-model:global-filter) */
     search?: boolean;
+    /**
+     * Place of the search field: `start` (default) after the controls of the toolbar start, `center` in the middle
+     * between them and the controls at the end. App-wide: `dataTable: { defaultVariants: { searchCentered: true } }`
+     */
+    searchAlign?: 'start' | 'center';
     globalFilter?: string;
     /**
      * More text the search finds a row by, besides its columns – e.g. fields without a column of their own (not in
@@ -300,7 +313,10 @@ export interface DataTableProps<T> {
     filters?: Record<string, DataTableFilterValue>;
     /** Filters in a row below the headers, as a menu per column with match modes and conditions, or none */
     filterDisplay?: 'row' | 'menu' | 'none';
-    /** Shows the filter row or menus – use with v-model:show-filters (`filterToggle`); the filters keep working */
+    /**
+     * Shows the filter row or menus – use with v-model:show-filters (`filterToggle`); the filters keep working. Default
+     * true; app-wide `dataTable: { defaultVariants: { showFilters: false } }`, a saved state (`stateKey`) wins
+     */
     showFilters?: boolean;
     /** Button in the toolbar that shows and hides the filters */
     filterToggle?: boolean;
@@ -383,12 +399,18 @@ export interface DataTableProps<T> {
     gridlines?: boolean;
     /** A border around the whole table */
     bordered?: boolean;
-    /** Every other row tinted */
+    /** Every other row tinted (app-wide: `dataTable: { defaultVariants: { striped: true } }`) */
     striped?: boolean;
     /** Button above the table to show it on the whole screen */
     fullscreenToggle?: boolean;
-    /** Fixed height (CSS length): the table scrolls inside, header and footer stay visible */
+    /**
+     * Height of the scroll area: a CSS length (its maximum – the table scrolls inside, header and footer stay visible)
+     * or `fill`: the table takes the rest of a flex column (e.g. a page with `min-h-screen flex flex-col`), the rows
+     * scroll in the room left – set `minScrollHeight` so it does not collapse on small screens
+     */
     scrollHeight?: string;
+    /** `scrollHeight="fill"`: minimum height of the scroll area (CSS length, e.g. 60vh) – below it the page scrolls */
+    minScrollHeight?: string;
     /**
      * Feature modules, imported on their own so apps only bundle what they use (fixed for the life of the table):
      * `virtualRows` from `/virtual` for `virtual`, `dateInput` and `numberInput` for date and number filters and
@@ -427,6 +449,12 @@ const props = withDefaults(defineProps<DataTableProps<TData>>(), {
     stateExclude: () => ['selection'],
     allSelection: undefined,
     showFilters: undefined,
+    sortable: undefined,
+    gridlines: undefined,
+    bordered: undefined,
+    striped: undefined,
+    wrapHeaders: undefined,
+    verticalHeaders: undefined,
     rowHref: undefined,
     isRowSelectable: undefined,
     getSubRows: undefined,
@@ -442,6 +470,7 @@ const props = withDefaults(defineProps<DataTableProps<TData>>(), {
     csvSeparator: undefined,
     groupBy: undefined,
     frozenRows: undefined,
+    minScrollHeight: undefined,
     rowActions: undefined,
     rowClass: undefined,
     size: undefined,
@@ -459,6 +488,10 @@ const props = withDefaults(defineProps<DataTableProps<TData>>(), {
     navigation: 'tab',
 });
 const dataTable = useRecipe('dataTable', dataTableRecipe, () => props.classes);
+// App-wide defaults of props that are variants of the recipe (RecipesProvider/ConfigProvider): the prop wins
+const recipeDefaults = useRecipeDefaults('dataTable', dataTableRecipe);
+const variantFlag = (name: 'gridlines' | 'bordered' | 'striped' | 'wrapHeaders' | 'verticalHeaders') =>
+    props[name] ?? !!recipeDefaults()[name];
 const menu = useRecipe('menu', menuRecipe);
 const emit = defineEmits<{
     'update:page': [page: number];
@@ -531,11 +564,11 @@ defineSlots<
          * `<template #advancedFilter="{ fields, value, setValue, label }">`
          */
         advancedFilter?: (props: DataTableAdvancedFilterProps) => unknown;
-        /** Own controls in the toolbar, after the search */
+        /** Own controls in the toolbar, after the search – buttons, fields and menus default to the toolbar size (sm) */
         toolbar?: () => unknown;
-        /** Own controls at the start of the toolbar, before the search */
+        /** Own controls at the start of the toolbar, before the search (default size sm, like the built-in ones) */
         toolbarStart?: () => unknown;
-        /** Own controls at the end of the toolbar, before the built-in buttons */
+        /** Own controls at the end of the toolbar, before the built-in buttons (default size sm, like them) */
         toolbarEnd?: () => unknown;
         /** Shown when there are no rows */
         empty?: () => unknown;
@@ -780,7 +813,7 @@ watchProp(
     () => props.allSelection,
     (value) => value !== undefined && (allSelection.value = value)
 );
-const showFilters = ref(props.showFilters ?? true);
+const showFilters = ref(props.showFilters ?? recipeDefaults().showFilters ?? true);
 watchProp(
     () => props.showFilters,
     (value) => value !== undefined && (showFilters.value = value)
@@ -884,6 +917,8 @@ const table = useTable({
     features: tableFeatures,
     columns: tableColumns,
     data: tableData,
+    // The language for sorting texts (features.ts)
+    meta: computed(() => ({ locale: localeContext.value.locale })),
     getRowId: (row: TData, index: number) =>
         pivotModel.value ? (row as { id: string }).id : (props.getRowId?.(row, index) ?? String(index)),
     state: computed(() => ({
@@ -1023,19 +1058,26 @@ function setDensity(next: Density) {
 // Styles
 const look = computed(() => ({
     size: density.value,
-    gridlines: !!props.gridlines,
-    bordered: !!props.bordered,
+    gridlines: variantFlag('gridlines'),
+    bordered: variantFlag('bordered'),
     paginatorAlign: paginatorAlignKey(props.paginatorAlign),
-    striped: !!props.striped,
+    striped: variantFlag('striped'),
     scrollable: !!props.scrollHeight,
-    wrapHeaders: !!props.wrapHeaders,
-    verticalHeaders: !!props.verticalHeaders,
+    fill: props.scrollHeight === 'fill',
+    wrapHeaders: variantFlag('wrapHeaders'),
+    verticalHeaders: variantFlag('verticalHeaders'),
 }));
 const fullscreen = ref(false);
 const grid = computed(() => props.navigation === 'grid');
 // A tree table with grid keys is a treegrid: rows with level and open state, left/right close and open them
 const treeGrid = computed(() => grid.value && !!props.getSubRows);
-const styles = computed(() => dataTable({ ...look.value, fullscreen: fullscreen.value, grid: grid.value }));
+// Only a toolbar with the search has a place for it; the end group stays at the end without one
+const searchCentered = computed(
+    () => !!props.search && (props.searchAlign ? props.searchAlign === 'center' : !!recipeDefaults().searchCentered)
+);
+const styles = computed(() =>
+    dataTable({ ...look.value, fullscreen: fullscreen.value, grid: grid.value, searchCentered: searchCentered.value })
+);
 const menuStyles = menu();
 const styleFor = (columnId: string) => {
     const column = columnById.value.get(columnId);
@@ -1068,6 +1110,8 @@ const leading = computed(() => {
 const trailing = computed<Utility[]>(() => (hasActions.value ? ['actions'] : []));
 const leafColumns = computed(() => table.getVisibleLeafColumns());
 const columnCount = computed(() => leafColumns.value.length + leading.value.length + trailing.value.length);
+/** The column ends the table (no action column after it): its resize handle stays inside the table */
+const atEnd = (columnId: string) => !trailing.value.length && leafColumns.value.at(-1)?.id === columnId;
 
 // Fixed widths: needed for resizing and pinning (sticky offsets)
 const sized = computed(
@@ -1160,7 +1204,15 @@ const headLabelClass = (column: TableColumn) =>
 
 // Sorting
 /** Whether the user can sort by the column (its header button, the column menu) */
-const canSort = (columnId: string) => !!columnById.value.get(columnId)?.sortable;
+const canSort = (columnId: string) => {
+    const column = columnById.value.get(columnId);
+    return !!column && (column.sortable ?? ((props.sortable ?? !!recipeDefaults().sortable) && hasValue(column)));
+};
+/** A column with a value of its own (an own sort, an accessor or a field of the rows) – not one only for a slot */
+const hasValue = (column: DataTableColumn<TData>) => {
+    const first = tableData.value[0] as object | undefined;
+    return !!column.sortFn || column.accessor !== undefined || (!!first && column.id in first);
+};
 const ariaSort = (columnId: string) => {
     const first = sorting.value[0];
     if (first?.id === columnId) return first.desc ? 'descending' : 'ascending';
@@ -1390,6 +1442,9 @@ function setRowRange(column: DataTableColumn<TData>, part: 0 | 1, value: unknown
     range[part] = value;
     setRowFilter(column, range);
 }
+/** A date range in one field (dateRangeInput feature) instead of from and to */
+const dateRange = (column: DataTableColumn<TData>) =>
+    !!feature.dateRangeInput && ['date', 'datetime'].includes(rowInput(column));
 const rangePart = (column: DataTableColumn<TData>, part: 0 | 1) => {
     const current = rowFilterValue(column);
     return Array.isArray(current) ? current[part] : null;
@@ -1519,6 +1574,12 @@ const rowNumberById = computed(() => {
         .forEach((item, index) => numbers.set(item.row.id, pageOffset.value + index + 1));
     return numbers;
 });
+/**
+ * `striped`: every second data row of the page by its place, not by the DOM (virtual scrolling renders a spacer and a
+ * window of the rows); group and detail rows do not count
+ */
+const stripe = (row: TableRow) =>
+    variantFlag('striped') ? String(((rowNumberById.value.get(row.id) ?? 0) - pageOffset.value) % 2 === 0) : undefined;
 const detailsId = (row: TableRow) => `${id}-details-${row.id}`;
 const allExpanded = computed(() => table.getIsAllRowsExpanded());
 
@@ -2788,6 +2849,7 @@ const virtualizer = feature.useVirtualizer?.(
         overscan: 8,
         getItemKey: (index: number) => items.value[index]?.key ?? index,
         // Rows of the first screen before the table is measured (no empty flash, SSR)
+        // (`fill` has no number – the virtualizer measures the scroll area once it is shown)
         initialRect: { width: 0, height: Number.parseInt(props.scrollHeight ?? '', 10) || 400 },
     }))
 );
@@ -2797,6 +2859,17 @@ if (props.virtual && !virtualizer) {
     );
 }
 const virtualOn = computed(() => !!props.virtual && !!props.scrollHeight && !!virtualizer);
+// A fixed height is the maximum of the scroll area; `fill` takes the rest of the column (recipe `fill`), at least
+// minScrollHeight
+const scrollStyle = computed(() =>
+    props.scrollHeight === 'fill'
+        ? props.minScrollHeight
+            ? { minHeight: props.minScrollHeight }
+            : undefined
+        : props.scrollHeight
+          ? { maxHeight: props.scrollHeight }
+          : undefined
+);
 const virtualItems = computed(() => (virtualOn.value ? (virtualizer?.value.getVirtualItems() ?? []) : []));
 const shownItems = computed(() =>
     virtualOn.value
@@ -3085,6 +3158,8 @@ defineExpose({
 // Fixed objects: a new literal in the template on every render makes Ark update the machine, which can re-render
 // endlessly (Vue only stops it in development)
 const bottomEndPositioning = { placement: 'bottom-end', gutter: 4 } as const;
+// Own buttons, fields and menus in the toolbar slots take the size of the built-in ones unless they set their own
+const toolbarSize = sizeOverrides('sm') as RecipeConfig;
 </script>
 
 <template>
@@ -3098,7 +3173,9 @@ const bottomEndPositioning = { placement: 'bottom-end', gutter: 4 } as const;
             @keydown="onRootKey"
         >
             <div v-if="showToolbar" :class="styles.toolbar()">
-                <slot name="toolbarStart" />
+                <RecipesProvider v-if="$slots.toolbarStart" :recipes="toolbarSize">
+                    <slot name="toolbarStart" />
+                </RecipesProvider>
                 <Input
                     v-if="search"
                     type="search"
@@ -3110,9 +3187,11 @@ const bottomEndPositioning = { placement: 'bottom-end', gutter: 4 } as const;
                     :model-value="globalFilter"
                     @update:model-value="table.setGlobalFilter($event ?? '')"
                 />
-                <slot name="toolbar" />
+                <RecipesProvider v-if="$slots.toolbar" :recipes="toolbarSize"><slot name="toolbar" /></RecipesProvider>
                 <div :class="styles.toolbarEnd()">
-                    <slot name="toolbarEnd" />
+                    <RecipesProvider v-if="$slots.toolbarEnd" :recipes="toolbarSize">
+                        <slot name="toolbarEnd" />
+                    </RecipesProvider>
                     <IconButton
                         v-if="find"
                         data-find-toggle=""
@@ -3367,12 +3446,7 @@ const bottomEndPositioning = { placement: 'bottom-end', gutter: 4 } as const;
                     @update:page="table.setPageIndex($event - 1)"
                 />
             </div>
-            <div
-                ref="scroll"
-                :class="styles.scroll()"
-                :style="scrollHeight ? { maxHeight: scrollHeight } : undefined"
-                @scroll="onScroll"
-            >
+            <div ref="scroll" :class="styles.scroll()" :style="scrollStyle" @scroll="onScroll">
                 <table
                     ref="tableElement"
                     :class="styles.table({ class: sized ? styles.fixedLayout() : undefined })"
@@ -3555,7 +3629,7 @@ const bottomEndPositioning = { placement: 'bottom-end', gutter: 4 } as const;
                                         :aria-valuemin="MIN_WIDTH"
                                         :aria-valuemax="1200"
                                         tabindex="0"
-                                        :class="styles.resizer()"
+                                        :class="styles.resizer({ edge: atEnd(cell.header.column.id) })"
                                         :data-resizing="cell.header.column.getIsResizing() || undefined"
                                         @mousedown="cell.header.getResizeHandler()($event)"
                                         @touchstart="cell.header.getResizeHandler()($event)"
@@ -3598,6 +3672,18 @@ const bottomEndPositioning = { placement: 'bottom-end', gutter: 4 } as const;
                                             column: columnById.get(column.id)!,
                                         }"
                                     />
+                                    <ValueInput
+                                        v-else-if="
+                                            isRangeMatchMode(rowMode(columnById.get(column.id)!)) &&
+                                            dateRange(columnById.get(column.id)!)
+                                        "
+                                        range
+                                        :type="rowInput(columnById.get(column.id)!)"
+                                        :label="t.filter(label(column))"
+                                        :input-props="columnById.get(column.id)!.filterInputProps"
+                                        :model-value="rowFilterValue(columnById.get(column.id)!)"
+                                        @update:model-value="setRowFilter(columnById.get(column.id)!, $event)"
+                                    />
                                     <div
                                         v-else-if="isRangeMatchMode(rowMode(columnById.get(column.id)!))"
                                         :class="styles.filterRowRange()"
@@ -3620,6 +3706,7 @@ const bottomEndPositioning = { placement: 'bottom-end', gutter: 4 } as const;
                                         :options="filterOptions(columnById.get(column.id)!)"
                                         :input-props="columnById.get(column.id)!.filterInputProps"
                                         any
+                                        filter
                                         :model-value="rowFilterValue(columnById.get(column.id)!)"
                                         @update:model-value="setRowFilter(columnById.get(column.id)!, $event)"
                                     >
@@ -3642,12 +3729,13 @@ const bottomEndPositioning = { placement: 'bottom-end', gutter: 4 } as const;
                         :style="scrollHeight ? { top: `${headHeight}px` } : undefined"
                     >
                         <tr
-                            v-for="row in frozen"
+                            v-for="(row, frozenIndex) in frozen"
                             :key="row.id"
                             :class="styles.row({ class: rowClass?.(row.original) })"
                             :data-state="isSelected(row) ? 'selected' : undefined"
                             :aria-selected="grid && selectable ? isSelected(row) : undefined"
                             :data-row-id="row.id"
+                            :data-stripe="variantFlag('striped') ? String(frozenIndex % 2 === 1) : undefined"
                         >
                             <td
                                 v-for="utility in leading"
@@ -3963,6 +4051,7 @@ const bottomEndPositioning = { placement: 'bottom-end', gutter: 4 } as const;
                                     :data-state="isSelected(item.row) ? 'selected' : undefined"
                                     :aria-selected="grid && selectable ? isSelected(item.row) : undefined"
                                     :data-row-id="item.row.id"
+                                    :data-stripe="stripe(item.row)"
                                     :data-index="item.index"
                                     :aria-rowindex="virtualOn ? item.index + headerRows.length + 1 : undefined"
                                     :aria-level="treeGrid ? item.row.depth + 1 : undefined"
