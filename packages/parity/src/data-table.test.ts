@@ -708,6 +708,17 @@ describe.each(frameworks)('%s DataTable', (framework) => {
         warn.mockRestore();
     });
 
+    it('striped: every second data row by its place among the data rows, group rows not counted', async () => {
+        await render(framework, table({ striped: true, groupBy: ['location'] }));
+        const stripes = within(screen.getByRole('table'))
+            .getAllByRole('row')
+            .filter((row) => row.closest('tbody'))
+            .map((row) => row.getAttribute('data-stripe'));
+        // Group rows have no stripe; the data rows alternate across the groups
+        expect(stripes.filter(Boolean)).toEqual(['false', 'true', 'false']);
+        expect(stripes).toContain(null);
+    });
+
     it('defaultSorting also sorts by a column the user cannot sort', async () => {
         const fixed = columns.map((column) => (column.id === 'load' ? { ...column, sortable: false } : column));
         await render(framework, table({ columns: fixed, defaultSorting: { id: 'load', desc: true } }));

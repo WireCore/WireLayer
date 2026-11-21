@@ -1523,6 +1523,12 @@ const rowNumberById = computed(() => {
         .forEach((item, index) => numbers.set(item.row.id, pageOffset.value + index + 1));
     return numbers;
 });
+/**
+ * `striped`: every second data row of the page by its place, not by the DOM (virtual scrolling renders a spacer and a
+ * window of the rows); group and detail rows do not count
+ */
+const stripe = (row: TableRow) =>
+    props.striped ? String(((rowNumberById.value.get(row.id) ?? 0) - pageOffset.value) % 2 === 0) : undefined;
 const detailsId = (row: TableRow) => `${id}-details-${row.id}`;
 const allExpanded = computed(() => table.getIsAllRowsExpanded());
 
@@ -3646,12 +3652,13 @@ const bottomEndPositioning = { placement: 'bottom-end', gutter: 4 } as const;
                         :style="scrollHeight ? { top: `${headHeight}px` } : undefined"
                     >
                         <tr
-                            v-for="row in frozen"
+                            v-for="(row, frozenIndex) in frozen"
                             :key="row.id"
                             :class="styles.row({ class: rowClass?.(row.original) })"
                             :data-state="isSelected(row) ? 'selected' : undefined"
                             :aria-selected="grid && selectable ? isSelected(row) : undefined"
                             :data-row-id="row.id"
+                            :data-stripe="striped ? String(frozenIndex % 2 === 1) : undefined"
                         >
                             <td
                                 v-for="utility in leading"
@@ -3967,6 +3974,7 @@ const bottomEndPositioning = { placement: 'bottom-end', gutter: 4 } as const;
                                     :data-state="isSelected(item.row) ? 'selected' : undefined"
                                     :aria-selected="grid && selectable ? isSelected(item.row) : undefined"
                                     :data-row-id="item.row.id"
+                                    :data-stripe="stripe(item.row)"
                                     :data-index="item.index"
                                     :aria-rowindex="virtualOn ? item.index + headerRows.length + 1 : undefined"
                                     :aria-level="treeGrid ? item.row.depth + 1 : undefined"

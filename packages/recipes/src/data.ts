@@ -242,9 +242,13 @@ export const dataTable = tv({
         edge: {
             true: { resizer: 'inset-e-0 after:bg-transparent' },
         },
-        /** Every other row tinted */
+        /**
+         * Every other row tinted. The components mark each data row with `data-stripe="true|false"` by its place among
+         * the data rows of the page (also with virtual scrolling, group and detail rows not counted); rows without the
+         * attribute (plain HTML) follow their position (`:nth-child(even)`). Hover and selection win.
+         */
         striped: {
-            true: { row: 'even:bg-bg-2/60' },
+            true: { row: '[&:where(:nth-child(even):not([data-stripe]),[data-stripe=true])]:bg-bg-2/60' },
         },
         /** Fixed height (`scrollHeight`): the table scrolls inside, header and footer stay visible */
         scrollable: {

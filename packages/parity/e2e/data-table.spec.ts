@@ -326,3 +326,31 @@ test.describe('DataTable resize handles', () => {
         await expect.poll(async () => Number(await last.getAttribute('aria-valuenow'))).toBeGreaterThan(before);
     });
 });
+
+test.describe('DataTable striped with virtual scrolling', () => {
+    test('every data row keeps its tint wherever the table is scrolled', async ({ page }) => {
+        await openStory(page, 'data-datatable--large');
+        const table = page.getByRole('table', { name: 'All machines' });
+        const seen = new Map<string, string>();
+        for (const top of [0, 113, 565, 791, 1808, 2486]) {
+            await table.evaluate((element, y) => element.parentElement!.scrollTo({ top: y }), top);
+            await nextFrame(page);
+            const rows = await table.evaluate((element) =>
+                [...element.querySelectorAll('tbody:not([class*=sticky]) tr[data-row-id]')].map((row) => [
+                    row.getAttribute('aria-rowindex')!,
+                    getComputedStyle(row).backgroundColor,
+                ])
+            );
+            expect(rows.length).toBeGreaterThan(4);
+            for (const [index, color] of rows) {
+                if (seen.has(index!)) expect(color, `row ${index} at ${top}px`).toBe(seen.get(index!));
+                seen.set(index!, color!);
+            }
+        }
+        // Alternating: neighbours differ
+        const indexes = [...seen.keys()].map(Number).sort((a, b) => a - b);
+        const pairs = indexes.slice(1).filter((index, i) => index === indexes[i]! + 1);
+        expect(pairs.length).toBeGreaterThan(10);
+        for (const index of pairs) expect(seen.get(String(index))).not.toBe(seen.get(String(index - 1)));
+    });
+});

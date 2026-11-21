@@ -1594,6 +1594,12 @@ export function DataTable<TData extends object>({
     const rowNumbers = new Map(
         items.filter((item) => item.kind === 'row').map((item, index) => [item.row.id, pageOffset + index + 1])
     );
+    /**
+     * `striped`: every second data row of the page by its place, not by the DOM (virtual scrolling renders a spacer and
+     * a window of the rows); group and detail rows do not count
+     */
+    const stripe = (row: TableRow) =>
+        striped ? String(((rowNumbers.get(row.id) ?? 0) - pageOffset) % 2 === 0) : undefined;
     const detailsId = (row: TableRow) => `${id}-details-${row.id}`;
     const allExpanded = table.getIsAllRowsExpanded();
     const treeIndent = !!getSubRows || grouping.length > 0;
@@ -3350,6 +3356,7 @@ export function DataTable<TData extends object>({
                         data-state={isSelected(row) ? 'selected' : undefined}
                         aria-selected={grid && selectable ? isSelected(row) : undefined}
                         data-row-id={row.id}
+                        data-stripe={stripe(row)}
                         data-index={item.index}
                         aria-rowindex={rowIndex}
                         aria-level={treeGrid ? row.depth + 1 : undefined}
@@ -4120,13 +4127,14 @@ export function DataTable<TData extends object>({
                     </thead>
                     {frozen.length > 0 && (
                         <tbody className={styles.frozenBody()} style={scrollHeight ? { top: headHeight } : undefined}>
-                            {frozen.map((row) => (
+                            {frozen.map((row, frozenIndex) => (
                                 <tr
                                     key={row.id}
                                     className={styles.row({ class: rowClass?.(row.original) })}
                                     data-state={isSelected(row) ? 'selected' : undefined}
                                     aria-selected={grid && selectable ? isSelected(row) : undefined}
                                     data-row-id={row.id}
+                                    data-stripe={striped ? String(frozenIndex % 2 === 1) : undefined}
                                 >
                                     {leading.map((utility) => (
                                         <td
