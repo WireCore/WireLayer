@@ -47,9 +47,21 @@ export const input = tv({
     },
     variants: {
         size: {
-            sm: { base: 'h-8 rounded-md', control: 'px-2.5 text-[13px]', icon: 'ml-2.5 size-3.5' },
-            md: { base: 'h-10 rounded-lg', control: 'px-3 text-[15px]', icon: 'ml-3 size-4' },
-            lg: { base: 'h-12 rounded-[10px]', control: 'px-4 text-base', icon: 'ml-4 size-[18px]' },
+            sm: {
+                base: 'h-8 rounded-[var(--wc-control-radius-sm,6px)]',
+                control: 'px-2.5 text-[13px]',
+                icon: 'ml-2.5 size-3.5',
+            },
+            md: {
+                base: 'h-10 rounded-[var(--wc-control-radius-md,8px)]',
+                control: 'px-3 text-[15px]',
+                icon: 'ml-3 size-4',
+            },
+            lg: {
+                base: 'h-12 rounded-[var(--wc-control-radius-lg,10px)]',
+                control: 'px-4 text-base',
+                icon: 'ml-4 size-[18px]',
+            },
         },
         focused: {
             true: { base: 'border-primary' },
@@ -78,7 +90,7 @@ export const input = tv({
 });
 
 export const textarea = tv({
-    base: 'min-h-24 w-full rounded-lg border border-line-strong bg-bg px-3 py-[9px] font-sans text-[15px] leading-6 text-fg web:outline-none',
+    base: 'min-h-24 w-full rounded-[var(--wc-control-radius-md,8px)] border border-line-strong bg-bg px-3 py-[9px] font-sans text-[15px] leading-6 text-fg web:outline-none',
     variants: {
         focused: {
             true: 'border-primary',
@@ -93,9 +105,9 @@ export const textarea = tv({
             true: 'border-line bg-bg-2 text-muted',
         },
         size: {
-            sm: 'rounded-md px-2.5 py-1.5 text-[13px] leading-5',
+            sm: 'rounded-[var(--wc-control-radius-sm,6px)] px-2.5 py-1.5 text-[13px] leading-5',
             md: {},
-            lg: 'rounded-[10px] px-4 py-3 text-base',
+            lg: 'rounded-[var(--wc-control-radius-lg,10px)] px-4 py-3 text-base',
         },
         /** Monospace font of the theme – for keys, codes and logs */
         mono: {
@@ -129,7 +141,8 @@ export const textareaParts = tv({
 export const checkbox = tv({
     slots: {
         base: ['flex-row items-start gap-2.5', pressable],
-        control: 'mt-px size-[18px] shrink-0 items-center justify-center rounded-[5px] border border-line-strong',
+        control:
+            'mt-px size-[18px] shrink-0 items-center justify-center rounded-[var(--wc-checkbox-radius,5px)] border border-line-strong',
         icon: 'size-[13px] text-on-primary',
         label: 'min-w-0 shrink font-sans text-sm leading-5 text-muted',
     },
@@ -192,7 +205,7 @@ export const selectionCard = tv({
     },
     variants: {
         type: {
-            checkbox: { control: 'rounded-[5px]' },
+            checkbox: { control: 'rounded-[var(--wc-checkbox-radius,5px)]' },
             radio: { control: 'rounded-full' },
         },
         checked: {

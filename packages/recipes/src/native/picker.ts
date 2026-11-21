@@ -33,7 +33,7 @@ export const sheetSize = tv({
 export const select = tv({
     slots: {
         trigger: [
-            'h-10 w-full flex-row items-center justify-between gap-2.5 rounded-lg border border-line-strong bg-bg pr-2.5 pl-3',
+            'h-10 w-full flex-row items-center justify-between gap-2.5 rounded-[var(--wc-control-radius-md,8px)] border border-line-strong bg-bg pr-2.5 pl-3',
             pressable,
             'active:opacity-100',
         ],
@@ -76,9 +76,17 @@ export const select = tv({
             true: { trigger: 'border-primary' },
         },
         size: {
-            sm: { trigger: 'h-8 rounded-md pl-2.5', valueText: 'text-[13px]', placeholder: 'text-[13px]' },
+            sm: {
+                trigger: 'h-8 rounded-[var(--wc-control-radius-sm,6px)] pl-2.5',
+                valueText: 'text-[13px]',
+                placeholder: 'text-[13px]',
+            },
             md: {},
-            lg: { trigger: 'h-12 rounded-[10px] pl-4', valueText: 'text-base', placeholder: 'text-base' },
+            lg: {
+                trigger: 'h-12 rounded-[var(--wc-control-radius-lg,10px)] pl-4',
+                valueText: 'text-base',
+                placeholder: 'text-base',
+            },
         },
         /** The chips make the trigger grow with them */
         hasChips: {

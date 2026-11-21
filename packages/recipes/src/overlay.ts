@@ -102,12 +102,12 @@ export const dialog = tv({
         positioner: 'fixed inset-0 z-50 flex items-center justify-center overflow-y-auto p-4',
         content: [
             // Width from --wc-dialog-w: set by `size`, or your own, e.g. style="--wc-dialog-w: 36rem"
-            'flex w-full max-w-[var(--wc-dialog-w,400px)] flex-col rounded-[14px] border border-line-2 bg-card text-fg outline-none',
+            'flex w-full max-w-[var(--wc-dialog-w,400px)] flex-col rounded-dialog border border-line-2 bg-card text-fg outline-none',
             'shadow-[0_24px_48px_-20px_rgba(0,0,0,.55)]',
             'motion-safe:data-[state=open]:animate-dialog-in motion-safe:data-[state=closed]:animate-dialog-out',
         ],
         header: 'flex items-center justify-between gap-3 pt-4 pe-4 ps-[18px]',
-        iconBox: 'flex size-9 items-center justify-center rounded-[10px]',
+        iconBox: 'flex size-9 items-center justify-center rounded-[var(--wc-dialog-icon-radius,10px)]',
         icon: 'size-[18px]',
         close: [
             'ms-auto flex size-8 items-center justify-center rounded-full text-muted hover:bg-line hover:text-fg',

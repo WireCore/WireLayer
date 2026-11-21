@@ -72,7 +72,7 @@ export const gallery = tv({
         // Fullscreen view: a dialog filling the screen
         positioner: 'fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-8',
         content: [
-            'flex max-h-full w-full max-w-6xl flex-col gap-3 overflow-y-auto rounded-[14px] border border-line-2 bg-card p-4 text-fg outline-none',
+            'flex max-h-full w-full max-w-6xl flex-col gap-3 overflow-y-auto rounded-dialog border border-line-2 bg-card p-4 text-fg outline-none',
             'motion-safe:data-[state=open]:animate-dialog-in motion-safe:data-[state=closed]:animate-dialog-out',
         ],
         header: 'flex items-center justify-between gap-3',
@@ -82,7 +82,7 @@ export const gallery = tv({
         video: 'aspect-video w-full rounded-xl bg-black',
         /** Lightbox (`tools`): toolbar, zoomable stage, the zoom in percent and the keyboard help */
         lightbox: [
-            'flex max-h-full w-full max-w-6xl flex-col gap-3 overflow-hidden rounded-[14px] border border-line-2 bg-card p-4 text-fg outline-none',
+            'flex max-h-full w-full max-w-6xl flex-col gap-3 overflow-hidden rounded-dialog border border-line-2 bg-card p-4 text-fg outline-none',
             'motion-safe:data-[state=open]:animate-dialog-in motion-safe:data-[state=closed]:animate-dialog-out',
             '[&:fullscreen]:max-w-none [&:fullscreen]:rounded-none [&:fullscreen]:border-0',
         ],

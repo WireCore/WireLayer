@@ -113,7 +113,7 @@ export const phoneInput = tv({
 /** Entries as chips with a text field after them (TagsInput, Autocomplete multiple) */
 export const tagsInput = tv({
     slots: {
-        base: 'min-h-10 w-full flex-row flex-wrap items-center gap-1 rounded-lg border border-line-strong bg-bg px-1.5 py-1',
+        base: 'min-h-10 w-full flex-row flex-wrap items-center gap-1 rounded-[var(--wc-control-radius-md,8px)] border border-line-strong bg-bg px-1.5 py-1',
         tag: 'h-7 flex-row items-center rounded-full bg-line pl-2.5',
         tagText: 'font-sans-medium text-[13px] text-fg',
         tagRemove: ['-my-2 size-9 items-center justify-center rounded-full', pressable],

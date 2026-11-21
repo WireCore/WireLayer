@@ -78,11 +78,11 @@ export const avatar = tv({
         },
     },
     compoundVariants: [
-        { shape: 'square', size: 'sm', class: { base: 'rounded-lg' } },
-        { shape: 'square', size: 'md', class: { base: 'rounded-[10px]' } },
-        { shape: 'square', size: 'lg', class: { base: 'rounded-xl' } },
-        { shape: 'square', size: 'xl', class: { base: 'rounded-2xl' } },
-        { shape: 'square', size: '2xl', class: { base: 'rounded-3xl' } },
+        { shape: 'square', size: 'sm', class: { base: 'rounded-[var(--wc-avatar-radius,0.5rem)]' } },
+        { shape: 'square', size: 'md', class: { base: 'rounded-[var(--wc-avatar-radius,10px)]' } },
+        { shape: 'square', size: 'lg', class: { base: 'rounded-[var(--wc-avatar-radius,0.75rem)]' } },
+        { shape: 'square', size: 'xl', class: { base: 'rounded-[var(--wc-avatar-radius,1rem)]' } },
+        { shape: 'square', size: '2xl', class: { base: 'rounded-[var(--wc-avatar-radius,1.5rem)]' } },
         { grouped: true, variant: 'soft', class: { base: 'bg-bg-2 shadow-[inset_0_0_0_1px_var(--color-line-2)]' } },
         // Hover like IconButton: outline darkens its border, soft (bg-line) the background like `secondary`, solid
         // fades like the filled variants

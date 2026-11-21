@@ -157,6 +157,8 @@ export const radius = {
     panel: '28px',
     /** Floating surfaces: menus, list boxes, popovers, pickers */
     popup: '12px',
+    /** Dialogs and the fullscreen view of Gallery */
+    dialog: '14px',
 };
 
 export const tracking = {

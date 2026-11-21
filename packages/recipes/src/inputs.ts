@@ -189,7 +189,7 @@ export const multiSelect = tv({
         content: listboxContent,
         item: listboxOption,
         check: [
-            'flex size-4 shrink-0 items-center justify-center rounded-[4px] border border-line-strong text-on-primary',
+            'flex size-4 shrink-0 items-center justify-center rounded-[var(--wc-checkbox-radius,4px)] border border-line-strong text-on-primary',
             'data-[state=checked]:border-primary data-[state=checked]:bg-primary',
             'data-[state=indeterminate]:border-primary data-[state=indeterminate]:bg-primary',
             'forced-colors:data-[state=checked]:forced-color-adjust-none forced-colors:data-[state=checked]:bg-[Highlight] forced-colors:data-[state=checked]:text-[HighlightText]',
@@ -472,7 +472,7 @@ export const timeGrid = tv({
         base: 'flex flex-col gap-2',
         grid: 'grid grid-cols-[repeat(auto-fill,minmax(5.5rem,1fr))] gap-2',
         slot: [
-            'flex h-10 cursor-pointer items-center justify-center rounded-lg border border-line-strong bg-bg px-3 text-sm text-fg tabular-nums',
+            'flex h-10 cursor-pointer items-center justify-center rounded-[var(--wc-control-radius-md,0.5rem)] border border-line-strong bg-bg px-3 text-sm text-fg tabular-nums',
             'transition-colors hover:border-fg motion-reduce:transition-none',
             'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fg',
             'aria-checked:border-primary aria-checked:bg-primary aria-checked:text-on-primary',
@@ -491,12 +491,12 @@ export const timeGrid = tv({
         size: {
             sm: {
                 grid: 'grid-cols-[repeat(auto-fill,minmax(4.5rem,1fr))] gap-1.5',
-                slot: 'h-8 rounded-md px-2 text-xs',
+                slot: 'h-8 rounded-[var(--wc-control-radius-sm,0.375rem)] px-2 text-xs',
             },
             md: {},
             lg: {
                 grid: 'grid-cols-[repeat(auto-fill,minmax(6.5rem,1fr))] gap-2.5',
-                slot: 'h-12 rounded-[10px] text-base',
+                slot: 'h-12 rounded-[var(--wc-control-radius-lg,10px)] text-base',
             },
         },
     },

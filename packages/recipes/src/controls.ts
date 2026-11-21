@@ -25,7 +25,7 @@ export const listbox = tv({
         ],
         /** Check box before the label (`checkboxes`) */
         check: [
-            'flex size-4 shrink-0 items-center justify-center rounded-[4px] border border-line-strong text-on-primary',
+            'flex size-4 shrink-0 items-center justify-center rounded-[var(--wc-checkbox-radius,4px)] border border-line-strong text-on-primary',
             'data-[state=checked]:border-primary data-[state=checked]:bg-primary',
             'data-[state=indeterminate]:border-primary data-[state=indeterminate]:bg-primary',
             'forced-colors:data-[state=checked]:forced-color-adjust-none forced-colors:data-[state=checked]:bg-[Highlight] forced-colors:data-[state=checked]:text-[HighlightText]',

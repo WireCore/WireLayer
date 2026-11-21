@@ -7,6 +7,8 @@ import { createTV } from 'tailwind-variants';
 export const tv = createTV({
     twMergeConfig: {
         extend: {
+            // rounded-card, -dialog … are radii, so rounded-none (a full-screen dialog, `classes`) replaces them
+            theme: { radius: ['popup', 'card', 'panel', 'dialog'] },
             classGroups: {
                 'font-family': [{ font: ['sans', 'sans-medium', 'sans-semibold', 'sans-bold', 'mono'] }],
             },

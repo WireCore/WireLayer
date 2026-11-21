@@ -156,7 +156,7 @@ export const selectionCard = tv({
     },
     variants: {
         type: {
-            checkbox: { control: 'rounded-[5px]' },
+            checkbox: { control: 'rounded-[var(--wc-checkbox-radius,5px)]' },
             radio: {
                 control:
                     'rounded-full data-[state=checked]:bg-transparent after:size-2 after:rounded-full data-[state=checked]:after:bg-primary forced-colors:data-[state=checked]:after:bg-[Highlight]',

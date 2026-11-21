@@ -42,7 +42,7 @@ export const orderList = tv({
         status: 'sr-only',
         /** The list while an item is dragged over it */
         dropZone:
-            'rounded-[10px] data-drop:outline-2 data-drop:outline-offset-2 data-drop:outline-dashed data-drop:outline-primary',
+            'rounded-[var(--wc-control-radius-lg,10px)] data-drop:outline-2 data-drop:outline-offset-2 data-drop:outline-dashed data-drop:outline-primary',
     },
 });
 
@@ -54,7 +54,7 @@ export const pickList = tv({
         status: 'sr-only',
         /** A list while items are dragged over it */
         dropZone:
-            'min-w-0 rounded-[10px] data-drop:outline-2 data-drop:outline-offset-2 data-drop:outline-dashed data-drop:outline-primary',
+            'min-w-0 rounded-[var(--wc-control-radius-lg,10px)] data-drop:outline-2 data-drop:outline-offset-2 data-drop:outline-dashed data-drop:outline-primary',
     },
 });
 

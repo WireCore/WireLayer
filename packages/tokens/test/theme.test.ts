@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
-import { themes, themeToCss } from '../src/index.js';
+import { radius, themes, themeToCss } from '../src/index.js';
 
 const css = readFileSync(new URL('../dist/theme.css', import.meta.url), 'utf8');
 
@@ -95,6 +95,23 @@ describe('optional colour tokens', () => {
         for (const variant of variants) {
             expect(variant).toMatch(/--color-accent: [^;v]+;/);
             expect(variant).toMatch(/--color-primary-hover: [^;v]+;/);
+        }
+    });
+});
+
+describe('radii', () => {
+    const native = readFileSync(new URL('../dist/native.css', import.meta.url), 'utf8');
+
+    // Not inline: rounded-dialog reads var(--radius-dialog), so a theme can set it to 0 (square corners)
+    it('declares every radius as a theme variable for the web and React Native', () => {
+        expect(radius).toMatchObject({ card: '20px', panel: '28px', popup: '12px', dialog: '14px' });
+        const plain = blocks
+            .filter((block) => !block.inline)
+            .map((block) => block.body)
+            .join('\n');
+        for (const [name, value] of Object.entries(radius)) {
+            expect(plain).toContain(`--radius-${name}: ${value};`);
+            expect(native).toContain(`--radius-${name}: ${value};`);
         }
     });
 });

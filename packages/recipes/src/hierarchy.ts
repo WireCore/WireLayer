@@ -7,7 +7,7 @@ const focusRing = 'focus-visible:outline-2 focus-visible:-outline-offset-2 focus
 
 /** Select-like trigger shared by TreeSelect and CascadeSelect */
 const trigger = [
-    'flex h-10 w-full cursor-pointer items-center justify-between gap-2.5 rounded-lg border border-line-strong bg-bg pe-2.5 ps-3 text-start text-[15px] text-fg',
+    'flex h-10 w-full cursor-pointer items-center justify-between gap-2.5 rounded-[var(--wc-control-radius-md,0.5rem)] border border-line-strong bg-bg pe-2.5 ps-3 text-start text-[15px] text-fg',
     'outline-none transition-colors motion-reduce:transition-none focus-visible:border-primary data-[state=open]:border-primary',
     'data-invalid:border-danger data-disabled:cursor-not-allowed data-disabled:border-line data-disabled:bg-bg-2 data-disabled:text-muted',
 ];
@@ -36,7 +36,7 @@ export const tree = tv({
         icon: 'size-4 shrink-0 text-muted',
         text: 'min-w-0 flex-1 truncate',
         checkbox: [
-            'flex size-4 shrink-0 items-center justify-center rounded-[4px] border border-line-strong text-on-primary',
+            'flex size-4 shrink-0 items-center justify-center rounded-[var(--wc-checkbox-radius,4px)] border border-line-strong text-on-primary',
             'data-[state=checked]:border-primary data-[state=checked]:bg-primary data-[state=indeterminate]:border-primary data-[state=indeterminate]:bg-primary',
         ],
         checkboxIcon: 'size-3 stroke-3',
@@ -184,7 +184,7 @@ export function treeDropMove<T extends TreeLike>(
 /** Chips inside a select field (TreeSelect with several values) – like MultiSelect `display: 'chips'` */
 const chipParts = {
     chipsControl: [
-        'relative flex min-h-10 w-full flex-wrap items-center gap-1 rounded-lg border border-line-strong bg-bg py-[5px] pe-2.5 ps-1.5 text-fg',
+        'relative flex min-h-10 w-full flex-wrap items-center gap-1 rounded-[var(--wc-control-radius-md,0.5rem)] border border-line-strong bg-bg py-[5px] pe-2.5 ps-1.5 text-fg',
         'transition-colors motion-reduce:transition-none focus-within:border-primary data-[state=open]:border-primary',
         'data-invalid:border-danger data-disabled:cursor-not-allowed data-disabled:border-line data-disabled:bg-bg-2 data-disabled:text-muted',
     ],
@@ -209,8 +209,8 @@ const chipParts = {
 };
 
 const fieldSizes = {
-    sm: { trigger: 'h-8 rounded-md ps-2.5 pe-2 text-[13px]' },
-    lg: { trigger: 'h-12 rounded-[10px] ps-4 pe-3 text-base' },
+    sm: { trigger: 'h-8 rounded-[var(--wc-control-radius-sm,0.375rem)] ps-2.5 pe-2 text-[13px]' },
+    lg: { trigger: 'h-12 rounded-[var(--wc-control-radius-lg,10px)] ps-4 pe-3 text-base' },
 };
 
 /** The items without the node with this id (a copy) – the source side of a `transfer` between trees */
@@ -297,9 +297,17 @@ export const treeSelect = tv({
     },
     variants: {
         size: {
-            sm: { ...fieldSizes.sm, chipsControl: 'min-h-8 rounded-md py-0.5', chipsTrigger: 'text-[13px]' },
+            sm: {
+                ...fieldSizes.sm,
+                chipsControl: 'min-h-8 rounded-[var(--wc-control-radius-sm,0.375rem)] py-0.5',
+                chipsTrigger: 'text-[13px]',
+            },
             md: {},
-            lg: { ...fieldSizes.lg, chipsControl: 'min-h-12 rounded-[10px] py-[9px]', chipsTrigger: 'text-base' },
+            lg: {
+                ...fieldSizes.lg,
+                chipsControl: 'min-h-12 rounded-[var(--wc-control-radius-lg,10px)] py-[9px]',
+                chipsTrigger: 'text-base',
+            },
         },
         // Room for the clear button between value and arrow
         clearable: {
@@ -332,7 +340,7 @@ export const cascadeSelect = tv({
         ...selectFieldParts,
         /** Search field (filter): the field itself, the levels button at its end */
         searchControl: [
-            'flex h-10 w-full items-center gap-1 rounded-lg border border-line-strong bg-bg pe-1 ps-3 text-[15px] text-fg',
+            'flex h-10 w-full items-center gap-1 rounded-[var(--wc-control-radius-md,0.5rem)] border border-line-strong bg-bg pe-1 ps-3 text-[15px] text-fg',
             'transition-colors motion-reduce:transition-none focus-within:border-primary',
             'data-invalid:border-danger data-disabled:cursor-not-allowed data-disabled:border-line data-disabled:bg-bg-2 data-disabled:text-muted',
         ],
@@ -354,9 +362,13 @@ export const cascadeSelect = tv({
     },
     variants: {
         size: {
-            sm: { ...fieldSizes.sm, searchControl: 'h-8 rounded-md ps-2.5 text-[13px]', levelsTrigger: 'size-6' },
+            sm: {
+                ...fieldSizes.sm,
+                searchControl: 'h-8 rounded-[var(--wc-control-radius-sm,0.375rem)] ps-2.5 text-[13px]',
+                levelsTrigger: 'size-6',
+            },
             md: {},
-            lg: { ...fieldSizes.lg, searchControl: 'h-12 rounded-[10px] ps-4 text-base' },
+            lg: { ...fieldSizes.lg, searchControl: 'h-12 rounded-[var(--wc-control-radius-lg,10px)] ps-4 text-base' },
         },
         clearable: {
             true: { indicator: 'ms-7' },
