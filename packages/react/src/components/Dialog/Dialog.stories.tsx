@@ -209,7 +209,39 @@ export const Stacked: Story = {
     ),
 };
 
-/** Long content: only the body scrolls, header and footer stay in place */
+/**
+ * Long content with the default `scrollBehavior="outside"`: the whole dialog scrolls. Taller than the window, it starts
+ * at the top – title and close button stay reachable – and scrolls down to its buttons.
+ */
+export const LongContent: Story = {
+    name: 'Long content',
+    render: () => (
+        <Dialog>
+            <DialogTrigger>
+                <Button variant="outline">Show changes</Button>
+            </DialogTrigger>
+            <DialogContent
+                title="What's new"
+                footer={
+                    <DialogClose>
+                        <Button size="sm">Got it</Button>
+                    </DialogClose>
+                }
+            >
+                {Array.from({ length: 20 }, (_, index) => (
+                    <p key={index} className="text-sm">
+                        Version 1.{20 - index} – Faster start, smaller bundles and a few fixes.
+                    </p>
+                ))}
+            </DialogContent>
+        </Dialog>
+    ),
+};
+
+/**
+ * Long content: only the body scrolls, header and footer stay in place – long forms keep their title and buttons in
+ * view. App-wide: `dialog: { defaultVariants: { scrollBehavior: 'inside' } }` in the RecipesProvider.
+ */
 export const ScrollInside: Story = {
     render: () => (
         <Dialog>

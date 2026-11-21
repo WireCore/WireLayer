@@ -54,7 +54,10 @@ export interface DialogContentProps {
     draggable?: boolean;
     /** Shows the close button in the header */
     closable?: boolean;
-    /** `inside`: only the body scrolls, header and footer stay in place; `outside` (default): the whole dialog scrolls */
+    /**
+     * `inside`: only the body scrolls, header and footer stay in place (long forms keep title and buttons in view);
+     * `outside` (default): the whole dialog scrolls – taller than the window, it starts at the top
+     */
     scrollBehavior?: 'inside' | 'outside';
     /** Full width on small screens (below 640px) */
     responsive?: boolean;

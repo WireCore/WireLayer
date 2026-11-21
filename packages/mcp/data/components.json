@@ -12246,7 +12246,7 @@
                     "name": "scrollBehavior",
                     "type": "'inside' | 'outside'",
                     "optional": true,
-                    "description": "`inside`: only the body scrolls, header and footer stay in place; `outside` (default): the whole dialog scrolls"
+                    "description": "`inside`: only the body scrolls, header and footer stay in place (long forms keep title and buttons in view); `outside` (default): the whole dialog scrolls – taller than the window, it starts at the top"
                 },
                 {
                     "name": "responsive",
@@ -12381,7 +12381,7 @@
                         "name": "scrollBehavior",
                         "type": "'inside' | 'outside'",
                         "optional": true,
-                        "description": "`inside`: only the body scrolls, header and footer stay in place; `outside` (default): the whole dialog scrolls"
+                        "description": "`inside`: only the body scrolls, header and footer stay in place (long forms keep title and buttons in view); `outside` (default): the whole dialog scrolls – taller than the window, it starts at the top"
                     },
                     {
                         "name": "responsive",
@@ -42436,7 +42436,7 @@
                         "name": "scrollBehavior",
                         "type": "'inside' | 'outside'",
                         "optional": true,
-                        "description": "`inside`: only the body scrolls, title and buttons stay in view (long content)"
+                        "description": "`inside`: only the body scrolls, title and buttons stay in view (long content); `outside` (default): the whole dialog scrolls"
                     },
                     {
                         "name": "initialFocusRef",

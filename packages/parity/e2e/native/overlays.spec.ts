@@ -24,6 +24,26 @@ test.describe('Toast', () => {
     });
 });
 
+test.describe('Dialog', () => {
+    test('long content: the dialog stays on the screen and scrolls as a whole down to its buttons', async ({
+        page,
+    }) => {
+        await page.setViewportSize({ width: 800, height: 360 });
+        await openStory(page, 'overlays-dialog--long-content');
+        await page.getByRole('button', { name: 'Show changes' }).click();
+        const dialog = page.getByRole('dialog', { name: "What's new" });
+        await expect(dialog).toBeVisible();
+        await expect.poll(async () => (await dialog.boundingBox())!.y).toBeGreaterThanOrEqual(0);
+        const box = (await dialog.boundingBox())!;
+        expect(box.y + box.height).toBeLessThanOrEqual(360);
+        await expect(dialog.getByRole('button', { name: 'Close' })).toBeInViewport();
+        const done = dialog.getByRole('button', { name: 'Got it' });
+        await expect(done).not.toBeInViewport();
+        await done.scrollIntoViewIfNeeded();
+        await expect(done).toBeInViewport();
+    });
+});
+
 test.describe('confirm() and prompt()', () => {
     test('confirm: alertdialog with the focus on Cancel, Escape answers no, the button yes', async ({ page }) => {
         await openStory(page, 'overlays-confirm--playground');

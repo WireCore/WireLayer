@@ -34,7 +34,7 @@ export interface DialogProps {
     closeOnInteractOutside?: boolean;
     /** Escape (web) and the Android back button close it (default true) */
     closeOnEscape?: boolean;
-    /** `inside`: only the body scrolls, title and buttons stay in view (long content) */
+    /** `inside`: only the body scrolls, title and buttons stay in view (long content); `outside` (default): the whole dialog scrolls */
     scrollBehavior?: 'inside' | 'outside';
     /** Gets the keyboard focus when it opens (web) instead of the close button, e.g. the safe choice */
     initialFocusRef?: RefObject<{ focus?: () => void } | null>;
@@ -81,7 +81,6 @@ export function Dialog({
         size,
         position,
         fullscreen,
-        scrollInside,
         bare: !inHeader && !icon && !closable,
         titleInHeader: inHeader,
     });
@@ -124,6 +123,29 @@ export function Dialog({
         </View>
     );
 
+    const header = (icon || closable || inHeader) && (
+        <View className={styles.header()}>
+            {icon && (
+                <View className={styles.iconBox()}>
+                    <Icon icon={icon} className={styles.icon()} />
+                </View>
+            )}
+            {inHeader && titleText}
+            {closable && (
+                <Pressable
+                    ref={closeButton}
+                    role="button"
+                    className={styles.close()}
+                    aria-label={closeLabel ?? translations.common.close}
+                    onPress={close}
+                >
+                    <Icon icon={X} className={styles.closeIcon()} />
+                </Pressable>
+            )}
+        </View>
+    );
+    const footerRow = footer && <View className={styles.footer()}>{footer}</View>;
+
     return (
         <Modal
             visible={open}
@@ -151,35 +173,23 @@ export function Dialog({
                     accessibilityViewIsModal
                     className={styles.content({ class: className })}
                 >
-                    {(icon || closable || inHeader) && (
-                        <View className={styles.header()}>
-                            {icon && (
-                                <View className={styles.iconBox()}>
-                                    <Icon icon={icon} className={styles.icon()} />
-                                </View>
-                            )}
-                            {inHeader && titleText}
-                            {closable && (
-                                <Pressable
-                                    ref={closeButton}
-                                    role="button"
-                                    className={styles.close()}
-                                    aria-label={closeLabel ?? translations.common.close}
-                                    onPress={close}
-                                >
-                                    <Icon icon={X} className={styles.closeIcon()} />
-                                </Pressable>
-                            )}
-                        </View>
-                    )}
                     {scrollInside || fullscreen ? (
-                        <ScrollView className={styles.scroller()} keyboardShouldPersistTaps="handled">
-                            {body}
-                        </ScrollView>
+                        <>
+                            {header}
+                            <ScrollView className={styles.scroller()} keyboardShouldPersistTaps="handled">
+                                {body}
+                            </ScrollView>
+                            {footerRow}
+                        </>
                     ) : (
-                        body
+                        // outside: taller than the screen, the whole dialog scrolls – the title and the close
+                        // button at its top stay reachable
+                        <ScrollView className={styles.scroller()} keyboardShouldPersistTaps="handled">
+                            {header}
+                            {body}
+                            {footerRow}
+                        </ScrollView>
                     )}
-                    {footer && <View className={styles.footer()}>{footer}</View>}
                 </View>
             </View>
         </Modal>

@@ -148,6 +148,34 @@ test.describe('Dialog variants', () => {
         await expect(trigger).toBeFocused();
     });
 
+    test('long content: taller than the window, the dialog starts at the top and scrolls to its end', async ({
+        page,
+    }) => {
+        await page.setViewportSize({ width: 1024, height: 320 });
+        await openStory(page, 'overlays-dialog--long-content');
+        await page.getByRole('button', { name: 'Show changes' }).click();
+        const dialog = page.getByRole('dialog', { name: "What's new" });
+        await expect(dialog).toBeVisible();
+        await dialog.evaluate((node) => Promise.all(node.getAnimations().map((animation) => animation.finished)));
+        // p-4 above it, nothing cut off
+        expect((await dialog.boundingBox())!.y).toBe(16);
+        await expect(dialog.getByRole('heading', { name: "What's new" })).toBeInViewport();
+        await expect(dialog.getByRole('button', { name: 'Close' })).toBeInViewport();
+        await dialog.evaluate((node) => node.parentElement!.scrollTo({ top: node.parentElement!.scrollHeight }));
+        await expect(dialog.getByRole('button', { name: 'Got it' })).toBeInViewport();
+    });
+
+    test('a short dialog stays in the middle', async ({ page }) => {
+        await page.setViewportSize({ width: 1024, height: 768 });
+        await openStory(page, 'overlays-dialog--playground');
+        await page.getByRole('button', { name: 'Delete server' }).click();
+        const dialog = page.getByRole('alertdialog', { name: 'Delete server?' });
+        await expect(dialog).toBeVisible();
+        await dialog.evaluate((node) => Promise.all(node.getAnimations().map((animation) => animation.finished)));
+        const box = (await dialog.boundingBox())!;
+        expect(Math.abs(box.y + box.height / 2 - 384)).toBeLessThanOrEqual(1);
+    });
+
     test('scroll inside: a checkbox further down scrolls the body, the header stays in place', async ({ page }) => {
         await page.setViewportSize({ width: 1024, height: 400 });
         await openStory(page, 'overlays-dialog--scroll-inside');
