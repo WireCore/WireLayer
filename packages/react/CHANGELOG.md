@@ -1,5 +1,117 @@
 # @wirecore/wirelayer-react
 
+## 0.13.0
+
+### Minor Changes
+
+- 1e42647: DataTable: defaults for the whole app instead of on every table – all through the `defaultVariants` of the `dataTable`
+  recipe (RecipesProvider/ConfigProvider `recipes`), the prop on a single table still wins:
+
+    - `showFilters` (new classless variant): `{ showFilters: false }` starts every table with `filterToggle` with closed
+      filters; the prop and a saved state (`stateKey`) win as before.
+    - `striped`, `gridlines`, `bordered`, `wrapHeaders`, `verticalHeaders`: the Vue DataTable passed `false` for an unset
+      prop to the recipe, so their `defaultVariants` never applied (React: `gridlines`, `bordered`, `striped`,
+      `wrapHeaders`, `verticalHeaders` likewise) – unset props now take them.
+    - Own controls in the toolbar slots (`#toolbar`, `#toolbarStart`, `#toolbarEnd` / `toolbar`, `toolbarStart`,
+      `toolbarEnd`) default to the size of the built-in ones (`sm`): Button, IconButton, Input, Select, menu triggers …
+      match the search and the filter, columns and density buttons; an explicit `size` wins.
+    - A text filter (filter row and filter menu) shows the placeholder “Filter …” (new translation `dataTable.filterText`,
+      in every bundled language); `filterInputProps.placeholder` replaces it.
+
+    Docs: _Customizing_ lists the DataTable defaults.
+
+- 19a30f6: DataTable: new feature `dateRangeInput` – a `between` filter of a `date` or `datetime` column shows one DateRangePicker
+  for both ends instead of two fields below each other, in the filter row and in the filter menu. The filter value stays
+  `[from, to]` (the picker's `{ start, end }` is converted both ways), so `filters`, saved states and server requests do
+  not change. Without the feature it stays two fields. Use it like the other input features:
+  `:features="[dateInput, dateRangeInput]"`.
+- db0d280: DataTable: `scrollHeight="fill"` – the table takes the rest of a flex column instead of a fixed height. A table that
+  should reach down to the bottom of the page under a heading and figures needed an estimated `calc(100dvh - 12rem)`, too
+  big or too small depending on what is above it and on the window width. With `fill` the table is a flex item
+  (`flex-1 min-h-0`), its scroll area takes the room left between toolbar and footer (new recipe variant `fill`, with
+  `contain: size` so the rows do not stretch the page), and the new prop `minScrollHeight` (e.g. `60vh`) keeps it from
+  collapsing – below that the page scrolls. Toolbar, header and footer stay visible; virtual scrolling measures the area.
+  Story “Fill the rest”, docs with a page layout; the PrimeVue migration guide maps `scrollHeight="flex"` to it.
+- a075bb3: DataTable: new prop `searchAlign` (`start` – default, as before – or `center`). With `center` the search field sits in the
+  middle between your own controls at the start of the toolbar and the controls at the end, with the same room on both
+  sides; without controls at the start it is centred in the free room, the end group stays at the end, and on narrow
+  screens the toolbar wraps as before. The recipe variant `searchCentered` sets it for the whole app:
+  `{ dataTable: { defaultVariants: { searchCentered: true } } }` (only tables with `search` change). Story “Search in the
+  middle”.
+- 34d5a83: DataTable: new prop `sortable` for the whole table – every column with a value can be sorted unless it sets
+  `sortable: false`; columns without a value of their own (no field in the rows, no `accessor` or `sortFn`, e.g. a column
+  of action buttons) stay out. As a classless variant of the `dataTable` recipe it can be set for the whole app:
+  `{ dataTable: { defaultVariants: { sortable: true } } }`, the prop on a table and `sortable` on a column win.
+- 5ea0d05: Dialog: the title position can be set once for the whole app. `DialogContent` reads `titleInHeader` from the
+  `defaultVariants` of the `dialog` recipe (RecipesProvider/ConfigProvider `recipes`) when `titlePosition` is not set –
+  `{ dialog: { defaultVariants: { titleInHeader: true } } }` puts the title of every dialog next to the close button; the
+  prop on a single dialog still wins.
+
+    - `ConfirmDialog` (`confirm()`, `prompt()`) and `DialogHost` (`openDialog()`) follow the same default; their requests
+      take the new option `titlePosition`, which wins over it. Before, the default only changed their classes, not where the
+      title is.
+    - New `useRecipeDefaults(name, recipe)`: the default variants of a recipe with those of the nearest RecipesProvider –
+      for own components whose markup depends on a variant.
+    - Docs: _Customizing_ lists the recipe defaults that change more than classes; the PrimeVue migration guide shows the
+      central setting. React Native has no RecipesProvider, the prop stays on the single dialog there.
+
+- 9fd6d37: Drawer and Dialog: own content in the header row – slot `#header` (Vue), prop `header` (React, React Native), e.g. the
+  logo of the app next to the close button of a navigation drawer.
+
+    - The content sits where title and description are, before the close button (Dialog: after the icon, before the
+      maximize and close buttons), takes the free space and is centred with the close button (new recipe part
+      `headerContent`, Drawer variant `customHeader`).
+    - The title stays required and keeps naming the panel (`aria-labelledby`); with header content it is shown for screen
+      readers only by default. `hideTitle: false` shows it next to the content (Drawer) or where `titlePosition` puts it
+      (Dialog). The description stays connected (`aria-describedby`).
+    - React Native Drawer (side panel and sheet): `header` and `hideTitle`; a hidden title names the panel via `aria-label`.
+    - Without header content nothing changes.
+
+- 1ff4096: NotificationCenter: the look of the bell is configurable – `variant` (IconButton variant, default `text` as before),
+  `color` and `size`, for `display="popover"` and `"drawer"`. A bell in a header with outlined icon buttons (e.g.
+  `ModeToggle variant="outline"`) can now match them: `<NotificationCenter variant="outline" size="sm" />`. React Native:
+  the same props (without them the bell keeps the IconButton default).
+
+### Patch Changes
+
+- 19a30f6: DataTable: all fields of the filter row are equally high. Text, number and browser date fields were small (`sm`), the
+  DatePicker (`dateInput` feature), Select and MultiSelect (“All”) had the medium height – now they are small as well,
+  also in the filter menu and in row editing.
+- dfc2bf5: DataTable `resizable`: the resize handle of the last column no longer sticks out of the table. Every handle lies half
+  over the border to the next column; the last one has none, so it reached 4px past the table – a table whose columns fit
+  exactly scrolled a little sideways, and its line stood after the last column (next to the scrollbar with
+  `scrollHeight`). The handle of the column that ends the table (also after hiding, reordering or pinning columns; not when
+  the action column follows) now lies inside it, without the line at rest (new variant `edge` of the `resizer` part);
+  mouse, touch and keyboard still resize it.
+- 0a10e31: DataTable: columns without their own `sortFn` sort texts and dates correctly. TanStack Table picks `text` or
+  `alphanumeric` for text columns and `datetime` for `Date` values, but only `alphanumeric` was registered – in
+  development the console said "sortFn 'text' (auto) … is not registered" and the column fell back to comparing character
+  codes (upper and lower case apart, umlauts at the end).
+
+    - All sort functions the automatic choice can pick are registered: `text`, `alphanumeric`, `textCaseSensitive`,
+      `alphanumericCaseSensitive`, `datetime`, `basic`.
+    - `text` and `alphanumeric` sort by the language of the table (LocaleProvider/ConfigProvider, `Intl.Collator` with
+      numbers counted): case does not matter, “Ärger” comes after “Anna”, “Server 2” before “Server 10” – the same rules as
+      the React Native DataTable.
+
+- 876b523: DataTable `striped` with `virtual`: the pattern no longer jumps while scrolling. The tint came from the position in the
+  DOM (`even:`), but virtual scrolling renders a spacer row and only a window of the rows, so the tinted rows changed with
+  the scroll position. Every data row now carries `data-stripe="true|false"` by its place among the data rows of the page:
+  group and detail rows do not count (the pattern runs on across the groups), frozen rows alternate among themselves.
+  Rows without the attribute – plain HTML with `@wirecore/wirelayer-css` – still follow their position. Hover and the
+  selected state win over the tint as before.
+- Updated dependencies [1e42647]
+- Updated dependencies [db0d280]
+- Updated dependencies [dfc2bf5]
+- Updated dependencies [a075bb3]
+- Updated dependencies [34d5a83]
+- Updated dependencies [876b523]
+- Updated dependencies [9fd6d37]
+- Updated dependencies [efcb41e]
+- Updated dependencies [5cec045]
+    - @wirecore/wirelayer-recipes@0.12.0
+    - @wirecore/wirelayer-tokens@0.8.0
+
 ## 0.12.2
 
 ### Patch Changes
