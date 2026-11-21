@@ -239,6 +239,42 @@ ${Object.entries(radius)
     [data-scope][data-part='positioner'] {
         z-index: var(--z-index);
     }
+    /* Scrollbars of the page and of every scrolling area in the look of ScrollPanel: thin, the thumb in line-strong
+       (3:1 against the surfaces, checked with the contrast of the input borders), the track transparent. Colours per
+       element, so a part with its own mode/theme follows it. Change them with --wc-scrollbar-thumb / -thumb-hover /
+       -track / -width; <html data-scrollbars="native"> keeps the browser's own. In the base layer, so utilities such
+       as [scrollbar-width:none] still win */
+    :where(:root:not([data-scrollbars='native'])),
+    :where(:root:not([data-scrollbars='native'])) * {
+        scrollbar-width: var(--wc-scrollbar-width, thin);
+        scrollbar-color: var(--wc-scrollbar-thumb, var(--wc-line-strong)) var(--wc-scrollbar-track, transparent);
+    }
+    /* Browsers without scrollbar-color (Safari): the same look through the WebKit scrollbar */
+    @supports not (scrollbar-color: auto) {
+        :where(:root:not([data-scrollbars='native'])) ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+            background: var(--wc-scrollbar-track, transparent);
+        }
+        :where(:root:not([data-scrollbars='native'])) ::-webkit-scrollbar-thumb {
+            border: 2px solid transparent;
+            border-radius: 9999px;
+            background: var(--wc-scrollbar-thumb, var(--wc-line-strong)) padding-box;
+        }
+        :where(:root:not([data-scrollbars='native'])) ::-webkit-scrollbar-thumb:hover {
+            background-color: var(--wc-scrollbar-thumb-hover, var(--wc-muted));
+        }
+        :where(:root:not([data-scrollbars='native'])) ::-webkit-scrollbar-corner {
+            background: transparent;
+        }
+    }
+    /* Forced colours (Windows contrast themes): the system scrollbars */
+    @media (forced-colors: active) {
+        :where(:root),
+        :where(:root) * {
+            scrollbar-color: auto;
+        }
+    }
 }
 `;
 

@@ -71,6 +71,19 @@ describe('light and dark', () => {
     });
 });
 
+describe('scrollbars', () => {
+    it('gives every scrolling area thin scrollbars in the theme colours, in the base layer, with a way out', () => {
+        const base = css.slice(css.indexOf('@layer base {'));
+        expect(base).toContain(
+            'scrollbar-color: var(--wc-scrollbar-thumb, var(--wc-line-strong)) var(--wc-scrollbar-track, transparent);'
+        );
+        expect(base).toContain('scrollbar-width: var(--wc-scrollbar-width, thin);');
+        expect(base).toContain(":where(:root:not([data-scrollbars='native'])) *");
+        expect(base).toMatch(/@supports not \(scrollbar-color: auto\) \{[^@]*::-webkit-scrollbar-thumb:hover/);
+        expect(base).toMatch(/@media \(forced-colors: active\) \{[^@]*scrollbar-color: auto;/);
+    });
+});
+
 describe('optional colour tokens', () => {
     const native = readFileSync(new URL('../dist/native.css', import.meta.url), 'utf8');
 

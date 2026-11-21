@@ -137,3 +137,31 @@ test.describe('Mode for a part of the page', () => {
         expect(dark.text).not.toBe(dark.page);
     });
 });
+
+test.describe('Scrollbars', () => {
+    test('thin, in the colours of the theme; data-scrollbars="native" keeps the browser ones', async ({ page }) => {
+        await openStory(page, 'data-card--playground', 'dark');
+        const look = () =>
+            page.evaluate(() => {
+                const area = document.createElement('div');
+                area.style.overflow = 'auto';
+                const reference = document.createElement('span');
+                reference.style.color = 'var(--wc-line-strong)';
+                document.body.append(area, reference);
+                const style = getComputedStyle(area);
+                const result = {
+                    width: style.scrollbarWidth,
+                    color: style.scrollbarColor,
+                    thumb: getComputedStyle(reference).color,
+                };
+                area.remove();
+                reference.remove();
+                return result;
+            });
+        const themed = await look();
+        expect(themed.width).toBe('thin');
+        expect(themed.color.startsWith(themed.thumb)).toBe(true);
+        await page.evaluate(() => (document.documentElement.dataset.scrollbars = 'native'));
+        expect(await look()).toMatchObject({ width: 'auto', color: 'auto' });
+    });
+});
