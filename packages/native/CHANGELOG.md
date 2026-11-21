@@ -1,5 +1,13 @@
 # @wirecore/wirelayer-native
 
+## 0.8.2
+
+### Patch Changes
+
+- Updated dependencies [fd1574d]
+    - @wirecore/wirelayer-tokens@0.7.0
+    - @wirecore/wirelayer-recipes@0.11.0
+
 ## 0.8.1
 
 ### Patch Changes

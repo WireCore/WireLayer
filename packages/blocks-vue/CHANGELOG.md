@@ -1,5 +1,13 @@
 # @wirecore/wirelayer-blocks-vue
 
+## 0.2.12
+
+### Patch Changes
+
+- Updated dependencies [fd1574d]
+    - @wirecore/wirelayer-recipes@0.11.0
+    - @wirecore/wirelayer-vue@0.12.2
+
 ## 0.2.11
 
 ### Patch Changes
