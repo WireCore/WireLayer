@@ -164,4 +164,30 @@ test.describe('Scrollbars', () => {
         await page.evaluate(() => (document.documentElement.dataset.scrollbars = 'native'));
         expect(await look()).toMatchObject({ width: 'auto', color: 'auto' });
     });
+
+    test('data-scrollbars="slim": Chromium draws the WebKit scrollbar (both properties auto), also on a part of the page', async ({
+        page,
+    }) => {
+        // Headless Chromium hides scrollbars, so their width cannot be measured here – Chromium only applies
+        // ::-webkit-scrollbar while scrollbar-width and scrollbar-color are auto
+        await openStory(page, 'data-card--playground', 'dark');
+        const look = (root: 'html' | 'part') =>
+            page.evaluate((root) => {
+                const part = document.createElement('div');
+                const area = document.createElement('div');
+                area.style.overflow = 'auto';
+                part.append(area);
+                document.body.append(part);
+                (root === 'html' ? document.documentElement : part).dataset.scrollbars = 'slim';
+                const style = getComputedStyle(area);
+                const result = { width: style.scrollbarWidth, color: style.scrollbarColor };
+                part.remove();
+                delete document.documentElement.dataset.scrollbars;
+                return result;
+            }, root);
+        for (const root of ['html', 'part'] as const)
+            expect(await look(root), root).toEqual({ width: 'auto', color: 'auto' });
+        // Outside a slim part the theme's thin scrollbars stay
+        expect(await page.evaluate(() => getComputedStyle(document.body).scrollbarWidth)).toBe('thin');
+    });
 });
