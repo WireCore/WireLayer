@@ -1,5 +1,82 @@
 # @wirecore/wirelayer-css
 
+## 0.13.0
+
+### Minor Changes
+
+- 4672886: DataTable `searchAlign="center"` (recipe variant `searchCentered`) puts the search in the middle of the toolbar. It used
+  to centre the field in the free room between the start and the end group – without controls at the start and with a
+  wide end group (refresh, print, filters, columns) it sat clearly left of the middle.
+
+    - The start group (also when empty) and the end group share the room on both sides equally, so the search is centred
+      in the toolbar however wide the tools at the end are. A group wider than its half moves the search aside instead of
+      overflowing; when they do not fit next to it the toolbar wraps.
+    - Narrow toolbars (container query, below 42rem): the search starts the row, wrapped onto a row of its own it is
+      centred, the tools follow at the end.
+    - With `searchAlign="center"` own `toolbar` controls join the end group (before the built-in buttons) and own
+      `toolbarStart` controls form one group – `searchAlign="start"` renders the toolbar as before.
+    - Story “Search in the middle, nothing at the start”.
+
+- c565b54: DatePicker and DateRangePicker with `withTime`: the time can be set below the calendar as well. Until now only the
+  field had hour and minute – the calendar popup picked the day, so changing the time needed typing.
+
+    - Below the calendar one time field (hour and minute, typed or with the arrow keys, in the locale's 12 or 24 hours) –
+      in a DateRangePicker two, “Start” and “End”, in a group named “Time”; with `showTimeZone` the zone after them. On the
+      day of `min`/`max` the time is limited to it.
+    - Picking a day keeps the calendar open; “Done” closes it, Escape discards what changed since it opened.
+    - `timeInPopup={false}` (Vue `:time-in-popup="false"`) keeps the time in the field only, the calendar closes on a day as
+      before.
+    - The DataTable features `dateInput` and `dateRangeInput` get it for `datetime` columns (filters and editors).
+    - New texts `calendar.time` and `calendar.done` in every language; new recipe parts `timeSection`, `timeHeading`,
+      `timeField`, `timeFieldLabel` and `timeDone`.
+
+- 246c257: Slim scrollbars: `data-scrollbars="slim"` – on `<html>` for the whole page, or on any element for that part – draws
+  the scrollbars as a narrow, rounded stroke. `thin` is drawn by the browser, and in Chrome and Edge (above all on
+  Windows) it stays a system-like bar, depending on the version with arrow buttons and a square thumb; a stroke is only
+  possible through `::-webkit-scrollbar`, which Chromium ignores while `scrollbar-width` or `scrollbar-color` is set.
+
+    - Browsers with `::-webkit-scrollbar` (Chromium, Safari): the stroke is `--wc-scrollbar-size` wide (new variable, 6px),
+      2px off the edge, no arrow buttons, the track and the corner transparent; under the pointer and while dragging the
+      thumb takes the full 10px and `--wc-scrollbar-thumb-hover`. Colours from `--wc-scrollbar-thumb` (`line-strong`, at
+      least 3:1 against the surfaces), so light, dark and parts with their own `data-mode` follow.
+    - Firefox keeps `thin` in the theme colours; forced colors keep the system scrollbars. The default (`thin`) and
+      `data-scrollbars="native"` do not change.
+    - Docs: _Theming › Themes › Scrollbars › Slim scrollbars_ with a list and a table in light and dark.
+
+### Patch Changes
+
+- c565b54: DateRangePicker with `withTime`: two fixes.
+
+    - A new range picked in the calendar keeps the end time. The calendar starts a new range with the start alone, so the
+      end took the time of the start (04.09. 17:00 – 06.09. 16:00 became 14.09. 17:00 – 16.09. 17:00). Each side now keeps
+      its last time; without one the start gets 00:00 and the end 23:59.
+    - In a narrow field (a form column, the filter row of a DataTable) the value no longer runs under the clear button: the
+      date input is clipped, and a focused part scrolls into view.
+
+- 1b223d3: Dialog: a long dialog is no longer cut off at the top. With the default `scrollBehavior="outside"` the positioner
+  centred the dialog with `items-center`, which splits the overflow of a dialog taller than the window above and below –
+  the part above (title, close button) lay outside the scrolling area and could not be reached, only the end could. The
+  positioner now centres safely (`items-center-safe`, `items-end-safe` for `position="bottom"`): short dialogs stay in the
+  middle, a taller one starts at the top (with the `p-4` margin) and scrolls down to its buttons. Applies to Dialog and
+  everything built on it (AlertDialog, `confirm()`, `prompt()`, `openDialog()`).
+
+    - React Native: with `outside` the whole dialog (header, body, footer) now scrolls and is never taller than the screen;
+      before, a long dialog ran off the screen at the top and the bottom.
+    - `scrollBehavior="inside"` keeps the header and footer of long forms in view – app-wide with
+      `dialog: { defaultVariants: { scrollBehavior: 'inside' } }`. Stories “Long content”.
+
+- f96d07d: Checkbox, Radio, Switch and the other controls with a hidden native input no longer stretch the page or make a dialog
+  jump. Ark's hidden input is absolutely positioned (1px, visually hidden), and the part around it was not positioned, so
+  the input was placed against the page: a scrolling area (DataTable with `scrollHeight`, the body of a Dialog with
+  `scrollBehavior="inside"`) did not clip it. A DataTable with `selectable` left an invisible point per rendered row below
+  its scroll area – the page got a long empty end and, with `virtual`, grew while the rows scrolled; in a dialog, focusing
+  a checkbox further down scrolled the positioner instead of the body, so header and close button left the screen.
+
+    - `relative` on the part around the hidden input: `checkbox` base, `radioGroup` item, `switchControl` base,
+      `segmentedControl` item, the base of `select`, `multiSelect`, `pinInput`, `colorPicker` and `fileUpload`
+      (`selectionCard` and `colorSwatchPicker` had it already).
+    - `relative` on the scroll area of the DataTable, so absolutely positioned content of own cells stays inside as well.
+
 ## 0.12.0
 
 ### Minor Changes
