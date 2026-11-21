@@ -16,6 +16,10 @@ Light/dark is independent of it and combines with every theme.
 Both attributes also work on parts of the page. Without `data-mode` the page follows the system setting (light or
 dark), `data-mode="light"` or `"dark"` forces a mode. Without `data-theme` the theme “WireLayer”
 (`data-theme="wirecore"`) applies. Custom themes from `themeToCss` follow the system setting the same way.
+A part with its own `data-mode` or `data-theme` sets the text colour of that mode and theme as well, so text inside it
+that inherits its colour stays readable (dark text on a light part of a dark page). It does not set a background – the
+part stays transparent; give it `bg-bg` or `bg-card` when it needs one of its own. React Native switches mode and theme
+for the whole app (`setAppearance`).
 
 <ThemeTable />
 

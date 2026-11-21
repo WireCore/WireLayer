@@ -226,6 +226,13 @@ ${Object.entries(radius)
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
     }
+    /* A mode or theme forced on a part of the page: body sets the text colour once and it is inherited as a fixed
+       value, so the part takes the text colour of its own mode/theme again. No background – the part may stay
+       transparent (set bg-bg or bg-card where it needs one). In the base layer, so text-* utilities still win */
+    [data-mode],
+    [data-theme] {
+        color: var(--wc-fg);
+    }
     /* Popups positioned by Ark (Select, Menu, Popover …): Ark copies the z-index of the content to the positioner as
        an inline style – Vue removes it again when it patches the positioner's style, which drops a list behind a
        dialog. In the base layer, so a z-index utility on a positioner still wins */

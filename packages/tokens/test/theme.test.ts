@@ -57,6 +57,11 @@ describe('light and dark', () => {
         );
     });
 
+    it('gives a part with a forced mode or theme its own text colour, in the base layer', () => {
+        // Inherited text would keep the colour body computed from the page's mode (light text on a light card)
+        expect(css).toMatch(/@layer base \{[^@]*\[data-mode\],\s*\[data-theme\] \{\s*color: var\(--wc-fg\);/);
+    });
+
     it('gives every theme with dark colours the system case, too', () => {
         for (const theme of themes.filter((theme) => Object.keys(theme.colors.dark).length)) {
             const rules = themeToCss(theme);
