@@ -84,7 +84,9 @@ by side, then the places where the two behave differently. The React package has
 - **Typed values:** `RadioGroup`, `SegmentedControl` and `NativeSelect` keep the type of the bound value (unions,
   numbers); `Checkbox` with a boolean model gives booleans.
 - **Compact parts:** `Progress size="xs"` with `hide-label`, `bar-text` and `status`; `Alert #actions`; `mono` on text
-  fields; `DialogContent title-position="header"` puts the title next to the close button.
+  fields; `DialogContent title-position="header"` puts the title next to the close button – for all dialogs of the
+  app once centrally instead of on every dialog: `RecipesProvider` with
+  `{ dialog: { defaultVariants: { titleInHeader: true } } }` (also for `confirm()`, `prompt()` and `openDialog()`).
 - **Values that are never empty:** with `required`, `RadioGroup` and `SegmentedControl` give v-model `V` instead of
   `V | null`; `NativeSelect` without `placeholder` gives `V` instead of `V | ''`; `NumberInput empty-fallback="min"` or
   `"previous"` refills an emptied field when it is left (typed `number`). `Select empty-value=""` treats an empty string

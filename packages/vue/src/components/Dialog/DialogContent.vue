@@ -14,7 +14,7 @@ import { computed, inject, normalizeClass, ref, useAttrs, useTemplateRef, watch,
 import { dialogContentKey, dialogRootKey } from './context.js';
 import { useDialogDrag } from './drag.js';
 import { useTranslations } from '../../locale.js';
-import { useRecipe } from '../../recipes.js';
+import { useRecipe, useRecipeDefaults } from '../../recipes.js';
 
 const translations = useTranslations();
 
@@ -27,7 +27,8 @@ export interface DialogContentProps {
     hideTitle?: boolean;
     /**
      * `body` (default): the title below the header row; `header`: in the row of the close button, after a smaller
-     * icon, the header separated by a line (as on the Drawer)
+     * icon, the header separated by a line (as on the Drawer). App-wide default: `titleInHeader` in the
+     * `defaultVariants` of the `dialog` recipe (RecipesProvider/ConfigProvider)
      */
     titlePosition?: 'body' | 'header';
     description?: string;
@@ -88,6 +89,9 @@ const slots = defineSlots<{
     footer?(): unknown;
 }>();
 const dialog = useRecipe('dialog', dialogRecipe, () => props.classes);
+const defaults = useRecipeDefaults('dialog', dialogRecipe);
+// The prop wins, otherwise the app-wide default of the recipe (`titleInHeader`)
+const titlePosition = computed(() => props.titlePosition ?? (defaults().titleInHeader ? 'header' : 'body'));
 const attrs = useAttrs();
 const root = inject(dialogRootKey, null);
 const modal = computed(() => root?.value.modal ?? true);
@@ -136,7 +140,7 @@ const styles = computed(() =>
         draggable: props.draggable && !isMaximized.value,
         maximizable: props.maximizable,
         hideTitle: props.hideTitle ?? !!slots.header,
-        titleInHeader: props.titlePosition === 'header',
+        titleInHeader: titlePosition.value === 'header',
     })
 );
 </script>

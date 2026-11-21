@@ -8,7 +8,7 @@ import Field from '../Field/Field.vue';
 import Input from '../Input/Input.vue';
 import { confirmRequest, type ConfirmButtonOptions, type ConfirmRequest } from './confirm.js';
 import { useTranslations } from '../../locale.js';
-import { useRecipe } from '../../recipes.js';
+import { useRecipe, useRecipeDefaults } from '../../recipes.js';
 
 const translations = useTranslations();
 
@@ -25,6 +25,7 @@ export interface ConfirmDialogProps {
 
 const props = defineProps<ConfirmDialogProps>();
 const dialog = useRecipe('dialog', dialogRecipe, () => props.classes);
+const defaults = useRecipeDefaults('dialog', dialogRecipe);
 // Keeps the content while the closing animation runs
 const content = shallowRef<ConfirmRequest | null>(null);
 // Text of prompt() or typeToConfirm; the error shows after the first attempt to confirm
@@ -40,7 +41,13 @@ watch(
     },
     { immediate: true }
 );
-const styles = computed(() => dialog({ status: content.value?.status, position: content.value?.position }));
+// The request wins, otherwise the app-wide default of the recipe (`titleInHeader`)
+const titleInHeader = computed(
+    () => (content.value?.titlePosition ?? (defaults().titleInHeader ? 'header' : 'body')) === 'header'
+);
+const styles = computed(() =>
+    dialog({ status: content.value?.status, position: content.value?.position, titleInHeader: titleInHeader.value })
+);
 // The look of the buttons: the defaults, then the props, then the request
 const confirmProps = computed<ConfirmButtonOptions>(() => ({
     variant: content.value?.status === 'danger' ? 'danger' : 'primary',
@@ -99,6 +106,7 @@ const initialFocus = () =>
                         <span v-if="content.icon" :class="styles.iconBox()">
                             <component :is="content.icon" :class="styles.icon()" aria-hidden="true" />
                         </span>
+                        <Dialog.Title v-if="titleInHeader" :class="styles.title()">{{ content.title }}</Dialog.Title>
                         <Dialog.CloseTrigger
                             :class="styles.close()"
                             :aria-label="closeLabel ?? translations.common.close"
@@ -107,7 +115,7 @@ const initialFocus = () =>
                         </Dialog.CloseTrigger>
                     </div>
                     <div :class="styles.body()">
-                        <Dialog.Title :class="styles.title()">{{ content.title }}</Dialog.Title>
+                        <Dialog.Title v-if="!titleInHeader" :class="styles.title()">{{ content.title }}</Dialog.Title>
                         <Dialog.Description v-if="content.description" :class="styles.description()">
                             {{ content.description }}
                         </Dialog.Description>

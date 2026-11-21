@@ -13,6 +13,11 @@ export interface DialogOptions {
     size?: OverlaySize;
     /** Where the dialog sits: centred (default), top, bottom, start or end */
     position?: DialogPosition;
+    /**
+     * `body` (default): the title below the header row; `header`: in the row of the close button. App-wide default:
+     * `titleInHeader` in the `defaultVariants` of the `dialog` recipe
+     */
+    titlePosition?: 'body' | 'header';
     /** Covers the whole screen */
     fullscreen?: boolean;
     /** `inside`: only the body scrolls */

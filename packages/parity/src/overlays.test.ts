@@ -413,6 +413,57 @@ describe.each(frameworks)('%s', (framework) => {
         });
     });
 
+    describe('app-wide title position (dialog recipe default titleInHeader)', () => {
+        const titleIn = (dialog: HTMLElement, title: string) => {
+            const close = within(dialog).getByRole('button', { name: 'Close' });
+            return within(dialog).getByText(title).parentElement === close.parentElement ? 'header' : 'body';
+        };
+        const inHeader = { dialog: { defaultVariants: { titleInHeader: true } } };
+
+        it('DialogContent follows the default; titlePosition on the dialog wins', async () => {
+            await render(
+                framework,
+                el(
+                    'RecipesProvider',
+                    { recipes: inHeader },
+                    el('Dialog', { defaultOpen: true, modal: false }, el('DialogContent', { title: 'Default' })),
+                    el(
+                        'Dialog',
+                        { defaultOpen: true, modal: false },
+                        el('DialogContent', { title: 'Own', titlePosition: 'body' })
+                    )
+                )
+            );
+            expect(titleIn(await screen.findByRole('dialog', { name: 'Default' }), 'Default')).toBe('header');
+            expect(titleIn(await screen.findByRole('dialog', { name: 'Own' }), 'Own')).toBe('body');
+        });
+
+        it('confirm() follows it as well', async () => {
+            const { confirm } = lib(framework);
+            await render(framework, el('RecipesProvider', { recipes: inHeader }, el('ConfirmDialog', {})));
+            await act(async () => {
+                void confirm({ title: 'Archive?' });
+            });
+            expect(titleIn(await screen.findByRole('alertdialog', { name: 'Archive?' }), 'Archive?')).toBe('header');
+        });
+
+        it('openDialog() follows it as well; the option titlePosition wins', async () => {
+            await render(framework, el('RecipesProvider', { recipes: inHeader }, el('DialogHost', {})));
+            const open = (title: string, titlePosition?: 'body' | 'header') =>
+                framework === 'vue'
+                    ? Vue.openDialog({ title, titlePosition, component: () => 'Details' })
+                    : React.openDialog({ title, titlePosition, content: () => 'Details' });
+            await act(async () => {
+                void open('Server');
+            });
+            expect(titleIn(await screen.findByRole('dialog', { name: 'Server' }), 'Server')).toBe('header');
+            await act(async () => {
+                void open('Log', 'body');
+            });
+            expect(titleIn(await screen.findByRole('dialog', { name: 'Log' }), 'Log')).toBe('body');
+        });
+    });
+
     describe('confirm and prompt', () => {
         it('prompt() resolves with the text; validate shows its error first', async () => {
             const { prompt } = lib(framework);

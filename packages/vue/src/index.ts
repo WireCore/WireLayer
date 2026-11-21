@@ -250,7 +250,7 @@ export {
     default as RecipesProvider,
     type RecipesProviderProps,
 } from './components/RecipesProvider/RecipesProvider.vue';
-export { provideRecipes, useRecipe } from './recipes.js';
+export { provideRecipes, useRecipe, useRecipeDefaults } from './recipes.js';
 export { default as Gauge, type GaugeProps, type GaugeStatus } from './components/Gauge/Gauge.vue';
 export { default as Heatmap, type HeatmapProps } from './components/Heatmap/Heatmap.vue';
 export { default as Treemap, type TreemapItem, type TreemapProps } from './components/Treemap/Treemap.vue';

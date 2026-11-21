@@ -8,7 +8,7 @@ import { Field } from '../Field/Field.js';
 import { Input } from '../Input/Input.js';
 import { confirmStore, type ConfirmButtonOptions, type ConfirmRequest } from './confirm.js';
 import { useTranslations } from '../LocaleProvider/LocaleProvider.js';
-import { useRecipe } from '../RecipesProvider/RecipesProvider.js';
+import { useRecipe, useRecipeDefaults } from '../RecipesProvider/RecipesProvider.js';
 
 export interface ConfirmDialogProps {
     /** Accessible name of the close button */
@@ -24,6 +24,7 @@ export interface ConfirmDialogProps {
 /** Place once in the app; ask with `await confirm({ title, … })` or `await prompt({ title, label })` */
 export function ConfirmDialog({ classes, closeLabel, confirmButton, cancelButton }: ConfirmDialogProps) {
     const dialog = useRecipe('dialog', dialogRecipe, classes);
+    const defaults = useRecipeDefaults('dialog', dialogRecipe);
     const translations = useTranslations();
     const request = useSyncExternalStore(confirmStore.subscribe, confirmStore.get, () => null);
     // Keeps the content while the closing animation runs
@@ -38,7 +39,9 @@ export function ConfirmDialog({ classes, closeLabel, confirmButton, cancelButton
     }
     const cancelButtonRef = useRef<HTMLButtonElement>(null);
     const inputBox = useRef<HTMLDivElement>(null);
-    const styles = dialog({ status: content?.status, position: content?.position });
+    // The request wins, otherwise the app-wide default of the recipe (`titleInHeader`)
+    const titleInHeader = (content?.titlePosition ?? (defaults.titleInHeader ? 'header' : 'body')) === 'header';
+    const styles = dialog({ status: content?.status, position: content?.position, titleInHeader });
     const Icon = content?.icon;
     const typeToConfirm = content?.kind === 'confirm' ? content.typeToConfirm : undefined;
     const inputLabel =
@@ -80,6 +83,9 @@ export function ConfirmDialog({ classes, closeLabel, confirmButton, cancelButton
                                         <Icon className={styles.icon()} aria-hidden="true" />
                                     </span>
                                 )}
+                                {titleInHeader && (
+                                    <ArkDialog.Title className={styles.title()}>{content.title}</ArkDialog.Title>
+                                )}
                                 <ArkDialog.CloseTrigger
                                     className={styles.close()}
                                     aria-label={closeLabel ?? translations.common.close}
@@ -88,7 +94,9 @@ export function ConfirmDialog({ classes, closeLabel, confirmButton, cancelButton
                                 </ArkDialog.CloseTrigger>
                             </div>
                             <div className={styles.body()}>
-                                <ArkDialog.Title className={styles.title()}>{content.title}</ArkDialog.Title>
+                                {!titleInHeader && (
+                                    <ArkDialog.Title className={styles.title()}>{content.title}</ArkDialog.Title>
+                                )}
                                 {content.description && (
                                     <ArkDialog.Description className={styles.description()}>
                                         {content.description}

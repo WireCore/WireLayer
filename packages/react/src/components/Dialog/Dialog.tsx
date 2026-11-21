@@ -26,7 +26,7 @@ import {
 } from 'react';
 import type { IconComponent } from '../../types.js';
 import { useTranslations } from '../LocaleProvider/LocaleProvider.js';
-import { useRecipe } from '../RecipesProvider/RecipesProvider.js';
+import { useRecipe, useRecipeDefaults } from '../RecipesProvider/RecipesProvider.js';
 
 /**
  * Settings of the surrounding Dialog/Drawer that its content needs (no backdrop when non-modal); the Dialog's initial
@@ -179,7 +179,8 @@ export interface DialogContentProps extends Omit<ComponentProps<'div'>, 'title'>
     header?: ReactNode;
     /**
      * `body` (default): the title below the header row; `header`: in the row of the close button, after a smaller
-     * icon, the header separated by a line (as on the Drawer)
+     * icon, the header separated by a line (as on the Drawer). App-wide default: `titleInHeader` in the
+     * `defaultVariants` of the `dialog` recipe (RecipesProvider/ConfigProvider)
      */
     titlePosition?: 'body' | 'header';
     description?: string;
@@ -229,7 +230,7 @@ export function DialogContent({
     title,
     hideTitle,
     header,
-    titlePosition = 'body',
+    titlePosition: titlePositionProp,
     description,
     icon: Icon,
     status,
@@ -257,6 +258,9 @@ export function DialogContent({
     ...props
 }: DialogContentProps) {
     const dialog = useRecipe('dialog', dialogRecipe, classes);
+    const defaults = useRecipeDefaults('dialog', dialogRecipe);
+    // The prop wins, otherwise the app-wide default of the recipe (`titleInHeader`)
+    const titlePosition = titlePositionProp ?? (defaults.titleInHeader ? 'header' : 'body');
     const translations = useTranslations();
     const { modal, contentRef } = useContext(DialogRootContext);
     const context = useDialogContext();

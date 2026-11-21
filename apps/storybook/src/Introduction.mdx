@@ -212,6 +212,15 @@ const recipes: RecipeConfig = {
 };
 ```
 
+Some defaults change more than classes – where the title of a dialog sits, for example. They are variants of the recipe
+as well, so the same `defaultVariants` set them once for the whole app; a prop on the single component still wins:
+
+| Recipe default                                         | Instead of on every component                                                                                     |
+| ------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------- |
+| `dialog: { defaultVariants: { titleInHeader: true } }` | `DialogContent title-position="header"`, also `confirm()`, `prompt()` and `openDialog()` (option `titlePosition`) |
+
+React Native has no `RecipesProvider`; there the props stay on the single component.
+
 Per part the classes come in this order: `classes`, the matching `variants` and `compoundVariants`, the states of the
 recipe, the overrides of states (`invalid: { true: … }`), and last the class passed to the component. Inner providers
 extend outer ones (classes of the same value are joined, the inner ones win).
