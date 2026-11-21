@@ -139,6 +139,8 @@ export const cs: Translations = {
         noDates: 'Není vybráno žádné datum',
         datesSelected: { one: '{count} vybraný den', few: '{count} vybrané dny', other: '{count} vybraných dní' },
         timeZone: (name) => `Časové pásmo: ${name}`,
+        time: 'Čas',
+        done: 'Hotovo',
     },
     quarterPicker: {
         quarter: (quarter, year) => `Q${quarter} ${year}`,

@@ -131,6 +131,8 @@ export const hu: Translations = {
         noDates: 'Nincs kiválasztott dátum',
         datesSelected: { one: '{count} nap kiválasztva', other: '{count} nap kiválasztva' },
         timeZone: (name) => `Időzóna: ${name}`,
+        time: 'Időpont',
+        done: 'Kész',
     },
     quarterPicker: {
         quarter: (quarter, year) => `${year} Q${quarter}`,

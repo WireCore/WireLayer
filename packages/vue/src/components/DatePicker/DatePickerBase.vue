@@ -16,11 +16,12 @@ import {
     type RecipeClasses,
 } from '@wirecore/wirelayer-recipes';
 import { DateFormatter } from '@internationalized/date';
-import { computed, useId } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref, useId, watch } from 'vue';
 import DatePickerCalendar from './DatePickerCalendar.vue';
+import DatePickerTimes from './DatePickerTimes.vue';
 import type { CalendarPreset, CalendarViewOptions } from './DatePickerViews.vue';
 import DateSegments from './DateSegments.vue';
-import { fromIso, withTimeOf } from './dates.js';
+import { atTime, fromIso, toTime, withTimeOf } from './dates.js';
 import { useTranslations } from '../../locale.js';
 import { useRecipe } from '../../recipes.js';
 
@@ -62,6 +63,8 @@ const props = defineProps<
         timeZone?: string;
         showTimeZone?: boolean;
         responsive?: boolean;
+        /** withTime: hour and minute below the calendar as well; false: in the field only */
+        timeInPopup?: boolean;
     } & CalendarViewOptions
 >();
 defineSlots<{ day?(props: { date: string } & CalendarDayState): unknown }>();
@@ -163,10 +166,55 @@ const calendarOptions = computed(() => ({
     responsive: props.responsive,
 }));
 
-// A day picked in the calendar keeps the time already typed
+// Time in the popup (one date or a range): picking a day keeps the calendar open, Escape discards
+const popupTime = computed(() => props.withTime && !!props.timeInPopup && !multiple && !props.period);
+// The last time of each date. A day picked in the calendar keeps it – also the end of a range: a new range starts
+// with the start alone, so the end has no time of its own until it is picked. A time set in the popup before its day
+// waits here. Without one: start 00:00, end 23:59
+const times = ref<(string | undefined)[]>([]);
+watch(
+    () => props.dates,
+    (dates) =>
+        dates.forEach((date, index) => {
+            const time = toTime(date);
+            if (time) times.value[index] = time;
+        }),
+    { immediate: true }
+);
+const timeOf = (index: number) => times.value[index] ?? (range && index === 1 ? '23:59' : '00:00');
 function fromCalendar(next: DateValue[]) {
-    emit('change', props.withTime ? next.map((day, index) => withTimeOf(day, props.dates[index])) : next);
+    if (!props.withTime) return emit('change', next);
+    if (multiple)
+        return emit(
+            'change',
+            next.map((day, index) => withTimeOf(day, props.dates[index]))
+        );
+    emit(
+        'change',
+        next.map((day, index) => atTime(day, timeOf(index)))
+    );
 }
+function setTime(index: number, time: string) {
+    times.value[index] = time;
+    const date = props.dates[index];
+    if (!date) return;
+    const next = [...props.dates];
+    next[index] = atTime(date, time);
+    emit('change', next);
+}
+const popupZone = computed(() => (zone.value ? { short: zone.value.short, describedby: `${id}tz` } : undefined));
+// Escape discards what changed in the popup since it opened (Ark closes it right after)
+let opened: { dates: DateValue[]; times: (string | undefined)[] } | null = null;
+function onOpenChange(open: boolean) {
+    opened = open ? { dates: props.dates, times: [...times.value] } : null;
+}
+function onKey(event: KeyboardEvent) {
+    if (event.key !== 'Escape' || !popupTime.value || !opened) return;
+    times.value = [...opened.times];
+    emit('change', opened.dates);
+}
+onMounted(() => document.addEventListener('keydown', onKey, true));
+onBeforeUnmount(() => document.removeEventListener('keydown', onKey, true));
 
 // Pasting "20.10.2026", "2026-10-20" or "20.10.2026 – 24.10.2026" fills the field (Ark itself reads ISO only)
 function pasteText(text: string, index: number): boolean {
@@ -212,9 +260,11 @@ const bottomStartPositioning = { placement: 'bottom-start', gutter: 4 } as const
         v-bind="state"
         :positioning="bottomStartPositioning"
         :translations="calendarTranslations"
+        :close-on-select="!popupTime"
         lazy-mount
         unmount-on-exit
         @value-change="fromCalendar($event.value)"
+        @open-change="onOpenChange($event.open)"
     >
         <DatePicker.Control :class="styles.control()">
             <template v-if="multiple">
@@ -294,6 +344,18 @@ const bottomStartPositioning = { placement: 'bottom-start', gutter: 4 } as const
         </DatePicker.Control>
         <DatePickerCalendar v-bind="calendarOptions">
             <template v-if="$slots.day" #day="dayState"><slot name="day" v-bind="dayState" /></template>
+            <template v-if="popupTime" #default>
+                <DatePickerTimes
+                    :count="groups.length"
+                    :time-of="timeOf"
+                    :dates="dates"
+                    :min="min"
+                    :max="max"
+                    :locale="locale"
+                    :zone="popupZone"
+                    @time="setTime"
+                />
+            </template>
         </DatePickerCalendar>
     </DatePicker.Root>
 </template>

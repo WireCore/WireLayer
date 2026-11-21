@@ -43,6 +43,10 @@ function WithTimeDemo() {
     );
 }
 
+/**
+ * `withTime`: date, hour and minute in the field – and below the calendar, so the mouse can set the time too. Picking a
+ * day keeps the calendar open, "Done" closes it, Escape discards what changed. `timeInPopup={false}`: in the field only
+ */
 export const WithTime: Story = { render: () => <WithTimeDemo /> };
 
 /** `size` sm, md and lg; `clearable: false` leaves out the clear button */

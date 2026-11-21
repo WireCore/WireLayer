@@ -6,7 +6,11 @@ import DatePickerViews, { type CalendarPreset, type CalendarViewOptions } from '
 import { useRecipe } from '../../recipes.js';
 
 const props = defineProps<{ presets?: readonly CalendarPreset[]; responsive?: boolean } & CalendarViewOptions>();
-defineSlots<{ day?(props: { date: string } & CalendarDayState): unknown }>();
+defineSlots<{
+    day?(props: { date: string } & CalendarDayState): unknown;
+    /** Below the calendar (the time with withTime) */
+    default?(): unknown;
+}>();
 const datePicker = useRecipe('datePicker', datePickerRecipe);
 const styles = datePicker();
 const views = computed<{ presets?: readonly CalendarPreset[] } & CalendarViewOptions>(() => ({
@@ -36,7 +40,7 @@ onBeforeUnmount(() => query?.removeEventListener('change', update));
 </script>
 
 <template>
-    <!-- Calendar popup -->
+    <!-- Calendar popup; the default slot below the calendar -->
     <Teleport to="body">
         <template v-if="narrow">
             <DatePicker.Context v-slot="api">
@@ -47,6 +51,7 @@ onBeforeUnmount(() => query?.removeEventListener('change', update));
                     <DatePickerViews v-bind="views">
                         <template v-if="$slots.day" #day="state"><slot name="day" v-bind="state" /></template>
                     </DatePickerViews>
+                    <slot />
                 </DatePicker.Content>
             </div>
         </template>
@@ -55,6 +60,7 @@ onBeforeUnmount(() => query?.removeEventListener('change', update));
                 <DatePickerViews v-bind="views">
                     <template v-if="$slots.day" #day="state"><slot name="day" v-bind="state" /></template>
                 </DatePickerViews>
+                <slot />
             </DatePicker.Content>
         </DatePicker.Positioner>
     </Teleport>

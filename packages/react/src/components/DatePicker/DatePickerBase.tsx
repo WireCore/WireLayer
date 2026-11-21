@@ -29,6 +29,8 @@ import {
     Fragment,
     useEffect,
     useId,
+    useMemo,
+    useRef,
     useState,
     type ClipboardEvent,
     type CSSProperties,
@@ -36,9 +38,10 @@ import {
     type MouseEvent,
     type ReactNode,
 } from 'react';
-import { fromIso, withTimeOf } from './dates.js';
+import { atTime, fromIso, fromTime, toTime, withTimeOf } from './dates.js';
 import { useTranslations } from '../LocaleProvider/LocaleProvider.js';
 import { useRecipe } from '../RecipesProvider/RecipesProvider.js';
+import { useLatest } from '../../hooks/state.js';
 
 // Shared by DatePicker, DateRangePicker and TimePicker – not exported from the package
 
@@ -93,6 +96,8 @@ export interface DatePickerBaseProps extends CalendarViewOptions {
     firstDayOfWeek?: number;
     showTimeZone?: boolean;
     responsive?: boolean;
+    /** withTime: hour and minute below the calendar as well (default true); false: in the field only */
+    timeInPopup?: boolean;
 }
 
 /**
@@ -128,6 +133,7 @@ export function DatePickerBase({
     timeZone,
     showTimeZone,
     responsive,
+    timeInPopup = true,
     ...calendar
 }: DatePickerBaseProps) {
     const datePicker = useRecipe('datePicker', datePickerRecipe, classes);
@@ -188,9 +194,51 @@ export function DatePickerBase({
     const placeholderShown = (api: UseDateInputContext) => !!placeholder && empty(api) && !api.focused;
     const describedbyOf = (api: UseDateInputContext) =>
         placeholder && empty(api) ? [describedby, `${id}ph`].filter(Boolean).join(' ') : describedby;
-    // A day picked in the calendar keeps the time already typed
-    const fromCalendar = (next: DateValue[]) =>
-        onChange(withTime ? next.map((day, index) => withTimeOf(day, dates[index])) : next);
+    // Time in the popup (one date or a range): picking a day keeps the calendar open, Escape discards
+    const popupTime = withTime && timeInPopup && !multiple && !period;
+    // The last time of each date. A day picked in the calendar keeps it – also the end of a range: a new range
+    // starts with the start alone, so the end has no time of its own until it is picked. A time set in the popup
+    // before its day waits here. Without one: start 00:00, end 23:59
+    const [times, setTimes] = useState<(string | undefined)[]>([]);
+    const fallback = (index: number) => (range && index === 1 ? '23:59' : '00:00');
+    const timeOf = (index: number) => toTime(dates[index]) ?? times[index] ?? fallback(index);
+    const remembered = () => {
+        const next = [...times];
+        dates.forEach((date, index) => (next[index] = toTime(date) ?? next[index]));
+        return next;
+    };
+    const fromCalendar = (next: DateValue[]) => {
+        if (!withTime) return onChange(next);
+        if (multiple) return onChange(next.map((day, index) => withTimeOf(day, dates[index])));
+        const known = remembered();
+        setTimes(known);
+        onChange(next.map((day, index) => atTime(day, known[index] ?? fallback(index))));
+    };
+    const setTime = (index: number, time: string) => {
+        const known = remembered();
+        known[index] = time;
+        setTimes(known);
+        const date = dates[index];
+        if (!date) return;
+        const next = [...dates];
+        next[index] = atTime(date, time);
+        onChange(next);
+    };
+    // Escape discards what changed in the popup since it opened (Ark closes it right after)
+    const opened = useRef<{ dates: DateValue[]; times: (string | undefined)[] } | null>(null);
+    const discard = useLatest(() => {
+        if (!opened.current) return;
+        setTimes(opened.current.times);
+        onChange(opened.current.dates);
+    });
+    useEffect(() => {
+        if (!popupTime) return;
+        const onKey = (event: globalThis.KeyboardEvent) => {
+            if (event.key === 'Escape') discard.current();
+        };
+        document.addEventListener('keydown', onKey, true);
+        return () => document.removeEventListener('keydown', onKey, true);
+    }, [popupTime, discard]);
     // Pasting "20.10.2026", "2026-10-20" or "20.10.2026 – 24.10.2026" fills the field (Ark itself reads ISO only)
     const pasteText = (text: string, index: number) => {
         if (period) return false;
@@ -243,6 +291,10 @@ export function DatePickerBase({
             {...state}
             positioning={{ placement: 'bottom-start', gutter: 4 }}
             translations={calendarTranslations}
+            closeOnSelect={!popupTime}
+            onOpenChange={(details) => {
+                opened.current = details.open ? { dates, times } : null;
+            }}
             lazyMount
             unmountOnExit
         >
@@ -354,7 +406,20 @@ export function DatePickerBase({
                     <CalendarDays className={styles.triggerIcon()} aria-hidden="true" />
                 </ArkDatePicker.Trigger>
             </ArkDatePicker.Control>
-            <Calendar presets={presets} responsive={responsive} timeZone={timeZone} {...calendar} />
+            <Calendar presets={presets} responsive={responsive} timeZone={timeZone} {...calendar}>
+                {popupTime && (
+                    <PopupTimes
+                        count={groups.length}
+                        timeOf={timeOf}
+                        onTime={setTime}
+                        dates={dates}
+                        min={min}
+                        max={max}
+                        locale={locale}
+                        zone={zone ? { short: zone.short, describedby: `${id}tz` } : undefined}
+                    />
+                )}
+            </Calendar>
         </ArkDatePicker.Root>
     );
 }
@@ -422,12 +487,13 @@ function useNarrow(enabled: boolean | undefined) {
     return narrow;
 }
 
-/** Calendar popup; with `responsive` a sheet at the bottom on narrow screens */
+/** Calendar popup; with `responsive` a sheet at the bottom on narrow screens. `children` below the calendar */
 function Calendar({
     presets,
     responsive,
+    children,
     ...options
-}: { presets?: readonly CalendarPreset[]; responsive?: boolean } & CalendarViewOptions) {
+}: { presets?: readonly CalendarPreset[]; responsive?: boolean; children?: ReactNode } & CalendarViewOptions) {
     const datePicker = useRecipe('datePicker', datePickerRecipe);
     const styles = datePicker();
     const narrow = useNarrow(responsive);
@@ -441,6 +507,7 @@ function Calendar({
                 <div className={styles.sheet()}>
                     <ArkDatePicker.Content className={datePicker({ multiMonth, bottomSheet: true }).content()}>
                         <CalendarViews presets={presets} {...options} />
+                        {children}
                     </ArkDatePicker.Content>
                 </div>
             </Portal>
@@ -451,9 +518,108 @@ function Calendar({
             <ArkDatePicker.Positioner>
                 <ArkDatePicker.Content className={multiMonth ? datePicker({ multiMonth }).content() : styles.content()}>
                     <CalendarViews presets={presets} {...options} />
+                    {children}
                 </ArkDatePicker.Content>
             </ArkDatePicker.Positioner>
         </Portal>
+    );
+}
+
+const isoDay = (date: DateValue | undefined) => date?.toString().slice(0, 10);
+
+/**
+ * Hour and minute below the calendar (withTime): one field per date – "Start" and "End" in a range – typed or changed
+ * with the arrow keys, and "Done". On the day of `min`/`max` the time is limited to it
+ */
+function PopupTimes({
+    count,
+    timeOf,
+    onTime,
+    dates,
+    min,
+    max,
+    locale,
+    zone,
+}: {
+    count: number;
+    timeOf: (index: number) => string;
+    onTime: (index: number, time: string) => void;
+    dates: DateValue[];
+    min?: DateValue;
+    max?: DateValue;
+    locale: string;
+    zone?: { short: string; describedby: string };
+}) {
+    const datePicker = useRecipe('datePicker', datePickerRecipe);
+    const styles = datePicker();
+    const field = datePicker({ size: 'sm' });
+    const translations = useTranslations();
+    const id = useId();
+    const range = count > 1;
+    const names = [translations.dateRange.start, translations.dateRange.end];
+    const formatter = useMemo(() => new DateFormatter(locale, { hour: '2-digit', minute: '2-digit' }), [locale]);
+    const limit = (bound: DateValue | undefined, index: number) => {
+        const time = isoDay(bound) === isoDay(dates[index]) ? toTime(bound) : null;
+        return time ? fromTime(time) : undefined;
+    };
+    return (
+        <div className={styles.timeSection()} {...(range ? { role: 'group', 'aria-labelledby': `${id}h` } : {})}>
+            {/* One date: the field itself is named "Time" */}
+            <span id={`${id}h`} className={styles.timeHeading()} aria-hidden={range ? undefined : 'true'}>
+                {translations.calendar.time}
+            </span>
+            {Array.from({ length: count }, (_, index) => (
+                <div key={index} className={styles.timeField()}>
+                    {range && (
+                        <span className={styles.timeFieldLabel()} aria-hidden="true">
+                            {names[index]}
+                        </span>
+                    )}
+                    <div className={field.control()}>
+                        <ArkDateInput.Root
+                            className={field.dateInput()}
+                            value={[fromTime(timeOf(index))]}
+                            onValueChange={(details) => {
+                                const time = toTime(details.value[0]);
+                                if (time && time !== timeOf(index)) onTime(index, time);
+                            }}
+                            granularity="minute"
+                            formatter={formatter}
+                            min={limit(min, index)}
+                            max={limit(max, index)}
+                            locale={locale}
+                            shouldForceLeadingZeros
+                            translations={translations.dateInput}
+                        >
+                            <ArkDateInput.Control className={field.dateControl()}>
+                                <DateSegments
+                                    index={0}
+                                    label={range ? names[index] : translations.calendar.time}
+                                    describedby={zone?.describedby}
+                                    size="sm"
+                                />
+                            </ArkDateInput.Control>
+                        </ArkDateInput.Root>
+                    </div>
+                </div>
+            ))}
+            {zone && (
+                <span className={styles.timeZone()} aria-hidden="true">
+                    {zone.short}
+                </span>
+            )}
+            <ArkDatePicker.Context>
+                {(api) => (
+                    <button
+                        type="button"
+                        className={styles.buttonBarButton({ class: styles.timeDone() })}
+                        onClick={() => api.setOpen(false)}
+                    >
+                        {translations.calendar.done}
+                    </button>
+                )}
+            </ArkDatePicker.Context>
+        </div>
     );
 }
 

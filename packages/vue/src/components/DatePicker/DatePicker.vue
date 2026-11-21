@@ -22,8 +22,10 @@ export interface DatePickerProps<T extends DatePickerValue = string | null> {
     selectionMode?: 'single' | 'multiple';
     /** What v-model gets: ISO strings (default) or Date objects */
     valueType?: DateValueType;
-    /** Adds hour and minute to the field */
+    /** Adds hour and minute to the field and below the calendar (picking a day keeps it open, Escape discards) */
     withTime?: boolean;
+    /** withTime: the time below the calendar as well (default true); false: in the field only */
+    timeInPopup?: boolean;
     /** Earliest selectable date (ISO or Date) */
     min?: DateLike;
     /** Latest selectable date (ISO or Date) */
@@ -80,6 +82,7 @@ const props = withDefaults(defineProps<DatePickerProps<T>>(), {
     selectionMode: 'single',
     valueType: 'string',
     withTime: false,
+    timeInPopup: true,
     disabled: undefined,
     readOnly: undefined,
     invalid: undefined,
@@ -127,6 +130,7 @@ const unavailable = computed(() => unavailableDates(props.isDateUnavailable, pro
         :mode="selectionMode"
         :dates="dates"
         :with-time="withTime"
+        :time-in-popup="timeInPopup"
         v-bind="bounds"
         :is-date-unavailable="unavailable"
         :locale="currentLocale"

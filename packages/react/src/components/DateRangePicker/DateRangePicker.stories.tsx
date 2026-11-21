@@ -43,6 +43,11 @@ type Story = StoryObj<typeof meta>;
 
 export const Playground: Story = {};
 
+/**
+ * `withTime`: both dates with hour and minute, in the field and below the calendar ("Start", "End"). A new range keeps
+ * both times (without them start 00:00, end 23:59); "Done" closes, Escape discards. `timeInPopup={false}`: in the field
+ * only
+ */
 export const WithTime: Story = { render: () => <WithTimeDemo /> };
 
 /** Buttons for common ranges below the calendar */

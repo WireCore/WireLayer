@@ -141,6 +141,8 @@ export const pl: Translations = {
             other: 'Wybrano {count} dnia',
         },
         timeZone: (name) => `Strefa czasowa: ${name}`,
+        time: 'Godzina',
+        done: 'Gotowe',
     },
     quarterPicker: {
         quarter: (quarter, year) => `${quarterName(quarter)} ${year}`,

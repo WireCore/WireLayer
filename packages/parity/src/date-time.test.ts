@@ -83,6 +83,107 @@ describe.each(frameworks)('%s', (framework) => {
             await waitFor(() => expect(change).toHaveBeenLastCalledWith(null));
         });
 
+        it('withTime: hour and minute below the calendar; a day keeps the popup open and the time, Done closes', async () => {
+            const change = vi.fn();
+            await render(
+                framework,
+                el('DatePicker', {
+                    defaultValue: '2026-10-20T14:30',
+                    withTime: true,
+                    'aria-label': 'Appointment',
+                    [onValue]: change,
+                })
+            );
+            await userEvent.click(screen.getByRole('button', { name: 'Open calendar' }));
+            const time = await screen.findByRole('group', { name: 'Time' });
+            expect(
+                within(time)
+                    .getAllByRole('spinbutton')
+                    .map((part) => part.textContent)
+            ).toEqual(['02', '30', 'PM']);
+            await userEvent.click(within(time).getByRole('spinbutton', { name: 'Hour' }));
+            await userEvent.keyboard('{ArrowUp}');
+            await waitFor(() => expect(change).toHaveBeenLastCalledWith('2026-10-20T15:30'));
+            await userEvent.click(screen.getByRole('button', { name: /^Thursday, October 22, 2026/ }));
+            await waitFor(() => expect(change).toHaveBeenLastCalledWith('2026-10-22T15:30'));
+            expect(screen.getByRole('group', { name: 'Time' })).toBeInTheDocument();
+            await userEvent.click(screen.getByRole('button', { name: 'Done' }));
+            await waitFor(() => expect(screen.queryByRole('group', { name: 'Time' })).not.toBeInTheDocument());
+            expect(change).toHaveBeenLastCalledWith('2026-10-22T15:30');
+        });
+
+        it('timeInPopup false: the time in the field only, a day closes the calendar', async () => {
+            const change = vi.fn();
+            await render(
+                framework,
+                el('DatePicker', {
+                    defaultValue: '2026-10-20T14:30',
+                    withTime: true,
+                    timeInPopup: false,
+                    'aria-label': 'Appointment',
+                    [onValue]: change,
+                })
+            );
+            await userEvent.click(screen.getByRole('button', { name: 'Open calendar' }));
+            const day = await screen.findByRole('button', { name: /^Thursday, October 22, 2026/ });
+            expect(screen.queryByRole('group', { name: 'Time' })).not.toBeInTheDocument();
+            await userEvent.click(day);
+            await waitFor(() => expect(change).toHaveBeenLastCalledWith('2026-10-22T14:30'));
+            await waitFor(() => expect(screen.queryByRole('button', { name: /^Thursday/ })).not.toBeInTheDocument());
+        });
+
+        it('a range with time: start and end time below the calendar, a new range keeps both, Escape discards', async () => {
+            const change = vi.fn();
+            const before = { start: '2026-09-04T17:00', end: '2026-09-06T16:00' };
+            await render(
+                framework,
+                el('DateRangePicker', {
+                    defaultValue: before,
+                    withTime: true,
+                    'aria-label': 'Window',
+                    [onValue]: change,
+                })
+            );
+            await userEvent.click(screen.getByRole('button', { name: 'Open calendar' }));
+            const times = await screen.findByRole('group', { name: 'Time' });
+            const parts = (name: string) =>
+                within(within(times).getByRole('group', { name }))
+                    .getAllByRole('spinbutton')
+                    .map((part) => part.textContent);
+            expect(parts('Start')).toEqual(['05', '00', 'PM']);
+            expect(parts('End')).toEqual(['04', '00', 'PM']);
+            await userEvent.click(screen.getByRole('button', { name: /^Monday, September 14, 2026/ }));
+            await userEvent.click(screen.getByRole('button', { name: /^Wednesday, September 16, 2026/ }));
+            await waitFor(() =>
+                expect(change).toHaveBeenLastCalledWith({ start: '2026-09-14T17:00', end: '2026-09-16T16:00' })
+            );
+            await userEvent.keyboard('{Escape}');
+            await waitFor(() => expect(change).toHaveBeenLastCalledWith(before));
+        });
+
+        it('a new range without times: start 00:00, end 23:59', async () => {
+            const change = vi.fn();
+            // Without a value the calendar opens on today's month – so the days are picked there
+            const now = new Date();
+            const day = (date: number) => new Date(now.getFullYear(), now.getMonth(), date);
+            const label = (date: Date) =>
+                new RegExp(
+                    `^${date.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}`
+                );
+            const iso = (date: Date) =>
+                `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+            await render(
+                framework,
+                el('DateRangePicker', { withTime: true, 'aria-label': 'Window', [onValue]: change })
+            );
+            await userEvent.click(screen.getByRole('button', { name: 'Open calendar' }));
+            await userEvent.click(await screen.findByRole('button', { name: label(day(7)) }));
+            await userEvent.click(screen.getByRole('button', { name: label(day(9)) }));
+            await waitFor(() =>
+                expect(change).toHaveBeenLastCalledWith({ start: `${iso(day(7))}T00:00`, end: `${iso(day(9))}T23:59` })
+            );
+        });
+
         it('several dates: listed in the field, a day toggles', async () => {
             const change = vi.fn();
             await render(

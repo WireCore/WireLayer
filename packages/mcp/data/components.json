@@ -11081,7 +11081,13 @@
                     "name": "withTime",
                     "type": "boolean",
                     "optional": true,
-                    "description": "Adds hour and minute to the field"
+                    "description": "Adds hour and minute to the field and below the calendar (picking a day keeps it open, Escape discards)"
+                },
+                {
+                    "name": "timeInPopup",
+                    "type": "boolean",
+                    "optional": true,
+                    "description": "withTime: the time below the calendar as well (default true); false: in the field only"
                 },
                 {
                     "name": "min",
@@ -11294,7 +11300,13 @@
                         "name": "withTime",
                         "type": "boolean",
                         "optional": true,
-                        "description": "Adds hour and minute to the field"
+                        "description": "Adds hour and minute to the field and below the calendar (picking a day keeps it open, Escape discards)"
+                    },
+                    {
+                        "name": "timeInPopup",
+                        "type": "boolean",
+                        "optional": true,
+                        "description": "withTime: the time below the calendar as well (default true); false: in the field only"
                     },
                     {
                         "name": "min",
@@ -11505,7 +11517,13 @@
                     "name": "withTime",
                     "type": "boolean",
                     "optional": true,
-                    "description": "Adds hour and minute to both dates"
+                    "description": "Adds hour and minute to both dates, in the field and below the calendar (\"Start\", \"End\"); a new range keeps the times, without them start 00:00 and end 23:59"
+                },
+                {
+                    "name": "timeInPopup",
+                    "type": "boolean",
+                    "optional": true,
+                    "description": "withTime: the times below the calendar as well (default true); false: in the field only"
                 },
                 {
                     "name": "min",
@@ -11712,7 +11730,13 @@
                         "name": "withTime",
                         "type": "boolean",
                         "optional": true,
-                        "description": "Adds hour and minute to both dates"
+                        "description": "Adds hour and minute to both dates, in the field and below the calendar (\"Start\", \"End\"); a new range keeps the times, without them start 00:00 and end 23:59"
+                    },
+                    {
+                        "name": "timeInPopup",
+                        "type": "boolean",
+                        "optional": true,
+                        "description": "withTime: the times below the calendar as well (default true); false: in the field only"
                     },
                     {
                         "name": "min",

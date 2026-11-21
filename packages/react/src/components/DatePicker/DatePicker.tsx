@@ -21,8 +21,10 @@ export interface DatePickerProps<T extends DatePickerValue = string | null> {
     selectionMode?: 'single' | 'multiple';
     /** What onValueChange gets: ISO strings (default) or Date objects */
     valueType?: DateValueType;
-    /** Adds hour and minute to the field */
+    /** Adds hour and minute to the field and below the calendar (picking a day keeps it open, Escape discards) */
     withTime?: boolean;
+    /** withTime: the time below the calendar as well (default true); false: in the field only */
+    timeInPopup?: boolean;
     /** Earliest selectable date (ISO or Date) */
     min?: DateLike;
     /** Latest selectable date (ISO or Date) */
