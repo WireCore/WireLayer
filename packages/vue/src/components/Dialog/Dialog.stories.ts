@@ -2,6 +2,7 @@ import { Trash2 } from '@lucide/vue';
 import type { Meta, StoryObj } from '@storybook/vue3-vite';
 import { nextTick, ref } from 'vue';
 import Button from '../Button/Button.vue';
+import Checkbox from '../Checkbox/Checkbox.vue';
 import Field from '../Field/Field.vue';
 import Input from '../Input/Input.vue';
 import Dialog from './Dialog.vue';
@@ -169,10 +170,37 @@ export const Stacked: Story = {
     }),
 };
 
-/** Long content: only the body scrolls, header and footer stay in place */
-export const ScrollInside: Story = {
+/**
+ * Long content with the default `scroll-behavior="outside"`: the whole dialog scrolls. Taller than the window, it
+ * starts at the top – title and close button stay reachable – and scrolls down to its buttons.
+ */
+export const LongContent: Story = {
+    name: 'Long content',
     render: () => ({
         components: { Button, Dialog, DialogClose, DialogContent, DialogTrigger },
+        setup: () => ({ versions: Array.from({ length: 20 }, (_, index) => 20 - index) }),
+        template: `
+            <Dialog>
+                <DialogTrigger><Button variant="outline">Show changes</Button></DialogTrigger>
+                <DialogContent title="What's new">
+                    <p v-for="version in versions" :key="version" class="text-sm">
+                        Version 1.{{ version }} – Faster start, smaller bundles and a few fixes.
+                    </p>
+                    <template #footer>
+                        <DialogClose><Button size="sm">Got it</Button></DialogClose>
+                    </template>
+                </DialogContent>
+            </Dialog>`,
+    }),
+};
+
+/**
+ * Long content: only the body scrolls, header and footer stay in place – long forms keep their title and buttons in
+ * view. App-wide: `dialog: { defaultVariants: { scrollBehavior: 'inside' } }` in the RecipesProvider.
+ */
+export const ScrollInside: Story = {
+    render: () => ({
+        components: { Button, Checkbox, Dialog, DialogClose, DialogContent, DialogTrigger },
         setup: () => ({ paragraphs: Array.from({ length: 20 }, (_, index) => index + 1) }),
         template: `
             <Dialog>
@@ -181,6 +209,7 @@ export const ScrollInside: Story = {
                     <p v-for="paragraph in paragraphs" :key="paragraph" class="text-sm">
                         § {{ paragraph }} – Services are provided according to the current state of the art.
                     </p>
+                    <Checkbox>I have read the terms</Checkbox>
                     <template #footer>
                         <DialogClose><Button variant="outline" size="sm">Decline</Button></DialogClose>
                         <DialogClose><Button size="sm">Agree</Button></DialogClose>

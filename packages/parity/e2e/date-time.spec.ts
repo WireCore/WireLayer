@@ -66,6 +66,46 @@ test.describe('DateRangePicker', () => {
     });
 });
 
+test.describe('DateRangePicker with time in the popup', () => {
+    test('a new range keeps start and end time; Done closes', async ({ page }) => {
+        await openStory(page, 'forms-daterangepicker--with-time');
+        await page.getByRole('button', { name: 'Open calendar' }).click();
+        const times = page.getByRole('group', { name: 'Time' });
+        await expect(times.getByRole('group', { name: 'Start' }).getByRole('spinbutton')).toHaveText([
+            '09',
+            '00',
+            'AM',
+        ]);
+        await expect(times.getByRole('group', { name: 'End' }).getByRole('spinbutton')).toHaveText(['05', '30', 'PM']);
+        await page.getByRole('button', { name: /^Thursday, October 22, 2026/ }).click();
+        await page.getByRole('button', { name: /^Friday, October 23, 2026/ }).click();
+        await expect(page.getByText('From: 2026-10-22T09:00 · To: 2026-10-23T17:30')).toBeVisible();
+        // The end time by keyboard, in the popup
+        await times.getByRole('group', { name: 'End' }).getByRole('spinbutton', { name: 'Hour' }).click();
+        await page.keyboard.press('ArrowUp');
+        await expect(page.getByText('To: 2026-10-23T18:30')).toBeVisible();
+        await page.getByRole('button', { name: 'Done' }).click();
+        await expect(times).toBeHidden();
+        await expect(page.getByText('From: 2026-10-22T09:00 · To: 2026-10-23T18:30')).toBeVisible();
+    });
+
+    test('in a narrow field the end time does not run under the clear button', async ({ page }) => {
+        await openStory(page, 'forms-daterangepicker--with-time');
+        const end = page.getByRole('group', { name: 'Maintenance window End' });
+        // 340px, as in a form column or the filter row
+        await end.evaluate((group) => {
+            let element = group as HTMLElement;
+            while (!element.className.includes('w-[26rem]')) element = element.parentElement!;
+            element.style.width = '340px';
+        });
+        const last = end.getByRole('spinbutton', { name: 'AM/PM' });
+        await last.focus();
+        const clear = (await page.getByRole('button', { name: 'Clear range' }).boundingBox())!;
+        const box = (await last.boundingBox())!;
+        expect(box.x + box.width).toBeLessThanOrEqual(clear.x + 0.5);
+    });
+});
+
 test.describe('TimePicker', () => {
     test('hour and minute in one go, or from the list', async ({ page }) => {
         await openStory(page, 'forms-timepicker--playground');

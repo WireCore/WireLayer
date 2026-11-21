@@ -176,7 +176,7 @@ export const slider = tv({
 
 export const multiSelect = tv({
     slots: {
-        base: 'flex w-full flex-col',
+        base: 'relative flex w-full flex-col',
         trigger: [
             'flex h-[var(--wc-control-h-md,2.5rem)] w-full cursor-pointer items-center justify-between gap-2.5 rounded-[var(--wc-control-radius-md,0.5rem)] border border-line-strong bg-bg pe-2.5 ps-3 text-start text-[length:var(--wc-control-text-md,15px)] text-fg',
             'outline-none transition-colors motion-reduce:transition-none focus-visible:border-primary data-[state=open]:border-primary',
@@ -311,8 +311,10 @@ export const datePicker = tv({
     slots: {
         base: 'flex w-full flex-col',
         control: [...box, 'h-[var(--wc-control-h-md,2.5rem)]'],
-        // Segmented date field (DateInput): one spin button per part, separators come from the locale
-        dateInput: 'relative flex min-w-0 flex-1 items-center px-3',
+        // Segmented date field (DateInput): one spin button per part, separators come from the locale. Clipped, so a
+        // long value (a range with times in a narrow field) does not run under the clear button – a focused part
+        // scrolls into view
+        dateInput: 'relative flex min-w-0 flex-1 items-center overflow-hidden px-3',
         // Holds one date, or start – end of a range, in a row; invisible (still usable) while the placeholder shows
         dateControl: 'flex min-w-0 items-center data-placeholder-shown:opacity-0',
         /** Own placeholder of the empty field (`placeholder`) – gives way to the parts on focus */
@@ -403,6 +405,15 @@ export const datePicker = tv({
             'h-8 cursor-pointer rounded-md px-2.5 text-sm font-medium hover:bg-line disabled:cursor-not-allowed disabled:opacity-40',
             'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fg',
         ],
+        /** Time below the calendar (withTime): one field per date ("Start", "End"), the zone and "Done" */
+        timeSection: 'flex flex-wrap items-end gap-x-2 gap-y-1.5 border-t border-line pt-2.5',
+        /** "Time" above the fields */
+        timeHeading: 'w-full text-xs font-medium text-muted',
+        /** One time of the popup with its name above it (range) */
+        timeField: 'flex min-w-0 flex-col gap-1',
+        timeFieldLabel: 'text-xs text-muted',
+        /** "Done" (with the look of buttonBarButton): closes the calendar and keeps day and time */
+        timeDone: 'ms-auto',
         /** Chosen dates as text in the field (selectionMode multiple), muted while empty */
         multiValue:
             'min-w-0 flex-1 truncate px-3 text-[length:var(--wc-control-text-md,15px)] data-placeholder:text-muted',
@@ -531,7 +542,7 @@ export const miniCalendar = tv({
 
 export const fileUpload = tv({
     slots: {
-        base: 'flex w-full flex-col gap-3',
+        base: 'relative flex w-full flex-col gap-3',
         label: 'text-[13px] font-medium text-fg',
         dropzone: [
             'flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-line-strong bg-bg-2 px-6 py-7 text-center',
@@ -593,7 +604,7 @@ export const fileUpload = tv({
 
 export const pinInput = tv({
     slots: {
-        base: 'flex flex-col',
+        base: 'relative flex flex-col',
         control: 'flex gap-2',
         input: [
             'size-11 rounded-lg border border-line-strong bg-bg text-center font-mono text-lg text-fg outline-none',
@@ -670,7 +681,7 @@ export const knob = tv({
 
 export const colorPicker = tv({
     slots: {
-        base: 'flex w-full flex-col',
+        base: 'relative flex w-full flex-col',
         control: [...box, 'h-[var(--wc-control-h-md,2.5rem)]'],
         trigger: [
             'flex min-w-0 flex-1 cursor-pointer items-center gap-2.5 px-3 text-start text-[length:var(--wc-control-text-md,15px)] text-fg outline-none',

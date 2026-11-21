@@ -201,6 +201,8 @@ export const ar: Translations = {
             other: 'تم اختيار {count} يوم',
         },
         timeZone: (name) => `المنطقة الزمنية: ${name}`,
+        time: 'الوقت',
+        done: 'تم',
     },
     quarterPicker: {
         // "Q" kept: the field parses typed quarters only as "Q1 2026" (parseQuarter)

@@ -3,10 +3,12 @@ import { focusRing, pressable, tv } from './tv.js';
 // Selection controls. Unselected boundaries use `line-strong` (3:1, WCAG 1.4.11).
 // Selected states opt out of forced colours (Windows high contrast removes backgrounds there)
 // and use the system highlight colours instead – class names must stay literal for Tailwind.
+// `relative` on the part around Ark's hidden input (absolute, 1px): without it the input is placed against the page,
+// a scrolling area around it (DataTable, Dialog body) does not clip it, and the page grows by its offset.
 
 export const checkbox = tv({
     slots: {
-        base: 'inline-flex cursor-pointer items-start gap-2.5 text-sm leading-[1.45] text-muted data-disabled:cursor-not-allowed data-disabled:opacity-40',
+        base: 'relative inline-flex cursor-pointer items-start gap-2.5 text-sm leading-[1.45] text-muted data-disabled:cursor-not-allowed data-disabled:opacity-40',
         control: [
             'mt-px flex size-[18px] shrink-0 items-center justify-center rounded-[var(--wc-checkbox-radius,5px)] border border-line-strong text-on-primary',
             'transition-colors motion-reduce:transition-none data-invalid:border-danger',
@@ -26,7 +28,7 @@ export const radioGroup = tv({
         base: 'flex flex-col gap-2.5',
         label: 'text-[13px] font-medium text-fg',
         items: 'flex gap-x-[18px] gap-y-2.5',
-        item: 'inline-flex cursor-pointer items-center gap-2 text-sm font-medium text-fg data-disabled:cursor-not-allowed data-disabled:opacity-40',
+        item: 'relative inline-flex cursor-pointer items-center gap-2 text-sm font-medium text-fg data-disabled:cursor-not-allowed data-disabled:opacity-40',
         control: [
             'flex size-[18px] shrink-0 items-center justify-center rounded-full border border-line-strong',
             'transition-colors motion-reduce:transition-none data-invalid:border-danger',
@@ -52,7 +54,7 @@ export const radioGroup = tv({
 
 export const switchControl = tv({
     slots: {
-        base: 'flex w-full cursor-pointer items-center justify-between gap-3.5 py-2 data-disabled:cursor-not-allowed data-disabled:opacity-40',
+        base: 'relative flex w-full cursor-pointer items-center justify-between gap-3.5 py-2 data-disabled:cursor-not-allowed data-disabled:opacity-40',
         content: 'flex min-w-0 items-center gap-2.5',
         icon: 'size-[18px] shrink-0 text-muted',
         text: 'flex min-w-0 flex-col gap-px',
@@ -114,7 +116,7 @@ export const segmentedControl = tv({
         base: 'inline-flex w-fit items-center gap-0.5 rounded-full border border-line-2 p-[3px]',
         label: 'sr-only',
         item: [
-            'inline-flex cursor-pointer items-center gap-1.5 rounded-full whitespace-nowrap text-muted',
+            'relative inline-flex cursor-pointer items-center gap-1.5 rounded-full whitespace-nowrap text-muted',
             'transition-colors motion-reduce:transition-none hover:text-fg data-disabled:cursor-not-allowed data-disabled:opacity-40',
             'data-[state=checked]:bg-primary data-[state=checked]:text-on-primary',
             'forced-colors:data-[state=checked]:forced-color-adjust-none forced-colors:data-[state=checked]:bg-[Highlight] forced-colors:data-[state=checked]:text-[HighlightText]',

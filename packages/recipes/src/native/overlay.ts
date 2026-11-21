@@ -27,7 +27,8 @@ export const dialog = tv({
         backdrop: 'flex-1 items-center justify-center bg-black/60 p-4',
         /** Behind the content: pressing outside closes */
         dismissArea: 'absolute inset-0',
-        content: 'w-full max-w-[400px] rounded-dialog border border-line-2 bg-card',
+        // Never taller than the screen: the body (scrollBehavior inside) or the whole dialog (outside) scrolls
+        content: 'w-full max-w-[400px] max-h-full rounded-dialog border border-line-2 bg-card',
         header: 'flex-row items-center justify-between gap-3 pt-4 pr-4 pl-[18px]',
         iconBox: 'size-9 items-center justify-center rounded-[var(--wc-dialog-icon-radius,10px)]',
         icon: 'size-[18px]',
@@ -41,7 +42,7 @@ export const dialog = tv({
         title: 'font-sans-semibold text-lg tracking-[-0.36px] text-fg',
         description: 'font-sans text-sm leading-[22px] text-muted',
         footer: 'flex-row flex-wrap justify-end gap-2 border-t border-line px-4 py-3',
-        /** Scrolling body (`scrollBehavior: 'inside'`) */
+        /** Scrolling body (`scrollBehavior: 'inside'`) or the whole dialog (`outside`) */
         scroller: 'shrink',
     },
     variants: {
@@ -81,10 +82,6 @@ export const dialog = tv({
                 title: 'min-w-0 flex-1 text-base',
                 body: 'pt-4',
             },
-        },
-        /** The body scrolls, title and buttons stay */
-        scrollInside: {
-            true: { content: 'max-h-full' },
         },
         status: {
             neutral: { iconBox: 'bg-line', icon: 'text-fg' },

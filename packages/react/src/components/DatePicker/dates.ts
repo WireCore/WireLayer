@@ -2,6 +2,7 @@ import {
     CalendarDateTime,
     parseDate,
     parseDateTime,
+    toCalendarDate,
     toCalendarDateTime,
     Time,
     type DateValue,
@@ -73,6 +74,12 @@ export function withTimeOf(day: DateValue, previous: DateValue | undefined): Dat
     if ('hour' in day) return day;
     const time = previous && 'hour' in previous ? new Time(previous.hour, previous.minute) : new Time();
     return toCalendarDateTime(day, time);
+}
+
+/** The day at a time of day ("HH:mm") – the time in the calendar popup, or the one a side of a range had before */
+export function atTime(day: DateValue, time: string): DateValue {
+    const [hour = 0, minute = 0] = time.split(':').map(Number);
+    return toCalendarDateTime(toCalendarDate(day), new Time(hour, minute));
 }
 
 // TimePicker: a time is a date-time on a fixed day, so the segmented date input can edit it

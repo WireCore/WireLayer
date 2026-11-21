@@ -111,6 +111,8 @@ const en: Translations = {
         noDates: 'No date selected',
         datesSelected: { one: '{count} day selected', other: '{count} days selected' },
         timeZone: (name) => `Time zone: ${name}`,
+        time: 'Time',
+        done: 'Done',
     },
     quarterPicker: {
         quarter: (quarter, year) => `Q${quarter} ${year}`,

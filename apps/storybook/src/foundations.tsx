@@ -146,3 +146,66 @@ export function SizeGrid() {
         </div>
     );
 }
+
+const scrollRows = Array.from({ length: 30 }, (_, index) => index + 1);
+const scrollColumns = ['Host', 'Region', 'CPU', 'Memory', 'Disk', 'Network', 'Uptime', 'Owner'];
+
+/** data-scrollbars="slim" in light and dark: a long list and a table that scrolls both ways */
+export function ScrollbarPreview() {
+    return (
+        <div className="sb-unstyled grid gap-4 font-sans sm:grid-cols-2">
+            {modes.map((mode) => (
+                <div
+                    key={mode}
+                    data-mode={mode}
+                    data-scrollbars="slim"
+                    className="flex flex-col gap-3 rounded-card border border-line bg-bg p-5 text-fg"
+                >
+                    <div className="label-mono">{mode === 'light' ? 'Light' : 'Dark'} · slim</div>
+                    <ul
+                        tabIndex={0}
+                        aria-label={`Hosts, ${mode}`}
+                        className="h-40 overflow-y-auto rounded-lg border border-line text-sm"
+                    >
+                        {scrollRows.map((row) => (
+                            <li key={row} className="border-b border-line px-3 py-2 last:border-0">
+                                host-{String(row).padStart(2, '0')}
+                            </li>
+                        ))}
+                    </ul>
+                    <div tabIndex={0} className="h-40 overflow-auto rounded-lg border border-line">
+                        <table className="w-max border-separate border-spacing-0 text-sm">
+                            <caption className="sr-only">Hosts, {mode}</caption>
+                            <thead>
+                                <tr>
+                                    {scrollColumns.map((column) => (
+                                        <th
+                                            key={column}
+                                            className="sticky top-0 border-b border-line bg-card px-4 py-2 text-start font-mono text-[11px] font-normal text-muted uppercase"
+                                        >
+                                            {column}
+                                        </th>
+                                    ))}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {scrollRows.map((row) => (
+                                    <tr key={row}>
+                                        {scrollColumns.map((column) => (
+                                            <td
+                                                key={column}
+                                                className="border-b border-line px-4 py-2 whitespace-nowrap"
+                                            >
+                                                {column === 'Host' ? `host-${String(row).padStart(2, '0')}` : '—'}
+                                            </td>
+                                        ))}
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            ))}
+        </div>
+    );
+}

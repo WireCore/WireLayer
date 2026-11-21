@@ -88,6 +88,8 @@ export const tr: Translations = {
         noDates: 'Tarih seçilmedi',
         datesSelected: { one: '{count} gün seçili', other: '{count} gün seçili' },
         timeZone: (name) => `Saat dilimi: ${name}`,
+        time: 'Saat',
+        done: 'Tamam',
     },
     quarterPicker: {
         quarter: (quarter, year) => `Ç${quarter} ${year}`,

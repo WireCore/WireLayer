@@ -99,7 +99,9 @@ export const dialog = tv({
             'fixed inset-0 z-50 bg-[var(--wc-backdrop,rgb(0_0_0/0.6))]',
             'motion-safe:data-[state=open]:animate-fade-in motion-safe:data-[state=closed]:animate-fade-out',
         ],
-        positioner: 'fixed inset-0 z-50 flex items-center justify-center overflow-y-auto p-4',
+        // Safe centring: a dialog taller than the window starts at the top (p-4) and scrolls to its end – with plain
+        // items-center the overflow is split above and below, and the part above (title, close button) is unreachable
+        positioner: 'fixed inset-0 z-50 flex items-center-safe justify-center overflow-y-auto p-4',
         content: [
             // Width from --wc-dialog-w: set by `size`, or your own, e.g. style="--wc-dialog-w: 36rem"
             'flex w-full max-w-[var(--wc-dialog-w,400px)] flex-col rounded-dialog border border-line-2 bg-card text-fg outline-none',
@@ -159,9 +161,9 @@ export const dialog = tv({
         },
         /** Where the dialog sits on the screen; without it centred */
         position: {
-            center: { positioner: 'items-center justify-center' },
+            center: { positioner: 'items-center-safe justify-center' },
             top: { positioner: 'items-start' },
-            bottom: { positioner: 'items-end' },
+            bottom: { positioner: 'items-end-safe' },
             start: { positioner: 'justify-start' },
             end: { positioner: 'justify-end' },
         },

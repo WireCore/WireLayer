@@ -82,6 +82,25 @@ describe('scrollbars', () => {
         expect(base).toMatch(/@supports not \(scrollbar-color: auto\) \{[^@]*::-webkit-scrollbar-thumb:hover/);
         expect(base).toMatch(/@media \(forced-colors: active\) \{[^@]*scrollbar-color: auto;/);
     });
+
+    it('data-scrollbars="slim": the WebKit scrollbar as a narrow stroke, thin in Firefox, none with forced colours', () => {
+        const base = css.slice(css.indexOf('@layer base {'));
+        const slim = base.slice(base.indexOf("    :where([data-scrollbars='slim']),"));
+        // Firefox: thin in the theme colours
+        expect(slim).toMatch(/^[^@]*scrollbar-width: var\(--wc-scrollbar-width, thin\);/);
+        // Chromium ignores ::-webkit-scrollbar while scrollbar-width/-color are not auto
+        const webkit = slim.slice(slim.indexOf('@supports selector(::-webkit-scrollbar) {'));
+        expect(webkit).toMatch(/^@supports selector\(::-webkit-scrollbar\) \{\s*@media \(forced-colors: none\) \{/);
+        expect(webkit).toMatch(/scrollbar-width: auto;\s*scrollbar-color: auto;/);
+        expect(webkit).toContain('width: calc(var(--wc-scrollbar-size, 6px) + 4px);');
+        expect(webkit).toMatch(/::-webkit-scrollbar-button \{\s*display: none;/);
+        expect(webkit).toContain('background: var(--wc-scrollbar-thumb, var(--wc-line-strong)) padding-box;');
+        expect(webkit).toMatch(/::-webkit-scrollbar-thumb:active \{\s*border-width: 0;/);
+        // The page itself (the scrollbar of <html>) as well as every element inside
+        expect(webkit).toContain(":where([data-scrollbars='slim'])::-webkit-scrollbar,");
+        // After the Safari fallback, so slim wins there, too
+        expect(base.indexOf('@supports not (scrollbar-color: auto)')).toBeLessThan(base.indexOf(webkit));
+    });
 });
 
 describe('optional colour tokens', () => {

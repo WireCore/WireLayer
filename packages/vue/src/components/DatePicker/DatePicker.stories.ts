@@ -35,6 +35,10 @@ type Story = StoryObj;
 
 export const Playground: Story = {};
 
+/**
+ * `withTime`: date, hour and minute in the field – and below the calendar, so the mouse can set the time too. Picking a
+ * day keeps the calendar open, "Done" closes it, Escape discards what changed. `:time-in-popup="false"`: in the field only
+ */
 export const WithTime: Story = {
     render: () => ({
         components: { DatePicker, Field },

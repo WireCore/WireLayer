@@ -773,26 +773,42 @@ describe.each(frameworks)('%s DataTable', (framework) => {
         );
     });
 
-    it('searchAlign center: the search takes the free room on both sides; app-wide default; no search, no change', async () => {
+    it('searchAlign center: start and end group share the room, also without start controls; app-wide default', async () => {
         await render(
             framework,
             el(
                 'RecipesProvider',
                 { recipes: { dataTable: { defaultVariants: { searchCentered: true } } } },
-                table({ search: true, filterToggle: true }),
-                table({ caption: 'Own', search: true, searchAlign: 'start', filterToggle: true }),
+                table({ search: true, filterToggle: true, $slots: { toolbar: el('span', {}, 'Own control') } }),
+                table({
+                    caption: 'Own',
+                    search: true,
+                    searchAlign: 'start',
+                    filterToggle: true,
+                    $slots: { toolbar: el('span', {}, 'Own control') },
+                }),
                 table({ caption: 'Plain', filterToggle: true })
             )
         );
-        const [centred, own] = screen.getAllByRole('searchbox');
-        const [server, ownEnd, plain] = screen
+        const [centred, own] = screen.getAllByRole('searchbox').map((box) => box.closest('.max-w-72')!);
+        const [centredEnd, ownEnd, plainEnd] = screen
             .getAllByRole('button', { name: 'Show filters' })
             .map((button) => button.parentElement!);
-        expect(centred!.closest('.mx-auto')).not.toBeNull();
-        expect(own!.closest('.mx-auto')).toBeNull();
-        expect(server).toHaveClass('ms-0');
+        // Centred: an empty start group before the search, as wide as the end group (grow basis-0)
+        const start = centred!.previousElementSibling!;
+        expect(start).toBeEmptyDOMElement();
+        expect(start).toHaveClass('grow', 'basis-0');
+        expect(centredEnd).toHaveClass('grow', 'basis-0', 'justify-end');
+        expect(centred!.parentElement).toHaveClass('@container');
+        // Own toolbar controls join the end group, before the built-in buttons
+        const [centredOwn, startOwn] = screen.getAllByText('Own control');
+        expect(centredEnd).toContainElement(centredOwn!);
+        // Start (or no search): as before – no start group, own controls right after the search
+        expect(own!.previousElementSibling).toBeNull();
+        expect(own!.nextElementSibling).toBe(startOwn);
         expect(ownEnd).toHaveClass('ms-auto');
-        expect(plain).toHaveClass('ms-auto');
+        expect(ownEnd).not.toHaveClass('basis-0');
+        expect(plainEnd).not.toHaveClass('basis-0');
     });
 
     it('sortable on the table (or app-wide): every column with a value, not sortable: false, not a slot column', async () => {

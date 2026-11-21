@@ -31,8 +31,13 @@ export interface DateRangePickerProps<T extends DateRangeLike = DateRange> {
     onValueChange?: (value: T | null) => void;
     /** What onValueChange gets: ISO strings (default) or Date objects */
     valueType?: DateValueType;
-    /** Adds hour and minute to both dates */
+    /**
+     * Adds hour and minute to both dates, in the field and below the calendar ("Start", "End"); a new range keeps the
+     * times, without them start 00:00 and end 23:59
+     */
     withTime?: boolean;
+    /** withTime: the times below the calendar as well (default true); false: in the field only */
+    timeInPopup?: boolean;
     /** Earliest selectable date (ISO or Date) */
     min?: DateLike;
     /** Latest selectable date (ISO or Date) */

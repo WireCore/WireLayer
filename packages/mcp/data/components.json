@@ -9381,7 +9381,7 @@
                     "name": "searchAlign",
                     "type": "'start' | 'center'",
                     "optional": true,
-                    "description": "Place of the search field: `start` (default) after the controls of the toolbar start, `center` in the middle between them and the controls at the end. App-wide: `dataTable: { defaultVariants: { searchCentered: true } }`"
+                    "description": "Place of the search field: `start` (default) after the controls of the toolbar start, `center` in the middle of the toolbar – also when there are no controls at the start; own `toolbar` controls then join the end group. App-wide: `dataTable: { defaultVariants: { searchCentered: true } }`"
                 },
                 {
                     "name": "globalFilter",
@@ -10116,7 +10116,7 @@
                         "name": "searchAlign",
                         "type": "'start' | 'center'",
                         "optional": true,
-                        "description": "Place of the search field: `start` (default) after the controls of the toolbar start, `center` in the middle between them and the controls at the end. App-wide: `dataTable: { defaultVariants: { searchCentered: true } }`"
+                        "description": "Place of the search field: `start` (default) after the controls of the toolbar start, `center` in the middle of the toolbar – also when there are no controls at the start; own `toolbar` controls then join the end group. App-wide: `dataTable: { defaultVariants: { searchCentered: true } }`"
                     },
                     {
                         "name": "globalFilter",
@@ -11081,7 +11081,13 @@
                     "name": "withTime",
                     "type": "boolean",
                     "optional": true,
-                    "description": "Adds hour and minute to the field"
+                    "description": "Adds hour and minute to the field and below the calendar (picking a day keeps it open, Escape discards)"
+                },
+                {
+                    "name": "timeInPopup",
+                    "type": "boolean",
+                    "optional": true,
+                    "description": "withTime: the time below the calendar as well (default true); false: in the field only"
                 },
                 {
                     "name": "min",
@@ -11294,7 +11300,13 @@
                         "name": "withTime",
                         "type": "boolean",
                         "optional": true,
-                        "description": "Adds hour and minute to the field"
+                        "description": "Adds hour and minute to the field and below the calendar (picking a day keeps it open, Escape discards)"
+                    },
+                    {
+                        "name": "timeInPopup",
+                        "type": "boolean",
+                        "optional": true,
+                        "description": "withTime: the time below the calendar as well (default true); false: in the field only"
                     },
                     {
                         "name": "min",
@@ -11505,7 +11517,13 @@
                     "name": "withTime",
                     "type": "boolean",
                     "optional": true,
-                    "description": "Adds hour and minute to both dates"
+                    "description": "Adds hour and minute to both dates, in the field and below the calendar (\"Start\", \"End\"); a new range keeps the times, without them start 00:00 and end 23:59"
+                },
+                {
+                    "name": "timeInPopup",
+                    "type": "boolean",
+                    "optional": true,
+                    "description": "withTime: the times below the calendar as well (default true); false: in the field only"
                 },
                 {
                     "name": "min",
@@ -11712,7 +11730,13 @@
                         "name": "withTime",
                         "type": "boolean",
                         "optional": true,
-                        "description": "Adds hour and minute to both dates"
+                        "description": "Adds hour and minute to both dates, in the field and below the calendar (\"Start\", \"End\"); a new range keeps the times, without them start 00:00 and end 23:59"
+                    },
+                    {
+                        "name": "timeInPopup",
+                        "type": "boolean",
+                        "optional": true,
+                        "description": "withTime: the times below the calendar as well (default true); false: in the field only"
                     },
                     {
                         "name": "min",
@@ -12246,7 +12270,7 @@
                     "name": "scrollBehavior",
                     "type": "'inside' | 'outside'",
                     "optional": true,
-                    "description": "`inside`: only the body scrolls, header and footer stay in place; `outside` (default): the whole dialog scrolls"
+                    "description": "`inside`: only the body scrolls, header and footer stay in place (long forms keep title and buttons in view); `outside` (default): the whole dialog scrolls – taller than the window, it starts at the top"
                 },
                 {
                     "name": "responsive",
@@ -12381,7 +12405,7 @@
                         "name": "scrollBehavior",
                         "type": "'inside' | 'outside'",
                         "optional": true,
-                        "description": "`inside`: only the body scrolls, header and footer stay in place; `outside` (default): the whole dialog scrolls"
+                        "description": "`inside`: only the body scrolls, header and footer stay in place (long forms keep title and buttons in view); `outside` (default): the whole dialog scrolls – taller than the window, it starts at the top"
                     },
                     {
                         "name": "responsive",
@@ -38101,7 +38125,7 @@
         {
             "id": "themes-scrollbars",
             "title": "Scrollbars",
-            "text": "The page and every scrolling area (DataTable with `scrollHeight`, Dialog and Drawer with long content, lists of Select\nand Menu, Textarea …) get thin scrollbars in the look of `ScrollPanel`: the thumb in `line-strong` (at least 3:1 against\nthe surfaces, in every theme and mode), the track transparent. They follow the mode and theme of the part they are in.\nBrowsers without `scrollbar-color` (Safari) get the same look through `::-webkit-scrollbar`; with forced colors (Windows\ncontrast themes) the system scrollbars stay.\n\n| Variable                     | Default                 | Applies to                                                            |\n| ---------------------------- | ----------------------- | --------------------------------------------------------------------- |\n| `--wc-scrollbar-thumb`       | `var(--wc-line-strong)` | Thumb                                                                 |\n| `--wc-scrollbar-thumb-hover` | `var(--wc-muted)`       | Thumb under the pointer (Safari; other browsers darken it themselves) |\n| `--wc-scrollbar-track`       | `transparent`           | Track                                                                 |\n| `--wc-scrollbar-width`       | `thin`                  | `scrollbar-width` (`auto` for the wide ones)                          |\n\n`<html data-scrollbars=\"native\">` keeps the browser's own scrollbars on the whole page. The rules sit in the base layer,\nso a utility on a single element still wins (e.g. `[scrollbar-width:none]`)."
+            "text": "The page and every scrolling area (DataTable with `scrollHeight`, Dialog and Drawer with long content, lists of Select\nand Menu, Textarea …) get thin scrollbars in the look of `ScrollPanel`: the thumb in `line-strong` (at least 3:1 against\nthe surfaces, in every theme and mode), the track transparent. They follow the mode and theme of the part they are in.\nBrowsers without `scrollbar-color` (Safari) get the same look through `::-webkit-scrollbar`; with forced colors (Windows\ncontrast themes) the system scrollbars stay.\n\n| Variable                     | Default                 | Applies to                                                            |\n| ---------------------------- | ----------------------- | --------------------------------------------------------------------- |\n| `--wc-scrollbar-thumb`       | `var(--wc-line-strong)` | Thumb                                                                 |\n| `--wc-scrollbar-thumb-hover` | `var(--wc-muted)`       | Thumb under the pointer (Safari; other browsers darken it themselves) |\n| `--wc-scrollbar-track`       | `transparent`           | Track                                                                 |\n| `--wc-scrollbar-width`       | `thin`                  | `scrollbar-width` (`auto` for the wide ones)                          |\n| `--wc-scrollbar-size`        | `6px`                   | Width of the stroke with `data-scrollbars=\"slim\"`                     |\n\n`<html data-scrollbars=\"native\">` keeps the browser's own scrollbars on the whole page. The rules sit in the base layer,\nso a utility on a single element still wins (e.g. `[scrollbar-width:none]`).\n\n### Slim scrollbars\n\n`thin` is drawn by the browser: in Chrome and Edge (above all on Windows) a narrow but system-like bar, depending on the\nversion with arrow buttons and a square thumb. `data-scrollbars=\"slim\"` – on `<html>` for the whole page, or on any\nelement for that part – draws a narrow, rounded stroke instead: `--wc-scrollbar-size` wide (6px), 2px off the edge, no\narrow buttons, the track transparent; under the pointer and while dragging the thumb takes the full 10px and the\n`--wc-scrollbar-thumb-hover` colour, so it is easy to grab. The colours are the same tokens as above – at least 3:1\nagainst the surfaces, in light and dark and in parts with their own `data-mode`.\n\n```html\n<html data-scrollbars=\"slim\"></html>\n```\n\nChromium and Safari get it through `::-webkit-scrollbar` (Chromium ignores those rules while `scrollbar-width` or\n`scrollbar-color` is set, so slim sets both to `auto` there); Firefox has no `::-webkit-scrollbar` and keeps `thin` in\nthe theme colours. With forced colors (Windows contrast themes) the system scrollbars stay."
         }
     ],
     "native": {
@@ -42436,7 +42460,7 @@
                         "name": "scrollBehavior",
                         "type": "'inside' | 'outside'",
                         "optional": true,
-                        "description": "`inside`: only the body scrolls, title and buttons stay in view (long content)"
+                        "description": "`inside`: only the body scrolls, title and buttons stay in view (long content); `outside` (default): the whole dialog scrolls"
                     },
                     {
                         "name": "initialFocusRef",

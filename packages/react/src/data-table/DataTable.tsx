@@ -347,8 +347,9 @@ export interface DataTableProps<TData> extends Omit<
     /** Search field above the table: filters over all columns */
     search?: boolean;
     /**
-     * Place of the search field: `start` (default) after the controls of the toolbar start, `center` in the middle
-     * between them and the controls at the end. App-wide: `dataTable: { defaultVariants: { searchCentered: true } }`
+     * Place of the search field: `start` (default) after the controls of the toolbar start, `center` in the middle of
+     * the toolbar – also when there are no controls at the start; own `toolbar` controls then join the end group.
+     * App-wide: `dataTable: { defaultVariants: { searchCentered: true } }`
      */
     searchAlign?: 'start' | 'center';
     globalFilter?: string;
@@ -3581,7 +3582,14 @@ export function DataTable<TData extends object>({
         >
             {showToolbar && (
                 <div className={styles.toolbar()}>
-                    {toolbarStart && <RecipesProvider recipes={toolbarSize}>{toolbarStart}</RecipesProvider>}
+                    {/* Search in the middle: the start controls as one group – also empty, it keeps the search centred */}
+                    {searchCentered ? (
+                        <div className={styles.toolbarStart()}>
+                            {toolbarStart && <RecipesProvider recipes={toolbarSize}>{toolbarStart}</RecipesProvider>}
+                        </div>
+                    ) : (
+                        toolbarStart && <RecipesProvider recipes={toolbarSize}>{toolbarStart}</RecipesProvider>
+                    )}
                     {search && (
                         <Input
                             type="search"
@@ -3594,8 +3602,11 @@ export function DataTable<TData extends object>({
                             onChange={(event) => table.setGlobalFilter(event.target.value)}
                         />
                     )}
-                    {toolbar && <RecipesProvider recipes={toolbarSize}>{toolbar}</RecipesProvider>}
+                    {!searchCentered && toolbar && <RecipesProvider recipes={toolbarSize}>{toolbar}</RecipesProvider>}
                     <div className={styles.toolbarEnd()}>
+                        {searchCentered && toolbar && (
+                            <RecipesProvider recipes={toolbarSize}>{toolbar}</RecipesProvider>
+                        )}
                         {toolbarEnd && <RecipesProvider recipes={toolbarSize}>{toolbarEnd}</RecipesProvider>}
                         {find && (
                             <IconButton

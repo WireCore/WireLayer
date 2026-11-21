@@ -97,6 +97,9 @@ export const de = {
         noDates: 'Kein Datum gewählt',
         datesSelected: { one: '{count} Tag ausgewählt', other: '{count} Tage ausgewählt' } as PluralForms,
         timeZone: (name: string) => `Zeitzone: ${name}`,
+        /** Time below the calendar (withTime) and the button that closes it */
+        time: 'Uhrzeit',
+        done: 'Fertig',
     },
     quarterPicker: {
         /** Text of a quarter in the field and on its button */

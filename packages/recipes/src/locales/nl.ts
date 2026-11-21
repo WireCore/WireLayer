@@ -96,6 +96,8 @@ export const nl: Translations = {
         noDates: 'Geen datum geselecteerd',
         datesSelected: { one: '{count} dag geselecteerd', other: '{count} dagen geselecteerd' },
         timeZone: (name) => `Tijdzone: ${name}`,
+        time: 'Tijd',
+        done: 'Gereed',
     },
     quarterPicker: {
         quarter: (quarter, year) => `Q${quarter} ${year}`,

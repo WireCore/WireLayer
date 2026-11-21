@@ -242,7 +242,8 @@ ${Object.entries(radius)
     /* Scrollbars of the page and of every scrolling area in the look of ScrollPanel: thin, the thumb in line-strong
        (3:1 against the surfaces, checked with the contrast of the input borders), the track transparent. Colours per
        element, so a part with its own mode/theme follows it. Change them with --wc-scrollbar-thumb / -thumb-hover /
-       -track / -width; <html data-scrollbars="native"> keeps the browser's own. In the base layer, so utilities such
+       -track / -width / -size; <html data-scrollbars="native"> keeps the browser's own, data-scrollbars="slim" (below)
+       draws a narrow stroke. In the base layer, so utilities such
        as [scrollbar-width:none] still win */
     :where(:root:not([data-scrollbars='native'])),
     :where(:root:not([data-scrollbars='native'])) * {
@@ -266,6 +267,51 @@ ${Object.entries(radius)
         }
         :where(:root:not([data-scrollbars='native'])) ::-webkit-scrollbar-corner {
             background: transparent;
+        }
+    }
+    /* data-scrollbars="slim" (on <html> or any part of the page): a narrow, rounded stroke instead of thin. Chromium
+       draws thin as a system-like bar and ignores ::-webkit-scrollbar as soon as scrollbar-width or scrollbar-color is
+       not auto – so browsers with ::-webkit-scrollbar get auto and the WebKit scrollbar: --wc-scrollbar-size wide,
+       2px off the edge, no arrow buttons, the full 10px under the pointer. Firefox keeps thin in the theme colours */
+    :where([data-scrollbars='slim']),
+    :where([data-scrollbars='slim']) * {
+        scrollbar-width: var(--wc-scrollbar-width, thin);
+        scrollbar-color: var(--wc-scrollbar-thumb, var(--wc-line-strong)) var(--wc-scrollbar-track, transparent);
+    }
+    @supports selector(::-webkit-scrollbar) {
+        @media (forced-colors: none) {
+            :where([data-scrollbars='slim']),
+            :where([data-scrollbars='slim']) * {
+                scrollbar-width: auto;
+                scrollbar-color: auto;
+            }
+            :where([data-scrollbars='slim'])::-webkit-scrollbar,
+            :where([data-scrollbars='slim']) ::-webkit-scrollbar {
+                width: calc(var(--wc-scrollbar-size, 6px) + 4px);
+                height: calc(var(--wc-scrollbar-size, 6px) + 4px);
+                background: var(--wc-scrollbar-track, transparent);
+            }
+            :where([data-scrollbars='slim'])::-webkit-scrollbar-button,
+            :where([data-scrollbars='slim']) ::-webkit-scrollbar-button {
+                display: none;
+            }
+            :where([data-scrollbars='slim'])::-webkit-scrollbar-thumb,
+            :where([data-scrollbars='slim']) ::-webkit-scrollbar-thumb {
+                border: 2px solid transparent;
+                border-radius: 9999px;
+                background: var(--wc-scrollbar-thumb, var(--wc-line-strong)) padding-box;
+            }
+            :where([data-scrollbars='slim'])::-webkit-scrollbar-thumb:hover,
+            :where([data-scrollbars='slim'])::-webkit-scrollbar-thumb:active,
+            :where([data-scrollbars='slim']) ::-webkit-scrollbar-thumb:hover,
+            :where([data-scrollbars='slim']) ::-webkit-scrollbar-thumb:active {
+                border-width: 0;
+                background-color: var(--wc-scrollbar-thumb-hover, var(--wc-muted));
+            }
+            :where([data-scrollbars='slim'])::-webkit-scrollbar-corner,
+            :where([data-scrollbars='slim']) ::-webkit-scrollbar-corner {
+                background: transparent;
+            }
         }
     }
     /* Forced colours (Windows contrast themes): the system scrollbars */

@@ -65,7 +65,7 @@ export const selectFieldParts = {
 
 export const select = tv({
     slots: {
-        base: 'flex w-full flex-col',
+        base: 'relative flex w-full flex-col',
         trigger: [
             'flex h-[var(--wc-control-h-md,2.5rem)] w-full cursor-pointer items-center justify-between gap-2.5 rounded-[var(--wc-control-radius-md,0.5rem)] border border-line-strong bg-bg pe-2.5 ps-3 text-start text-[length:var(--wc-control-text-md,15px)] text-fg',
             'outline-none transition-colors motion-reduce:transition-none focus-visible:border-primary data-[state=open]:border-primary',

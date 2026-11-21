@@ -114,6 +114,8 @@ export const it: Translations = {
         noDates: 'Nessuna data selezionata',
         datesSelected: { one: '{count} giorno selezionato', other: '{count} giorni selezionati' },
         timeZone: (name) => `Fuso orario: ${name}`,
+        time: 'Ora',
+        done: 'Fatto',
     },
     quarterPicker: {
         quarter: (quarter, year) => `Q${quarter} ${year}`,

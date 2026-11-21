@@ -107,6 +107,37 @@ function OptionsDemo() {
 /** Sizes, docked to the bottom, fullscreen and a dialog that only its button closes */
 export const Options: Story = { name: 'Variants', render: () => <OptionsDemo /> };
 
+function LongContentDemo() {
+    const [open, setOpen] = useState(false);
+    return (
+        <>
+            <Button variant="outline" onPress={() => setOpen(true)}>
+                Show changes
+            </Button>
+            <Dialog
+                open={open}
+                onOpenChange={setOpen}
+                title="What's new"
+                footer={
+                    <Button size="sm" onPress={() => setOpen(false)}>
+                        Got it
+                    </Button>
+                }
+            >
+                {Array.from({ length: 20 }, (_, index) => (
+                    <Text key={index}>Version 1.{20 - index} – Faster start, smaller bundles and a few fixes.</Text>
+                ))}
+            </Dialog>
+        </>
+    );
+}
+
+/**
+ * Long content with the default `scrollBehavior="outside"`: the whole dialog scrolls. Never taller than the screen –
+ * it starts with the title and the close button and scrolls down to its buttons.
+ */
+export const LongContent: Story = { name: 'Long content', render: () => <LongContentDemo /> };
+
 function TitleInTheHeaderDemo() {
     const [open, setOpen] = useState(false);
     return (

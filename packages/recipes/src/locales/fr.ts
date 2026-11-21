@@ -106,6 +106,8 @@ export const fr: Translations = {
         noDates: 'Aucune date sélectionnée',
         datesSelected: { one: '{count} jour sélectionné', other: '{count} jours sélectionnés' },
         timeZone: (name) => `Fuseau horaire\u00a0: ${name}`,
+        time: 'Heure',
+        done: 'Terminé',
     },
     quarterPicker: {
         quarter: (quarter, year) => `T${quarter} ${year}`,

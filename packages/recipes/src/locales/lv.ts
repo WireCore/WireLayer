@@ -127,6 +127,8 @@ export const lv: Translations = {
         noDates: 'Nav atlasīts neviens datums',
         datesSelected: forms('Atlasīta {count} diena', 'Atlasītas {count} dienas'),
         timeZone: (name) => `Laika josla: ${name}`,
+        time: 'Laiks',
+        done: 'Gatavs',
     },
     quarterPicker: {
         quarter: (quarter, year) => `Q${quarter} ${year}`,

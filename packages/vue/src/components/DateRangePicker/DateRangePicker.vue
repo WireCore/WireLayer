@@ -23,8 +23,13 @@ export interface DateRangePickerProps<T extends DateRangeLike = DateRange> {
     defaultValue?: T | null;
     /** What v-model gets: ISO strings (default) or Date objects */
     valueType?: DateValueType;
-    /** Adds hour and minute to both dates */
+    /**
+     * Adds hour and minute to both dates, in the field and below the calendar ("Start", "End"); a new range keeps the
+     * times, without them start 00:00 and end 23:59
+     */
     withTime?: boolean;
+    /** withTime: the times below the calendar as well (default true); false: in the field only */
+    timeInPopup?: boolean;
     /** Earliest selectable date (ISO or Date) */
     min?: DateLike;
     /** Latest selectable date (ISO or Date) */
@@ -84,6 +89,7 @@ const props = withDefaults(defineProps<DateRangePickerProps<T>>(), {
     defaultValue: undefined,
     valueType: 'string',
     withTime: false,
+    timeInPopup: true,
     disabled: undefined,
     readOnly: undefined,
     invalid: undefined,
@@ -146,6 +152,7 @@ const unavailable = computed(() => unavailableDates(props.isDateUnavailable, pro
         mode="range"
         :dates="dates"
         :with-time="withTime"
+        :time-in-popup="timeInPopup"
         v-bind="bounds"
         :is-date-unavailable="unavailable"
         :locale="currentLocale"
