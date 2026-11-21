@@ -20,7 +20,10 @@ const translations = useTranslations();
 
 export interface DialogContentProps {
     title: string;
-    /** The title only for screen readers – it still names the dialog (e.g. a video in a dialog) */
+    /**
+     * The title only for screen readers – it still names the dialog (e.g. a video in a dialog). With the `#header`
+     * slot this is the default; `false` shows the title where `titlePosition` puts it
+     */
     hideTitle?: boolean;
     /**
      * `body` (default): the title below the header row; `header`: in the row of the close button, after a smaller
@@ -67,12 +70,18 @@ export interface DialogContentProps {
 
 defineOptions({ inheritAttrs: false });
 const props = withDefaults(defineProps<DialogContentProps>(), {
+    hideTitle: undefined,
     maximized: undefined,
     closable: true,
     responsive: true,
 });
 const emit = defineEmits<{ 'update:maximized': [maximized: boolean] }>();
-defineSlots<{
+const slots = defineSlots<{
+    /**
+     * Own content in the header row, after the icon and before the close button – e.g. a logo or a badge; the title
+     * then only names the dialog for screen readers (unless `hide-title` is `false`)
+     */
+    header?(): unknown;
     /** The content below the title */
     default?(): unknown;
     /** Buttons at the bottom, e.g. Cancel and Save (right-aligned) */
@@ -126,7 +135,7 @@ const styles = computed(() =>
         responsive: props.responsive,
         draggable: props.draggable && !isMaximized.value,
         maximizable: props.maximizable,
-        hideTitle: props.hideTitle,
+        hideTitle: props.hideTitle ?? !!slots.header,
         titleInHeader: props.titlePosition === 'header',
     })
 );
@@ -150,7 +159,15 @@ const styles = computed(() =>
                     <span v-if="icon" :class="styles.iconBox()">
                         <component :is="icon" :class="styles.icon()" aria-hidden="true" />
                     </span>
-                    <Dialog.Title v-if="titlePosition === 'header'" :class="styles.title()">{{ title }}</Dialog.Title>
+                    <div v-if="$slots.header" :class="styles.headerContent()">
+                        <slot name="header" />
+                        <Dialog.Title v-if="titlePosition === 'header'" :class="styles.title()">{{
+                            title
+                        }}</Dialog.Title>
+                    </div>
+                    <Dialog.Title v-else-if="titlePosition === 'header'" :class="styles.title()">
+                        {{ title }}
+                    </Dialog.Title>
                     <button
                         v-if="maximizable"
                         type="button"

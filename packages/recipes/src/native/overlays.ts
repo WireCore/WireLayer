@@ -9,6 +9,8 @@ export const drawer = tv({
         dismissArea: 'absolute inset-0',
         panel: 'max-w-[90%] bg-card',
         header: 'flex-row items-center justify-between gap-3 border-b border-line py-3 pr-3 pl-5 ios:pt-14',
+        /** Own content of the header row (`header`), before the title */
+        headerContent: 'min-w-0 shrink flex-row items-center gap-3',
         title: 'min-w-0 flex-1 font-sans-semibold text-base text-fg',
         close: ['size-11 items-center justify-center rounded-full', pressable, 'active:bg-line active:opacity-100'],
         closeIcon: 'size-4 text-muted',

@@ -65,9 +65,17 @@ export function DrawerClose({ children }: { children: ReactElement }) {
 
 export interface DrawerContentProps extends Omit<ComponentProps<'div'>, 'title'> {
     title: string;
-    /** The title only for screen readers – it still names the drawer (e.g. a video in a dialog) */
+    /**
+     * The title only for screen readers – it still names the drawer (e.g. a video in a dialog). With `header` this is
+     * the default; `false` shows the title next to the header content
+     */
     hideTitle?: boolean;
     description?: string;
+    /**
+     * Own content in the header row, before the close button – e.g. the logo of the app; the title then only names
+     * the drawer for screen readers (unless `hideTitle` is `false`)
+     */
+    header?: ReactNode;
     placement?: DrawerPlacement;
     /**
      * Width (left/right: sm 320px, md 420px, lg 560px, xl 720px) or height (top/bottom: 30–85 % of the screen);
@@ -92,6 +100,7 @@ export function DrawerContent({
     title,
     hideTitle,
     description,
+    header,
     placement,
     size,
     offset,
@@ -105,7 +114,16 @@ export function DrawerContent({
     const drawer = useRecipe('drawer', drawerRecipe, classes);
     const translations = useTranslations();
     const { modal } = useContext(DialogRootContext);
-    const styles = drawer({ placement, size, offset, hideTitle });
+    const customHeader = header !== undefined && header !== null && header !== false;
+    const styles = drawer({ placement, size, offset, hideTitle: hideTitle ?? customHeader, customHeader });
+    const text = (
+        <div className={styles.text()}>
+            <ArkDialog.Title className={styles.title()}>{title}</ArkDialog.Title>
+            {description && (
+                <ArkDialog.Description className={styles.description()}>{description}</ArkDialog.Description>
+            )}
+        </div>
+    );
 
     return (
         <Portal>
@@ -113,14 +131,14 @@ export function DrawerContent({
             <ArkDialog.Positioner className={styles.positioner()}>
                 <ArkDialog.Content {...props} className={styles.content({ class: className })}>
                     <div className={styles.header()}>
-                        <div className={styles.text()}>
-                            <ArkDialog.Title className={styles.title()}>{title}</ArkDialog.Title>
-                            {description && (
-                                <ArkDialog.Description className={styles.description()}>
-                                    {description}
-                                </ArkDialog.Description>
-                            )}
-                        </div>
+                        {customHeader ? (
+                            <div className={styles.headerContent()}>
+                                {header}
+                                {text}
+                            </div>
+                        ) : (
+                            text
+                        )}
                         {closable && (
                             <ArkDialog.CloseTrigger
                                 className={styles.close()}

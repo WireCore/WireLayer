@@ -1,10 +1,11 @@
 import type { Meta, StoryObj } from '@storybook/react-native-web-vite';
-import { SlidersHorizontal } from 'lucide-react-native';
+import { Hexagon, Menu as MenuIcon, SlidersHorizontal } from 'lucide-react-native';
 import { useState } from 'react';
 import { View } from 'react-native';
 import { Button } from '../Button/Button.js';
 import { ChipGroup } from '../ChipGroup/ChipGroup.js';
 import { Text } from '../Text/Text.js';
+import { Icon } from '../../utils/Icon.js';
 import { Drawer } from './Drawer.js';
 
 const locations = [
@@ -78,3 +79,35 @@ function PlacementDemo() {
 
 /** From each edge: left/right for navigation and details, top for notices, bottom as a sheet with a height */
 export const Placements: Story = { name: 'Sides and sizes', render: () => <PlacementDemo /> };
+
+function LogoDemo() {
+    const [open, setOpen] = useState(false);
+    return (
+        <View className="items-start">
+            <Button variant="outline" leadingIcon={MenuIcon} onPress={() => setOpen(true)}>
+                Menu
+            </Button>
+            <Drawer
+                open={open}
+                onOpenChange={setOpen}
+                title="Menu"
+                placement="left"
+                size="sm"
+                hideTitle
+                header={
+                    <View className="flex-row items-center gap-2">
+                        <Icon icon={Hexagon} className="size-6 text-primary" />
+                        <Text className="font-sans-semibold">Acme</Text>
+                    </View>
+                }
+            >
+                <Text>Dashboard</Text>
+                <Text>Servers</Text>
+                <Text>Invoices</Text>
+            </Drawer>
+        </View>
+    );
+}
+
+/** Navigation from the left with the logo of the app next to the close button (`header`); the title names it */
+export const LogoInHeader: Story = { render: () => <LogoDemo /> };

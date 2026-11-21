@@ -12120,7 +12120,13 @@
                     "name": "hideTitle",
                     "type": "boolean",
                     "optional": true,
-                    "description": "The title only for screen readers – it still names the dialog (e.g. a video in a dialog)"
+                    "description": "The title only for screen readers – it still names the dialog (e.g. a video in a dialog). With `header` this is the default; `false` shows the title where `titlePosition` puts it"
+                },
+                {
+                    "name": "header",
+                    "type": "ReactNode",
+                    "optional": true,
+                    "description": "Own content in the header row, after the icon and before the close button – e.g. a logo or a badge; the title then only names the dialog for screen readers (unless `hideTitle` is `false`)"
                 },
                 {
                     "name": "titlePosition",
@@ -12261,7 +12267,7 @@
                         "name": "hideTitle",
                         "type": "boolean",
                         "optional": true,
-                        "description": "The title only for screen readers – it still names the dialog (e.g. a video in a dialog)"
+                        "description": "The title only for screen readers – it still names the dialog (e.g. a video in a dialog). With the `#header` slot this is the default; `false` shows the title where `titlePosition` puts it"
                     },
                     {
                         "name": "titlePosition",
@@ -12379,6 +12385,11 @@
                     }
                 ],
                 "slots": [
+                    {
+                        "name": "header",
+                        "props": "",
+                        "description": "Own content in the header row, after the icon and before the close button – e.g. a logo or a badge; the title then only names the dialog for screen readers (unless `hide-title` is `false`)"
+                    },
                     {
                         "name": "default",
                         "props": "",
@@ -12768,13 +12779,19 @@
                     "name": "hideTitle",
                     "type": "boolean",
                     "optional": true,
-                    "description": "The title only for screen readers – it still names the drawer (e.g. a video in a dialog)"
+                    "description": "The title only for screen readers – it still names the drawer (e.g. a video in a dialog). With `header` this is the default; `false` shows the title next to the header content"
                 },
                 {
                     "name": "description",
                     "type": "string",
                     "optional": true,
                     "description": ""
+                },
+                {
+                    "name": "header",
+                    "type": "ReactNode",
+                    "optional": true,
+                    "description": "Own content in the header row, before the close button – e.g. the logo of the app; the title then only names the drawer for screen readers (unless `hideTitle` is `false`)"
                 },
                 {
                     "name": "placement",
@@ -12831,7 +12848,7 @@
                         "name": "hideTitle",
                         "type": "boolean",
                         "optional": true,
-                        "description": "The title only for screen readers – it still names the drawer (e.g. a video in a dialog)"
+                        "description": "The title only for screen readers – it still names the drawer (e.g. a video in a dialog). With the `#header` slot this is the default; `false` shows the title next to the slot content"
                     },
                     {
                         "name": "description",
@@ -12877,6 +12894,11 @@
                     }
                 ],
                 "slots": [
+                    {
+                        "name": "header",
+                        "props": "",
+                        "description": "Own content in the header row, before the close button – e.g. the logo of the app; the title then only names the drawer for screen readers (unless `hide-title` is `false`)"
+                    },
                     {
                         "name": "default",
                         "props": "",
@@ -42444,10 +42466,22 @@
                         "description": ""
                     },
                     {
+                        "name": "hideTitle",
+                        "type": "boolean",
+                        "optional": true,
+                        "description": "The title only for screen readers – it still names the drawer. With `header` this is the default; `false` shows the title next to the header content"
+                    },
+                    {
                         "name": "description",
                         "type": "string",
                         "optional": true,
                         "description": ""
+                    },
+                    {
+                        "name": "header",
+                        "type": "ReactNode",
+                        "optional": true,
+                        "description": "Own content in the header row, before the close button – e.g. the logo of the app; the title then only names the drawer for screen readers (unless `hideTitle` is `false`)"
                     },
                     {
                         "name": "placement",

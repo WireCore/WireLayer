@@ -13,7 +13,17 @@ export interface DrawerProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
     title: string;
+    /**
+     * The title only for screen readers – it still names the drawer. With `header` this is the default; `false` shows
+     * the title next to the header content
+     */
+    hideTitle?: boolean;
     description?: string;
+    /**
+     * Own content in the header row, before the close button – e.g. the logo of the app; the title then only names
+     * the drawer for screen readers (unless `hideTitle` is `false`)
+     */
+    header?: ReactNode;
     /** Edge it slides in from: `bottom` (default, a sheet), `left`, `right` or `top` */
     placement?: 'left' | 'right' | 'top' | 'bottom';
     /** Width (left/right: 280–480 px) or height (top/bottom: 30–85 %); `full` covers the screen */
@@ -36,7 +46,9 @@ export function Drawer({
     open,
     onOpenChange,
     title,
+    hideTitle,
     description,
+    header,
     placement = 'bottom',
     size,
     closable = true,
@@ -45,12 +57,15 @@ export function Drawer({
     children,
 }: DrawerProps) {
     const translations = useTranslations();
+    const titleHidden = hideTitle ?? (header !== undefined && header !== null && header !== false);
     if (placement === 'bottom')
         return (
             <Sheet
                 open={open}
                 onClose={() => onOpenChange(false)}
                 title={title}
+                hideTitle={titleHidden}
+                header={header}
                 description={description}
                 closeLabel={closeLabel ?? translations.common.close}
                 footer={footer}
@@ -66,6 +81,8 @@ export function Drawer({
             open={open}
             onClose={() => onOpenChange(false)}
             title={title}
+            hideTitle={titleHidden}
+            header={header}
             description={description}
             placement={placement}
             size={size}
@@ -82,6 +99,8 @@ function SidePanel({
     open,
     onClose,
     title,
+    hideTitle,
+    header,
     description,
     placement,
     size,
@@ -93,6 +112,8 @@ function SidePanel({
     open: boolean;
     onClose: () => void;
     title: string;
+    hideTitle: boolean;
+    header?: ReactNode;
     description?: string;
     placement: 'left' | 'right' | 'top';
     size?: OverlaySize;
@@ -138,16 +159,21 @@ function SidePanel({
                 <Animated.View
                     role="dialog"
                     aria-modal
-                    aria-labelledby={`${id}title`}
+                    {...(hideTitle ? { 'aria-label': title } : { 'aria-labelledby': `${id}title` })}
                     {...({ 'aria-describedby': description ? `${id}description` : undefined } as object)}
                     accessibilityViewIsModal
                     className={styles.panel()}
                     style={{ transform }}
                 >
                     <View className={styles.header()}>
-                        <Text nativeID={`${id}title`} role="heading" className={styles.title()}>
-                            {title}
-                        </Text>
+                        {header !== undefined && header !== null && header !== false && (
+                            <View className={styles.headerContent()}>{header}</View>
+                        )}
+                        {!hideTitle && (
+                            <Text nativeID={`${id}title`} role="heading" className={styles.title()}>
+                                {title}
+                            </Text>
+                        )}
                         {closable && (
                             <Pressable
                                 ref={closeButton}

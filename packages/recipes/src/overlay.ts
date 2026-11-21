@@ -107,6 +107,8 @@ export const dialog = tv({
             'motion-safe:data-[state=open]:animate-dialog-in motion-safe:data-[state=closed]:animate-dialog-out',
         ],
         header: 'flex items-center justify-between gap-3 pt-4 pe-4 ps-[18px]',
+        /** Own content of the header row (`#header` / `header`), before the maximize and close buttons */
+        headerContent: 'flex min-w-0 flex-1 items-center gap-3',
         iconBox: 'flex size-9 items-center justify-center rounded-[var(--wc-dialog-icon-radius,10px)]',
         icon: 'size-[18px]',
         close: [
@@ -213,6 +215,8 @@ export const drawer = tv({
         ],
         header: 'flex items-start justify-between gap-3 border-b border-line py-4 pe-4 ps-5',
         text: 'flex min-w-0 flex-col gap-1',
+        /** Own content of the header row (`#header` / `header`), before the close button */
+        headerContent: 'flex min-w-0 flex-1 items-center gap-3',
         title: 'text-lg font-semibold tracking-[-0.02em]',
         description: 'text-sm leading-normal text-muted',
         close: [
@@ -227,6 +231,10 @@ export const drawer = tv({
         /** The title only for screen readers – it still names the drawer */
         hideTitle: {
             true: { title: 'sr-only' },
+        },
+        /** Own content in the header row (`#header` / `header`): centred with the close button */
+        customHeader: {
+            true: { header: 'items-center' },
         },
         placement: {
             right: {
