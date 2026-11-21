@@ -300,3 +300,29 @@ test.describe('DataTable virtual widths', () => {
         expect(await cell.evaluate((element) => element.scrollWidth <= element.clientWidth)).toBe(true);
     });
 });
+
+test.describe('DataTable resize handles', () => {
+    test('the handle of the last column stays inside the table and still resizes it with the keyboard', async ({
+        page,
+    }) => {
+        await openStory(page, 'data-datatable--tools');
+        const table = page.getByRole('table', { name: 'Servers' });
+        const handles = table.getByRole('separator');
+        const last = handles.last();
+        const tableBox = (await table.boundingBox())!;
+        const lastBox = (await last.boundingBox())!;
+        expect(lastBox.x + lastBox.width).toBeLessThanOrEqual(tableBox.x + tableBox.width + 0.5);
+        // The handles in between still sit on the border to the next column
+        const firstBox = (await handles.first().boundingBox())!;
+        const firstHead = (await handles.first().locator('xpath=..').boundingBox())!;
+        expect(firstBox.x + firstBox.width).toBeGreaterThan(firstHead.x + firstHead.width);
+        // No line after the last column
+        expect(await last.evaluate((element) => getComputedStyle(element, '::after').backgroundColor)).toBe(
+            'rgba(0, 0, 0, 0)'
+        );
+        const before = Number(await last.getAttribute('aria-valuenow'));
+        await last.focus();
+        await page.keyboard.press('ArrowRight');
+        await expect.poll(async () => Number(await last.getAttribute('aria-valuenow'))).toBeGreaterThan(before);
+    });
+});

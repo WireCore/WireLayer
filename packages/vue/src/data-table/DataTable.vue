@@ -1070,6 +1070,8 @@ const leading = computed(() => {
 const trailing = computed<Utility[]>(() => (hasActions.value ? ['actions'] : []));
 const leafColumns = computed(() => table.getVisibleLeafColumns());
 const columnCount = computed(() => leafColumns.value.length + leading.value.length + trailing.value.length);
+/** The column ends the table (no action column after it): its resize handle stays inside the table */
+const atEnd = (columnId: string) => !trailing.value.length && leafColumns.value.at(-1)?.id === columnId;
 
 // Fixed widths: needed for resizing and pinning (sticky offsets)
 const sized = computed(
@@ -3557,7 +3559,7 @@ const bottomEndPositioning = { placement: 'bottom-end', gutter: 4 } as const;
                                         :aria-valuemin="MIN_WIDTH"
                                         :aria-valuemax="1200"
                                         tabindex="0"
-                                        :class="styles.resizer()"
+                                        :class="styles.resizer({ edge: atEnd(cell.header.column.id) })"
                                         :data-resizing="cell.header.column.getIsResizing() || undefined"
                                         @mousedown="cell.header.getResizeHandler()($event)"
                                         @touchstart="cell.header.getResizeHandler()($event)"

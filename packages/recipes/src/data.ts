@@ -235,6 +235,13 @@ export const dataTable = tv({
             paginatorCenter: { footer: 'justify-center' },
             paginatorEnd: { footer: 'justify-end' },
         },
+        /**
+         * Resize handle of the last column at the end of the table (passed to the `resizer` part): inside the column
+         * instead of half over the edge – no overflow, no line after the last column (hover and focus still show it)
+         */
+        edge: {
+            true: { resizer: 'inset-e-0 after:bg-transparent' },
+        },
         /** Every other row tinted */
         striped: {
             true: { row: 'even:bg-bg-2/60' },

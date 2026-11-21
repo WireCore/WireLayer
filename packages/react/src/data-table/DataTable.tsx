@@ -1163,6 +1163,8 @@ export function DataTable<TData extends object>({
     ];
     const trailing: Utility[] = rowActions || (editMode === 'row' && editable) ? ['actions'] : [];
     const leafColumns = table.getVisibleLeafColumns();
+    /** The column ends the table (no action column after it): its resize handle stays inside the table */
+    const atEnd = (columnId: string) => !trailing.length && leafColumns.at(-1)?.id === columnId;
     const columnCount = leafColumns.length + leading.length + trailing.length;
 
     // Fixed widths: needed for resizing and pinning (sticky offsets)
@@ -4031,7 +4033,7 @@ export function DataTable<TData extends object>({
                                                     aria-valuemin={MIN_WIDTH}
                                                     aria-valuemax={1200}
                                                     tabIndex={0}
-                                                    className={styles.resizer()}
+                                                    className={styles.resizer({ edge: atEnd(column.id) })}
                                                     data-resizing={column.getIsResizing() || undefined}
                                                     onMouseDown={cell.header.getResizeHandler()}
                                                     onTouchStart={cell.header.getResizeHandler()}
