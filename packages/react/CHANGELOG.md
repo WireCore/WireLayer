@@ -1,5 +1,54 @@
 # @wirecore/wirelayer-react
 
+## 0.14.0
+
+### Minor Changes
+
+- 4672886: DataTable `searchAlign="center"` (recipe variant `searchCentered`) puts the search in the middle of the toolbar. It used
+  to centre the field in the free room between the start and the end group – without controls at the start and with a
+  wide end group (refresh, print, filters, columns) it sat clearly left of the middle.
+
+    - The start group (also when empty) and the end group share the room on both sides equally, so the search is centred
+      in the toolbar however wide the tools at the end are. A group wider than its half moves the search aside instead of
+      overflowing; when they do not fit next to it the toolbar wraps.
+    - Narrow toolbars (container query, below 42rem): the search starts the row, wrapped onto a row of its own it is
+      centred, the tools follow at the end.
+    - With `searchAlign="center"` own `toolbar` controls join the end group (before the built-in buttons) and own
+      `toolbarStart` controls form one group – `searchAlign="start"` renders the toolbar as before.
+    - Story “Search in the middle, nothing at the start”.
+
+- c565b54: DatePicker and DateRangePicker with `withTime`: the time can be set below the calendar as well. Until now only the
+  field had hour and minute – the calendar popup picked the day, so changing the time needed typing.
+
+    - Below the calendar one time field (hour and minute, typed or with the arrow keys, in the locale's 12 or 24 hours) –
+      in a DateRangePicker two, “Start” and “End”, in a group named “Time”; with `showTimeZone` the zone after them. On the
+      day of `min`/`max` the time is limited to it.
+    - Picking a day keeps the calendar open; “Done” closes it, Escape discards what changed since it opened.
+    - `timeInPopup={false}` (Vue `:time-in-popup="false"`) keeps the time in the field only, the calendar closes on a day as
+      before.
+    - The DataTable features `dateInput` and `dateRangeInput` get it for `datetime` columns (filters and editors).
+    - New texts `calendar.time` and `calendar.done` in every language; new recipe parts `timeSection`, `timeHeading`,
+      `timeField`, `timeFieldLabel` and `timeDone`.
+
+### Patch Changes
+
+- c565b54: DateRangePicker with `withTime`: two fixes.
+
+    - A new range picked in the calendar keeps the end time. The calendar starts a new range with the start alone, so the
+      end took the time of the start (04.09. 17:00 – 06.09. 16:00 became 14.09. 17:00 – 16.09. 17:00). Each side now keeps
+      its last time; without one the start gets 00:00 and the end 23:59.
+    - In a narrow field (a form column, the filter row of a DataTable) the value no longer runs under the clear button: the
+      date input is clipped, and a focused part scrolls into view.
+
+- Updated dependencies [4672886]
+- Updated dependencies [c565b54]
+- Updated dependencies [c565b54]
+- Updated dependencies [1b223d3]
+- Updated dependencies [f96d07d]
+- Updated dependencies [246c257]
+    - @wirecore/wirelayer-recipes@0.13.0
+    - @wirecore/wirelayer-tokens@0.9.0
+
 ## 0.13.0
 
 ### Minor Changes
