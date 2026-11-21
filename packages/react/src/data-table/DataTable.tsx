@@ -341,6 +341,11 @@ export interface DataTableProps<TData> extends Omit<
     renderAdvancedFilter?: (props: DataTableAdvancedFilterProps) => ReactNode;
     /** Search field above the table: filters over all columns */
     search?: boolean;
+    /**
+     * Place of the search field: `start` (default) after the controls of the toolbar start, `center` in the middle
+     * between them and the controls at the end. App-wide: `dataTable: { defaultVariants: { searchAlign: 'center' } }`
+     */
+    searchAlign?: 'start' | 'center';
     globalFilter?: string;
     onGlobalFilterChange?: (value: string) => void;
     /**
@@ -628,6 +633,7 @@ export function DataTable<TData extends object>({
     onAdvancedFilterValueChange,
     renderAdvancedFilter,
     search = false,
+    searchAlign: searchAlignProp,
     globalFilter: globalFilterProp,
     onGlobalFilterChange,
     rowKeywords,
@@ -1150,7 +1156,9 @@ export function DataTable<TData extends object>({
     const treeGrid = grid && !!getSubRows;
     const virtualOn = virtual && !!scrollHeight && !!feature.useVirtualizer;
     const paged = !!pageSize;
-    const styles = dataTable({ ...look, fullscreen, grid });
+    // Only a toolbar with the search has a place for it; the end group stays at the end without one
+    const searchAlign = search ? (searchAlignProp ?? recipeDefaults.searchAlign) : 'start';
+    const styles = dataTable({ ...look, fullscreen, grid, searchAlign });
     const styleFor = (columnId: string) => {
         const column = columnById.get(columnId);
         return dataTable({

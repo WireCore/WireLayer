@@ -291,6 +291,11 @@ export interface DataTableProps<T> {
     advancedFilterValue?: ConditionGroup;
     /** Search field above the table: filters over all columns (v-model:global-filter) */
     search?: boolean;
+    /**
+     * Place of the search field: `start` (default) after the controls of the toolbar start, `center` in the middle
+     * between them and the controls at the end. App-wide: `dataTable: { defaultVariants: { searchAlign: 'center' } }`
+     */
+    searchAlign?: 'start' | 'center';
     globalFilter?: string;
     /**
      * More text the search finds a row by, besides its columns – e.g. fields without a column of their own (not in
@@ -1052,7 +1057,11 @@ const fullscreen = ref(false);
 const grid = computed(() => props.navigation === 'grid');
 // A tree table with grid keys is a treegrid: rows with level and open state, left/right close and open them
 const treeGrid = computed(() => grid.value && !!props.getSubRows);
-const styles = computed(() => dataTable({ ...look.value, fullscreen: fullscreen.value, grid: grid.value }));
+// Only a toolbar with the search has a place for it; the end group stays at the end without one
+const searchAlign = computed(() => (props.search ? (props.searchAlign ?? recipeDefaults().searchAlign) : 'start'));
+const styles = computed(() =>
+    dataTable({ ...look.value, fullscreen: fullscreen.value, grid: grid.value, searchAlign: searchAlign.value })
+);
 const menuStyles = menu();
 const styleFor = (columnId: string) => {
     const column = columnById.value.get(columnId);

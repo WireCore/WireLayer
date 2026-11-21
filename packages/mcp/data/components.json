@@ -9372,6 +9372,12 @@
                     "description": "Search field above the table: filters over all columns"
                 },
                 {
+                    "name": "searchAlign",
+                    "type": "'start' | 'center'",
+                    "optional": true,
+                    "description": "Place of the search field: `start` (default) after the controls of the toolbar start, `center` in the middle between them and the controls at the end. App-wide: `dataTable: { defaultVariants: { searchAlign: 'center' } }`"
+                },
+                {
                     "name": "globalFilter",
                     "type": "string",
                     "optional": true,
@@ -10087,6 +10093,12 @@
                         "type": "boolean",
                         "optional": true,
                         "description": "Search field above the table: filters over all columns (v-model:global-filter)"
+                    },
+                    {
+                        "name": "searchAlign",
+                        "type": "'start' | 'center'",
+                        "optional": true,
+                        "description": "Place of the search field: `start` (default) after the controls of the toolbar start, `center` in the middle between them and the controls at the end. App-wide: `dataTable: { defaultVariants: { searchAlign: 'center' } }`"
                     },
                     {
                         "name": "globalFilter",

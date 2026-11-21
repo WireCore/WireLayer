@@ -773,6 +773,28 @@ describe.each(frameworks)('%s DataTable', (framework) => {
         );
     });
 
+    it('searchAlign center: the search takes the free room on both sides; app-wide default; no search, no change', async () => {
+        await render(
+            framework,
+            el(
+                'RecipesProvider',
+                { recipes: { dataTable: { defaultVariants: { searchAlign: 'center' } } } },
+                table({ search: true, filterToggle: true }),
+                table({ caption: 'Own', search: true, searchAlign: 'start', filterToggle: true }),
+                table({ caption: 'Plain', filterToggle: true })
+            )
+        );
+        const [centred, own] = screen.getAllByRole('searchbox');
+        const [server, ownEnd, plain] = screen
+            .getAllByRole('button', { name: 'Show filters' })
+            .map((button) => button.parentElement!);
+        expect(centred!.closest('.mx-auto')).not.toBeNull();
+        expect(own!.closest('.mx-auto')).toBeNull();
+        expect(server).toHaveClass('ms-0');
+        expect(ownEnd).toHaveClass('ms-auto');
+        expect(plain).toHaveClass('ms-auto');
+    });
+
     it('defaultSorting also sorts by a column the user cannot sort', async () => {
         const fixed = columns.map((column) => (column.id === 'load' ? { ...column, sortable: false } : column));
         await render(framework, table({ columns: fixed, defaultSorting: { id: 'load', desc: true } }));

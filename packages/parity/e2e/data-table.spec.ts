@@ -354,3 +354,25 @@ test.describe('DataTable striped with virtual scrolling', () => {
         for (const index of pairs) expect(seen.get(String(index))).not.toBe(seen.get(String(index - 1)));
     });
 });
+
+test.describe('DataTable search in the middle', () => {
+    test('the search sits with equal room to the start actions and the end tools, which stay at the end', async ({
+        page,
+    }) => {
+        await openStory(page, 'data-datatable--search-in-the-middle');
+        await page.setViewportSize({ width: 1280, height: 800 });
+        const start = (await page.getByRole('button', { name: 'New service' }).boundingBox())!;
+        const search = (await page.getByRole('searchbox').boundingBox())!;
+        const end = (await page.getByRole('button', { name: 'Refresh' }).boundingBox())!;
+        const columns = (await page.getByRole('button', { name: 'Columns' }).boundingBox())!;
+        const toolbar = (await page.getByRole('button', { name: 'Refresh' }).locator('xpath=../..').boundingBox())!;
+        const before = search.x - (start.x + start.width);
+        const after = end.x - (search.x + search.width);
+        expect(Math.abs(before - after)).toBeLessThanOrEqual(2);
+        expect(before).toBeGreaterThan(40);
+        // The end group still ends at the end of the toolbar
+        expect(toolbar.x + toolbar.width - (columns.x + columns.width)).toBeLessThan(30);
+        // Own controls are as high as the built-in ones
+        expect(start.height).toBe(columns.height);
+    });
+});

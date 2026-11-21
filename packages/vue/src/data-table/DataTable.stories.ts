@@ -921,6 +921,33 @@ export const OwnFilters: Story = {
     }),
 };
 
+/**
+ * Actions at the start, the search in the middle (`search-align="center"`), the tools at the end – toolbar controls of
+ * your own take the size of the built-in ones
+ */
+export const SearchInTheMiddle: Story = {
+    render: () => ({
+        components: { Button, DataTable: DataTable as ConcreteComponent },
+        setup: () => ({ features, rows: services, columns: serviceColumns, card }),
+        template: `
+            <DataTable
+                :features="features"
+                :data="rows"
+                :columns="columns"
+                caption="Services"
+                search
+                search-align="center"
+                filter-toggle
+                column-toggle
+                :class="card"
+                class="max-w-[1100px]"
+            >
+                <template #toolbarStart><Button>New service</Button></template>
+                <template #toolbarEnd><Button variant="outline">Refresh</Button></template>
+            </DataTable>`,
+    }),
+};
+
 const keyboardColumns = [
     { id: 'name', header: 'Name', width: 170, sortable: true, pinned: 'start' as const, editable: true },
     {

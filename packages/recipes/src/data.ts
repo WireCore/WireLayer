@@ -251,6 +251,14 @@ export const dataTable = tv({
             false: {},
         },
         /**
+         * Place of the search field (`searchAlign`, only with `search`): `start` right after the toolbar start, `center`
+         * in the middle between the controls at the start and the end – the end group stays at the end
+         */
+        searchAlign: {
+            start: {},
+            center: { search: 'mx-auto', toolbarEnd: 'ms-0' },
+        },
+        /**
          * Every other row tinted. The components mark each data row with `data-stripe="true|false"` by its place among
          * the data rows of the page (also with virtual scrolling, group and detail rows not counted); rows without the
          * attribute (plain HTML) follow their position (`:nth-child(even)`). Hover and selection win.
@@ -314,6 +322,7 @@ export const dataTable = tv({
     defaultVariants: {
         align: 'start',
         size: 'md',
+        searchAlign: 'start',
     },
 });
 

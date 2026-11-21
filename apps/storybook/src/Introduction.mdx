@@ -215,11 +215,12 @@ const recipes: RecipeConfig = {
 Some defaults change more than classes – where the title of a dialog sits, for example. They are variants of the recipe
 as well, so the same `defaultVariants` set them once for the whole app; a prop on the single component still wins:
 
-| Recipe default                                           | Instead of on every component                                                                                     |
-| -------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
-| `dialog: { defaultVariants: { titleInHeader: true } }`   | `DialogContent title-position="header"`, also `confirm()`, `prompt()` and `openDialog()` (option `titlePosition`) |
-| `dataTable: { defaultVariants: { showFilters: false } }` | `DataTable :show-filters="false"` – filters closed at the start (a saved `stateKey` state still wins)             |
-| `dataTable: { defaultVariants: { striped: true } }`      | `DataTable striped` – the same for `gridlines`, `bordered`, `wrapHeaders`, `verticalHeaders`                      |
+| Recipe default                                              | Instead of on every component                                                                                     |
+| ----------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| `dialog: { defaultVariants: { titleInHeader: true } }`      | `DialogContent title-position="header"`, also `confirm()`, `prompt()` and `openDialog()` (option `titlePosition`) |
+| `dataTable: { defaultVariants: { showFilters: false } }`    | `DataTable :show-filters="false"` – filters closed at the start (a saved `stateKey` state still wins)             |
+| `dataTable: { defaultVariants: { searchAlign: 'center' } }` | `DataTable search-align="center"` – the search between the actions at the start and the tools at the end          |
+| `dataTable: { defaultVariants: { striped: true } }`         | `DataTable striped` – the same for `gridlines`, `bordered`, `wrapHeaders`, `verticalHeaders`                      |
 
 Own buttons, fields and menus in the toolbar slots of a DataTable (`#toolbar`, `#toolbarStart`, `#toolbarEnd`) default
 to the size of the built-in toolbar controls (`sm`); a `size` on them still wins. A text filter shows the placeholder
