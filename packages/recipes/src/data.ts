@@ -284,6 +284,13 @@ export const dataTable = tv({
                 filterCell: 'bg-card',
             },
         },
+        /**
+         * `scrollHeight="fill"`: the table is a flex item that takes the rest of its column, the rows scroll in the
+         * room left between toolbar and footer (contain: size – the rows do not stretch the page)
+         */
+        fill: {
+            true: { base: 'min-h-0 flex-1', scroll: 'min-h-0 flex-1 [contain:size]' },
+        },
         /** Keyboard navigation as a grid (`navigation="grid"`): the focused cell gets the focus ring */
         grid: {
             true: {

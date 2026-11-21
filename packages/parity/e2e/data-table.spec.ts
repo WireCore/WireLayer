@@ -394,3 +394,22 @@ test.describe('DataTable filter row', () => {
         await expect(page.getByRole('textbox', { name: /Filter Since, from/ })).toHaveCount(0);
     });
 });
+
+test.describe('DataTable filling the rest of a column', () => {
+    test('scrollHeight fill: the table ends at the bottom of its column, the rows scroll virtually inside', async ({
+        page,
+    }) => {
+        await openStory(page, 'data-datatable--fill-the-rest');
+        const column = (await page.getByTestId('column').boundingBox())!;
+        const table = page.getByRole('table', { name: 'Machines' });
+        const scroll = table.locator('xpath=..');
+        const area = (await scroll.boundingBox())!;
+        // The scroll area reaches down to the bottom of the column (the card border below it)
+        expect(column.y + column.height - (area.y + area.height)).toBeLessThan(4);
+        expect(area.height).toBeGreaterThan(250);
+        // Virtual: only a window of the 500 rows is rendered, scrolling brings later ones
+        expect(await table.locator('tbody tr[data-row-id]').count()).toBeLessThan(60);
+        await scroll.evaluate((element) => element.scrollTo({ top: element.scrollHeight }));
+        await expect(table.getByRole('row', { name: /vm-0500/ })).toBeVisible();
+    });
+});

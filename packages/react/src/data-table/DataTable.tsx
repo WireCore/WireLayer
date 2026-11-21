@@ -475,8 +475,14 @@ export interface DataTableProps<TData> extends Omit<
     striped?: boolean;
     /** Button above the table to show it on the whole screen */
     fullscreenToggle?: boolean;
-    /** Fixed height (CSS length): the table scrolls inside, header and footer stay visible */
+    /**
+     * Height of the scroll area: a CSS length (its maximum – the table scrolls inside, header and footer stay visible)
+     * or `fill`: the table takes the rest of a flex column (e.g. a page with `min-h-screen flex flex-col`), the rows
+     * scroll in the room left – set `minScrollHeight` so it does not collapse on small screens
+     */
     scrollHeight?: string;
+    /** `scrollHeight="fill"`: minimum height of the scroll area (CSS length, e.g. 60vh) – below it the page scrolls */
+    minScrollHeight?: string;
     /**
      * Feature modules, imported on their own so apps only bundle what they use (fixed for the life of the table):
      * `virtualRows` from `/virtual` for `virtual`, `dateInput` and `numberInput` for date and number filters and
@@ -698,6 +704,7 @@ export function DataTable<TData extends object>({
     striped: stripedProp,
     fullscreenToggle = false,
     scrollHeight,
+    minScrollHeight,
     features,
     virtual = false,
     rowHeight = 41,
@@ -1154,6 +1161,7 @@ export function DataTable<TData extends object>({
         paginatorAlign: paginatorAlignKey(paginatorAlign),
         striped,
         scrollable: !!scrollHeight,
+        fill: scrollHeight === 'fill',
         wrapHeaders,
         verticalHeaders,
     };
@@ -2786,6 +2794,7 @@ export function DataTable<TData extends object>({
         overscan: 8,
         getItemKey: (index: number) => items[index]?.key ?? index,
         // Rows of the first screen before the table is measured (no empty flash, SSR)
+        // (`fill` has no number – the virtualizer measures the scroll area once it is shown)
         initialRect: { width: 0, height: Number.parseInt(scrollHeight ?? '', 10) || 400 },
     });
     useEffect(() => {
@@ -3884,7 +3893,17 @@ export function DataTable<TData extends object>({
             <div
                 ref={scrollElement}
                 className={styles.scroll()}
-                style={scrollHeight ? { maxHeight: scrollHeight } : undefined}
+                style={
+                    // A fixed height is the maximum of the scroll area; `fill` takes the rest of the column (recipe
+                    // `fill`), at least minScrollHeight
+                    scrollHeight === 'fill'
+                        ? minScrollHeight
+                            ? { minHeight: minScrollHeight }
+                            : undefined
+                        : scrollHeight
+                          ? { maxHeight: scrollHeight }
+                          : undefined
+                }
                 onScroll={scrolled}
             >
                 <table

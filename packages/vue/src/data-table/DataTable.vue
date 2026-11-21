@@ -403,8 +403,14 @@ export interface DataTableProps<T> {
     striped?: boolean;
     /** Button above the table to show it on the whole screen */
     fullscreenToggle?: boolean;
-    /** Fixed height (CSS length): the table scrolls inside, header and footer stay visible */
+    /**
+     * Height of the scroll area: a CSS length (its maximum – the table scrolls inside, header and footer stay visible)
+     * or `fill`: the table takes the rest of a flex column (e.g. a page with `min-h-screen flex flex-col`), the rows
+     * scroll in the room left – set `minScrollHeight` so it does not collapse on small screens
+     */
     scrollHeight?: string;
+    /** `scrollHeight="fill"`: minimum height of the scroll area (CSS length, e.g. 60vh) – below it the page scrolls */
+    minScrollHeight?: string;
     /**
      * Feature modules, imported on their own so apps only bundle what they use (fixed for the life of the table):
      * `virtualRows` from `/virtual` for `virtual`, `dateInput` and `numberInput` for date and number filters and
@@ -464,6 +470,7 @@ const props = withDefaults(defineProps<DataTableProps<TData>>(), {
     csvSeparator: undefined,
     groupBy: undefined,
     frozenRows: undefined,
+    minScrollHeight: undefined,
     rowActions: undefined,
     rowClass: undefined,
     size: undefined,
@@ -1056,6 +1063,7 @@ const look = computed(() => ({
     paginatorAlign: paginatorAlignKey(props.paginatorAlign),
     striped: variantFlag('striped'),
     scrollable: !!props.scrollHeight,
+    fill: props.scrollHeight === 'fill',
     wrapHeaders: variantFlag('wrapHeaders'),
     verticalHeaders: variantFlag('verticalHeaders'),
 }));
@@ -2839,6 +2847,7 @@ const virtualizer = feature.useVirtualizer?.(
         overscan: 8,
         getItemKey: (index: number) => items.value[index]?.key ?? index,
         // Rows of the first screen before the table is measured (no empty flash, SSR)
+        // (`fill` has no number – the virtualizer measures the scroll area once it is shown)
         initialRect: { width: 0, height: Number.parseInt(props.scrollHeight ?? '', 10) || 400 },
     }))
 );
@@ -2848,6 +2857,17 @@ if (props.virtual && !virtualizer) {
     );
 }
 const virtualOn = computed(() => !!props.virtual && !!props.scrollHeight && !!virtualizer);
+// A fixed height is the maximum of the scroll area; `fill` takes the rest of the column (recipe `fill`), at least
+// minScrollHeight
+const scrollStyle = computed(() =>
+    props.scrollHeight === 'fill'
+        ? props.minScrollHeight
+            ? { minHeight: props.minScrollHeight }
+            : undefined
+        : props.scrollHeight
+          ? { maxHeight: props.scrollHeight }
+          : undefined
+);
 const virtualItems = computed(() => (virtualOn.value ? (virtualizer?.value.getVirtualItems() ?? []) : []));
 const shownItems = computed(() =>
     virtualOn.value
@@ -3424,12 +3444,7 @@ const toolbarSize = sizeOverrides('sm') as RecipeConfig;
                     @update:page="table.setPageIndex($event - 1)"
                 />
             </div>
-            <div
-                ref="scroll"
-                :class="styles.scroll()"
-                :style="scrollHeight ? { maxHeight: scrollHeight } : undefined"
-                @scroll="onScroll"
-            >
+            <div ref="scroll" :class="styles.scroll()" :style="scrollStyle" @scroll="onScroll">
                 <table
                     ref="tableElement"
                     :class="styles.table({ class: sized ? styles.fixedLayout() : undefined })"

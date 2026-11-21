@@ -965,6 +965,15 @@ describe.each(frameworks)('%s DataTable', (framework) => {
         expect(withoutRange!.querySelectorAll('thead [data-scope="date-picker"][data-part="root"]')).toHaveLength(2);
     });
 
+    it('scrollHeight fill: a flex item, the scroll area takes the rest with a minimum instead of a maximum', async () => {
+        await render(framework, table({ scrollHeight: 'fill', minScrollHeight: '60vh' }));
+        const scroll = screen.getByRole('table').parentElement!;
+        expect(scroll).toHaveClass('flex-1', 'min-h-0', 'overflow-auto');
+        expect(scroll.style.minHeight).toBe('60vh');
+        expect(scroll.style.maxHeight).toBe('');
+        expect(scroll.parentElement).toHaveClass('flex-1', 'min-h-0');
+    });
+
     const many = Array.from({ length: 200 }, (_, index) => ({
         ...fleet[0]!,
         id: `web-${index}`,

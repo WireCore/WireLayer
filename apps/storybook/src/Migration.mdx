@@ -27,6 +27,7 @@ by side, then the places where the two behave differently. The React package has
 | `useToast().add({ severity, summary, detail, life })`                               | `toast({ type, title, description, duration })`, `<Toaster />` once in the app                                    |
 | `useConfirm().require({ … })`                                                       | `await confirm({ title, description, … })`, `<ConfirmDialog />` once in the app                                   |
 | `DataTable` + `Column`                                                              | `DataTable :columns` (column objects), `#cell-<id>`, `#expansion`, `v-model:page-size`                            |
+| `DataTable scrollHeight="flex"`                                                     | `DataTable scroll-height="fill"` (with `min-scroll-height`) in a flex column                                      |
 | `expandedRows` with a row toggler on some rows                                      | `#expansion` + `row-expandable`                                                                                   |
 | `paginatorTemplate` (first/last page)                                               | `paginator-edges`, `paginator-align`                                                                              |
 | `showGridlines` (with the outer border)                                             | `gridlines` + `bordered`                                                                                          |

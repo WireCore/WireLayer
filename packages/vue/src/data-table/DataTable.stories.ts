@@ -958,6 +958,41 @@ export const SearchInTheMiddle: Story = {
     }),
 };
 
+/**
+ * The table fills the rest of a column (`scroll-height="fill"`): heading and figures above it, the rows scroll in the
+ * room left down to the bottom edge – at least `min-scroll-height`, then the page scrolls. Here a column 560px high; on a
+ * page: `<main class="flex min-h-screen flex-col">`.
+ */
+export const FillTheRest: Story = {
+    render: () => ({
+        components: { DataTable: DataTable as ConcreteComponent },
+        setup: () => ({
+            features,
+            rows: machines(500),
+            columns: machineColumns.slice(0, 5),
+            getRowId: machineId,
+            card,
+        }),
+        template: `
+            <div data-testid="column" class="flex h-[560px] max-w-[900px] flex-col gap-3">
+                <h2 class="text-lg font-semibold">Machines</h2>
+                <p class="text-sm text-muted">500 machines in 3 locations</p>
+                <DataTable
+                    :features="features"
+                    :data="rows"
+                    :columns="columns"
+                    caption="Machines"
+                    :get-row-id="getRowId"
+                    search
+                    virtual
+                    scroll-height="fill"
+                    min-scroll-height="200px"
+                    :class="card"
+                />
+            </div>`,
+    }),
+};
+
 const keyboardColumns = [
     { id: 'name', header: 'Name', width: 170, sortable: true, pinned: 'start' as const, editable: true },
     {
