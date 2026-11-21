@@ -884,6 +884,8 @@ const table = useTable({
     features: tableFeatures,
     columns: tableColumns,
     data: tableData,
+    // The language for sorting texts (features.ts)
+    meta: computed(() => ({ locale: localeContext.value.locale })),
     getRowId: (row: TData, index: number) =>
         pivotModel.value ? (row as { id: string }).id : (props.getRowId?.(row, index) ?? String(index)),
     state: computed(() => ({

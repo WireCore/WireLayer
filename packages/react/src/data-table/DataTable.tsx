@@ -1034,6 +1034,8 @@ export function DataTable<TData extends object>({
         features: tableFeatures,
         columns,
         data,
+        // The language for sorting texts (features.ts)
+        meta: { locale },
         getRowId: (row: TData, index: number) =>
             pivotModel ? (row as { id: string }).id : (getRowId?.(row, index) ?? String(index)),
         state: {

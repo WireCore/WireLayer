@@ -674,6 +674,40 @@ describe.each(frameworks)('%s DataTable', (framework) => {
         expect(screen.queryByRole('button', { name: 'First page' })).not.toBeInTheDocument();
     });
 
+    it('sorts texts by the language (case and umlauts) without a warning, Date values by time', async () => {
+        const warn = vi.spyOn(console, 'warn');
+        const people = [
+            { id: '1', name: 'zoe', born: new Date(2001, 4, 1) },
+            { id: '2', name: 'Ärger', born: new Date(1999, 0, 1) },
+            { id: '3', name: 'bert', born: new Date(2010, 2, 1) },
+            { id: '4', name: 'Anna', born: new Date(1985, 11, 24) },
+            { id: '5', name: 'Server 10', born: new Date(1990, 6, 1) },
+            { id: '6', name: 'Server 2', born: new Date(1990, 6, 2) },
+        ];
+        await render(
+            framework,
+            el(
+                'LocaleProvider',
+                { locale: 'de-DE' },
+                el('DataTable', {
+                    data: people,
+                    columns: [
+                        { id: 'name', header: 'Name', sortable: true },
+                        { id: 'born', header: 'Born', sortable: true },
+                    ],
+                    caption: 'People',
+                    getRowId: (row: { id: string }) => row.id,
+                })
+            )
+        );
+        await userEvent.click(within(screen.getByRole('columnheader', { name: /Name/ })).getByRole('button'));
+        expect(names()).toEqual(['Anna', 'Ärger', 'bert', 'Server 2', 'Server 10', 'zoe']);
+        await userEvent.click(within(screen.getByRole('columnheader', { name: /Born/ })).getByRole('button'));
+        expect(names()).toEqual(['Anna', 'Server 10', 'Server 2', 'Ärger', 'zoe', 'bert']);
+        expect(warn.mock.calls.flat().join(' ')).not.toContain('is not registered');
+        warn.mockRestore();
+    });
+
     it('defaultSorting also sorts by a column the user cannot sort', async () => {
         const fixed = columns.map((column) => (column.id === 'load' ? { ...column, sortable: false } : column));
         await render(framework, table({ columns: fixed, defaultSorting: { id: 'load', desc: true } }));
