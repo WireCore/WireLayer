@@ -176,7 +176,7 @@ export const slider = tv({
 
 export const multiSelect = tv({
     slots: {
-        base: 'flex w-full flex-col',
+        base: 'relative flex w-full flex-col',
         trigger: [
             'flex h-[var(--wc-control-h-md,2.5rem)] w-full cursor-pointer items-center justify-between gap-2.5 rounded-[var(--wc-control-radius-md,0.5rem)] border border-line-strong bg-bg pe-2.5 ps-3 text-start text-[length:var(--wc-control-text-md,15px)] text-fg',
             'outline-none transition-colors motion-reduce:transition-none focus-visible:border-primary data-[state=open]:border-primary',
@@ -531,7 +531,7 @@ export const miniCalendar = tv({
 
 export const fileUpload = tv({
     slots: {
-        base: 'flex w-full flex-col gap-3',
+        base: 'relative flex w-full flex-col gap-3',
         label: 'text-[13px] font-medium text-fg',
         dropzone: [
             'flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-line-strong bg-bg-2 px-6 py-7 text-center',
@@ -593,7 +593,7 @@ export const fileUpload = tv({
 
 export const pinInput = tv({
     slots: {
-        base: 'flex flex-col',
+        base: 'relative flex flex-col',
         control: 'flex gap-2',
         input: [
             'size-11 rounded-lg border border-line-strong bg-bg text-center font-mono text-lg text-fg outline-none',
@@ -670,7 +670,7 @@ export const knob = tv({
 
 export const colorPicker = tv({
     slots: {
-        base: 'flex w-full flex-col',
+        base: 'relative flex w-full flex-col',
         control: [...box, 'h-[var(--wc-control-h-md,2.5rem)]'],
         trigger: [
             'flex min-w-0 flex-1 cursor-pointer items-center gap-2.5 px-3 text-start text-[length:var(--wc-control-text-md,15px)] text-fg outline-none',

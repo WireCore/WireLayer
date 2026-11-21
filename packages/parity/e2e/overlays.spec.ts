@@ -148,6 +148,29 @@ test.describe('Dialog variants', () => {
         await expect(trigger).toBeFocused();
     });
 
+    test('scroll inside: a checkbox further down scrolls the body, the header stays in place', async ({ page }) => {
+        await page.setViewportSize({ width: 1024, height: 400 });
+        await openStory(page, 'overlays-dialog--scroll-inside');
+        await page.getByRole('button', { name: 'Read terms' }).click();
+        const dialog = page.getByRole('dialog', { name: 'Terms of use' });
+        await expect(dialog).toBeVisible();
+        await dialog.evaluate((node) => Promise.all(node.getAnimations().map((animation) => animation.finished)));
+        const checkbox = dialog.getByRole('checkbox', { name: 'I have read the terms' });
+        // The focus moves to the hidden input – the browser scrolls whatever holds it into view
+        await checkbox.focus();
+        await checkbox.press('Space');
+        await expect(checkbox).toBeChecked();
+        const positioner = await dialog.evaluate((node) => {
+            const element = node.parentElement!;
+            return { top: element.scrollTop, room: element.scrollHeight - element.clientHeight };
+        });
+        expect(positioner).toEqual({ top: 0, room: 0 });
+        // The dialog stays where it was (the title is part of the body and scrolls with it), the close button too
+        expect((await dialog.boundingBox())!.y).toBe(16);
+        await expect(dialog.getByRole('button', { name: 'Close' })).toBeInViewport();
+        await expect(checkbox.locator('xpath=..')).toBeInViewport();
+    });
+
     test('prompt: the field gets the focus, Enter confirms', async ({ page }) => {
         await openStory(page, 'overlays-confirm--prompt-and-type-to-confirm');
         await page.getByRole('button', { name: 'Rename …' }).click();

@@ -3,6 +3,7 @@ import { Trash2 } from 'lucide-react';
 import { focusFirst } from '@wirecore/wirelayer-recipes';
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { Button } from '../Button/Button.js';
+import { Checkbox } from '../Checkbox/Checkbox.js';
 import { Field } from '../Field/Field.js';
 import { Input } from '../Input/Input.js';
 import { Dialog, DialogClose, DialogContent, DialogTrigger } from './Dialog.js';
@@ -237,6 +238,7 @@ export const ScrollInside: Story = {
                         § {index + 1} – Services are provided according to the current state of the art.
                     </p>
                 ))}
+                <Checkbox>I have read the terms</Checkbox>
             </DialogContent>
         </Dialog>
     ),

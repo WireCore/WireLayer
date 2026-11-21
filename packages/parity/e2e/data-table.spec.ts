@@ -355,6 +355,28 @@ test.describe('DataTable striped with virtual scrolling', () => {
     });
 });
 
+test.describe('DataTable selectable rows in a scroll area', () => {
+    test('the hidden checkbox inputs stay inside: the page does not grow while the rows scroll', async ({ page }) => {
+        await page.setViewportSize({ width: 1280, height: 900 });
+        // 2.000 rows, virtual, selectable, scrollHeight 420px (navigation grid: the table is a grid)
+        await openStory(page, 'data-datatable--keyboard');
+        const table = page.getByRole('grid', { name: 'Machines' });
+        await expect(table.getByRole('checkbox').first()).toBeAttached();
+        const pageHeight = () =>
+            page.evaluate(() => document.documentElement.scrollHeight - document.documentElement.clientHeight);
+        expect(await pageHeight()).toBe(0);
+        for (const top of [2000, 20000, 60000]) {
+            await table.evaluate((element, top) => {
+                let scroller = element.parentElement;
+                while (scroller && getComputedStyle(scroller).overflowY !== 'auto') scroller = scroller.parentElement;
+                scroller!.scrollTop = top;
+            }, top);
+            await nextFrame(page);
+            expect(await pageHeight(), `scrolled to ${top}px`).toBe(0);
+        }
+    });
+});
+
 test.describe('DataTable search in the middle', () => {
     test('the search sits with equal room to the start actions and the end tools, which stay at the end', async ({
         page,

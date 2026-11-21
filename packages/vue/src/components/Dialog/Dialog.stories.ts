@@ -2,6 +2,7 @@ import { Trash2 } from '@lucide/vue';
 import type { Meta, StoryObj } from '@storybook/vue3-vite';
 import { nextTick, ref } from 'vue';
 import Button from '../Button/Button.vue';
+import Checkbox from '../Checkbox/Checkbox.vue';
 import Field from '../Field/Field.vue';
 import Input from '../Input/Input.vue';
 import Dialog from './Dialog.vue';
@@ -172,7 +173,7 @@ export const Stacked: Story = {
 /** Long content: only the body scrolls, header and footer stay in place */
 export const ScrollInside: Story = {
     render: () => ({
-        components: { Button, Dialog, DialogClose, DialogContent, DialogTrigger },
+        components: { Button, Checkbox, Dialog, DialogClose, DialogContent, DialogTrigger },
         setup: () => ({ paragraphs: Array.from({ length: 20 }, (_, index) => index + 1) }),
         template: `
             <Dialog>
@@ -181,6 +182,7 @@ export const ScrollInside: Story = {
                     <p v-for="paragraph in paragraphs" :key="paragraph" class="text-sm">
                         § {{ paragraph }} – Services are provided according to the current state of the art.
                     </p>
+                    <Checkbox>I have read the terms</Checkbox>
                     <template #footer>
                         <DialogClose><Button variant="outline" size="sm">Decline</Button></DialogClose>
                         <DialogClose><Button size="sm">Agree</Button></DialogClose>

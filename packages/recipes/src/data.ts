@@ -18,7 +18,8 @@ const focusRing = 'focus-visible:outline-2 focus-visible:outline-offset-2 focus-
 export const dataTable = tv({
     slots: {
         base: 'flex flex-col',
-        scroll: 'overflow-x-auto',
+        // relative: absolutely positioned content of the cells (hidden inputs) stays inside and is clipped
+        scroll: 'relative overflow-x-auto',
         // Separate borders: with collapsed borders Chrome lets scrolled rows shine through a sticky header.
         // While loading only the data rows fade – header and loading message stay readable (contrast)
         table: [
