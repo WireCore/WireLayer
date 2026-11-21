@@ -348,7 +348,7 @@ export interface DataTableProps<TData> extends Omit<
     search?: boolean;
     /**
      * Place of the search field: `start` (default) after the controls of the toolbar start, `center` in the middle
-     * between them and the controls at the end. App-wide: `dataTable: { defaultVariants: { searchAlign: 'center' } }`
+     * between them and the controls at the end. App-wide: `dataTable: { defaultVariants: { searchCentered: true } }`
      */
     searchAlign?: 'start' | 'center';
     globalFilter?: string;
@@ -1171,8 +1171,8 @@ export function DataTable<TData extends object>({
     const virtualOn = virtual && !!scrollHeight && !!feature.useVirtualizer;
     const paged = !!pageSize;
     // Only a toolbar with the search has a place for it; the end group stays at the end without one
-    const searchAlign = search ? (searchAlignProp ?? recipeDefaults.searchAlign) : 'start';
-    const styles = dataTable({ ...look, fullscreen, grid, searchAlign });
+    const searchCentered = search && (searchAlignProp ? searchAlignProp === 'center' : !!recipeDefaults.searchCentered);
+    const styles = dataTable({ ...look, fullscreen, grid, searchCentered });
     const styleFor = (columnId: string) => {
         const column = columnById.get(columnId);
         return dataTable({

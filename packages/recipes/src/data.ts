@@ -259,12 +259,11 @@ export const dataTable = tv({
             false: {},
         },
         /**
-         * Place of the search field (`searchAlign`, only with `search`): `start` right after the toolbar start, `center`
-         * in the middle between the controls at the start and the end – the end group stays at the end
+         * `searchAlign: 'center'` (only with `search`): the search in the middle between the controls at the start and
+         * the end of the toolbar – the end group stays at the end
          */
-        searchAlign: {
-            start: {},
-            center: { search: 'mx-auto', toolbarEnd: 'ms-0' },
+        searchCentered: {
+            true: { search: 'mx-auto', toolbarEnd: 'ms-0' },
         },
         /**
          * Every other row tinted. The components mark each data row with `data-stripe="true|false"` by its place among
@@ -337,7 +336,6 @@ export const dataTable = tv({
     defaultVariants: {
         align: 'start',
         size: 'md',
-        searchAlign: 'start',
     },
 });
 

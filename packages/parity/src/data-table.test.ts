@@ -778,7 +778,7 @@ describe.each(frameworks)('%s DataTable', (framework) => {
             framework,
             el(
                 'RecipesProvider',
-                { recipes: { dataTable: { defaultVariants: { searchAlign: 'center' } } } },
+                { recipes: { dataTable: { defaultVariants: { searchCentered: true } } } },
                 table({ search: true, filterToggle: true }),
                 table({ caption: 'Own', search: true, searchAlign: 'start', filterToggle: true }),
                 table({ caption: 'Plain', filterToggle: true })

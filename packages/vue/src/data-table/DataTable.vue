@@ -298,7 +298,7 @@ export interface DataTableProps<T> {
     search?: boolean;
     /**
      * Place of the search field: `start` (default) after the controls of the toolbar start, `center` in the middle
-     * between them and the controls at the end. App-wide: `dataTable: { defaultVariants: { searchAlign: 'center' } }`
+     * between them and the controls at the end. App-wide: `dataTable: { defaultVariants: { searchCentered: true } }`
      */
     searchAlign?: 'start' | 'center';
     globalFilter?: string;
@@ -1072,9 +1072,11 @@ const grid = computed(() => props.navigation === 'grid');
 // A tree table with grid keys is a treegrid: rows with level and open state, left/right close and open them
 const treeGrid = computed(() => grid.value && !!props.getSubRows);
 // Only a toolbar with the search has a place for it; the end group stays at the end without one
-const searchAlign = computed(() => (props.search ? (props.searchAlign ?? recipeDefaults().searchAlign) : 'start'));
+const searchCentered = computed(
+    () => !!props.search && (props.searchAlign ? props.searchAlign === 'center' : !!recipeDefaults().searchCentered)
+);
 const styles = computed(() =>
-    dataTable({ ...look.value, fullscreen: fullscreen.value, grid: grid.value, searchAlign: searchAlign.value })
+    dataTable({ ...look.value, fullscreen: fullscreen.value, grid: grid.value, searchCentered: searchCentered.value })
 );
 const menuStyles = menu();
 const styleFor = (columnId: string) => {
