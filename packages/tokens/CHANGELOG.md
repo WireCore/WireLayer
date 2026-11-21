@@ -1,5 +1,29 @@
 # @wirecore/wirelayer-tokens
 
+## 0.8.0
+
+### Minor Changes
+
+- 5cec045: Scrollbars in the WireLayer look. Only `ScrollPanel` had designed scrollbars; the page itself, DataTable with
+  `scrollHeight`, long dialogs and drawers, Select and Menu lists or a Textarea showed the browser's – wide, and light in
+  dark mode. Now every scrolling area gets thin scrollbars like ScrollPanel: the thumb in `line-strong` (3:1 against the
+  surfaces in every theme and mode), the track transparent, following the mode and theme of its part of the page.
+
+    - Safari (no `scrollbar-color`) gets the same look through `::-webkit-scrollbar`, with `muted` under the pointer;
+      forced colors keep the system scrollbars.
+    - Change them with `--wc-scrollbar-thumb`, `--wc-scrollbar-thumb-hover`, `--wc-scrollbar-track` and
+      `--wc-scrollbar-width`; `<html data-scrollbars="native">` keeps the browser's own.
+    - Base layer: utilities such as `[scrollbar-width:none]` still win. Docs: _Theming › Themes › Scrollbars_.
+
+### Patch Changes
+
+- efcb41e: `data-mode` and `data-theme` on a part of the page now set the text colour of that part as well. Body computes the text
+  colour once from the page's mode and passes it down as a fixed value, so in a `data-mode="light"` part of a dark page
+  text that inherits its colour (e.g. in a Card or a table) stayed light – light text on a white card – and the other way
+  round. The rule sits in the base layer (`color: var(--wc-fg)`), so `text-*` classes still win; the part gets no
+  background and may stay transparent. Overlays (Dialog, Drawer, Popover, Menu) already set their text colour and need no
+  change; React Native switches mode and theme for the whole app.
+
 ## 0.7.0
 
 ### Minor Changes

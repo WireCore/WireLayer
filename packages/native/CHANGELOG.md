@@ -1,5 +1,40 @@
 # @wirecore/wirelayer-native
 
+## 0.9.0
+
+### Minor Changes
+
+- 9fd6d37: Drawer and Dialog: own content in the header row – slot `#header` (Vue), prop `header` (React, React Native), e.g. the
+  logo of the app next to the close button of a navigation drawer.
+
+    - The content sits where title and description are, before the close button (Dialog: after the icon, before the
+      maximize and close buttons), takes the free space and is centred with the close button (new recipe part
+      `headerContent`, Drawer variant `customHeader`).
+    - The title stays required and keeps naming the panel (`aria-labelledby`); with header content it is shown for screen
+      readers only by default. `hideTitle: false` shows it next to the content (Drawer) or where `titlePosition` puts it
+      (Dialog). The description stays connected (`aria-describedby`).
+    - React Native Drawer (side panel and sheet): `header` and `hideTitle`; a hidden title names the panel via `aria-label`.
+    - Without header content nothing changes.
+
+- 1ff4096: NotificationCenter: the look of the bell is configurable – `variant` (IconButton variant, default `text` as before),
+  `color` and `size`, for `display="popover"` and `"drawer"`. A bell in a header with outlined icon buttons (e.g.
+  `ModeToggle variant="outline"`) can now match them: `<NotificationCenter variant="outline" size="sm" />`. React Native:
+  the same props (without them the bell keeps the IconButton default).
+
+### Patch Changes
+
+- Updated dependencies [1e42647]
+- Updated dependencies [db0d280]
+- Updated dependencies [dfc2bf5]
+- Updated dependencies [a075bb3]
+- Updated dependencies [34d5a83]
+- Updated dependencies [876b523]
+- Updated dependencies [9fd6d37]
+- Updated dependencies [efcb41e]
+- Updated dependencies [5cec045]
+    - @wirecore/wirelayer-recipes@0.12.0
+    - @wirecore/wirelayer-tokens@0.8.0
+
 ## 0.8.2
 
 ### Patch Changes
