@@ -585,6 +585,7 @@ export const TotalsOnTop: Story = {
             getRowId={machineId}
             footerPosition="top"
             scrollHeight="320px"
+            sortable
             className={`${card} max-w-[640px]`}
         />
     ),

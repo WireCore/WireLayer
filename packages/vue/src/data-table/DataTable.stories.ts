@@ -679,6 +679,7 @@ export const TotalsOnTop: Story = {
                 :get-row-id="getRowId"
                 footer-position="top"
                 scroll-height="320px"
+                sortable
                 :class="card"
                 class="max-w-[640px]"
             />`,
