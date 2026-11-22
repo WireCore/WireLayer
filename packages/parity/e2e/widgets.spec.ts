@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test, type Locator } from '@playwright/test';
 import { nextFrame, openStory } from './story.ts';
 
 // Keyboard and pointer in the browser: sortable lists (keyboard, drag, two clicks), mentions, the emoji grid, the
@@ -40,6 +40,58 @@ test.describe('Sortable', () => {
         await expect(page.getByRole('button', { name: 'Move Release' })).toHaveAttribute('aria-pressed', 'true');
         await page.getByRole('button', { name: 'Move Implementation' }).click();
         await expect(page.getByText('Release → Implementation → Test → Planning')).toBeVisible();
+    });
+
+    test('dragging past several places or into another list drops on release – nothing stays picked up', async ({
+        page,
+    }) => {
+        const drag = async (from: Locator, to: Locator) => {
+            const start = (await from.boundingBox())!;
+            const end = (await to.boundingBox())!;
+            await page.mouse.move(start.x + start.width / 2, start.y + start.height / 2);
+            await page.mouse.down();
+            await page.mouse.move(end.x + end.width / 2, end.y + end.height / 2, { steps: 12 });
+            await page.mouse.up();
+        };
+        await openStory(page, 'data-sortable--playground');
+        // The item moves three times under the pressed pointer (each move re-renders it, which ends the capture)
+        await drag(
+            page.getByRole('button', { name: 'Move Planning' }),
+            page.getByRole('button', { name: 'Move Release' })
+        );
+        await expect(page.getByText('Implementation → Test → Release → Planning')).toBeVisible();
+        await expect(page.locator('[data-grabbed]')).toHaveCount(0);
+        await expect(page.locator('[aria-pressed=true]')).toHaveCount(0);
+        await expect(page.locator('[data-sortable-preview]')).toHaveCount(0);
+
+        await openStory(page, 'data-sortable--kanban');
+        const done = page.getByRole('list', { name: 'Done' });
+        await drag(page.getByRole('button', { name: 'Move Login page' }), done);
+        await expect(done.getByRole('button', { name: 'Move Login page' })).toBeVisible();
+        await expect(page.locator('[data-grabbed]')).toHaveCount(0);
+        await expect(page.locator('[data-active]')).toHaveCount(0);
+    });
+
+    test('a drag near the edge of a scrolling area scrolls it; a copy of the item follows the pointer', async ({
+        page,
+    }) => {
+        await openStory(page, 'data-sortable--scrolling');
+        const area = page.getByTestId('scroll-area');
+        const box = (await area.boundingBox())!;
+        const handle = (await page.getByRole('button', { name: 'Move Step 1', exact: true }).boundingBox())!;
+        const x = handle.x + handle.width / 2;
+        await page.mouse.move(x, handle.y + handle.height / 2);
+        await page.mouse.down();
+        await page.mouse.move(x, box.y + box.height - 6, { steps: 10 });
+        const preview = page.locator('[data-sortable-preview]');
+        await expect(preview).toBeVisible();
+        await expect(preview).toHaveAttribute('aria-hidden', 'true');
+        // Held still at the bottom edge: the area keeps scrolling, the item comes along
+        await expect.poll(() => area.evaluate((element) => element.scrollTop)).toBeGreaterThan(200);
+        await page.mouse.up();
+        await expect(preview).toHaveCount(0);
+        await expect(page.locator('[data-grabbed]')).toHaveCount(0);
+        await expect(page.getByText('First: Step 2')).toBeVisible();
     });
 
     test('Kanban: arrow right moves a card into the next column', async ({ page }) => {
@@ -89,7 +141,10 @@ test.describe('Sortable', () => {
         await page.mouse.move(heading.x + heading.width / 2, heading.y + heading.height / 2);
         await page.mouse.down();
         await page.mouse.move(group.x + group.width / 2, group.y + group.height / 2, { steps: 10 });
+        // The copy follows the pointer on its way out of the palette
+        await expect(page.locator('[data-sortable-preview]')).toContainText('Heading');
         await page.mouse.up();
+        await expect(page.locator('[data-sortable-preview]')).toHaveCount(0);
         await expect(page.getByText('Group (Heading)', { exact: true })).toBeVisible();
         await expect(page.getByRole('list', { name: 'Blocks' }).getByRole('listitem')).toHaveCount(3);
         // The group does not go into its own list

@@ -125,6 +125,7 @@ export function Sortable<T = unknown>({
 
     // The latest props for the controller (it calls back later); the order set last until it comes back
     const latest = useRef({
+        styles,
         items,
         group,
         label,
@@ -140,6 +141,7 @@ export function Sortable<T = unknown>({
     const pending = useRef<T[] | null>(null);
     useEffect(() => {
         latest.current = {
+            styles,
             items,
             group,
             label,
@@ -194,11 +196,12 @@ export function Sortable<T = unknown>({
                 },
                 texts: () => latest.current.t,
                 focus: (index) => focusHandle({ id, element: () => list.current }, index),
+                previewClass: () => latest.current.styles.preview(),
             }),
         [id]
     );
-    // The handle passes React's events on: their currentTarget is the handle (pointer capture), stopPropagation
-    // reaches React parents
+    // The handle passes React's pointerdown on: its currentTarget is the handle (pointer capture); the controller
+    // follows the rest of the press on the document
     const subscribe = useCallback((notify: () => void) => sortableController.subscribe(notify), []);
     const state = useSyncExternalStore(
         subscribe,
@@ -247,9 +250,6 @@ export function Sortable<T = unknown>({
                             onPointerDown={(event) =>
                                 sortableController.pointerdown(id, index, event as unknown as PointerEvent)
                             }
-                            onPointerMove={(event) => sortableController.pointermove(event as unknown as PointerEvent)}
-                            onPointerUp={(event) => sortableController.pointerup(event as unknown as PointerEvent)}
-                            onPointerCancel={() => sortableController.pointercancel()}
                         >
                             <GripVertical className={styles.handleIcon()} aria-hidden="true" />
                         </button>

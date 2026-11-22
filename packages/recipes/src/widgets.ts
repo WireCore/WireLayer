@@ -388,6 +388,11 @@ export const sortable = tv({
         content: 'min-w-0 flex-1',
         empty: 'rounded-lg border border-dashed border-line-strong p-4 text-center text-sm text-muted',
         instructions: 'sr-only',
+        /** Copy of the item that follows the pointer while it is dragged (placed by the component) */
+        preview: [
+            'cursor-grabbing border-primary opacity-90 shadow-[0_14px_32px_-12px_rgba(0,0,0,.5)]',
+            'forced-colors:outline-2 forced-colors:outline-[Highlight]',
+        ],
     },
     variants: {
         orientation: {

@@ -144,6 +144,7 @@ onMounted(() => {
         texts: () => t,
         // Right after Vue has rendered the new order (before the next key arrives)
         focus: (index) => void nextTick(() => focusHandle({ id: id.value, element: () => list.value }, index)),
+        previewClass: () => styles.value.preview(),
     });
     unsubscribe = sortableController.subscribe(() => (state.value = sortableController.state(id.value)));
 });
@@ -191,9 +192,6 @@ onBeforeUnmount(() => {
                     :disabled="disabled"
                     @keydown="sortableController.keydown(id, index, $event)"
                     @pointerdown="sortableController.pointerdown(id, index, $event)"
-                    @pointermove="sortableController.pointermove($event)"
-                    @pointerup="sortableController.pointerup($event)"
-                    @pointercancel="sortableController.pointercancel()"
                 >
                     <GripVertical :class="styles.handleIcon()" aria-hidden="true" />
                 </button>
