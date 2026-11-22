@@ -1102,6 +1102,9 @@ function cellClassOf(columnId: string, row?: TableRow) {
 
 // Utility columns before and after the data columns
 const editable = computed(() => leafDefs.value.some((column) => column.editable));
+/** Whether a row's cell of the column can be edited: `editable` is true or answers true for the row */
+const canEdit = (def: DataTableColumn<TData> | undefined, row: TableRow) =>
+    typeof def?.editable === 'function' ? def.editable(row.original) : !!def?.editable;
 /** One cell at a time – saved at once (`cell`) or collected (`batch`) */
 const cellEditing = computed(() => props.editMode !== 'row');
 const hasActions = computed(() => !!props.rowActions || (props.editMode === 'row' && editable.value));
@@ -1979,7 +1982,7 @@ const editableCells = () =>
         .filter((item) => item.kind === 'row')
         .flatMap((item) =>
             leafColumns.value
-                .filter((column) => columnById.value.get(column.id)?.editable)
+                .filter((column) => canEdit(columnById.value.get(column.id), item.row))
                 .map((column) => ({ rowId: item.row.id, columnId: column.id }))
         );
 /** Back to the edited cell – in grid navigation the cell itself, otherwise its edit button */
@@ -2080,12 +2083,27 @@ function onCellEditorFocusOut(row: TableRow, columnId: string, event: FocusEvent
     if (next && (editor.contains(next) || (!root.value?.contains(next) && next.closest('[data-scope]')))) return;
     void commitCell(row, columnId);
 }
-/** Editors whose choice is taken at once in the cell mode */
+/** Editors whose choice is taken at once in the cell mode (a select with `commit: 'confirm'` not) */
 const INSTANT = new Set(['select', 'date', 'checkbox']);
+const confirmsChoice = (column: DataTableColumn<TData> | undefined) =>
+    !!column && editorType(column) === 'select' && column.editInputProps?.commit === 'confirm';
 function onDraft(row: TableRow, column: DataTableColumn<TData>, value: unknown) {
     draft.value = { ...draft.value, [column.id]: value };
-    if (cellEditing.value && INSTANT.has(editorType(column)) && !slots[`editor-${column.id}`])
+    if (
+        cellEditing.value &&
+        INSTANT.has(editorType(column)) &&
+        !confirmsChoice(column) &&
+        !slots[`editor-${column.id}`]
+    )
         void commitCell(row, column.id);
+}
+/** A select with `commit: 'confirm'`: Enter on the closed field takes the choice instead of opening the list */
+function onEditorKeyCapture(row: TableRow, columnId: string, event: KeyboardEvent) {
+    if (event.key !== 'Enter' || !cellEditing.value || !confirmsChoice(columnById.value.get(columnId))) return;
+    if (!(event.target as HTMLElement).matches('[role=combobox][aria-expanded=false]')) return;
+    event.preventDefault();
+    event.stopPropagation();
+    void commitCell(row, columnId);
 }
 /** What an own editor (slot) gets */
 function editorProps(row: TableRow, column: DataTableColumn<TData>): DataTableEditorProps<TData> {
@@ -2102,14 +2120,14 @@ function startRowEdit(row: TableRow) {
     editingRow.value = row.id;
     errors.value = {};
     draft.value = Object.fromEntries(
-        leafDefs.value.filter((column) => column.editable).map((column) => [column.id, row.getValue(column.id)])
+        leafDefs.value.filter((column) => canEdit(column, row)).map((column) => [column.id, row.getValue(column.id)])
     );
     void focusEditor();
 }
 async function finishRowEdit(row: TableRow, save: boolean) {
     if (validating.value) return;
     if (save) {
-        const columnIds = leafDefs.value.filter((column) => column.editable).map((column) => column.id);
+        const columnIds = leafDefs.value.filter((column) => canEdit(column, row)).map((column) => column.id);
         if (!(await validate(row, columnIds))) return focusEditor();
         if (editingRow.value !== row.id) return;
         emit('rowEdit', { row: row.original, rowId: row.id, values: { ...draft.value } });
@@ -2320,7 +2338,7 @@ async function pasteText(text: string) {
         const def = columnById.value.get(target.columnId);
         const row = findRow(target.rowId);
         if (!def || !row) continue;
-        if (!def.editable) {
+        if (!canEdit(def, row)) {
             errors.push({ ...target, message: t.pasteErrors.readonly! });
             continue;
         }
@@ -3773,7 +3791,7 @@ const toolbarSize = sizeOverrides('sm') as RecipeConfig;
                                 <!-- Editable like the other rows: editor, edit button -->
                                 <div
                                     v-if="
-                                        columnById.get(cell.column.id)?.editable &&
+                                        canEdit(columnById.get(cell.column.id), row) &&
                                         ((cellEditing &&
                                             editing?.rowId === row.id &&
                                             editing.columnId === cell.column.id) ||
@@ -3782,6 +3800,7 @@ const toolbarSize = sizeOverrides('sm') as RecipeConfig;
                                     data-editor=""
                                     :class="styles.editor()"
                                     :aria-busy="validating || undefined"
+                                    @keydown.capture="onEditorKeyCapture(row, cell.column.id, $event)"
                                     @keydown="
                                         cellEditing
                                             ? onCellEditorKey(row, cell.column.id, $event)
@@ -3801,6 +3820,8 @@ const toolbarSize = sizeOverrides('sm') as RecipeConfig;
                                         :type="editorType(columnById.get(cell.column.id)!)"
                                         :label="label(cell.column)"
                                         :options="columnById.get(cell.column.id)!.editOptions"
+                                        :input-props="columnById.get(cell.column.id)!.editInputProps"
+                                        edit
                                         :invalid="!!errors[cell.column.id]"
                                         :model-value="draft[cell.column.id]"
                                         @update:model-value="onDraft(row, columnById.get(cell.column.id)!, $event)"
@@ -3818,7 +3839,7 @@ const toolbarSize = sizeOverrides('sm') as RecipeConfig;
                                     >
                                 </div>
                                 <button
-                                    v-else-if="cellEditing && columnById.get(cell.column.id)?.editable"
+                                    v-else-if="cellEditing && canEdit(columnById.get(cell.column.id), row)"
                                     type="button"
                                     :class="styleFor(cell.column.id).editButton()"
                                     :data-edit="editKey(row.id, cell.column.id)"
@@ -4202,7 +4223,7 @@ const toolbarSize = sizeOverrides('sm') as RecipeConfig;
                                                 <!-- Editor: the cell being edited, or every editable cell of the row being edited -->
                                                 <div
                                                     v-if="
-                                                        columnById.get(cell.column.id)?.editable &&
+                                                        canEdit(columnById.get(cell.column.id), item.row) &&
                                                         ((cellEditing &&
                                                             editing?.rowId === item.row.id &&
                                                             editing.columnId === cell.column.id) ||
@@ -4211,6 +4232,9 @@ const toolbarSize = sizeOverrides('sm') as RecipeConfig;
                                                     data-editor=""
                                                     :class="styles.editor()"
                                                     :aria-busy="validating || undefined"
+                                                    @keydown.capture="
+                                                        onEditorKeyCapture(item.row, cell.column.id, $event)
+                                                    "
                                                     @keydown="
                                                         cellEditing
                                                             ? onCellEditorKey(item.row, cell.column.id, $event)
@@ -4232,6 +4256,8 @@ const toolbarSize = sizeOverrides('sm') as RecipeConfig;
                                                         :type="editorType(columnById.get(cell.column.id)!)"
                                                         :label="label(cell.column)"
                                                         :options="columnById.get(cell.column.id)!.editOptions"
+                                                        :input-props="columnById.get(cell.column.id)!.editInputProps"
+                                                        edit
                                                         :invalid="!!errors[cell.column.id]"
                                                         :model-value="draft[cell.column.id]"
                                                         @update:model-value="
@@ -4254,7 +4280,9 @@ const toolbarSize = sizeOverrides('sm') as RecipeConfig;
                                                     >
                                                 </div>
                                                 <button
-                                                    v-else-if="cellEditing && columnById.get(cell.column.id)?.editable"
+                                                    v-else-if="
+                                                        cellEditing && canEdit(columnById.get(cell.column.id), item.row)
+                                                    "
                                                     type="button"
                                                     :class="styleFor(cell.column.id).editButton()"
                                                     :data-edit="editKey(item.row.id, cell.column.id)"

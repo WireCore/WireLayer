@@ -66,6 +66,34 @@ export interface DataTableFilterInputOptions {
     clearable?: boolean;
 }
 
+/** Settings of the built-in editor of a column (`editInputProps`) */
+export interface DataTableEditInputOptions {
+    /** Text of the empty input */
+    placeholder?: string;
+    /** number: smallest and largest value */
+    min?: number;
+    max?: number;
+    /** number: step of the arrow keys */
+    step?: number;
+    /** number: `false` takes whole numbers only */
+    allowDecimal?: boolean;
+    /** number: how the value shows, e.g. `{ style: 'currency', currency: 'EUR' }` (with the numberInput feature) */
+    formatOptions?: Intl.NumberFormatOptions;
+    /** select, multiSelect: search field at the top of the list */
+    filter?: boolean;
+    /** select, multiSelect: button that clears the choice – a cleared select gives null */
+    clearable?: boolean;
+    /** multiSelect: how many chosen values the field names before "n selected" (default 2) */
+    maxShown?: number;
+    /** multiSelect: an entry that selects all choices */
+    selectAll?: boolean;
+    /**
+     * select in the cell mode: `select` (default) takes a choice at once; `confirm` only on Enter, Tab or leaving the
+     * cell – for columns where a slip of the mouse costs (roles)
+     */
+    commit?: 'select' | 'confirm';
+}
+
 /** What an own filter input gets (`#filter-<id>` / `renderFilter`) */
 export interface DataTableFilterInputProps<TData> {
     /** The value of the condition (filter row: the first condition) */
@@ -162,12 +190,17 @@ export interface DataTableColumn<TData> {
     hideable?: boolean;
     /** Hidden on screens below this breakpoint */
     hideBelow?: 'sm' | 'md' | 'lg';
-    /** The value can be edited in place – reported via the cell edit (row edit) event */
-    editable?: boolean;
+    /**
+     * The value can be edited in place – reported via the cell edit (row edit) event. A function decides per row:
+     * rows it answers false for get no editor (the cell shows its value)
+     */
+    editable?: boolean | ((row: TData) => boolean);
     /** Input for editing, default text */
     editor?: DataTableEditor;
     /** Choices of a select or multi select editor */
     editOptions?: readonly DataTableOption[];
+    /** Settings of the built-in editor: number limits and format, search and clear button of selects, when a choice counts */
+    editInputProps?: DataTableEditInputOptions;
     /** Checks an edited value: an error text keeps the editor open – may answer later (a promise) */
     validate?: (value: unknown, row: TData) => string | undefined | Promise<string | undefined>;
     /** Total of the column in the footer row and in group rows */

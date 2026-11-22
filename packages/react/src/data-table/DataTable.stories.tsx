@@ -876,9 +876,26 @@ export const FillTheRest: Story = {
 
 const keyboardColumns: DataTableColumn<MachineRow>[] = [
     { id: 'name', header: 'Name', width: 170, sortable: true, pinned: 'start', editable: true },
-    { id: 'location', header: 'Location', width: 170, editable: true, editor: 'select', editOptions: locations },
+    {
+        id: 'location',
+        header: 'Location',
+        width: 170,
+        editable: true,
+        editor: 'select',
+        editOptions: locations,
+        // A search in the list; the choice counts on Enter, Tab or leaving the cell
+        editInputProps: { filter: true, commit: 'confirm' },
+    },
     { id: 'os', header: 'System', width: 170 },
-    { id: 'cores', header: 'Cores', width: 120, align: 'end', editable: true, editor: 'number' },
+    {
+        id: 'cores',
+        header: 'Cores',
+        width: 120,
+        align: 'end',
+        editable: true,
+        editor: 'number',
+        editInputProps: { min: 1, max: 256, allowDecimal: false },
+    },
     { id: 'load', header: 'Load', width: 150, align: 'end' },
     { id: 'since', header: 'In service since', width: 190, format: shortDate },
     { id: 'online', header: 'Online', width: 130, format: (value) => (value ? 'Yes' : 'No') },

@@ -561,7 +561,7 @@ const withSelected = (state: RowSelectionState, ids: string[], checked: boolean)
 /** Choices with values of their own (objects, numbers): select filters compare the cell value, not the text */
 const byValue = (column: { filterOptions?: readonly unknown[] }) =>
     (column.filterOptions ?? []).some((option) => typeof option !== 'string');
-/** Editors whose choice is taken at once in the cell mode */
+/** Editors whose choice is taken at once in the cell mode (a select with `commit: 'confirm'` not) */
 const INSTANT = new Set(['select', 'date', 'checkbox']);
 const MIN_WIDTH = 60;
 const RESIZE_STEP = 16;
@@ -1195,6 +1195,11 @@ export function DataTable<TData extends object>({
 
     // Utility columns before and after the data columns
     const editable = leafDefs.some((column) => column.editable);
+    /** Whether a row's cell of the column can be edited: `editable` is true or answers true for the row */
+    const canEdit = (def: DataTableColumn<TData> | undefined, row: TableRow) =>
+        typeof def?.editable === 'function' ? def.editable(row.original) : !!def?.editable;
+    const confirmsChoice = (column: DataTableColumn<TData> | undefined) =>
+        !!column && editorType(column) === 'select' && column.editInputProps?.commit === 'confirm';
     /** One cell at a time – saved at once (`cell`) or collected (`batch`) */
     const cellEditing = editMode !== 'row';
     const leading: Utility[] = [
@@ -2035,7 +2040,7 @@ export function DataTable<TData extends object>({
             .filter((item) => item.kind === 'row')
             .flatMap((item) =>
                 leafColumns
-                    .filter((column) => columnById.get(column.id)?.editable)
+                    .filter((column) => canEdit(columnById.get(column.id), item.row))
                     .map((column) => ({ rowId: item.row.id, columnId: column.id }))
             );
     const startEdit = (row: TableRow, columnId: string) => {
@@ -2138,8 +2143,16 @@ export function DataTable<TData extends object>({
         const next = { ...draftRef.current, [column.id]: value };
         updateDraft(next);
         // Choices are taken at once in the cell mode
-        if (cellEditing && INSTANT.has(editorType(column)) && !column.renderEditor)
+        if (cellEditing && INSTANT.has(editorType(column)) && !confirmsChoice(column) && !column.renderEditor)
             commitCell(row, column.id, undefined, next);
+    };
+    /** A select with `commit: 'confirm'`: Enter on the closed field takes the choice instead of opening the list */
+    const onEditorKeyCapture = (row: TableRow, columnId: string, event: KeyboardEvent) => {
+        if (event.key !== 'Enter' || !cellEditing || !confirmsChoice(columnById.get(columnId))) return;
+        if (!(event.target as HTMLElement).matches('[role=combobox][aria-expanded=false]')) return;
+        event.preventDefault();
+        event.stopPropagation();
+        commitCell(row, columnId);
     };
     /** What an own editor (renderEditor) gets */
     const editorProps = (row: TableRow, column: DataTableColumn<TData>): DataTableEditorProps<TData> => ({
@@ -2155,7 +2168,7 @@ export function DataTable<TData extends object>({
         setErrors({});
         updateDraft(
             Object.fromEntries(
-                leafDefs.filter((column) => column.editable).map((column) => [column.id, row.getValue(column.id)])
+                leafDefs.filter((column) => canEdit(column, row)).map((column) => [column.id, row.getValue(column.id)])
             )
         );
         focusAfter.current = editorSelector;
@@ -2169,7 +2182,7 @@ export function DataTable<TData extends object>({
             focusEditTarget(`[data-row-edit="${CSS.escape(row.id)}"]`);
         };
         if (!save) return close();
-        const columnIds = leafDefs.filter((column) => column.editable).map((column) => column.id);
+        const columnIds = leafDefs.filter((column) => canEdit(column, row)).map((column) => column.id);
         const finish = (ok: boolean) => {
             if (!ok) {
                 focusAfter.current = editorSelector;
@@ -2366,7 +2379,7 @@ export function DataTable<TData extends object>({
             const def = columnById.get(target.columnId);
             const row = findRow(target.rowId);
             if (!def || !row) continue;
-            if (!def.editable) {
+            if (!canEdit(def, row)) {
                 errors.push({ ...target, message: t.pasteErrors.readonly! });
                 continue;
             }
@@ -3190,7 +3203,8 @@ export function DataTable<TData extends object>({
         const changed = editMode === 'batch' && !!pendingValue(pending, row.id, column.id);
         const custom = def?.cell ? def.cell(row.original, value) : undefined;
         if (
-            def?.editable &&
+            def &&
+            canEdit(def, row) &&
             ((cellEditing && editing?.rowId === row.id && editing.columnId === column.id) ||
                 (editMode === 'row' && editingRow === row.id))
         )
@@ -3199,6 +3213,7 @@ export function DataTable<TData extends object>({
                     data-editor=""
                     className={styles.editor()}
                     aria-busy={validating || undefined}
+                    onKeyDownCapture={(event) => onEditorKeyCapture(row, column.id, event)}
                     onKeyDown={(event) =>
                         cellEditing ? onCellEditorKey(row, column.id, event) : onRowEditorKey(row, event)
                     }
@@ -3211,6 +3226,8 @@ export function DataTable<TData extends object>({
                             type={editorType(def)}
                             label={label(column)}
                             options={def.editOptions}
+                            inputProps={def.editInputProps}
+                            edit
                             renderOption={def.renderOption}
                             invalid={!!errors[column.id]}
                             value={draft[column.id]}
@@ -3224,7 +3241,7 @@ export function DataTable<TData extends object>({
                     )}
                 </div>
             );
-        if (cellEditing && def?.editable)
+        if (cellEditing && def && canEdit(def, row))
             return (
                 <button
                     type="button"
@@ -4241,7 +4258,7 @@ export function DataTable<TData extends object>({
                                                 style={cellStyle(cell.column.id, false)}
                                             >
                                                 {/* Editable like the other rows: editor, edit button */}
-                                                {def?.editable && (cellEditing || editingRow === row.id) ? (
+                                                {canEdit(def, row) && (cellEditing || editingRow === row.id) ? (
                                                     cellContent(row, cell.column, shownValue(row, cell.column.id))
                                                 ) : def?.copyable ? (
                                                     <span className={styles.copyCell()}>

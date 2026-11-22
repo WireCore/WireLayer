@@ -1218,6 +1218,66 @@ describe.each(frameworks)('%s DataTable', (framework) => {
         await waitFor(() => expect(screen.getByRole('button', { name: '42, edit Load' })).toHaveFocus());
     });
 
+    it('editable per row; editInputProps: number limits, a select cleared to null and taken only on Enter', async () => {
+        const onEdit = vi.fn();
+        await render(
+            framework,
+            table({
+                columns: [
+                    { id: 'name', header: 'Name' },
+                    {
+                        id: 'load',
+                        header: 'Load',
+                        editor: 'number',
+                        editable: (row: { id: string }) => row.id !== 'db-primary',
+                        editInputProps: { min: 0, max: 100, allowDecimal: false },
+                    },
+                    {
+                        id: 'location',
+                        header: 'Location',
+                        editable: true,
+                        editor: 'select',
+                        editOptions: ['Frankfurt', 'Nuremberg'],
+                        editInputProps: { clearable: true, commit: 'confirm' },
+                    },
+                ],
+                onCellEdit: onEdit,
+            })
+        );
+        // Not editable in this row: the value without an edit button
+        expect(screen.queryByRole('button', { name: '71, edit Load' })).toBeNull();
+        expect(screen.getByRole('cell', { name: '71' })).toBeInTheDocument();
+        await userEvent.click(screen.getByRole('button', { name: '42, edit Load' }));
+        const load = await screen.findByRole('spinbutton', { name: 'Load' });
+        expect(load).toHaveAttribute('min', '0');
+        expect(load).toHaveAttribute('max', '100');
+        expect(load).toHaveAttribute('step', '1');
+        await userEvent.clear(load);
+        await userEvent.type(load, '12.6{Enter}');
+        expect(onEdit).toHaveBeenLastCalledWith(expect.objectContaining({ columnId: 'load', value: 13 }));
+
+        // commit 'confirm': choosing does not save yet, Enter on the closed field does
+        await userEvent.click(screen.getAllByRole('button', { name: 'Frankfurt, edit Location' })[0]!);
+        const location = await screen.findByRole('combobox', { name: 'Location' });
+        await userEvent.click(location);
+        await userEvent.click(await screen.findByRole('option', { name: 'Nuremberg' }));
+        expect(onEdit).toHaveBeenCalledTimes(1);
+        await waitFor(() => expect(location).toHaveAttribute('aria-expanded', 'false'));
+        location.focus();
+        await userEvent.keyboard('{Enter}');
+        expect(onEdit).toHaveBeenLastCalledWith(
+            expect.objectContaining({ rowId: 'web-01', columnId: 'location', value: 'Nuremberg' })
+        );
+        // clearable: a cleared choice is null (the table shows its data until the parent changes it)
+        await userEvent.click(screen.getAllByRole('button', { name: 'Frankfurt, edit Location' })[1]!);
+        await userEvent.click(await screen.findByRole('button', { name: 'Clear selection' }));
+        screen.getByRole('combobox', { name: 'Location' }).focus();
+        await userEvent.keyboard('{Enter}');
+        expect(onEdit).toHaveBeenLastCalledWith(
+            expect.objectContaining({ rowId: 'db-primary', columnId: 'location', value: null })
+        );
+    });
+
     it('editTrigger="dblclick": a single click only focuses the cell, a double click or the keyboard edits', async () => {
         const columns = [{ id: 'name', header: 'Name', editable: true }];
         await render(framework, table({ editTrigger: 'dblclick', columns }));

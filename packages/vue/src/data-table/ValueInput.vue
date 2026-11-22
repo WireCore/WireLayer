@@ -7,7 +7,7 @@ import Select from '../components/Select/Select.vue';
 import Textarea from '../components/Textarea/Textarea.vue';
 import { useTranslations } from '../locale.js';
 import { featureKey } from './features.js';
-import type { DataTableFilterInputOptions } from './types.js';
+import type { DataTableEditInputOptions } from './types.js';
 
 // One value of a filter condition or an edited cell – the matching input for the type
 
@@ -20,8 +20,10 @@ const props = defineProps<{
     /** Select: an "All" choice (empty value) first – for filters */
     any?: boolean;
     invalid?: boolean;
-    /** Settings of the input (the column's `filterInputProps`) */
-    inputProps?: DataTableFilterInputOptions;
+    /** Settings of the input (the column's `filterInputProps` or `editInputProps`) */
+    inputProps?: DataTableEditInputOptions;
+    /** An edited cell: a cleared select gives null (a filter: an empty text) */
+    edit?: boolean;
     /** The value of a filter: a text field shows "Filter …" (translations `filterText`) without its own placeholder */
     filter?: boolean;
     /** Both ends of a range (`[from, to]`) in one field – dates with the dateRangeInput feature */
@@ -57,8 +59,11 @@ const text = computed(() =>
 const toRange = (value: unknown) =>
     Array.isArray(value) && (value[0] || value[1]) ? { start: value[0] ?? null, end: value[1] ?? null } : null;
 const fromRange = (value: { start?: unknown; end?: unknown } | null) => [value?.start ?? null, value?.end ?? null];
-/** The browser's number input: an empty or invalid entry is no number */
-const toNumber = (value: string | undefined) => (value && Number.isFinite(Number(value)) ? Number(value) : null);
+/** The browser's number input: an empty or invalid entry is no number; `allowDecimal: false` rounds */
+const toNumber = (value: string | undefined) => {
+    if (!value || !Number.isFinite(Number(value))) return null;
+    return props.inputProps?.allowDecimal === false ? Math.round(Number(value)) : Number(value);
+};
 const selected = computed(() => (byValue.value ? (props.modelValue ?? (props.any ? '' : null)) : text.value));
 </script>
 
@@ -99,6 +104,11 @@ const selected = computed(() => (byValue.value ? (props.modelValue ?? (props.any
         :aria-label="label"
         :invalid="invalid"
         :placeholder="inputProps?.placeholder"
+        :min="inputProps?.min"
+        :max="inputProps?.max"
+        :step="inputProps?.step"
+        :allow-decimal="inputProps?.allowDecimal"
+        :format-options="inputProps?.formatOptions"
         :model-value="typeof modelValue === 'number' ? modelValue : null"
         @update:model-value="emit('update:modelValue', $event)"
     />
@@ -109,6 +119,9 @@ const selected = computed(() => (byValue.value ? (props.modelValue ?? (props.any
         :aria-label="label"
         :invalid="invalid"
         :placeholder="inputProps?.placeholder"
+        :min="inputProps?.min"
+        :max="inputProps?.max"
+        :step="inputProps?.step ?? (inputProps?.allowDecimal === false ? 1 : undefined)"
         :model-value="typeof modelValue === 'number' ? String(modelValue) : ''"
         @update:model-value="emit('update:modelValue', toNumber($event))"
     />
@@ -142,6 +155,7 @@ const selected = computed(() => (byValue.value ? (props.modelValue ?? (props.any
         :filter="inputProps?.filter"
         :max-shown="inputProps?.maxShown"
         :clearable="inputProps?.clearable"
+        :select-all="inputProps?.selectAll"
         :model-value="Array.isArray(modelValue) ? (modelValue as unknown[]) : []"
         @update:model-value="emit('update:modelValue', $event)"
     >
@@ -166,7 +180,7 @@ const selected = computed(() => (byValue.value ? (props.modelValue ?? (props.any
         :filter="inputProps?.filter"
         :clearable="inputProps?.clearable"
         :model-value="selected"
-        @update:model-value="emit('update:modelValue', $event ?? '')"
+        @update:model-value="emit('update:modelValue', $event ?? (edit ? null : ''))"
     >
         <template v-if="$slots.option" #item="scope">
             <slot name="option" v-bind="scope" />
