@@ -1,5 +1,100 @@
 # @wirecore/wirelayer-vue
 
+## 0.15.0
+
+### Minor Changes
+
+- 8e91c91: New `choose()` next to `confirm()`: it asks the same way in the app-wide `ConfirmDialog` but tells the buttons from
+  closing – it resolves with `'confirm'`, `'cancel'` (the cancel button) or `'dismiss'` (Escape, the close button, the
+  back button on Android, a newer request). For dialogs whose second button is an action of its own ("No, assign by
+  hand", "Discard"), where closing should do nothing. `confirm()` and `prompt()` stay as they are; new type
+  `ConfirmChoice`. Story _Choose_ in every Storybook; the PrimeVue migration guide names it under _Pitfalls_.
+- 092ac0e: Countdown: `format="clock"` shows the time as a clock – "05:12:33" instead of "05 Hrs 12 Min 33 Sec". The units stay
+  for screen readers (`sr-only`; on iOS and Android the timer reads its value text as before), the colons are hidden from
+  them. With `variant="boxed"` one box surrounds the whole clock. New recipe variant `format` and slot `separator`; story
+  _Clock_ in every Storybook.
+- 9b8629d: DataTable: settings for the built-in cell editors, like `filterInputProps` for the filters.
+
+    - New column option `editInputProps` (type `DataTableEditInputOptions`): `number` editors take `min`, `max`, `step`,
+      `allowDecimal` (false: whole numbers only) and `formatOptions` (e.g. a currency, with the numberInput feature);
+      `select` editors `filter` (a search in the list) and `clearable` (a cleared choice is `null`); `multiSelect` editors
+      `filter`, `clearable`, `maxShown` and `selectAll`; `placeholder` for all.
+    - `commit: 'confirm'` in `editInputProps` of a `select` editor: in the cell mode the choice only counts on Enter (on
+      the closed field), Tab or leaving the cell, not right when it is picked – for columns where a slip of the mouse costs.
+    - `editable` also takes a function `(row) => boolean`: rows it answers false for get no editor at all (the cell shows
+      its value, Tab skips it, pasting reports it as read-only), instead of rejecting the value in `validate`.
+
+- 693adb4: DataTable: `footerPosition="top"` shows the totals row (`aggregate`, `footer`, own footer cells) right below the
+  headers instead of below the rows – with `scrollHeight` it stays in view with the sticky headers. The line separates it
+  from the rows below (recipe variant `footerTop`). Story _Totals on top_.
+- c10e906: DataTable: the column option `headerHint` explains a column – an (i) button next to the header shows the text
+  (Toggletip, outside the sort button), and screen readers get it as the description of the column header. The button is
+  no taller than the header text (recipe slots `headHint` and `headHintIcon`), so the header row keeps its height. Story
+  _Header hint_.
+- ce8a9ae: DataTable: sorting by several columns can be set once for the whole app. The `dataTable` recipe gets a variant
+  `multiSort` without classes of its own – `{ dataTable: { defaultVariants: { multiSort: true } } }` in the
+  RecipesProvider/ConfigProvider lets Shift+click (and the column menu) sort every table by further columns, as
+  `sortMode="multiple"` did on a single table; `sortMode` on a table still wins. As in the multiple mode, `sorting`
+  (`v-model:sorting`, `onSortingChange`) is then an array.
+- 83aa41e: Dialog and Drawer: whether a click outside closes them can be set once for the whole app. The `dialog` and `drawer`
+  recipes get a variant `closeOnInteractOutside` without classes of its own – `{ dialog: { defaultVariants: {
+closeOnInteractOutside: false } }, drawer: { defaultVariants: { closeOnInteractOutside: false } } }` in the
+  RecipesProvider/ConfigProvider keeps every modal dialog and drawer open on a click outside (no lost input in form
+  dialogs); the prop on a single `Dialog` or `Drawer` still wins.
+
+    - `openDialog()` follows the default of the `dialog` recipe; its option `closeOnInteractOutside` wins over it.
+    - `confirm()` and `prompt()` are alertdialogs and never close on a click outside – unchanged.
+    - Docs: _Customizing_ lists the new default, the PrimeVue migration guide names it under _Pitfalls_. React Native has no
+      RecipesProvider, the prop stays on the single dialog there.
+
+- 1c190d0: TagsInput: every suggestion without typing. `openOnFocus` opens the suggestions when the field gets the focus or is
+  clicked; `trigger` adds a button with an arrow at the end of the field that opens and closes them ("Show suggestions",
+  not a tab stop – Arrow down does the same, the focus stays in the field). New recipe slots `trigger` and
+  `triggerIcon`; story _All suggestions_.
+
+### Patch Changes
+
+- ea451bb: DataTable filters: `filterInputProps` takes `selectAll` (multiSelect filters: an entry that selects all choices, as on
+  MultiSelect) and `formatOptions` (number filters with the numberInput feature, e.g.
+  `{ style: 'currency', currency: 'EUR' }`). The list of a multiSelect filter in the filter row no longer starts with an
+  "All" choice – the empty field already shows "All", and "Select all" would have chosen it as well.
+- 3b3d56d: DataTable: `searchPlaceholder` sets the text of the empty search field and its name for screen readers ("Find a club"
+  instead of "Search …" and "Search <caption>"); `searchInputAttrs` passes more attributes to the search input, e.g.
+  `{ 'data-tour': 'search' }` as the target of a Tour step.
+- cc2c66c: DatePicker, DateRangePicker, MonthPicker and YearPicker: a date with a part emptied is no longer kept. Ark's segmented
+  field only reports a change when every part is filled or every part is empty – deleting the year of "12.05.1990" left
+  the old date in the model, a form saved it although the field showed "12.05.JJJJ". Now the field reports the dates
+  before the incomplete one (`null` for a single date, only the start for a range) right after the key or when it is left,
+  so a required field fails; the typed parts stay. Completing the date reports it again, also when it is the same as
+  before.
+
+    - The parts of the date and time fields (also TimePicker, TimeRangePicker and the times below the calendar) announce
+      their changes in the language of the app instead of Ark's English ("Jahr, Leer" instead of "Year, Empty"): the part
+      names from `dateSegments`, the new text `dateInput.empty` in every bundled language.
+    - New helpers in the recipes: `partialDateIndex(root)` and `translateDateAnnouncements(element, texts)`.
+
+- a348907: Sortable: a drag with the mouse no longer gets stuck. The handle listened for the pointer itself; once the dragged item
+  moved in the DOM (to another place, above all into another list) the browser ended the pointer capture, the release
+  landed elsewhere and the item stayed picked up (`data-grabbed`). The controller now follows the press on the document
+  until it ends.
+
+    - Near the edge of a scrolling area (or the window) a drag scrolls it – the innermost area that can still scroll that
+      way, then the ones around it.
+    - A copy of the item follows the pointer while it is dragged (recipe slot `preview`, `aria-hidden` and inert), also on
+      the way out of a source list (`clone`), where nothing showed until the pointer was over a target.
+    - New story _Scrolling_; browser tests for drags across several places, into another list and near the edge.
+
+- Updated dependencies [092ac0e]
+- Updated dependencies [693adb4]
+- Updated dependencies [c10e906]
+- Updated dependencies [ce8a9ae]
+- Updated dependencies [cc2c66c]
+- Updated dependencies [83aa41e]
+- Updated dependencies [3d79a05]
+- Updated dependencies [a348907]
+- Updated dependencies [1c190d0]
+    - @wirecore/wirelayer-recipes@0.14.0
+
 ## 0.14.0
 
 ### Minor Changes

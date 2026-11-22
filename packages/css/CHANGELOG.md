@@ -1,5 +1,38 @@
 # @wirecore/wirelayer-css
 
+## 0.14.0
+
+### Minor Changes
+
+- 092ac0e: Countdown: `format="clock"` shows the time as a clock – "05:12:33" instead of "05 Hrs 12 Min 33 Sec". The units stay
+  for screen readers (`sr-only`; on iOS and Android the timer reads its value text as before), the colons are hidden from
+  them. With `variant="boxed"` one box surrounds the whole clock. New recipe variant `format` and slot `separator`; story
+  _Clock_ in every Storybook.
+- 693adb4: DataTable: `footerPosition="top"` shows the totals row (`aggregate`, `footer`, own footer cells) right below the
+  headers instead of below the rows – with `scrollHeight` it stays in view with the sticky headers. The line separates it
+  from the rows below (recipe variant `footerTop`). Story _Totals on top_.
+- c10e906: DataTable: the column option `headerHint` explains a column – an (i) button next to the header shows the text
+  (Toggletip, outside the sort button), and screen readers get it as the description of the column header. The button is
+  no taller than the header text (recipe slots `headHint` and `headHintIcon`), so the header row keeps its height. Story
+  _Header hint_.
+- 1c190d0: TagsInput: every suggestion without typing. `openOnFocus` opens the suggestions when the field gets the focus or is
+  clicked; `trigger` adds a button with an arrow at the end of the field that opens and closes them ("Show suggestions",
+  not a tab stop – Arrow down does the same, the focus stays in the field). New recipe slots `trigger` and
+  `triggerIcon`; story _All suggestions_.
+
+### Patch Changes
+
+- a348907: Sortable: a drag with the mouse no longer gets stuck. The handle listened for the pointer itself; once the dragged item
+  moved in the DOM (to another place, above all into another list) the browser ended the pointer capture, the release
+  landed elsewhere and the item stayed picked up (`data-grabbed`). The controller now follows the press on the document
+  until it ends.
+
+    - Near the edge of a scrolling area (or the window) a drag scrolls it – the innermost area that can still scroll that
+      way, then the ones around it.
+    - A copy of the item follows the pointer while it is dragged (recipe slot `preview`, `aria-hidden` and inert), also on
+      the way out of a source list (`clone`), where nothing showed until the pointer was over a target.
+    - New story _Scrolling_; browser tests for drags across several places, into another list and near the edge.
+
 ## 0.13.0
 
 ### Minor Changes
