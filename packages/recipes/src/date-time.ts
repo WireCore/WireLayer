@@ -995,20 +995,29 @@ export function translateDateAnnouncements(
     if (typeof MutationObserver === 'undefined' || typeof document === 'undefined') return () => {};
     announcingFields.set(element, texts);
     if (!regionWatch) {
-        // Ark puts a new region (id __live-region__) into the body for every announcement and sets its text later
+        // Ark's regions in the body, which get their text later: up to @zag-js/live-region 1.46 a new one with the id
+        // __live-region__ for every announcement; from 1.47 one per field without an id, created when the field mounts
+        // (before this runs) and reused. Both have data-live-announcer.
+        const regionSelector = '[data-live-announcer], #__live-region__';
         const region = new MutationObserver((records) => {
-            const target = records[0]?.target;
-            const element = target instanceof Element ? target : target?.parentElement;
-            const live = element?.closest('#__live-region__');
-            if (live) translateAnnouncement(live);
+            const changed = new Set<Element>();
+            for (const record of records) {
+                const target = record.target;
+                const element = target instanceof Element ? target : target.parentElement;
+                const live = element?.closest(regionSelector);
+                if (live) changed.add(live);
+            }
+            for (const live of changed) translateAnnouncement(live);
         });
+        const watchRegion = (node: Node) => {
+            if (node instanceof Element && node.matches(regionSelector))
+                region.observe(node, { childList: true, characterData: true, subtree: true });
+        };
         const body = new MutationObserver((records) => {
-            for (const record of records)
-                for (const node of record.addedNodes)
-                    if (node instanceof Element && node.id === '__live-region__')
-                        region.observe(node, { childList: true, characterData: true, subtree: true });
+            for (const record of records) for (const node of record.addedNodes) watchRegion(node);
         });
         body.observe(document.body, { childList: true });
+        for (const node of document.body.children) watchRegion(node);
         regionWatch = { body, region };
     }
     return () => {
