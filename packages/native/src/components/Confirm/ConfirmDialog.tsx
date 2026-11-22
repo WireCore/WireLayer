@@ -67,15 +67,15 @@ function ConfirmContent({
     const submit = () => {
         setSubmitted(true);
         if (error) return;
-        request.settle(true, value);
+        request.settle('confirm', value);
     };
-    const cancel = () => request.settle(false);
+    const cancel = () => request.settle('cancel');
 
     return (
         <Dialog
             open={open}
             onOpenChange={(next) => {
-                if (!next) cancel();
+                if (!next) request.settle('dismiss');
             }}
             role="alertdialog"
             title={request.title}

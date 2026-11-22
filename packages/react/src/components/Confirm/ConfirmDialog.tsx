@@ -58,13 +58,13 @@ export function ConfirmDialog({ classes, closeLabel, confirmButton, cancelButton
               : undefined;
     const submit = () => {
         setAttempted(true);
-        if (!error) request?.settle(true, value);
+        if (!error) request?.settle('confirm', value);
     };
 
     return (
         <ArkDialog.Root
             open={!!request}
-            onOpenChange={(details) => !details.open && request?.settle(false)}
+            onOpenChange={(details) => !details.open && request?.settle('dismiss')}
             role="alertdialog"
             // The text field gets the focus when there is one, otherwise cancelling (the safe choice)
             initialFocusEl={() => inputBox.current?.querySelector('input') ?? cancelButtonRef.current}
@@ -129,7 +129,7 @@ export function ConfirmDialog({ classes, closeLabel, confirmButton, cancelButton
                                     size="sm"
                                     {...cancelButton}
                                     {...content.cancelButton}
-                                    onClick={() => request?.settle(false)}
+                                    onClick={() => request?.settle('cancel')}
                                 >
                                     {content.cancelLabel ?? translations.common.cancel}
                                 </Button>

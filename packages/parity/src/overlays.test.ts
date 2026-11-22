@@ -621,6 +621,38 @@ describe.each(frameworks)('%s', (framework) => {
             await expect(answer).resolves.toBeNull();
         });
 
+        it("choose() tells the buttons from closing: 'confirm', 'cancel', 'dismiss' (Escape, ×, a newer request)", async () => {
+            const { choose, confirm } = lib(framework);
+            await render(framework, el('ConfirmDialog', {}));
+            const ask = async (title: string, answer: (dialog: HTMLElement) => Promise<void>) => {
+                let result!: Promise<string>;
+                await act(async () => {
+                    result = choose({ title, confirmLabel: 'Assign', cancelLabel: 'Assign by hand' });
+                });
+                await answer(await screen.findByRole('alertdialog', { name: title }));
+                return result;
+            };
+            const click = (name: string) => async (dialog: HTMLElement) =>
+                userEvent.click(within(dialog).getByRole('button', { name }));
+            // Own titles: a closed dialog stays in the page until its exit animation ends
+            await expect(ask('Assign 1?', click('Assign'))).resolves.toBe('confirm');
+            await expect(ask('Assign 2?', click('Assign by hand'))).resolves.toBe('cancel');
+            await expect(ask('Assign 3?', () => userEvent.keyboard('{Escape}'))).resolves.toBe('dismiss');
+            await expect(ask('Assign 4?', click('Close'))).resolves.toBe('dismiss');
+            // A newer request closes it; confirm() still resolves with false for every way but confirming
+            let pending!: Promise<string>;
+            await act(async () => {
+                pending = choose({ title: 'First' });
+            });
+            let newer!: Promise<boolean>;
+            await act(async () => {
+                newer = confirm({ title: 'Second' });
+            });
+            await expect(pending).resolves.toBe('dismiss');
+            await userEvent.keyboard('{Escape}');
+            await expect(newer).resolves.toBe(false);
+        });
+
         it('confirm({ typeToConfirm }) only confirms with the exact name', async () => {
             const { confirm } = lib(framework);
             await render(framework, el('ConfirmDialog', {}));

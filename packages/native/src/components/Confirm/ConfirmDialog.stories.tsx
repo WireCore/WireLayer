@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { View } from 'react-native';
 import { Button } from '../Button/Button.js';
 import { Text } from '../Text/Text.js';
-import { confirm, prompt } from './confirm.js';
+import { choose, confirm, prompt } from './confirm.js';
 import { ConfirmDialog } from './ConfirmDialog.js';
 
 function Demo() {
@@ -77,3 +77,34 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Playground: Story = {};
+
+function ChooseDemo() {
+    const [answer, setAnswer] = useState('–');
+    return (
+        <View className="items-start gap-3">
+            <Button
+                size="sm"
+                variant="outline"
+                onPress={async () => {
+                    const choice = await choose({
+                        title: 'Assign the riders automatically?',
+                        description: 'Otherwise you assign them by hand.',
+                        confirmLabel: 'Assign',
+                        cancelLabel: 'Assign by hand',
+                    });
+                    setAnswer(choice);
+                }}
+            >
+                Assign riders
+            </Button>
+            <Text variant="muted">{`Answer: ${answer}`}</Text>
+            <ConfirmDialog />
+        </View>
+    );
+}
+
+/**
+ * `choose()` tells the buttons from closing: `'confirm'`, `'cancel'` or `'dismiss'` (back button, Escape, ×) – for a
+ * second button that is an action of its own, where closing does nothing
+ */
+export const Choose: Story = { render: () => <ChooseDemo /> };

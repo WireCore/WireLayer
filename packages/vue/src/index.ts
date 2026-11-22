@@ -82,9 +82,11 @@ export { default as Accordion, type AccordionProps } from './components/Accordio
 export { default as AccordionItem, type AccordionItemProps } from './components/Accordion/AccordionItem.vue';
 export { default as ConfirmDialog, type ConfirmDialogProps } from './components/Confirm/ConfirmDialog.vue';
 export {
+    choose,
     confirm,
     prompt,
     type ConfirmButtonOptions,
+    type ConfirmChoice,
     type ConfirmOptions,
     type PromptOptions,
 } from './components/Confirm/confirm.js';

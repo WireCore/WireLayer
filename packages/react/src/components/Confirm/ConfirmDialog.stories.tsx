@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '../Button/Button.js';
-import { confirm, prompt } from './confirm.js';
+import { choose, confirm, prompt } from './confirm.js';
 import { ConfirmDialog } from './ConfirmDialog.js';
 
 function ConfirmDemo() {
@@ -114,3 +114,33 @@ function ButtonLooksDemo() {
  * `confirmButton` / `cancelButton` in `confirm()` win for one request
  */
 export const ButtonLooks: Story = { name: 'Button looks', render: () => <ButtonLooksDemo /> };
+
+function ChooseDemo() {
+    const [result, setResult] = useState('');
+    const assign = async () => {
+        const choice = await choose({
+            title: 'Assign the riders automatically?',
+            description: 'Otherwise you assign them by hand.',
+            confirmLabel: 'Assign',
+            cancelLabel: 'Assign by hand',
+        });
+        setResult({ confirm: 'Assigned', cancel: 'Assign by hand', dismiss: 'Nothing done' }[choice]);
+    };
+    return (
+        <div className="flex items-center gap-3">
+            <Button variant="outline" onClick={assign}>
+                Assign riders
+            </Button>
+            <span className="text-sm text-muted" aria-live="polite">
+                {result}
+            </span>
+            <ConfirmDialog />
+        </div>
+    );
+}
+
+/**
+ * `choose()` tells the buttons from closing: `'confirm'`, `'cancel'` or `'dismiss'` (Escape, ×) – for a second button
+ * that is an action of its own, where closing does nothing
+ */
+export const Choose: Story = { render: () => <ChooseDemo /> };

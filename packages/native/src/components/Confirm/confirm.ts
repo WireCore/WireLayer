@@ -26,6 +26,9 @@ export interface ConfirmOptions {
     cancelButton?: ConfirmButtonOptions;
 }
 
+/** How a confirm dialog was answered: its confirm button, its cancel button, or closed (back button, Escape, ×, a newer request) */
+export type ConfirmChoice = 'confirm' | 'cancel' | 'dismiss';
+
 export interface PromptOptions extends Omit<ConfirmOptions, 'typeToConfirm'> {
     /** Label of the text field */
     label: string;
@@ -37,7 +40,7 @@ export interface PromptOptions extends Omit<ConfirmOptions, 'typeToConfirm'> {
 
 export type ConfirmRequest = (({ kind: 'confirm' } & ConfirmOptions) | ({ kind: 'prompt' } & PromptOptions)) & {
     id: number;
-    settle(confirmed: boolean, value?: string): void;
+    settle(choice: ConfirmChoice, value?: string): void;
 };
 
 let nextId = 1;
@@ -59,8 +62,8 @@ export const confirmStore = {
 };
 
 function open(request: ConfirmRequest) {
-    // A newer request answers the pending one with "no"
-    current?.settle(false);
+    // A newer request closes the pending one
+    current?.settle('dismiss');
     current = request;
     last = request;
     emit();
@@ -77,14 +80,23 @@ function finish(request: ConfirmRequest) {
  * back button, Escape or a newer confirm/prompt)
  */
 export function confirm(options: ConfirmOptions): Promise<boolean> {
+    return choose(options).then((choice) => choice === 'confirm');
+}
+
+/**
+ * Like confirm(), but tells the buttons from closing: resolves with `'confirm'`, `'cancel'` (the cancel button) or
+ * `'dismiss'` (the back button, Escape, the close button, a newer request). For dialogs whose second button is an
+ * action of its own ("No, assign by hand", "Discard"), where closing should do nothing.
+ */
+export function choose(options: ConfirmOptions): Promise<ConfirmChoice> {
     return new Promise((resolve) => {
         const request: ConfirmRequest = {
             ...options,
             kind: 'confirm',
             id: nextId++,
-            settle(confirmed) {
+            settle(choice) {
                 finish(request);
-                resolve(confirmed);
+                resolve(choice);
             },
         };
         open(request);
@@ -98,9 +110,9 @@ export function prompt(options: PromptOptions): Promise<string | null> {
             ...options,
             kind: 'prompt',
             id: nextId++,
-            settle(confirmed, value) {
+            settle(choice, value) {
                 finish(request);
-                resolve(confirmed ? (value ?? '') : null);
+                resolve(choice === 'confirm' ? (value ?? '') : null);
             },
         };
         open(request);
