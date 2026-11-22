@@ -64,6 +64,10 @@ export const dataTable = tv({
         headerLabel: 'px-3 py-2',
         headerButton: ['min-h-11 flex-row items-center gap-1 px-3 py-2', pressable],
         headerText: 'shrink font-sans-semibold text-[13px] text-fg',
+        /** Header with `headerHint`: the header and its (i) button in a row */
+        headerWithHint: 'flex-row items-center pe-1',
+        /** The (i) button of `headerHint` (a Toggletip), centred on the header */
+        headerHint: 'self-center',
         sortIcon: 'size-3.5 shrink-0 text-muted',
         row: 'flex-row border-b border-line',
         cell: 'min-h-11 justify-center px-3 py-2',
@@ -108,13 +112,23 @@ export const dataTable = tv({
     variants: {
         align: {
             start: {},
-            end: { cell: 'items-end', cellText: 'text-right', headerCell: 'items-end', headerLabel: 'items-end' },
+            end: {
+                cell: 'items-end',
+                cellText: 'text-right',
+                headerCell: 'items-end',
+                headerLabel: 'items-end',
+                headerWithHint: 'justify-end',
+            },
         },
         selected: {
             true: { row: 'bg-primary/5', card: 'border-primary' },
         },
         sorted: {
             true: { sortIcon: 'text-fg' },
+        },
+        /** The totals row right below the headers (`footerPosition="top"`) */
+        footerTop: {
+            true: { footerRow: 'border-b border-line-2' },
         },
         checked: {
             true: { radioControl: 'border-primary' },

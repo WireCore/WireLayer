@@ -41746,6 +41746,18 @@
                         "description": "Search field above the table: filters over all searchable columns"
                     },
                     {
+                        "name": "searchPlaceholder",
+                        "type": "string",
+                        "optional": true,
+                        "description": "Text of the empty search field and its name (default \"Search …\" and \"Search <caption>\")"
+                    },
+                    {
+                        "name": "footerPosition",
+                        "type": "'top' | 'bottom'",
+                        "optional": true,
+                        "description": "The totals (`aggregate`, `footer`) below the rows (default) or right below the headers (cards: before them)"
+                    },
+                    {
                         "name": "globalFilter",
                         "type": "string",
                         "optional": true,

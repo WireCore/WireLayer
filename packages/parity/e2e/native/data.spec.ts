@@ -15,6 +15,16 @@ test.describe('DataTable', () => {
         await expect(table.getByRole('button', { name: 'Customer, sort level 1, descending' })).toBeVisible();
     });
 
+    test('totals right below the headers, a hint next to a header, an own search name', async ({ page }) => {
+        await openStory(page, 'data-datatable--totals-on-top');
+        const table = page.getByRole('table', { name: 'Customers' });
+        await expect(page.getByRole('searchbox', { name: 'Find a customer' })).toBeVisible();
+        // The totals row follows the header row
+        await expect(table.getByRole('row').nth(1)).toContainText('Total');
+        await table.getByRole('button', { name: 'More information about Revenue' }).click();
+        await expect(page.getByText('Net revenue of the current year')).toBeVisible();
+    });
+
     test('cards per row, sorted in the sheet', async ({ page }) => {
         await openStory(page, 'data-datatable--cards');
         await expect(page.getByRole('table')).toHaveCount(0);
