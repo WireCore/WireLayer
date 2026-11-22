@@ -17,6 +17,8 @@ export interface CountdownProps {
     units?: readonly CountdownUnit[];
     variant?: 'boxed' | 'plain';
     size?: 'sm' | 'md' | 'lg';
+    /** `units` (default): each value above its unit; `clock`: "05:12:33", the units for screen readers only */
+    format?: 'units' | 'clock';
     /** Extra classes per part of the component, e.g. { base: "…" } (see the recipe) */
     classes?: RecipeClasses<typeof countdownRecipe>;
 }
@@ -29,7 +31,7 @@ const countdown = useRecipe('countdown', countdownRecipe, () => props.classes);
 const allUnits: CountdownUnit[] = ['days', 'hours', 'minutes', 'seconds'];
 const emit = defineEmits<{ complete: [] }>();
 const attrs = useAttrs();
-const styles = computed(() => countdown({ variant: props.variant, size: props.size }));
+const styles = computed(() => countdown({ variant: props.variant, size: props.size, format: props.format }));
 
 // The time is only read in the browser – server and first client render show "--", so hydration matches
 const now = ref<number | null>(null);
@@ -61,9 +63,16 @@ watch(
         :aria-label="label"
         aria-atomic="true"
     >
-        <span v-for="unit in shown" :key="unit" :class="styles.unit()">
-            <span :class="styles.value()">{{ parts ? String(parts[unit]).padStart(2, '0') : '--' }}</span>
-            <span :class="styles.label()">{{ translations.countdown[unit](parts ? parts[unit] : 0) }}</span>
-        </span>
+        <template v-for="(unit, index) in shown" :key="unit">
+            <span v-if="format === 'clock' && index" :class="styles.separator()" aria-hidden="true">:</span>
+            <span :class="styles.unit()">
+                <span :class="styles.value()">{{ parts ? String(parts[unit]).padStart(2, '0') : '--' }}</span>
+                <!-- A clock reads "05 hours": the space keeps the hidden unit apart from the value -->
+                <span :class="styles.label()"
+                    >{{ format === 'clock' ? ' ' : ''
+                    }}{{ translations.countdown[unit](parts ? parts[unit] : 0) }}</span
+                >
+            </span>
+        </template>
     </div>
 </template>

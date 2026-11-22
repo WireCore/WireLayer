@@ -8797,6 +8797,12 @@
                     "description": ""
                 },
                 {
+                    "name": "format",
+                    "type": "'units' | 'clock'",
+                    "optional": true,
+                    "description": "`units` (default): each value above its unit; `clock`: \"05:12:33\", the units for screen readers only"
+                },
+                {
                     "name": "onComplete",
                     "type": "() => void",
                     "optional": true,
@@ -8840,6 +8846,12 @@
                         "type": "'sm' | 'md' | 'lg'",
                         "optional": true,
                         "description": ""
+                    },
+                    {
+                        "name": "format",
+                        "type": "'units' | 'clock'",
+                        "optional": true,
+                        "description": "`units` (default): each value above its unit; `clock`: \"05:12:33\", the units for screen readers only"
                     },
                     {
                         "name": "classes",
@@ -9385,7 +9397,7 @@
                 },
                 {
                     "name": "searchInputAttrs",
-                    "type": "ComponentProps<'input'> & { [attribute: `data-${string}`]: string | number | boolean | undefined }",
+                    "type": "ComponentProps<'input'> & { [attribute: `data-${string}`]: string | number | boolean | undefined; }",
                     "optional": true,
                     "description": "More attributes of the search input, e.g. `{ 'data-tour': 'search' }` as the target of a Tour step"
                 },
@@ -41408,6 +41420,12 @@
                         "type": "'sm' | 'md' | 'lg'",
                         "optional": true,
                         "description": ""
+                    },
+                    {
+                        "name": "format",
+                        "type": "'units' | 'clock'",
+                        "optional": true,
+                        "description": "`units` (default): each value above its unit; `clock`: \"05:12:33\", the units for screen readers only"
                     },
                     {
                         "name": "onComplete",

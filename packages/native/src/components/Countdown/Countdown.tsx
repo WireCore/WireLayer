@@ -1,5 +1,5 @@
 import { countdown, countdownParts, toDate } from '@wirecore/wirelayer-recipes/native';
-import { useEffect, useRef, useState } from 'react';
+import { Fragment, useEffect, useRef, useState } from 'react';
 import { Platform, Text, View, type ViewProps } from 'react-native';
 import { useTranslations } from '../../locale.js';
 
@@ -15,6 +15,8 @@ export interface CountdownProps extends Omit<ViewProps, 'children'> {
     units?: CountdownUnit[];
     variant?: 'boxed' | 'plain';
     size?: 'sm' | 'md' | 'lg';
+    /** `units` (default): each value above its unit; `clock`: "05:12:33", the units for screen readers only */
+    format?: 'units' | 'clock';
     /** The end point was reached (once) */
     onComplete?: () => void;
     className?: string;
@@ -27,12 +29,13 @@ export function Countdown({
     units = order,
     variant,
     size,
+    format,
     onComplete,
     className,
     ...props
 }: CountdownProps) {
     const translations = useTranslations();
-    const styles = countdown({ variant, size });
+    const styles = countdown({ variant, size, format });
     const end = toDate(target).getTime();
     const [now, setNow] = useState<number | null>(null);
     const completed = useRef<number | null>(null);
@@ -63,13 +66,24 @@ export function Countdown({
             {...(Platform.OS === 'web' ? {} : { accessible: true, accessibilityValue: { text } })}
             className={styles.base({ class: className })}
         >
-            {shown.map((unit) => (
-                <View key={unit} className={styles.unit()}>
-                    <Text className={styles.value()}>
-                        {remaining === null ? '--' : String(parts[unit]).padStart(2, '0')}
-                    </Text>
-                    <Text className={styles.label()}>{translations.countdown[unit](parts[unit])}</Text>
-                </View>
+            {shown.map((unit, index) => (
+                <Fragment key={unit}>
+                    {format === 'clock' && index > 0 && (
+                        <Text className={styles.separator()} aria-hidden>
+                            :
+                        </Text>
+                    )}
+                    <View className={styles.unit()}>
+                        <Text className={styles.value()}>
+                            {remaining === null ? '--' : String(parts[unit]).padStart(2, '0')}
+                        </Text>
+                        {/* A clock: the unit for screen readers only (web), iOS/Android read the value text */}
+                        <Text className={styles.label()}>
+                            {format === 'clock' ? ' ' : ''}
+                            {translations.countdown[unit](parts[unit])}
+                        </Text>
+                    </View>
+                </Fragment>
             ))}
         </View>
     );

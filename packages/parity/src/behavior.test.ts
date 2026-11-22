@@ -703,6 +703,31 @@ describe.each(frameworks)('%s', (framework) => {
                 vi.useRealTimers();
             }
         });
+
+        it('format clock: "00:01:02", the units for screen readers only', async () => {
+            vi.useFakeTimers({
+                now: new Date('2026-10-20T10:00:00'),
+                toFake: ['Date', 'setInterval', 'clearInterval'],
+            });
+            try {
+                await render(
+                    framework,
+                    el('Countdown', {
+                        target: '2026-10-20T10:01:02',
+                        label: 'Protest time',
+                        units: ['hours', 'minutes', 'seconds'],
+                        format: 'clock',
+                    })
+                );
+                const timer = screen.getByRole('timer', { name: 'Protest time' });
+                await waitFor(() => expect(timer).toHaveTextContent('00 Hours:01 Minute:02 Seconds'));
+                const separators = timer.querySelectorAll('[aria-hidden="true"]');
+                expect([...separators].map((separator) => separator.textContent)).toEqual([':', ':']);
+                expect(within(timer).getByText(/Hours/)).toHaveClass('sr-only');
+            } finally {
+                vi.useRealTimers();
+            }
+        });
     });
 
     describe('NumberFormatter', () => {

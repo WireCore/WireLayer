@@ -83,6 +83,8 @@ export const countdown = tv({
         unit: 'flex flex-col items-center gap-1',
         value: 'font-mono text-fg tabular-nums',
         label: 'font-mono text-[10px] tracking-label text-muted uppercase',
+        /** The colon between the units of `format="clock"` (hidden from screen readers) */
+        separator: 'font-mono text-muted tabular-nums',
     },
     variants: {
         variant: {
@@ -90,15 +92,32 @@ export const countdown = tv({
             boxed: { unit: 'min-w-14 rounded-lg border border-line bg-card px-2 py-2' },
         },
         size: {
-            sm: { value: 'text-lg' },
-            md: { value: 'text-2xl' },
-            lg: { value: 'text-4xl', unit: 'min-w-18' },
+            sm: { value: 'text-lg', separator: 'text-lg' },
+            md: { value: 'text-2xl', separator: 'text-2xl' },
+            lg: { value: 'text-4xl', unit: 'min-w-18', separator: 'text-4xl' },
+        },
+        /** `units`: each value above its unit; `clock`: "05:12:33", the units for screen readers only */
+        format: {
+            units: {},
+            clock: { base: 'items-baseline gap-0.5', unit: 'flex-row', label: 'sr-only' },
         },
     },
-    compoundVariants: [{ variant: 'boxed', size: 'sm', class: { unit: 'min-w-11 px-1.5 py-1.5' } }],
+    compoundVariants: [
+        { variant: 'boxed', size: 'sm', class: { unit: 'min-w-11 px-1.5 py-1.5' } },
+        // One box around the whole clock instead of one per unit
+        {
+            variant: 'boxed',
+            format: 'clock',
+            class: {
+                base: 'rounded-lg border border-line bg-card px-3 py-2',
+                unit: 'min-w-0 rounded-none border-0 bg-transparent p-0',
+            },
+        },
+    ],
     defaultVariants: {
         variant: 'boxed',
         size: 'md',
+        format: 'units',
     },
 });
 
