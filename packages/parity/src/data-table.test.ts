@@ -967,6 +967,45 @@ describe.each(frameworks)('%s DataTable', (framework) => {
         expect(container.querySelector('[data-scope="date-picker"]')).not.toBeNull();
     });
 
+    it('filterInputProps: "Select all" in a multiSelect filter, a currency in a number filter', async () => {
+        await render(
+            framework,
+            table({
+                columns: [
+                    { id: 'name', header: 'Name' },
+                    {
+                        id: 'location',
+                        header: 'Location',
+                        filter: 'multiSelect',
+                        filterInputProps: { selectAll: true },
+                    },
+                    {
+                        id: 'load',
+                        header: 'Load',
+                        filter: 'number',
+                        filterInputProps: { formatOptions: { style: 'currency', currency: 'EUR' } },
+                    },
+                ],
+                features: [feature('numberInput')],
+            })
+        );
+        await userEvent.click(screen.getByRole('combobox', { name: 'Filter Location' }));
+        // No "All" choice in the list – the empty field is "All"
+        expect((await screen.findAllByRole('option')).map((option) => option.textContent?.trim())).toEqual([
+            'Frankfurt',
+            'Nuremberg',
+        ]);
+        await userEvent.click(await screen.findByRole('checkbox', { name: 'Select all' }));
+        expect(screen.getByRole('combobox', { name: 'Filter Location' })).toHaveTextContent('Frankfurt, Nuremberg');
+        expect(names()).toEqual(['web-01', 'db-primary', 'k8s-node-3']);
+        await userEvent.keyboard('{Escape}');
+        const load = screen.getByRole('spinbutton', { name: 'Filter Load' });
+        await userEvent.type(load, '42');
+        await userEvent.tab();
+        await waitFor(() => expect(load).toHaveValue('€42.00'));
+        await waitFor(() => expect(names()).toEqual(['web-01']));
+    });
+
     it('filter row: select, multiSelect and date fields are small like the text fields', async () => {
         const container = await render(
             framework,

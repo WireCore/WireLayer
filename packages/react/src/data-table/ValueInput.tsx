@@ -16,7 +16,7 @@ export interface ValueInputProps {
     label: string;
     /** Choices of select and multiSelect: texts, or values of any type ({ value, label, group }, numbers) */
     options?: readonly unknown[];
-    /** Select: an "All" choice (empty value) first – for filters */
+    /** Select: an "All" choice (empty value) first – for filters (a multiSelect shows "All" while it is empty) */
     any?: boolean;
     invalid?: boolean;
     /** Settings of the input (the column's `filterInputProps` or `editInputProps`) */
@@ -57,7 +57,7 @@ export function ValueInput({
     // Choices with values of their own keep them (objects, numbers); text choices stay text as before
     const byValue = (options ?? []).some((option) => typeof option !== 'string');
     const items: unknown[] = [
-        ...(any ? [{ value: '', label: t.filterAll }] : []),
+        ...(any && type !== 'multiSelect' ? [{ value: '', label: t.filterAll }] : []),
         ...(type === 'boolean'
             ? [
                   { value: 'true', label: t.yes },

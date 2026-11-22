@@ -61,6 +61,10 @@ export interface DataTableFilterInputOptions {
     maxShown?: number;
     /** select, multiSelect: button that clears the choice */
     clearable?: boolean;
+    /** multiSelect: an entry that selects all choices */
+    selectAll?: boolean;
+    /** number: how the value shows, e.g. `{ style: 'currency', currency: 'EUR' }` (with the numberInput feature) */
+    formatOptions?: Intl.NumberFormatOptions;
 }
 
 /** Settings of the built-in editor of a column (`editInputProps`) */
