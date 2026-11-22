@@ -624,7 +624,7 @@ describe.each(frameworks)('%s', (framework) => {
         it("choose() tells the buttons from closing: 'confirm', 'cancel', 'dismiss' (Escape, ×, a newer request)", async () => {
             const { choose, confirm } = lib(framework);
             await render(framework, el('ConfirmDialog', {}));
-            const ask = async (title: string, answer: (dialog: HTMLElement) => Promise<void>) => {
+            const ask = async (title: string, answer: (dialog: HTMLElement) => Promise<unknown>) => {
                 let result!: Promise<string>;
                 await act(async () => {
                     result = choose({ title, confirmLabel: 'Assign', cancelLabel: 'Assign by hand' });
