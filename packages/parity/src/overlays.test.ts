@@ -475,8 +475,9 @@ describe.each(frameworks)('%s', (framework) => {
             await tick(20);
         };
         const stayOpen = { closeOnInteractOutside: false };
-        // A closed dialog stays in the page until its exit animation ends
-        const state = (name: string) => screen.getByRole('dialog', { name }).getAttribute('data-state');
+        // A closed dialog stays in the page (hidden) until its exit animation ends – or is gone already
+        const state = (name: string) =>
+            screen.queryByRole('dialog', { name, hidden: true })?.getAttribute('data-state') ?? 'closed';
 
         it('without a default a click outside closes a modal dialog', async () => {
             await render(framework, el('Dialog', { defaultOpen: true }, el('DialogContent', { title: 'Plain' })));
@@ -536,6 +537,8 @@ describe.each(frameworks)('%s', (framework) => {
         });
 
         it('openDialog() follows the default; the option wins', async () => {
+            // Dialogs of earlier tests stay in the app-wide stack (titles of their own: closed ones stay in the page)
+            act(() => lib(framework).closeAllDialogs());
             await render(
                 framework,
                 el('RecipesProvider', { recipes: { dialog: { defaultVariants: stayOpen } } }, el('DialogHost', {}))
@@ -545,20 +548,20 @@ describe.each(frameworks)('%s', (framework) => {
                     ? Vue.openDialog({ title, closeOnInteractOutside, component: () => 'Details' })
                     : React.openDialog({ title, closeOnInteractOutside, content: () => 'Details' });
             await act(async () => {
-                void open('Server');
+                void open('Remote server');
             });
-            await screen.findByRole('dialog', { name: 'Server' });
+            await screen.findByRole('dialog', { name: 'Remote server' });
             await tick(20);
             await clickBackdrop();
-            expect(state('Server')).toBe('open');
+            expect(state('Remote server')).toBe('open');
             await act(async () => {
-                void open('Log', true);
+                void open('Remote log', true);
             });
-            await screen.findByRole('dialog', { name: 'Log' });
+            await screen.findByRole('dialog', { name: 'Remote log' });
             await tick(20);
             await clickBackdrop();
-            expect(state('Log')).toBe('closed');
-            expect(state('Server')).toBe('open');
+            expect(state('Remote log')).toBe('closed');
+            expect(state('Remote server')).toBe('open');
         });
     });
 
@@ -637,7 +640,12 @@ describe.each(frameworks)('%s', (framework) => {
             // Own titles: a closed dialog stays in the page until its exit animation ends
             await expect(ask('Assign 1?', click('Assign'))).resolves.toBe('confirm');
             await expect(ask('Assign 2?', click('Assign by hand'))).resolves.toBe('cancel');
-            await expect(ask('Assign 3?', () => userEvent.keyboard('{Escape}'))).resolves.toBe('dismiss');
+            const escape = async (dialog: HTMLElement) => {
+                // Escape reaches the dialog once the focus is inside it
+                await waitFor(() => expect(dialog.contains(document.activeElement)).toBe(true));
+                await userEvent.keyboard('{Escape}');
+            };
+            await expect(ask('Assign 3?', escape)).resolves.toBe('dismiss');
             await expect(ask('Assign 4?', click('Close'))).resolves.toBe('dismiss');
             // A newer request closes it; confirm() still resolves with false for every way but confirming
             let pending!: Promise<string>;
@@ -649,7 +657,7 @@ describe.each(frameworks)('%s', (framework) => {
                 newer = confirm({ title: 'Second' });
             });
             await expect(pending).resolves.toBe('dismiss');
-            await userEvent.keyboard('{Escape}');
+            await escape(await screen.findByRole('alertdialog', { name: 'Second' }));
             await expect(newer).resolves.toBe(false);
         });
 

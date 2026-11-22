@@ -1033,7 +1033,10 @@ describe.each(frameworks)('%s DataTable', (framework) => {
         expect(screen.getByRole('combobox', { name: 'Filter Location' })).toHaveTextContent('Frankfurt, Nuremberg');
         expect(names()).toEqual(['web-01', 'db-primary', 'k8s-node-3']);
         await userEvent.keyboard('{Escape}');
+        // The closed list gives the focus back to its field first
+        await waitFor(() => expect(screen.getByRole('combobox', { name: 'Filter Location' })).toHaveFocus());
         const load = screen.getByRole('spinbutton', { name: 'Filter Load' });
+        await userEvent.click(load);
         await userEvent.type(load, '42');
         await userEvent.tab();
         await waitFor(() => expect(load).toHaveValue('€42.00'));
