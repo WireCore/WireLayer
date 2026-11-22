@@ -166,6 +166,7 @@ import { Pagination } from '../components/Pagination/Pagination.js';
 import { Select } from '../components/Select/Select.js';
 import { Skeleton } from '../components/Skeleton/Skeleton.js';
 import { Spinner } from '../components/Spinner/Spinner.js';
+import { Toggletip } from '../components/Toggletip/Toggletip.js';
 import { useLocale, useTranslations } from '../components/LocaleProvider/LocaleProvider.js';
 import { FeatureContext, features as tableFeatures } from './features.js';
 import { FilterMenu } from './FilterMenu.js';
@@ -2550,6 +2551,8 @@ export function DataTable<TData extends object>({
     // Merged cells: equal values one below the other (rowSpan 'auto'), cells over several columns (colSpan)
     const spanning = !virtualOn && leafDefs.some((column) => column.rowSpan === 'auto' || column.colSpan);
     const headerId = (columnId: string) => `${id}-head-${columnId}`;
+    /** The hidden text of `headerHint` that describes the column header */
+    const hintId = (columnId: string) => `${id}-hint-${columnId}`;
     const spans = (() => {
         if (!spanning) return undefined;
         const columnSpans = items.map((item) =>
@@ -4041,6 +4044,7 @@ export function DataTable<TData extends object>({
                                             })}
                                             style={cellStyle(column.id, true)}
                                             aria-sort={ariaSort(column.id)}
+                                            aria-describedby={def?.headerHint ? hintId(column.id) : undefined}
                                             draggable={canMove(column.id) && !column.getIsPinned() ? 'true' : undefined}
                                             data-drop={columnDrop(column.id)}
                                             data-dragging={dragColumn === column.id || undefined}
@@ -4092,6 +4096,14 @@ export function DataTable<TData extends object>({
                                                     </button>
                                                 ) : (
                                                     <span className={headLabelClass(column)}>{label(column)}</span>
+                                                )}
+                                                {def?.headerHint && (
+                                                    <>
+                                                        <Toggletip label={label(column)}>{def.headerHint}</Toggletip>
+                                                        <span id={hintId(column.id)} hidden>
+                                                            {def.headerHint}
+                                                        </span>
+                                                    </>
                                                 )}
                                                 {menuFilters && def && filterable(def) && (
                                                     <FilterMenu

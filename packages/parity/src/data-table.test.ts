@@ -773,6 +773,28 @@ describe.each(frameworks)('%s DataTable', (framework) => {
         );
     });
 
+    it('headerHint: an (i) button next to the header shows it; it describes the column header', async () => {
+        await render(
+            framework,
+            table({
+                columns: [
+                    { id: 'name', header: 'Name', sortable: true, headerHint: 'The host name' },
+                    { id: 'load', header: 'Load', headerHint: 'Average of the last hour' },
+                ],
+            })
+        );
+        expect(screen.getByRole('columnheader', { name: /Load/ })).toHaveAccessibleDescription(
+            'Average of the last hour'
+        );
+        expect(screen.getByRole('columnheader', { name: /Name/ })).toHaveAccessibleDescription('The host name');
+        // Not inside the sort button
+        expect(within(screen.getByRole('button', { name: /^Name/ })).queryByRole('button')).toBeNull();
+        await userEvent.click(screen.getByRole('button', { name: 'More information about Load' }));
+        expect(screen.getAllByRole('status').some((status) => status.textContent === 'Average of the last hour')).toBe(
+            true
+        );
+    });
+
     it('searchPlaceholder names the search field; searchInputAttrs go to its input', async () => {
         await render(
             framework,

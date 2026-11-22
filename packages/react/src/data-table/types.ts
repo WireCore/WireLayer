@@ -149,6 +149,11 @@ export interface DataTableColumn<TData> {
     header: string;
     /** The header text is only read by screen readers, e.g. for a column of buttons */
     headerHidden?: boolean;
+    /**
+     * Explains the column: an (i) button next to the header shows the text (Toggletip), screen readers also get it as
+     * the description of the column header
+     */
+    headerHint?: string;
     /** Extra classes of the header cell */
     headerClass?: string;
     /** Extra classes of the cells, e.g. "tabular-nums" – or per row; a text also applies to the footer cell */

@@ -158,6 +158,16 @@ export const Playground: Story = {};
 
 export const Empty: Story = { args: { data: [], pageSize: undefined, selectable: false } };
 
+/** `headerHint`: an (i) button next to the header explains the column – screen readers get it as its description */
+export const HeaderHint: Story = {
+    name: 'Header hint',
+    args: {
+        columns: columns.map((column) =>
+            column.id === 'load' ? { ...column, headerHint: 'Average CPU load of the last hour' } : column
+        ),
+    },
+};
+
 interface FileRow {
     id: string;
     name: string;

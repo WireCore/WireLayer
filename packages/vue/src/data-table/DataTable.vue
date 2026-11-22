@@ -164,6 +164,7 @@ import RecipesProvider from '../components/RecipesProvider/RecipesProvider.vue';
 import Select from '../components/Select/Select.vue';
 import Skeleton from '../components/Skeleton/Skeleton.vue';
 import Spinner from '../components/Spinner/Spinner.vue';
+import Toggletip from '../components/Toggletip/Toggletip.vue';
 import { useLocale, useTranslations } from '../locale.js';
 import { featureKey, features as tableFeatures } from './features.js';
 import FilterMenu from './FilterMenu.vue';
@@ -2516,6 +2517,8 @@ const spanning = computed(
     () => !virtualOn.value && leafDefs.value.some((column) => column.rowSpan === 'auto' || column.colSpan)
 );
 const headerId = (columnId: string) => `${id}-head-${columnId}`;
+/** The hidden text of `headerHint` that describes the column header */
+const hintId = (columnId: string) => `${id}-hint-${columnId}`;
 const spans = computed(() => {
     if (!spanning.value) return undefined;
     const list = items.value;
@@ -3572,6 +3575,11 @@ const toolbarSize = sizeOverrides('sm') as RecipeConfig;
                                     "
                                     :style="cellStyle(cell.header.column.id, true)"
                                     :aria-sort="ariaSort(cell.header.column.id)"
+                                    :aria-describedby="
+                                        columnById.get(cell.header.column.id)?.headerHint
+                                            ? hintId(cell.header.column.id)
+                                            : undefined
+                                    "
                                     :draggable="
                                         canMove(cell.header.column.id) && !cell.header.column.getIsPinned()
                                             ? 'true'
@@ -3621,6 +3629,14 @@ const toolbarSize = sizeOverrides('sm') as RecipeConfig;
                                         <span v-else :class="headLabelClass(cell.header.column)">{{
                                             label(cell.header.column)
                                         }}</span>
+                                        <template v-if="columnById.get(cell.header.column.id)?.headerHint">
+                                            <Toggletip :label="label(cell.header.column)">{{
+                                                columnById.get(cell.header.column.id)!.headerHint
+                                            }}</Toggletip>
+                                            <span :id="hintId(cell.header.column.id)" hidden>{{
+                                                columnById.get(cell.header.column.id)!.headerHint
+                                            }}</span>
+                                        </template>
                                         <FilterMenu
                                             v-if="menuFilters && filterable(columnById.get(cell.header.column.id))"
                                             :header="label(cell.header.column)"
