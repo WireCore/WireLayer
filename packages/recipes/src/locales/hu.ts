@@ -173,6 +173,7 @@ export const hu: Translations = {
             dayPeriod: '--',
             era: '--',
         }),
+        empty: 'Üres',
     },
     splitButton: { more: 'További műveletek' },
     confirmPopup: { confirm: 'Igen', cancel: 'Mégse' },

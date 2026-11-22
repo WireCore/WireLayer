@@ -3,8 +3,9 @@ import { DateInput } from '@ark-ui/vue/date-input';
 import { DatePicker, type DateValue } from '@ark-ui/vue/date-picker';
 import { DateFormatter } from '@internationalized/date';
 import { datePicker as datePickerRecipe } from '@wirecore/wirelayer-recipes';
-import { computed, useId } from 'vue';
+import { computed, useId, useTemplateRef } from 'vue';
 import DateSegments from './DateSegments.vue';
+import { useDateAnnouncements } from './announcements.js';
 import { fromTime, toTime } from './dates.js';
 import { useTranslations } from '../../locale.js';
 import { useRecipe } from '../../recipes.js';
@@ -28,6 +29,8 @@ const datePicker = useRecipe('datePicker', datePickerRecipe);
 const styles = datePicker();
 const field = datePicker({ size: 'sm' });
 const id = useId();
+const root = useTemplateRef<HTMLElement>('root');
+useDateAnnouncements(() => root.value);
 const range = computed(() => props.count > 1);
 const names = [translations.dateRange.start, translations.dateRange.end];
 const indexes = computed(() => Array.from({ length: props.count }, (_, index) => index));
@@ -55,7 +58,7 @@ function change(index: number, value: DateValue[]) {
         Hour and minute below the calendar (withTime): one field per date – "Start" and "End" in a range – typed or
         changed with the arrow keys, and "Done". On the day of min/max the time is limited to it
     -->
-    <div :class="styles.timeSection()" v-bind="range ? { role: 'group', 'aria-labelledby': `${id}h` } : {}">
+    <div ref="root" :class="styles.timeSection()" v-bind="range ? { role: 'group', 'aria-labelledby': `${id}h` } : {}">
         <!-- One date: the field itself is named "Time" -->
         <span :id="`${id}h`" :class="styles.timeHeading()" :aria-hidden="range ? undefined : 'true'">
             {{ translations.calendar.time }}

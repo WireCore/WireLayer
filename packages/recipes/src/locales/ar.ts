@@ -251,6 +251,7 @@ export const ar: Translations = {
             dayPeriod: '--',
             era: '--',
         }),
+        empty: 'فارغ',
     },
     splitButton: { more: 'مزيد من الإجراءات' },
     confirmPopup: { confirm: 'نعم', cancel: 'إلغاء' },

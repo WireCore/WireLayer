@@ -144,6 +144,7 @@ export const pt: Translations = {
             dayPeriod: '--',
             era: '--',
         }),
+        empty: 'Vazio',
     },
     splitButton: { more: 'Mais ações' },
     confirmPopup: { confirm: 'Sim', cancel: 'Cancelar' },

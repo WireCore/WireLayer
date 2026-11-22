@@ -130,6 +130,7 @@ export const tr: Translations = {
             dayPeriod: '--',
             era: '--',
         }),
+        empty: 'Boş',
     },
     splitButton: { more: 'Diğer işlemler' },
     confirmPopup: { confirm: 'Evet', cancel: 'İptal' },

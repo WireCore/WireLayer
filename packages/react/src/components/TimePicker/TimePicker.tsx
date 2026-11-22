@@ -17,8 +17,9 @@ import {
     type RecipeClasses,
 } from '@wirecore/wirelayer-recipes';
 import { Check, Clock, X } from 'lucide-react';
-import { useId, useMemo, useState, type CSSProperties } from 'react';
+import { useId, useMemo, useRef, useState, type CSSProperties } from 'react';
 import { DateSegments } from '../DatePicker/DatePickerBase.js';
+import { useDateAnnouncements } from '../DatePicker/announcements.js';
 import { fromTime, timeSlots, toTime } from '../DatePicker/dates.js';
 import { useLocale, useTranslations } from '../LocaleProvider/LocaleProvider.js';
 import { useRecipe } from '../RecipesProvider/RecipesProvider.js';
@@ -112,6 +113,8 @@ export function TimePicker({
     const localeContext = useLocale();
     const locale = localeProp ?? localeContext.locale;
     const translations = useTranslations();
+    const root = useRef<HTMLDivElement>(null);
+    useDateAnnouncements(root);
     const uid = useId();
     const field = useFieldContext();
     const state = {
@@ -172,7 +175,7 @@ export function TimePicker({
     };
 
     return (
-        <div className={styles.base({ class: className })} style={style}>
+        <div ref={root} className={styles.base({ class: className })} style={style}>
             <div
                 className={styles.control()}
                 data-invalid={state.invalid || undefined}

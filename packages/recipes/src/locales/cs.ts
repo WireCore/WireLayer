@@ -181,6 +181,7 @@ export const cs: Translations = {
             dayPeriod: '--',
             era: '--',
         }),
+        empty: 'Prázdné',
     },
     splitButton: { more: 'Další akce' },
     confirmPopup: { confirm: 'Ano', cancel: 'Zrušit' },

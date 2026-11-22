@@ -138,6 +138,7 @@ export const nl: Translations = {
             dayPeriod: '--',
             era: '--',
         }),
+        empty: 'Leeg',
     },
     splitButton: { more: 'Meer acties' },
     confirmPopup: { confirm: 'Ja', cancel: 'Annuleren' },

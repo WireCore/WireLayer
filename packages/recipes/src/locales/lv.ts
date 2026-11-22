@@ -169,6 +169,7 @@ export const lv: Translations = {
             dayPeriod: '--',
             era: '--',
         }),
+        empty: 'Tukšs',
     },
     splitButton: { more: 'Citas darbības' },
     confirmPopup: { confirm: 'Jā', cancel: 'Atcelt' },

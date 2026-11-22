@@ -148,6 +148,7 @@ export const fr: Translations = {
             dayPeriod: '--',
             era: '--',
         }),
+        empty: 'Vide',
     },
     splitButton: { more: "Plus d'actions" },
     confirmPopup: { confirm: 'Oui', cancel: 'Annuler' },

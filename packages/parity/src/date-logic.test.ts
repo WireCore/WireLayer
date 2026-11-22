@@ -13,6 +13,8 @@ import {
     localeWeekInfo,
     parsePastedRange,
     parsePastedDate,
+    partialDateIndex,
+    translateDateAnnouncements,
     parseIsoDuration,
     parseQuarter,
     parseTimeText,
@@ -273,5 +275,65 @@ describe('durations', () => {
         expect(formatDuration(parts, 'de-DE', 'short')).toBe('2 Std. 30 Min.');
         expect(formatDuration({ days: 0, hours: 0, minutes: 0, seconds: 0 }, 'de-DE')).toBe('0 Minuten');
         expect(durationUnit(2, 'hour', 'de-DE', 'short')).toBe('Std.');
+    });
+});
+
+describe('segmented date fields', () => {
+    const field = (...groups: string[][]) => {
+        const root = document.createElement('div');
+        root.innerHTML = groups
+            .map(
+                (parts) =>
+                    `<div data-scope="date-input" data-part="segment-group">${parts
+                        .map((part) =>
+                            part === '.'
+                                ? '<span data-scope="date-input" data-part="segment" data-type="literal">.</span>'
+                                : `<span data-scope="date-input" data-part="segment" data-type="day"${part ? '' : ' data-placeholder-shown'}>${part}</span>`
+                        )
+                        .join('')}</div>`
+            )
+            .join('');
+        return root;
+    };
+
+    it('partialDateIndex: the first date with some parts typed and others empty', () => {
+        expect(partialDateIndex(field(['12', '.', '05', '.', '1990']))).toBe(-1);
+        expect(partialDateIndex(field(['', '.', '', '.', '']))).toBe(-1);
+        expect(partialDateIndex(field(['12', '.', '05', '.', '']))).toBe(0);
+        expect(partialDateIndex(field(['12', '.', '05', '.', '1990'], ['', '.', '06', '.', '1990']))).toBe(1);
+        expect(partialDateIndex(null)).toBe(-1);
+    });
+
+    it("translateDateAnnouncements: Ark's English announcement in the language of the focused field", async () => {
+        const root = document.createElement('div');
+        root.innerHTML = '<button>part</button>';
+        const outside = document.createElement('button');
+        document.body.append(root, outside);
+        const stop = translateDateAnnouncements(
+            () => root,
+            () => ({ segments: { year: 'Jahr', day: 'Tag' }, empty: 'Leer' })
+        );
+        const announce = async (text: string) => {
+            document.getElementById('__live-region__')?.remove();
+            const region = document.createElement('span');
+            region.id = '__live-region__';
+            document.body.append(region);
+            await Promise.resolve();
+            region.textContent = text;
+            await Promise.resolve();
+            return region.textContent;
+        };
+        root.querySelector('button')!.focus();
+        expect(await announce('Year, Empty')).toBe('Jahr, Leer');
+        expect(await announce('Day, 05')).toBe('Tag, 05');
+        // Not the announcements of other fields, nor other texts
+        expect(await announce('Selected date: May 5')).toBe('Selected date: May 5');
+        outside.focus();
+        expect(await announce('Year, Empty')).toBe('Year, Empty');
+        stop();
+        root.querySelector('button')!.focus();
+        expect(await announce('Year, Empty')).toBe('Year, Empty');
+        root.remove();
+        outside.remove();
     });
 });

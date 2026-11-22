@@ -143,6 +143,8 @@ export const de = {
             dayPeriod: '--',
             era: '--',
         }),
+        /** Announced for a part without a value */
+        empty: 'Leer',
     },
     splitButton: { more: 'Weitere Aktionen' },
     confirmPopup: { confirm: 'Ja', cancel: 'Abbrechen' },
