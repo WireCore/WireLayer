@@ -67,6 +67,11 @@ by side, then the places where the two behave differently. The React package has
   switches between the text and the editor. In React Native the view props (`testID`, `nativeID`, accessibility props)
   go to the outermost view; pickers that open a sheet (`Select`, `CascadeSelect`, `TreeSelect`, `ColorPicker`,
   `NavigationMenu`, `NotificationCenter`) take none – they render a trigger and a sheet, no outer view.
+- **A click outside closes modal dialogs and drawers.** PrimeVue's `dismissableMask` is off by default, WireLayer's
+  `closeOnInteractOutside` is on for modal ones – unsaved input in a form dialog is lost on a stray click. Turn it off
+  once for the whole app: `{ dialog: { defaultVariants: { closeOnInteractOutside: false } }, drawer: { … } }` in the
+  `RecipesProvider`/`ConfigProvider` (also for `openDialog()`); `:close-on-interact-outside` on a single dialog still
+  wins. `confirm()` and `prompt()` are alertdialogs and never close on a click outside.
 - **Brand colours:** `checkTheme` lists the pairs below WCAG AA, `suggestThemeFixes` the nearest colours (and `on-*`
   colours) that meet them – an orange `primary` with white text, common in PrimeVue themes, does not.
 

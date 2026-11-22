@@ -43,7 +43,7 @@ export function DialogHost({ classes, closeLabel }: DialogHostProps) {
                 onOpenChange={(details) => !details.open && request.settle(undefined)}
                 onExitComplete={() => dialogStore.remove(request.id)}
                 closeOnEscape={request.closeOnEscape}
-                closeOnInteractOutside={request.closeOnInteractOutside}
+                closeOnInteractOutside={request.closeOnInteractOutside ?? defaults.closeOnInteractOutside}
                 finalFocusEl={() => request.returnFocus}
             >
                 <Portal>

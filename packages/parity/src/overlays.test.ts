@@ -466,6 +466,102 @@ describe.each(frameworks)('%s', (framework) => {
         });
     });
 
+    describe('app-wide click outside (recipe default closeOnInteractOutside)', () => {
+        // A modal overlay turns off pointer events on the page; Ark still sees the pointerdown on the backdrop
+        const user = () => userEvent.setup({ pointerEventsCheck: 0 });
+        const clickBackdrop = async (scope: 'dialog' | 'drawer' = 'dialog') => {
+            const backdrops = document.querySelectorAll<HTMLElement>(`[data-scope="${scope}"][data-part="backdrop"]`);
+            await user().click(backdrops[backdrops.length - 1]!);
+            await tick(20);
+        };
+        const stayOpen = { closeOnInteractOutside: false };
+        // A closed dialog stays in the page until its exit animation ends
+        const state = (name: string) => screen.getByRole('dialog', { name }).getAttribute('data-state');
+
+        it('without a default a click outside closes a modal dialog', async () => {
+            await render(framework, el('Dialog', { defaultOpen: true }, el('DialogContent', { title: 'Plain' })));
+            await screen.findByRole('dialog', { name: 'Plain' });
+            await tick(20);
+            await clickBackdrop();
+            expect(state('Plain')).toBe('closed');
+        });
+
+        it('Dialog follows the default', async () => {
+            await render(
+                framework,
+                el(
+                    'RecipesProvider',
+                    { recipes: { dialog: { defaultVariants: stayOpen } } },
+                    el('Dialog', { defaultOpen: true }, el('DialogContent', { title: 'Form' }))
+                )
+            );
+            await screen.findByRole('dialog', { name: 'Form' });
+            await tick(20);
+            await clickBackdrop();
+            expect(state('Form')).toBe('open');
+        });
+
+        it('closeOnInteractOutside on the Dialog wins over the default', async () => {
+            await render(
+                framework,
+                el(
+                    'RecipesProvider',
+                    { recipes: { dialog: { defaultVariants: stayOpen } } },
+                    el(
+                        'Dialog',
+                        { defaultOpen: true, closeOnInteractOutside: true },
+                        el('DialogContent', { title: 'Own' })
+                    )
+                )
+            );
+            await screen.findByRole('dialog', { name: 'Own' });
+            await tick(20);
+            await clickBackdrop();
+            expect(state('Own')).toBe('closed');
+        });
+
+        it('Drawer follows the default of the drawer recipe', async () => {
+            await render(
+                framework,
+                el(
+                    'RecipesProvider',
+                    { recipes: { drawer: { defaultVariants: stayOpen } } },
+                    el('Drawer', { defaultOpen: true }, el('DrawerContent', { title: 'Filters' }))
+                )
+            );
+            await screen.findByRole('dialog', { name: 'Filters' });
+            await tick(20);
+            await clickBackdrop('dialog');
+            expect(state('Filters')).toBe('open');
+        });
+
+        it('openDialog() follows the default; the option wins', async () => {
+            await render(
+                framework,
+                el('RecipesProvider', { recipes: { dialog: { defaultVariants: stayOpen } } }, el('DialogHost', {}))
+            );
+            const open = (title: string, closeOnInteractOutside?: boolean) =>
+                framework === 'vue'
+                    ? Vue.openDialog({ title, closeOnInteractOutside, component: () => 'Details' })
+                    : React.openDialog({ title, closeOnInteractOutside, content: () => 'Details' });
+            await act(async () => {
+                void open('Server');
+            });
+            await screen.findByRole('dialog', { name: 'Server' });
+            await tick(20);
+            await clickBackdrop();
+            expect(state('Server')).toBe('open');
+            await act(async () => {
+                void open('Log', true);
+            });
+            await screen.findByRole('dialog', { name: 'Log' });
+            await tick(20);
+            await clickBackdrop();
+            expect(state('Log')).toBe('closed');
+            expect(state('Server')).toBe('open');
+        });
+    });
+
     describe('confirm and prompt', () => {
         it('prompt() resolves with the text; validate shows its error first', async () => {
             const { prompt } = lib(framework);

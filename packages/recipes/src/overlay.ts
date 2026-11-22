@@ -184,6 +184,15 @@ export const dialog = tv({
         responsive: {
             true: { content: 'max-sm:max-w-none' },
         },
+        /**
+         * A click outside closes the dialog (`closeOnInteractOutside`) – no classes of its own: a variant so
+         * `defaultVariants: { closeOnInteractOutside: false }` keeps every dialog of the app (and `openDialog()`) open on
+         * a click outside; the prop or option wins. Without it modal dialogs close, alertdialogs and non-modal ones not
+         */
+        closeOnInteractOutside: {
+            true: {},
+            false: {},
+        },
         /** Moved by dragging the header */
         draggable: {
             true: { header: 'cursor-move touch-none select-none' },
@@ -265,6 +274,15 @@ export const drawer = tv({
             lg: { content: '[--wc-drawer-h:70vh] [--wc-drawer-w:560px]' },
             xl: { content: '[--wc-drawer-h:85vh] [--wc-drawer-w:720px]' },
             full: { content: 'max-h-none max-w-none rounded-none [--wc-drawer-h:100dvh] [--wc-drawer-w:100vw]' },
+        },
+        /**
+         * A click outside closes the drawer (`closeOnInteractOutside`) – no classes of its own: a variant so
+         * `defaultVariants: { closeOnInteractOutside: false }` keeps every drawer of the app open on a click outside;
+         * the prop wins. Without it modal drawers close
+         */
+        closeOnInteractOutside: {
+            true: {},
+            false: {},
         },
         /** Floats with a gap to the screen edge and rounded corners */
         offset: {
