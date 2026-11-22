@@ -54,6 +54,9 @@ export const dataTable = tv({
             focusRing,
         ],
         headButtonIcon: 'size-3.5',
+        /** The (i) button of `headerHint` (a Toggletip): no taller than the header text, so the row keeps its height */
+        headHint: '-my-1 size-5',
+        headHintIcon: 'size-3.5',
         row: 'group/row transition-colors *:border-b *:border-line hover:bg-bg-2 motion-reduce:transition-none data-[state=selected]:bg-line',
         td: 'px-[18px] py-2.5 text-sm text-fg',
         selectCell: 'w-px pe-0',

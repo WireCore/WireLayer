@@ -4132,7 +4132,15 @@ export function DataTable<TData extends object>({
                                                 )}
                                                 {def?.headerHint && (
                                                     <>
-                                                        <Toggletip label={label(column)}>{def.headerHint}</Toggletip>
+                                                        <Toggletip
+                                                            label={label(column)}
+                                                            classes={{
+                                                                trigger: styles.headHint(),
+                                                                icon: styles.headHintIcon(),
+                                                            }}
+                                                        >
+                                                            {def.headerHint}
+                                                        </Toggletip>
                                                         <span id={hintId(column.id)} hidden>
                                                             {def.headerHint}
                                                         </span>

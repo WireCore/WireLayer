@@ -3633,9 +3633,11 @@ const toolbarSize = sizeOverrides('sm') as RecipeConfig;
                                             label(cell.header.column)
                                         }}</span>
                                         <template v-if="columnById.get(cell.header.column.id)?.headerHint">
-                                            <Toggletip :label="label(cell.header.column)">{{
-                                                columnById.get(cell.header.column.id)!.headerHint
-                                            }}</Toggletip>
+                                            <Toggletip
+                                                :label="label(cell.header.column)"
+                                                :classes="{ trigger: styles.headHint(), icon: styles.headHintIcon() }"
+                                                >{{ columnById.get(cell.header.column.id)!.headerHint }}</Toggletip
+                                            >
                                             <span :id="hintId(cell.header.column.id)" hidden>{{
                                                 columnById.get(cell.header.column.id)!.headerHint
                                             }}</span>
