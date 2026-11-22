@@ -568,6 +568,28 @@ export const Totals: Story = {
     ),
 };
 
+/** `footerPosition="top"`: the totals right below the headers – they stay in view with them while the rows scroll */
+export const TotalsOnTop: Story = {
+    name: 'Totals on top',
+    render: () => (
+        <DataTable<MachineRow>
+            features={features}
+            data={machines(30)}
+            columns={[
+                { id: 'name', header: 'Name', footer: 'Total' },
+                { id: 'location', header: 'Location' },
+                { id: 'cores', header: 'Cores', align: 'end', aggregate: 'sum' },
+                { id: 'load', header: 'Load', align: 'end', aggregate: 'avg' },
+            ]}
+            caption="Resources"
+            getRowId={machineId}
+            footerPosition="top"
+            scrollHeight="320px"
+            className={`${card} max-w-[640px]`}
+        />
+    ),
+};
+
 /** Machines per location, e.g. for a footer cell */
 const perLocation = (rows: readonly MachineRow[]) => {
     const counts = new Map<string, number>();

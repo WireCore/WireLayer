@@ -1455,6 +1455,29 @@ describe.each(frameworks)('%s DataTable', (framework) => {
         expect(footer).toHaveTextContent('Count 3');
     });
 
+    it('footerPosition top: the totals row right below the headers, sticky with them', async () => {
+        await render(
+            framework,
+            table({
+                footerPosition: 'top',
+                scrollHeight: '300px',
+                columns: [
+                    { id: 'name', header: 'Name', footer: 'Total' },
+                    { id: 'load', header: 'Load', aggregate: 'sum' },
+                ],
+            })
+        );
+        const table_ = screen.getByRole('table');
+        expect(table_.querySelector('tfoot')).toBeNull();
+        const head = table_.querySelector('thead')!;
+        const totals = head.querySelector('tr:last-child')!;
+        expect(totals).toHaveTextContent('Total');
+        expect(totals).toHaveTextContent('Total 131');
+        // In the sticky head; the line below the totals instead of above
+        expect(head).toHaveClass('sticky');
+        expect(totals.querySelector('td')).toHaveClass('shadow-[0_1px_0_var(--wc-line-2)]');
+    });
+
     it('restores and saves the state under stateKey', async () => {
         sessionStorage.setItem(
             'wirecore-table:server-test',

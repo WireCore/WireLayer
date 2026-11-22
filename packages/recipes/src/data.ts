@@ -269,6 +269,10 @@ export const dataTable = tv({
             true: {},
             false: {},
         },
+        /** The totals row right below the headers (`footerPosition="top"`): the line below it instead of above */
+        footerTop: {
+            true: { footCell: 'shadow-[0_1px_0_var(--wc-line-2)]' },
+        },
         /**
          * `searchAlign: 'center'` (only with `search`): the search in the middle of the toolbar. The start group (also
          * when empty) and the end group (own `toolbar` controls and the built-in buttons) share the room on both sides

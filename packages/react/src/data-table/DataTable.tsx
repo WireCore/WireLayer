@@ -262,6 +262,8 @@ export interface DataTableProps<TData> extends Omit<
     onFirstChange?: (first: number) => void;
     /** Pagination below (default) or above the table */
     paginatorPosition?: 'top' | 'bottom';
+    /** The totals row (`aggregate`, `footer`) below the rows (default) or right below the headers, sticky with them */
+    footerPosition?: 'top' | 'bottom';
     /** Buttons to the first and the last page in the pagination */
     paginatorEdges?: boolean;
     /** Pagination row: rows per page at the start, pages at the end (`between`, default) – or both together */
@@ -616,6 +618,7 @@ export function DataTable<TData extends object>({
     first,
     onFirstChange,
     paginatorPosition = 'bottom',
+    footerPosition = 'bottom',
     paginatorEdges,
     paginatorAlign,
     sorting: sortingProp,
@@ -1178,6 +1181,7 @@ export function DataTable<TData extends object>({
         fill: scrollHeight === 'fill',
         wrapHeaders,
         verticalHeaders,
+        footerTop: footerPosition === 'top',
     };
     const grid = navigation === 'grid';
     // A tree table with grid keys is a treegrid: rows with level and open state, left/right close and open them
@@ -3292,6 +3296,35 @@ export function DataTable<TData extends object>({
         );
     };
 
+    // The totals of `aggregate` and `footer`: in the tfoot, or right below the headers (footerPosition="top")
+    const totalsRow = (
+        <tr data-totals={footerPosition === 'top' ? '' : undefined}>
+            {leading.map((utility) => (
+                <td
+                    key={utility}
+                    className={styles.footCell({ class: utilityClass(utility, false) })}
+                    style={utilityStyle(utility)}
+                />
+            ))}
+            {leafColumns.map((column) => (
+                <td
+                    key={column.id}
+                    className={styleFor(column.id).footCell({
+                        class: [pinClass(column.id, false), cellClassOf(column.id)],
+                    })}
+                    style={cellStyle(column.id, false)}
+                >
+                    {footerContent(columnById.get(column.id)!)}
+                </td>
+            ))}
+            {trailing.length > 0 && (
+                <td
+                    className={styles.footCell({ class: utilityClass('actions', false) })}
+                    style={utilityStyle('actions')}
+                />
+            )}
+        </tr>
+    );
     const body = (
         <tbody onContextMenuCapture={onContextTarget}>
             {items.length === 0 && !skeleton && (
@@ -4246,6 +4279,7 @@ export function DataTable<TData extends object>({
                                 )}
                             </tr>
                         )}
+                        {hasFooter && footerPosition === 'top' && totalsRow}
                     </thead>
                     {frozen.length > 0 && (
                         <tbody className={styles.frozenBody()} style={scrollHeight ? { top: headHeight } : undefined}>
@@ -4331,36 +4365,7 @@ export function DataTable<TData extends object>({
                     ) : (
                         body
                     )}
-                    {hasFooter && (
-                        <tfoot className={styles.foot()}>
-                            <tr>
-                                {leading.map((utility) => (
-                                    <td
-                                        key={utility}
-                                        className={styles.footCell({ class: utilityClass(utility, false) })}
-                                        style={utilityStyle(utility)}
-                                    />
-                                ))}
-                                {leafColumns.map((column) => (
-                                    <td
-                                        key={column.id}
-                                        className={styleFor(column.id).footCell({
-                                            class: [pinClass(column.id, false), cellClassOf(column.id)],
-                                        })}
-                                        style={cellStyle(column.id, false)}
-                                    >
-                                        {footerContent(columnById.get(column.id)!)}
-                                    </td>
-                                ))}
-                                {trailing.length > 0 && (
-                                    <td
-                                        className={styles.footCell({ class: utilityClass('actions', false) })}
-                                        style={utilityStyle('actions')}
-                                    />
-                                )}
-                            </tr>
-                        </tfoot>
-                    )}
+                    {hasFooter && footerPosition !== 'top' && <tfoot className={styles.foot()}>{totalsRow}</tfoot>}
                 </table>
             </div>
             {statusBar && (

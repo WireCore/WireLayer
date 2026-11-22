@@ -653,6 +653,38 @@ export const Totals: Story = {
     }),
 };
 
+/** `footerPosition="top"`: the totals right below the headers – they stay in view with them while the rows scroll */
+export const TotalsOnTop: Story = {
+    name: 'Totals on top',
+    render: () => ({
+        components: { DataTable: DataTable as ConcreteComponent },
+        setup: () => ({
+            features,
+            rows: machines(30),
+            card,
+            getRowId: machineId,
+            columns: [
+                { id: 'name', header: 'Name', footer: 'Total' },
+                { id: 'location', header: 'Location' },
+                { id: 'cores', header: 'Cores', align: 'end', aggregate: 'sum' },
+                { id: 'load', header: 'Load', align: 'end', aggregate: 'avg' },
+            ],
+        }),
+        template: `
+            <DataTable
+                :features="features"
+                :data="rows"
+                :columns="columns"
+                caption="Resources"
+                :get-row-id="getRowId"
+                footer-position="top"
+                scroll-height="320px"
+                :class="card"
+                class="max-w-[640px]"
+            />`,
+    }),
+};
+
 /** Machines per location, e.g. for a footer cell */
 const perLocation = (rows: readonly MachineRow[]) => {
     const counts = new Map<string, number>();

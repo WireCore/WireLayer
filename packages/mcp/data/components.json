@@ -9150,6 +9150,12 @@
                     "description": "Pagination below (default) or above the table"
                 },
                 {
+                    "name": "footerPosition",
+                    "type": "'top' | 'bottom'",
+                    "optional": true,
+                    "description": "The totals row (`aggregate`, `footer`) below the rows (default) or right below the headers, sticky with them"
+                },
+                {
                     "name": "paginatorEdges",
                     "type": "boolean",
                     "optional": true,
@@ -9943,6 +9949,12 @@
                         "type": "'top' | 'bottom'",
                         "optional": true,
                         "description": "Pagination below (default) or above the table"
+                    },
+                    {
+                        "name": "footerPosition",
+                        "type": "'top' | 'bottom'",
+                        "optional": true,
+                        "description": "The totals row (`aggregate`, `footer`) below the rows (default) or right below the headers, sticky with them"
                     },
                     {
                         "name": "paginatorEdges",

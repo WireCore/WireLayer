@@ -226,6 +226,8 @@ export interface DataTableProps<T> {
     first?: number;
     /** Pagination below (default) or above the table */
     paginatorPosition?: 'top' | 'bottom';
+    /** The totals row (`aggregate`, `footer`) below the rows (default) or right below the headers, sticky with them */
+    footerPosition?: 'top' | 'bottom';
     /** Buttons to the first and the last page in the pagination */
     paginatorEdges?: boolean;
     /** Pagination row: rows per page at the start, pages at the end (`between`, default) – or both together */
@@ -1077,6 +1079,7 @@ const look = computed(() => ({
     fill: props.scrollHeight === 'fill',
     wrapHeaders: variantFlag('wrapHeaders'),
     verticalHeaders: variantFlag('verticalHeaders'),
+    footerTop: props.footerPosition === 'top',
 }));
 const fullscreen = ref(false);
 const grid = computed(() => props.navigation === 'grid');
@@ -3778,6 +3781,37 @@ const toolbarSize = sizeOverrides('sm') as RecipeConfig;
                                 :style="utilityStyle('actions')"
                             />
                         </tr>
+                        <!-- footerPosition="top": the totals row right below the headers, sticky with them -->
+                        <tr v-if="hasFooter && footerPosition === 'top'" data-totals="">
+                            <td
+                                v-for="utility in leading"
+                                :key="utility"
+                                :class="styles.footCell({ class: utilityClass(utility, false) })"
+                                :style="utilityStyle(utility)"
+                            />
+                            <td
+                                v-for="column in leafColumns"
+                                :key="column.id"
+                                :class="
+                                    styleFor(column.id).footCell({
+                                        class: [pinClass(column.id, false), cellClassOf(column.id)],
+                                    })
+                                "
+                                :style="cellStyle(column.id, false)"
+                            >
+                                <slot
+                                    v-if="$slots[`footer-${column.id}`]"
+                                    :name="`footer-${column.id}`"
+                                    v-bind="footerProps(columnById.get(column.id)!)"
+                                />
+                                <template v-else>{{ footerText(columnById.get(column.id)!) }}</template>
+                            </td>
+                            <td
+                                v-if="trailing.length"
+                                :class="styles.footCell({ class: utilityClass('actions', false) })"
+                                :style="utilityStyle('actions')"
+                            />
+                        </tr>
                     </thead>
                     <tbody
                         v-if="frozen.length"
@@ -4470,7 +4504,7 @@ const toolbarSize = sizeOverrides('sm') as RecipeConfig;
                             </tr>
                         </tbody>
                     </BodyWrap>
-                    <tfoot v-if="hasFooter" :class="styles.foot()">
+                    <tfoot v-if="hasFooter && footerPosition !== 'top'" :class="styles.foot()">
                         <tr>
                             <td
                                 v-for="utility in leading"
