@@ -222,6 +222,7 @@ as well, so the same `defaultVariants` set them once for the whole app; a prop o
 | `dataTable: { defaultVariants: { showFilters: false } }`         | `DataTable :show-filters="false"` – filters closed at the start (a saved `stateKey` state still wins)                              |
 | `dataTable: { defaultVariants: { searchCentered: true } }`       | `DataTable search-align="center"` – the search between the actions at the start and the tools at the end                           |
 | `dataTable: { defaultVariants: { sortable: true } }`             | `DataTable sortable` – every column with a value sorts (not `sortable: false`, not a slot-only column)                             |
+| `dataTable: { defaultVariants: { multiSort: true } }`            | `DataTable sort-mode="multiple"` – Shift+click sorts by further columns; `sorting` is then an array on every table                 |
 | `dataTable: { defaultVariants: { striped: true } }`              | `DataTable striped` – the same for `gridlines`, `bordered`, `wrapHeaders`, `verticalHeaders`                                       |
 
 Own buttons, fields and menus in the toolbar slots of a DataTable (`#toolbar`, `#toolbarStart`, `#toolbarEnd`) default

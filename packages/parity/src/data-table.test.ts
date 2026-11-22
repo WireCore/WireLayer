@@ -877,6 +877,36 @@ describe.each(frameworks)('%s DataTable', (framework) => {
         expect(names()).toEqual(['web-01', 'db-primary', 'k8s-node-3']);
     });
 
+    it('app-wide multiSort sorts every table by several columns; sortMode wins', async () => {
+        const onSorting = vi.fn();
+        const onOwn = vi.fn();
+        await render(
+            framework,
+            el(
+                'RecipesProvider',
+                { recipes: { dataTable: { defaultVariants: { multiSort: true } } } },
+                table({ [on('onUpdate:sorting', 'onSortingChange')]: onSorting }),
+                table({ caption: 'Own', sortMode: 'single', [on('onUpdate:sorting', 'onSortingChange')]: onOwn })
+            )
+        );
+        const user = userEvent.setup();
+        const shiftSort = async (caption: string) => {
+            const head = (name: RegExp) =>
+                within(screen.getByRole('table', { name: caption })).getByRole('columnheader', { name });
+            await user.click(within(head(/Location/)).getByRole('button'));
+            await user.keyboard('{Shift>}');
+            await user.click(within(head(/Load/)).getByRole('button'));
+            await user.keyboard('{/Shift}');
+        };
+        await shiftSort('Server');
+        expect(onSorting).toHaveBeenLastCalledWith([
+            { id: 'location', desc: false },
+            { id: 'load', desc: false },
+        ]);
+        await shiftSort('Own');
+        expect(onOwn).toHaveBeenLastCalledWith({ id: 'load', desc: false });
+    });
+
     it('filters with conditions in the filter menu', async () => {
         const onFilters = vi.fn();
         await render(

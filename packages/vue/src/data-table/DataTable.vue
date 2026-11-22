@@ -233,7 +233,10 @@ export interface DataTableProps<T> {
     sorting?: DataTableSort | DataTableSort[] | null;
     /** Sorting at the start, without v-model */
     defaultSorting?: DataTableSort | DataTableSort[] | null;
-    /** `multiple`: Shift+click (or the column menu) sorts by further columns */
+    /**
+     * `multiple`: Shift+click (or the column menu) sorts by further columns. Default `single`; app-wide
+     * `dataTable: { defaultVariants: { multiSort: true } }` – the sorting is then an array as well
+     */
     sortMode?: 'single' | 'multiple';
     /** Server mode: `data` is the current page, already sorted and filtered; requires `rowCount` */
     manual?: boolean;
@@ -475,7 +478,7 @@ const props = withDefaults(defineProps<DataTableProps<TData>>(), {
     rowActions: undefined,
     rowClass: undefined,
     size: undefined,
-    sortMode: 'single',
+    sortMode: undefined,
     selectionMode: 'multiple',
     filterDisplay: 'row',
     maxConstraints: 2,
@@ -815,6 +818,8 @@ watchProp(
     (value) => value !== undefined && (allSelection.value = value)
 );
 const showFilters = ref(props.showFilters ?? recipeDefaults().showFilters ?? true);
+// Shift+click sorts by further columns: the prop wins, otherwise the app-wide default of the recipe (`multiSort`)
+const multiSort = computed(() => (props.sortMode ? props.sortMode === 'multiple' : !!recipeDefaults().multiSort));
 watchProp(
     () => props.showFilters,
     (value) => value !== undefined && (showFilters.value = value)
@@ -1009,7 +1014,7 @@ const table = useTable({
 
 function setSorting(next: SortingState) {
     sorting.value = next;
-    emit('update:sorting', props.sortMode === 'multiple' ? [...next] : (next[0] ?? null));
+    emit('update:sorting', multiSort.value ? [...next] : (next[0] ?? null));
 }
 function setPagination(next: PaginationState) {
     const sizeChanged = next.pageSize !== pagination.value.pageSize;
@@ -1221,7 +1226,7 @@ const ariaSort = (columnId: string) => {
 };
 const sortPosition = (columnId: string) => sorting.value.findIndex((sort) => sort.id === columnId) + 1;
 function onSort(columnId: string, event: MouseEvent) {
-    setSorting(nextSorting(sorting.value, columnId, props.sortMode === 'multiple' && event.shiftKey));
+    setSorting(nextSorting(sorting.value, columnId, multiSort.value && event.shiftKey));
 }
 
 // Column menu: sort, pin, move, hide, group
@@ -1293,7 +1298,7 @@ async function onColumnMenu(column: TableColumn, value: string) {
         case 'sort-asc':
         case 'sort-desc': {
             const sort = { id: column.id, desc: value === 'sort-desc' };
-            if (props.sortMode !== 'multiple') setSorting([sort]);
+            if (!multiSort.value) setSorting([sort]);
             else if (sortPosition(column.id))
                 setSorting(sorting.value.map((item) => (item.id === column.id ? sort : item)));
             else setSorting([...sorting.value, sort]);

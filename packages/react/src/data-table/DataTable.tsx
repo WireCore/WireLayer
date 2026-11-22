@@ -270,7 +270,10 @@ export interface DataTableProps<TData> extends Omit<
     onSortingChange?: (sorting: DataTableSort | DataTableSort[] | null) => void;
     /** Sorting at the start (uncontrolled) */
     defaultSorting?: DataTableSort | DataTableSort[] | null;
-    /** `multiple`: Shift+click (or the column menu) sorts by further columns */
+    /**
+     * `multiple`: Shift+click (or the column menu) sorts by further columns. Default `single`; app-wide
+     * `dataTable: { defaultVariants: { multiSort: true } }` – the sorting is then an array as well
+     */
     sortMode?: 'single' | 'multiple';
     /** Server mode: `data` is the current page, already sorted and filtered; requires `rowCount` */
     manual?: boolean;
@@ -611,7 +614,7 @@ export function DataTable<TData extends object>({
     sorting: sortingProp,
     onSortingChange,
     defaultSorting,
-    sortMode = 'single',
+    sortMode: sortModeProp,
     manual = false,
     rowCount,
     selectable = false,
@@ -733,6 +736,7 @@ export function DataTable<TData extends object>({
     const striped = stripedProp ?? !!recipeDefaults.striped;
     const wrapHeaders = wrapHeadersProp ?? !!recipeDefaults.wrapHeaders;
     const verticalHeaders = verticalHeadersProp ?? !!recipeDefaults.verticalHeaders;
+    const sortMode = sortModeProp ?? (recipeDefaults.multiSort ? 'multiple' : 'single');
     const menu = useRecipe('menu', menuRecipe);
     const menuStyles = menu();
     type TableRow = Row<Features, TData>;

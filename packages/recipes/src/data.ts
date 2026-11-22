@@ -262,6 +262,14 @@ export const dataTable = tv({
             false: {},
         },
         /**
+         * Shift+click sorts by further columns (`sortMode: 'multiple'`) – no classes of its own: a variant so
+         * `defaultVariants: { multiSort: true }` sorts every table of the app by several columns; `sortMode` wins
+         */
+        multiSort: {
+            true: {},
+            false: {},
+        },
+        /**
          * `searchAlign: 'center'` (only with `search`): the search in the middle of the toolbar. The start group (also
          * when empty) and the end group (own `toolbar` controls and the built-in buttons) share the room on both sides
          * equally (`grow basis-0`); a group wider than its half moves the search aside instead of overflowing, and when
