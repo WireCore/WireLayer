@@ -32759,6 +32759,18 @@
                     "description": "Suggestions while typing (entries already added are left out); arrow keys pick one, Enter adds it"
                 },
                 {
+                    "name": "openOnFocus",
+                    "type": "boolean",
+                    "optional": true,
+                    "description": "Opens the suggestions when the field gets the focus or is clicked – the existing tags without typing"
+                },
+                {
+                    "name": "trigger",
+                    "type": "boolean",
+                    "optional": true,
+                    "description": "A button at the end of the field opens all suggestions (not a tab stop: Arrow down does the same)"
+                },
+                {
                     "name": "filter",
                     "type": "boolean",
                     "optional": true,
@@ -32904,6 +32916,18 @@
                         "type": "readonly string[]",
                         "optional": true,
                         "description": "Suggestions while typing (entries already added are left out); arrow keys pick one, Enter adds it"
+                    },
+                    {
+                        "name": "openOnFocus",
+                        "type": "boolean",
+                        "optional": true,
+                        "description": "Opens the suggestions when the field gets the focus or is clicked – the existing tags without typing"
+                    },
+                    {
+                        "name": "trigger",
+                        "type": "boolean",
+                        "optional": true,
+                        "description": "A button at the end of the field opens all suggestions (not a tab stop: Arrow down does the same)"
                     },
                     {
                         "name": "filter",

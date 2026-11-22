@@ -2,7 +2,7 @@ import { useFieldContext } from '@ark-ui/react/field';
 import { useFilter } from '@ark-ui/react/locale';
 import { TagsInput as ArkTagsInput } from '@ark-ui/react/tags-input';
 import { tagsInput as tagsInputRecipe, type DataSource, type RecipeClasses } from '@wirecore/wirelayer-recipes';
-import { LoaderCircle, X } from 'lucide-react';
+import { ChevronDown, LoaderCircle, X } from 'lucide-react';
 import { useId, useState, type CSSProperties, type KeyboardEvent } from 'react';
 import { useTranslations } from '../LocaleProvider/LocaleProvider.js';
 import { useRecipe } from '../RecipesProvider/RecipesProvider.js';
@@ -25,6 +25,10 @@ export interface TagsInputProps {
     name?: string;
     /** Suggestions while typing (entries already added are left out); arrow keys pick one, Enter adds it */
     suggestions?: readonly string[];
+    /** Opens the suggestions when the field gets the focus or is clicked – the existing tags without typing */
+    openOnFocus?: boolean;
+    /** A button at the end of the field opens all suggestions (not a tab stop: Arrow down does the same) */
+    trigger?: boolean;
     /** Filters the suggestions by the typed text, ignoring case and accents (default true) */
     filter?: boolean;
     /** The suggestions are filtered elsewhere (server): no local filtering, listen to onFilterChange */
@@ -61,6 +65,7 @@ interface Api {
     atMax: boolean;
     addValue(value: string): void;
     clearInputValue(): void;
+    focus(): void;
 }
 
 /**
@@ -81,6 +86,8 @@ export function TagsInput({
     invalid,
     name,
     suggestions,
+    openOnFocus,
+    trigger,
     filter = true,
     manualFilter,
     onFilterChange,
@@ -151,6 +158,13 @@ export function TagsInput({
         }
     }
 
+    /** `openOnFocus` and the `trigger` button: all suggestions without typing */
+    const showAll = () => {
+        if (open) return;
+        setOpen(true);
+        setHighlighted(-1);
+    };
+
     return (
         <ArkTagsInput.Root
             className={styles.base({ class: className })}
@@ -214,6 +228,8 @@ export function TagsInput({
                                             shown && highlighted >= 0 ? optionId(highlighted) : undefined
                                         }
                                         onKeyDown={(event) => onKeyDown(event, api)}
+                                        onFocus={openOnFocus ? showAll : undefined}
+                                        onClick={openOnFocus ? showAll : undefined}
                                         onBlur={() => setOpen(false)}
                                     />
                                 ) : (
@@ -228,6 +244,26 @@ export function TagsInput({
                                     <ArkTagsInput.ClearTrigger className={styles.clear()}>
                                         <X className={styles.clearIcon()} aria-hidden="true" />
                                     </ArkTagsInput.ClearTrigger>
+                                )}
+                                {suggestionList && trigger && (
+                                    // Pointer down keeps the focus in the field, so the list does not close on blur
+                                    <button
+                                        type="button"
+                                        tabIndex={-1}
+                                        className={styles.trigger()}
+                                        aria-label={translations.combobox.triggerLabel}
+                                        aria-controls={shown ? listId : undefined}
+                                        aria-expanded={shown}
+                                        disabled={disabled || api.atMax}
+                                        onPointerDown={(event) => event.preventDefault()}
+                                        onClick={() => {
+                                            api.focus();
+                                            if (open) setOpen(false);
+                                            else showAll();
+                                        }}
+                                    >
+                                        <ChevronDown className={styles.triggerIcon()} aria-hidden="true" />
+                                    </button>
                                 )}
                             </ArkTagsInput.Control>
                             {shown && (

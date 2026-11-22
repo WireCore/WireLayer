@@ -52,3 +52,19 @@ export const Suggestions: Story = {
             </div>`,
     }),
 };
+
+/** `openOnFocus` and `trigger`: every suggestion without typing – on focus, or with the arrow at the end */
+export const AllSuggestions: Story = {
+    name: 'All suggestions',
+    render: () => ({
+        components: { Field, TagsInput },
+        setup: () => ({
+            tags: ref(['linux']),
+            suggestions: ['linux', 'docker', 'kubernetes', 'postgresql', 'nginx', 'redis', 'grafana', 'ansible'],
+        }),
+        template: `
+            <Field label="Technologies" helper-text="Click the field or the arrow to see every suggestion" class="w-96">
+                <TagsInput v-model="tags" :suggestions="suggestions" placeholder="Technology" open-on-focus trigger />
+            </Field>`,
+    }),
+};

@@ -56,3 +56,22 @@ export const Suggestions: Story = {
     name: 'With suggestions',
     render: () => <SuggestionsDemo />,
 };
+
+function AllSuggestionsDemo() {
+    const [tags, setTags] = useState(['linux']);
+    return (
+        <Field label="Technologies" helperText="Click the field or the arrow to see every suggestion" className="w-96">
+            <TagsInput
+                value={tags}
+                onValueChange={setTags}
+                suggestions={technologies}
+                placeholder="Technology"
+                openOnFocus
+                trigger
+            />
+        </Field>
+    );
+}
+
+/** `openOnFocus` and `trigger`: every suggestion without typing – on focus, or with the arrow at the end */
+export const AllSuggestions: Story = { name: 'All suggestions', render: () => <AllSuggestionsDemo /> };

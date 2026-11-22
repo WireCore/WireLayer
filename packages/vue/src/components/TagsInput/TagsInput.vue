@@ -2,7 +2,7 @@
 import { useFieldContext } from '@ark-ui/vue/field';
 import { useFilter } from '@ark-ui/vue/locale';
 import { TagsInput } from '@ark-ui/vue/tags-input';
-import { LoaderCircle, X } from '@lucide/vue';
+import { ChevronDown, LoaderCircle, X } from '@lucide/vue';
 import { type DataSource, type RecipeClasses, tagsInput as tagsInputRecipe } from '@wirecore/wirelayer-recipes';
 import { computed, ref, useAttrs, useId } from 'vue';
 import { splitAttrs } from '../../utils/attrs.js';
@@ -29,6 +29,10 @@ export interface TagsInputProps {
     name?: string;
     /** Suggestions while typing (entries already added are left out); arrow keys pick one, Enter adds it */
     suggestions?: readonly string[];
+    /** Opens the suggestions when the field gets the focus or is clicked – the existing tags without typing */
+    openOnFocus?: boolean;
+    /** A button at the end of the field opens all suggestions (not a tab stop: Arrow down does the same) */
+    trigger?: boolean;
     /** Filters the suggestions by the typed text, ignoring case and accents (default true) */
     filter?: boolean;
     /** The suggestions are filtered elsewhere (server): no local filtering, listen to filterChange */
@@ -131,6 +135,18 @@ interface Api {
     atMax: boolean;
     addValue(value: string): void;
     clearInputValue(): void;
+    focus(): void;
+}
+/** `openOnFocus` and the `trigger` button: all suggestions without typing */
+function showAll() {
+    if (open.value) return;
+    open.value = true;
+    highlighted.value = -1;
+}
+function onTrigger(api: Api) {
+    api.focus();
+    if (open.value) open.value = false;
+    else showAll();
 }
 function add(api: Api, suggestion: string) {
     api.addValue(suggestion);
@@ -216,6 +232,8 @@ function onKeydown(event: KeyboardEvent, api: Api) {
                             : undefined
                     "
                     @keydown="onKeydown($event, api)"
+                    @focus="openOnFocus && showAll()"
+                    @click="openOnFocus && showAll()"
                     @blur="open = false"
                 />
                 <TagsInput.Input
@@ -228,6 +246,21 @@ function onKeydown(event: KeyboardEvent, api: Api) {
                 <TagsInput.ClearTrigger v-if="api.value.length" :class="styles.clear()">
                     <X :class="styles.clearIcon()" aria-hidden="true" />
                 </TagsInput.ClearTrigger>
+                <!-- Pointer down keeps the focus in the field, so the list does not close on blur -->
+                <button
+                    v-if="suggestionList && trigger"
+                    type="button"
+                    tabindex="-1"
+                    :class="styles.trigger()"
+                    :aria-label="translations.combobox.triggerLabel"
+                    :aria-controls="isOpen(suggestionsFor(api.value), api.atMax) ? listId : undefined"
+                    :aria-expanded="isOpen(suggestionsFor(api.value), api.atMax)"
+                    :disabled="disabled || api.atMax"
+                    @pointerdown.prevent
+                    @click="onTrigger(api)"
+                >
+                    <ChevronDown :class="styles.triggerIcon()" aria-hidden="true" />
+                </button>
             </TagsInput.Control>
             <div
                 v-if="suggestionList && isOpen(suggestionsFor(api.value), api.atMax)"

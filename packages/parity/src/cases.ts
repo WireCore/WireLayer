@@ -2098,6 +2098,19 @@ export const cases: [string, El][] = [
             el('TagsInput', { defaultValue: ['hosting'], suggestions: ['hosting', 'linux', 'docker'], loading: true })
         ),
     ],
+    [
+        'TagsInput all suggestions',
+        el(
+            'Field',
+            { label: 'Keywords' },
+            el('TagsInput', {
+                defaultValue: ['hosting'],
+                suggestions: ['hosting', 'linux'],
+                openOnFocus: true,
+                trigger: true,
+            })
+        ),
+    ],
     ['CopyButton', el('CopyButton', { value: '10.0.1.11', showValue: true, label: 'Copy IP' })],
     [
         'HoverCard closed',

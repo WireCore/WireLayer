@@ -1136,6 +1136,37 @@ describe.each(frameworks)('%s option lists', (framework) => {
         expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
     });
 
+    it('TagsInput openOnFocus and trigger: all suggestions without typing', async () => {
+        const onChange = vi.fn();
+        await render(
+            framework,
+            el('TagsInput', {
+                'aria-label': 'Keywords',
+                defaultValue: ['hosting'],
+                suggestions: ['hosting', 'linux', 'docker'],
+                openOnFocus: true,
+                trigger: true,
+                [onValue]: onChange,
+            })
+        );
+        const input = screen.getByRole('combobox', { name: 'Keywords' });
+        await userEvent.click(input);
+        const list = screen.getByRole('listbox', { name: 'Suggestions' });
+        expect(names(within(list).getAllByRole('option'))).toEqual(['linux', 'docker']);
+        await userEvent.click(within(list).getByRole('option', { name: 'docker' }));
+        expect(onChange).toHaveBeenLastCalledWith(['hosting', 'docker']);
+        expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
+        // The button toggles the list and keeps the focus in the field; it is no tab stop
+        const trigger = screen.getByRole('button', { name: 'Show suggestions' });
+        expect(trigger).toHaveAttribute('tabindex', '-1');
+        await userEvent.click(trigger);
+        expect(input).toHaveFocus();
+        expect(names(within(screen.getByRole('listbox')).getAllByRole('option'))).toEqual(['linux']);
+        expect(trigger).toHaveAttribute('aria-expanded', 'true');
+        await userEvent.click(trigger);
+        expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
+    });
+
     it('TagsInput suggestions from a data source: asked with the typed text', async () => {
         const onChange = vi.fn();
         const getItems = vi.fn(async ({ search = '' }: { search?: string }) => ({
