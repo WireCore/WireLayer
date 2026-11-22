@@ -336,4 +336,41 @@ describe('segmented date fields', () => {
         root.remove();
         outside.remove();
     });
+
+    it('translateDateAnnouncements: the region of @zag-js/live-region 1.47 (one per field, no id, created first)', async () => {
+        const root = document.createElement('div');
+        root.innerHTML = '<button>part</button>';
+        // Created when the field mounts, before the translation starts, and reused for every announcement
+        const region = document.createElement('span');
+        region.dataset.liveAnnouncer = 'true';
+        region.setAttribute('aria-live', 'assertive');
+        region.setAttribute('role', 'alert');
+        document.body.append(root, region);
+        const stop = translateDateAnnouncements(
+            () => root,
+            () => ({ segments: { year: 'Jahr', day: 'Tag' }, empty: 'Leer' })
+        );
+        const announce = async (text: string) => {
+            region.textContent = '';
+            await Promise.resolve();
+            region.textContent = text;
+            await Promise.resolve();
+            return region.textContent;
+        };
+        root.querySelector('button')!.focus();
+        expect(await announce('Year, 1990')).toBe('Jahr, 1990');
+        expect(await announce('Day, Empty')).toBe('Tag, Leer');
+        // A region that comes later (another field mounts, or Ark creates it again after it was removed)
+        const later = region.cloneNode() as HTMLElement;
+        document.body.append(later);
+        await Promise.resolve();
+        later.textContent = 'Year, Empty';
+        await Promise.resolve();
+        expect(later.textContent).toBe('Jahr, Leer');
+        stop();
+        expect(await announce('Year, Empty')).toBe('Year, Empty');
+        root.remove();
+        region.remove();
+        later.remove();
+    });
 });

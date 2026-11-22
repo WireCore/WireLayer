@@ -220,8 +220,8 @@ describe.each(frameworks)('%s', (framework) => {
             // The parts announce their changes in the language of the field (Ark: in English)
             const announced: string[] = [];
             const recorder = new MutationObserver(() => {
-                const text = document.getElementById('__live-region__')?.textContent;
-                if (text) announced.push(text);
+                for (const region of document.querySelectorAll('[data-live-announcer]'))
+                    if (region.textContent) announced.push(region.textContent);
             });
             recorder.observe(document.body, { childList: true, subtree: true, characterData: true });
             await userEvent.click(within(group).getByRole('spinbutton', { name: 'Jahr' }));
