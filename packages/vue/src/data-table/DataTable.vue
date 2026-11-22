@@ -299,6 +299,10 @@ export interface DataTableProps<T> {
     sortable?: boolean;
     /** Search field above the table: filters over all columns (v-model:global-filter) */
     search?: boolean;
+    /** Text of the empty search field and its name for screen readers (default "Search …" and "Search <caption>") */
+    searchPlaceholder?: string;
+    /** More attributes of the search input, e.g. `{ 'data-tour': 'search' }` as the target of a Tour step */
+    searchInputAttrs?: Record<string, unknown>;
     /**
      * Place of the search field: `start` (default) after the controls of the toolbar start, `center` in the middle of
      * the toolbar – also when there are no controls at the start; own `toolbar` controls then join the end group.
@@ -3208,12 +3212,13 @@ const toolbarSize = sizeOverrides('sm') as RecipeConfig;
                 </RecipesProvider>
                 <Input
                     v-if="search"
+                    v-bind="searchInputAttrs"
                     type="search"
                     size="sm"
                     :leading-icon="Search"
                     :class="styles.search()"
-                    :placeholder="t.searchPlaceholder"
-                    :aria-label="t.search(caption)"
+                    :placeholder="searchPlaceholder ?? t.searchPlaceholder"
+                    :aria-label="searchPlaceholder ?? t.search(caption)"
                     :model-value="globalFilter"
                     @update:model-value="table.setGlobalFilter($event ?? '')"
                 />

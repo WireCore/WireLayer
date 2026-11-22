@@ -773,6 +773,18 @@ describe.each(frameworks)('%s DataTable', (framework) => {
         );
     });
 
+    it('searchPlaceholder names the search field; searchInputAttrs go to its input', async () => {
+        await render(
+            framework,
+            table({ search: true, searchPlaceholder: 'Find a server', searchInputAttrs: { 'data-tour': 'search' } })
+        );
+        const field = screen.getByRole('searchbox', { name: 'Find a server' });
+        expect(field).toHaveAttribute('placeholder', 'Find a server');
+        expect(field).toHaveAttribute('data-tour', 'search');
+        await userEvent.type(field, 'k8s');
+        await waitFor(() => expect(names()).toEqual(['k8s-node-3']));
+    });
+
     it('searchAlign center: start and end group share the room, also without start controls; app-wide default', async () => {
         await render(
             framework,

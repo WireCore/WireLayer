@@ -9378,6 +9378,18 @@
                     "description": "Search field above the table: filters over all columns"
                 },
                 {
+                    "name": "searchPlaceholder",
+                    "type": "string",
+                    "optional": true,
+                    "description": "Text of the empty search field and its name for screen readers (default \"Search …\" and \"Search <caption>\")"
+                },
+                {
+                    "name": "searchInputAttrs",
+                    "type": "ComponentProps<'input'> & { [attribute: `data-${string}`]: string | number | boolean | undefined }",
+                    "optional": true,
+                    "description": "More attributes of the search input, e.g. `{ 'data-tour': 'search' }` as the target of a Tour step"
+                },
+                {
                     "name": "searchAlign",
                     "type": "'start' | 'center'",
                     "optional": true,
@@ -10111,6 +10123,18 @@
                         "type": "boolean",
                         "optional": true,
                         "description": "Search field above the table: filters over all columns (v-model:global-filter)"
+                    },
+                    {
+                        "name": "searchPlaceholder",
+                        "type": "string",
+                        "optional": true,
+                        "description": "Text of the empty search field and its name for screen readers (default \"Search …\" and \"Search <caption>\")"
+                    },
+                    {
+                        "name": "searchInputAttrs",
+                        "type": "Record<string, unknown>",
+                        "optional": true,
+                        "description": "More attributes of the search input, e.g. `{ 'data-tour': 'search' }` as the target of a Tour step"
                     },
                     {
                         "name": "searchAlign",

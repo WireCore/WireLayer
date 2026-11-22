@@ -349,6 +349,12 @@ export interface DataTableProps<TData> extends Omit<
     sortable?: boolean;
     /** Search field above the table: filters over all columns */
     search?: boolean;
+    /** Text of the empty search field and its name for screen readers (default "Search …" and "Search <caption>") */
+    searchPlaceholder?: string;
+    /** More attributes of the search input, e.g. `{ 'data-tour': 'search' }` as the target of a Tour step */
+    searchInputAttrs?: ComponentProps<'input'> & {
+        [attribute: `data-${string}`]: string | number | boolean | undefined;
+    };
     /**
      * Place of the search field: `start` (default) after the controls of the toolbar start, `center` in the middle of
      * the toolbar – also when there are no controls at the start; own `toolbar` controls then join the end group.
@@ -649,6 +655,8 @@ export function DataTable<TData extends object>({
     renderAdvancedFilter,
     sortable: sortableProp,
     search = false,
+    searchPlaceholder,
+    searchInputAttrs,
     searchAlign: searchAlignProp,
     globalFilter: globalFilterProp,
     onGlobalFilterChange,
@@ -3613,12 +3621,13 @@ export function DataTable<TData extends object>({
                     )}
                     {search && (
                         <Input
+                            {...searchInputAttrs}
                             type="search"
                             size="sm"
                             leadingIcon={Search}
                             className={styles.search()}
-                            placeholder={t.searchPlaceholder}
-                            aria-label={t.search(caption)}
+                            placeholder={searchPlaceholder ?? t.searchPlaceholder}
+                            aria-label={searchPlaceholder ?? t.search(caption)}
                             value={globalFilter}
                             onChange={(event) => table.setGlobalFilter(event.target.value)}
                         />
