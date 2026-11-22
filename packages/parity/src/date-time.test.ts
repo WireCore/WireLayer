@@ -201,6 +201,41 @@ describe.each(frameworks)('%s', (framework) => {
             await userEvent.click(await screen.findByRole('button', { name: /^Friday, October 23, 2026/ }));
             await waitFor(() => expect(change).toHaveBeenLastCalledWith(['2026-10-20', '2026-10-22', '2026-10-23']));
         });
+
+        it('a date with a part emptied reports null and keeps the other parts; complete again it reports the date', async () => {
+            const change = vi.fn();
+            await render(
+                framework,
+                el(
+                    'LocaleProvider',
+                    { locale: 'de-DE' },
+                    el('DatePicker', { defaultValue: '1990-05-12', 'aria-label': 'Birthday', [onValue]: change })
+                )
+            );
+            const group = screen.getByRole('group', { name: 'Birthday' });
+            const parts = () =>
+                within(group)
+                    .getAllByRole('spinbutton')
+                    .map((part) => part.textContent);
+            // The parts announce their changes in the language of the field (Ark: in English)
+            const announced: string[] = [];
+            const recorder = new MutationObserver(() => {
+                const text = document.getElementById('__live-region__')?.textContent;
+                if (text) announced.push(text);
+            });
+            recorder.observe(document.body, { childList: true, subtree: true, characterData: true });
+            await userEvent.click(within(group).getByRole('spinbutton', { name: 'Jahr' }));
+            await userEvent.keyboard('{Backspace}{Backspace}{Backspace}{Backspace}');
+            await waitFor(() => expect(change).toHaveBeenLastCalledWith(null));
+            expect(parts()).toEqual(['12', '05', 'JJJJ']);
+            await waitFor(() => expect(announced.some((text) => text.startsWith('Jahr, '))).toBe(true));
+            recorder.disconnect();
+            expect(announced.filter((text) => text.startsWith('Year'))).toEqual([]);
+            // Complete again (typing the same date: browser test)
+            await userEvent.keyboard('{ArrowUp}');
+            await waitFor(() => expect(change).toHaveBeenLastCalledWith(expect.stringMatching(/^\d{4}-05-12$/)));
+            expect(parts()).not.toContain('JJJJ');
+        });
     });
 
     describe('Calendar', () => {

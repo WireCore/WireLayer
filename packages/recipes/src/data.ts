@@ -54,6 +54,9 @@ export const dataTable = tv({
             focusRing,
         ],
         headButtonIcon: 'size-3.5',
+        /** The (i) button of `headerHint` (a Toggletip): no taller than the header text, so the row keeps its height */
+        headHint: '-my-1 size-5',
+        headHintIcon: 'size-3.5',
         row: 'group/row transition-colors *:border-b *:border-line hover:bg-bg-2 motion-reduce:transition-none data-[state=selected]:bg-line',
         td: 'px-[18px] py-2.5 text-sm text-fg',
         selectCell: 'w-px pe-0',
@@ -260,6 +263,18 @@ export const dataTable = tv({
         sortable: {
             true: {},
             false: {},
+        },
+        /**
+         * Shift+click sorts by further columns (`sortMode: 'multiple'`) – no classes of its own: a variant so
+         * `defaultVariants: { multiSort: true }` sorts every table of the app by several columns; `sortMode` wins
+         */
+        multiSort: {
+            true: {},
+            false: {},
+        },
+        /** The totals row right below the headers (`footerPosition="top"`): the line below it instead of above */
+        footerTop: {
+            true: { footCell: 'shadow-[0_1px_0_var(--wc-line-2)]' },
         },
         /**
          * `searchAlign: 'center'` (only with `search`): the search in the middle of the toolbar. The start group (also

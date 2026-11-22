@@ -703,6 +703,31 @@ describe.each(frameworks)('%s', (framework) => {
                 vi.useRealTimers();
             }
         });
+
+        it('format clock: "00:01:02", the units for screen readers only', async () => {
+            vi.useFakeTimers({
+                now: new Date('2026-10-20T10:00:00'),
+                toFake: ['Date', 'setInterval', 'clearInterval'],
+            });
+            try {
+                await render(
+                    framework,
+                    el('Countdown', {
+                        target: '2026-10-20T10:01:02',
+                        label: 'Protest time',
+                        units: ['hours', 'minutes', 'seconds'],
+                        format: 'clock',
+                    })
+                );
+                const timer = screen.getByRole('timer', { name: 'Protest time' });
+                await waitFor(() => expect(timer).toHaveTextContent('00 Hours:01 Minute:02 Seconds'));
+                const separators = timer.querySelectorAll('[aria-hidden="true"]');
+                expect([...separators].map((separator) => separator.textContent)).toEqual([':', ':']);
+                expect(within(timer).getByText(/Hours/)).toHaveClass('sr-only');
+            } finally {
+                vi.useRealTimers();
+            }
+        });
     });
 
     describe('NumberFormatter', () => {
@@ -1108,6 +1133,37 @@ describe.each(frameworks)('%s option lists', (framework) => {
         await userEvent.keyboard('{ArrowDown}{Enter}');
         expect(onChange).toHaveBeenLastCalledWith(['hosting', 'linux']);
         expect(input).toHaveValue('');
+        expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
+    });
+
+    it('TagsInput openOnFocus and trigger: all suggestions without typing', async () => {
+        const onChange = vi.fn();
+        await render(
+            framework,
+            el('TagsInput', {
+                'aria-label': 'Keywords',
+                defaultValue: ['hosting'],
+                suggestions: ['hosting', 'linux', 'docker'],
+                openOnFocus: true,
+                trigger: true,
+                [onValue]: onChange,
+            })
+        );
+        const input = screen.getByRole('combobox', { name: 'Keywords' });
+        await userEvent.click(input);
+        const list = screen.getByRole('listbox', { name: 'Suggestions' });
+        expect(names(within(list).getAllByRole('option'))).toEqual(['linux', 'docker']);
+        await userEvent.click(within(list).getByRole('option', { name: 'docker' }));
+        expect(onChange).toHaveBeenLastCalledWith(['hosting', 'docker']);
+        expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
+        // The button toggles the list and keeps the focus in the field; it is no tab stop
+        const trigger = screen.getByRole('button', { name: 'Show suggestions' });
+        expect(trigger).toHaveAttribute('tabindex', '-1');
+        await userEvent.click(trigger);
+        expect(input).toHaveFocus();
+        expect(names(within(screen.getByRole('listbox')).getAllByRole('option'))).toEqual(['linux']);
+        expect(trigger).toHaveAttribute('aria-expanded', 'true');
+        await userEvent.click(trigger);
         expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
     });
 

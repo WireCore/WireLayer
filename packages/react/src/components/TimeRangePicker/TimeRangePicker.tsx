@@ -3,8 +3,9 @@ import { useFieldContext } from '@ark-ui/react/field';
 import { DateFormatter, type DateValue } from '@internationalized/date';
 import { datePicker as datePickerRecipe, parseTimeText, type RecipeClasses } from '@wirecore/wirelayer-recipes';
 import { X } from 'lucide-react';
-import { Fragment, useId, useMemo, useState, type CSSProperties } from 'react';
+import { Fragment, useId, useMemo, useRef, useState, type CSSProperties } from 'react';
 import { DateSegments } from '../DatePicker/DatePickerBase.js';
+import { useDateAnnouncements } from '../DatePicker/announcements.js';
 import { fromTime, toTime } from '../DatePicker/dates.js';
 import { useLocale, useTranslations } from '../LocaleProvider/LocaleProvider.js';
 import { useRecipe } from '../RecipesProvider/RecipesProvider.js';
@@ -78,6 +79,8 @@ export function TimeRangePicker({
     const localeContext = useLocale();
     const locale = localeProp ?? localeContext.locale;
     const translations = useTranslations();
+    const root = useRef<HTMLDivElement>(null);
+    useDateAnnouncements(root);
     const uid = useId();
     const field = useFieldContext();
     const state = {
@@ -133,7 +136,7 @@ export function TimeRangePicker({
     };
 
     return (
-        <div className={styles.base({ class: className })} style={style}>
+        <div ref={root} className={styles.base({ class: className })} style={style}>
             <div
                 className={styles.control()}
                 data-invalid={state.invalid || undefined}

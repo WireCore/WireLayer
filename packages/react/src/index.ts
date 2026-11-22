@@ -95,9 +95,11 @@ export {
 } from './components/Accordion/Accordion.js';
 export { ConfirmDialog, type ConfirmDialogProps } from './components/Confirm/ConfirmDialog.js';
 export {
+    choose,
     confirm,
     prompt,
     type ConfirmButtonOptions,
+    type ConfirmChoice,
     type ConfirmOptions,
     type PromptOptions,
 } from './components/Confirm/confirm.js';

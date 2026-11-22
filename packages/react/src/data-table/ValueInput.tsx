@@ -7,7 +7,7 @@ import { Select } from '../components/Select/Select.js';
 import { Textarea } from '../components/Textarea/Textarea.js';
 import { useTranslations } from '../components/LocaleProvider/LocaleProvider.js';
 import { FeatureContext } from './features.js';
-import type { DataTableFilterInputOptions } from './types.js';
+import type { DataTableEditInputOptions } from './types.js';
 
 export interface ValueInputProps {
     type: 'text' | 'textarea' | 'number' | 'select' | 'multiSelect' | 'date' | 'datetime' | 'boolean' | 'checkbox';
@@ -16,11 +16,13 @@ export interface ValueInputProps {
     label: string;
     /** Choices of select and multiSelect: texts, or values of any type ({ value, label, group }, numbers) */
     options?: readonly unknown[];
-    /** Select: an "All" choice (empty value) first – for filters */
+    /** Select: an "All" choice (empty value) first – for filters (a multiSelect shows "All" while it is empty) */
     any?: boolean;
     invalid?: boolean;
-    /** Settings of the input (the column's `filterInputProps`) */
-    inputProps?: DataTableFilterInputOptions;
+    /** Settings of the input (the column's `filterInputProps` or `editInputProps`) */
+    inputProps?: DataTableEditInputOptions;
+    /** An edited cell: a cleared select gives null (a filter: an empty text) */
+    edit?: boolean;
     /** The value of a filter: a text field shows "Filter …" (translations `filterText`) without its own placeholder */
     filter?: boolean;
     /** Both ends of a range (`[from, to]`) in one field – dates with the dateRangeInput feature */
@@ -39,6 +41,7 @@ export function ValueInput({
     any = false,
     invalid,
     inputProps,
+    edit = false,
     filter = false,
     range = false,
     renderOption,
@@ -54,7 +57,7 @@ export function ValueInput({
     // Choices with values of their own keep them (objects, numbers); text choices stay text as before
     const byValue = (options ?? []).some((option) => typeof option !== 'string');
     const items: unknown[] = [
-        ...(any ? [{ value: '', label: t.filterAll }] : []),
+        ...(any && type !== 'multiSelect' ? [{ value: '', label: t.filterAll }] : []),
         ...(type === 'boolean'
             ? [
                   { value: 'true', label: t.yes },
@@ -112,6 +115,11 @@ export function ValueInput({
                 aria-label={label}
                 invalid={invalid}
                 placeholder={inputProps?.placeholder}
+                min={inputProps?.min}
+                max={inputProps?.max}
+                step={inputProps?.step}
+                allowDecimal={inputProps?.allowDecimal}
+                formatOptions={inputProps?.formatOptions}
                 value={typeof value === 'number' ? value : null}
                 onValueChange={onChange}
             />
@@ -124,10 +132,19 @@ export function ValueInput({
                 aria-label={label}
                 invalid={invalid}
                 placeholder={inputProps?.placeholder}
+                min={inputProps?.min}
+                max={inputProps?.max}
+                step={inputProps?.step ?? (inputProps?.allowDecimal === false ? 1 : undefined)}
                 value={typeof value === 'number' ? String(value) : ''}
-                // The browser's number input: an empty or invalid entry is no number
+                // The browser's number input: an empty or invalid entry is no number; allowDecimal false rounds
                 onChange={({ target }) =>
-                    onChange(target.value && Number.isFinite(Number(target.value)) ? Number(target.value) : null)
+                    onChange(
+                        target.value && Number.isFinite(Number(target.value))
+                            ? inputProps?.allowDecimal === false
+                                ? Math.round(Number(target.value))
+                                : Number(target.value)
+                            : null
+                    )
                 }
             />
         );
@@ -165,6 +182,7 @@ export function ValueInput({
                 filter={inputProps?.filter}
                 maxShown={inputProps?.maxShown}
                 clearable={inputProps?.clearable}
+                selectAll={inputProps?.selectAll}
                 renderItem={renderOption}
                 value={Array.isArray(value) ? (value as unknown[]) : []}
                 onValueChange={onChange}
@@ -190,7 +208,7 @@ export function ValueInput({
             clearable={inputProps?.clearable}
             renderItem={renderOption}
             value={byValue ? (value ?? (any ? '' : null)) : text}
-            onValueChange={(next) => onChange(next ?? '')}
+            onValueChange={(next) => onChange(next ?? (edit ? null : ''))}
         />
     );
 }

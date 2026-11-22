@@ -164,6 +164,7 @@ import RecipesProvider from '../components/RecipesProvider/RecipesProvider.vue';
 import Select from '../components/Select/Select.vue';
 import Skeleton from '../components/Skeleton/Skeleton.vue';
 import Spinner from '../components/Spinner/Spinner.vue';
+import Toggletip from '../components/Toggletip/Toggletip.vue';
 import { useLocale, useTranslations } from '../locale.js';
 import { featureKey, features as tableFeatures } from './features.js';
 import FilterMenu from './FilterMenu.vue';
@@ -225,6 +226,8 @@ export interface DataTableProps<T> {
     first?: number;
     /** Pagination below (default) or above the table */
     paginatorPosition?: 'top' | 'bottom';
+    /** The totals row (`aggregate`, `footer`) below the rows (default) or right below the headers, sticky with them */
+    footerPosition?: 'top' | 'bottom';
     /** Buttons to the first and the last page in the pagination */
     paginatorEdges?: boolean;
     /** Pagination row: rows per page at the start, pages at the end (`between`, default) – or both together */
@@ -233,7 +236,10 @@ export interface DataTableProps<T> {
     sorting?: DataTableSort | DataTableSort[] | null;
     /** Sorting at the start, without v-model */
     defaultSorting?: DataTableSort | DataTableSort[] | null;
-    /** `multiple`: Shift+click (or the column menu) sorts by further columns */
+    /**
+     * `multiple`: Shift+click (or the column menu) sorts by further columns. Default `single`; app-wide
+     * `dataTable: { defaultVariants: { multiSort: true } }` – the sorting is then an array as well
+     */
     sortMode?: 'single' | 'multiple';
     /** Server mode: `data` is the current page, already sorted and filtered; requires `rowCount` */
     manual?: boolean;
@@ -296,6 +302,10 @@ export interface DataTableProps<T> {
     sortable?: boolean;
     /** Search field above the table: filters over all columns (v-model:global-filter) */
     search?: boolean;
+    /** Text of the empty search field and its name for screen readers (default "Search …" and "Search <caption>") */
+    searchPlaceholder?: string;
+    /** More attributes of the search input, e.g. `{ 'data-tour': 'search' }` as the target of a Tour step */
+    searchInputAttrs?: Record<string, unknown>;
     /**
      * Place of the search field: `start` (default) after the controls of the toolbar start, `center` in the middle of
      * the toolbar – also when there are no controls at the start; own `toolbar` controls then join the end group.
@@ -475,7 +485,7 @@ const props = withDefaults(defineProps<DataTableProps<TData>>(), {
     rowActions: undefined,
     rowClass: undefined,
     size: undefined,
-    sortMode: 'single',
+    sortMode: undefined,
     selectionMode: 'multiple',
     filterDisplay: 'row',
     maxConstraints: 2,
@@ -815,6 +825,8 @@ watchProp(
     (value) => value !== undefined && (allSelection.value = value)
 );
 const showFilters = ref(props.showFilters ?? recipeDefaults().showFilters ?? true);
+// Shift+click sorts by further columns: the prop wins, otherwise the app-wide default of the recipe (`multiSort`)
+const multiSort = computed(() => (props.sortMode ? props.sortMode === 'multiple' : !!recipeDefaults().multiSort));
 watchProp(
     () => props.showFilters,
     (value) => value !== undefined && (showFilters.value = value)
@@ -1009,7 +1021,7 @@ const table = useTable({
 
 function setSorting(next: SortingState) {
     sorting.value = next;
-    emit('update:sorting', props.sortMode === 'multiple' ? [...next] : (next[0] ?? null));
+    emit('update:sorting', multiSort.value ? [...next] : (next[0] ?? null));
 }
 function setPagination(next: PaginationState) {
     const sizeChanged = next.pageSize !== pagination.value.pageSize;
@@ -1067,6 +1079,7 @@ const look = computed(() => ({
     fill: props.scrollHeight === 'fill',
     wrapHeaders: variantFlag('wrapHeaders'),
     verticalHeaders: variantFlag('verticalHeaders'),
+    footerTop: props.footerPosition === 'top',
 }));
 const fullscreen = ref(false);
 const grid = computed(() => props.navigation === 'grid');
@@ -1097,6 +1110,9 @@ function cellClassOf(columnId: string, row?: TableRow) {
 
 // Utility columns before and after the data columns
 const editable = computed(() => leafDefs.value.some((column) => column.editable));
+/** Whether a row's cell of the column can be edited: `editable` is true or answers true for the row */
+const canEdit = (def: DataTableColumn<TData> | undefined, row: TableRow) =>
+    typeof def?.editable === 'function' ? def.editable(row.original) : !!def?.editable;
 /** One cell at a time – saved at once (`cell`) or collected (`batch`) */
 const cellEditing = computed(() => props.editMode !== 'row');
 const hasActions = computed(() => !!props.rowActions || (props.editMode === 'row' && editable.value));
@@ -1221,7 +1237,7 @@ const ariaSort = (columnId: string) => {
 };
 const sortPosition = (columnId: string) => sorting.value.findIndex((sort) => sort.id === columnId) + 1;
 function onSort(columnId: string, event: MouseEvent) {
-    setSorting(nextSorting(sorting.value, columnId, props.sortMode === 'multiple' && event.shiftKey));
+    setSorting(nextSorting(sorting.value, columnId, multiSort.value && event.shiftKey));
 }
 
 // Column menu: sort, pin, move, hide, group
@@ -1293,7 +1309,7 @@ async function onColumnMenu(column: TableColumn, value: string) {
         case 'sort-asc':
         case 'sort-desc': {
             const sort = { id: column.id, desc: value === 'sort-desc' };
-            if (props.sortMode !== 'multiple') setSorting([sort]);
+            if (!multiSort.value) setSorting([sort]);
             else if (sortPosition(column.id))
                 setSorting(sorting.value.map((item) => (item.id === column.id ? sort : item)));
             else setSorting([...sorting.value, sort]);
@@ -1974,7 +1990,7 @@ const editableCells = () =>
         .filter((item) => item.kind === 'row')
         .flatMap((item) =>
             leafColumns.value
-                .filter((column) => columnById.value.get(column.id)?.editable)
+                .filter((column) => canEdit(columnById.value.get(column.id), item.row))
                 .map((column) => ({ rowId: item.row.id, columnId: column.id }))
         );
 /** Back to the edited cell – in grid navigation the cell itself, otherwise its edit button */
@@ -2075,12 +2091,27 @@ function onCellEditorFocusOut(row: TableRow, columnId: string, event: FocusEvent
     if (next && (editor.contains(next) || (!root.value?.contains(next) && next.closest('[data-scope]')))) return;
     void commitCell(row, columnId);
 }
-/** Editors whose choice is taken at once in the cell mode */
+/** Editors whose choice is taken at once in the cell mode (a select with `commit: 'confirm'` not) */
 const INSTANT = new Set(['select', 'date', 'checkbox']);
+const confirmsChoice = (column: DataTableColumn<TData> | undefined) =>
+    !!column && editorType(column) === 'select' && column.editInputProps?.commit === 'confirm';
 function onDraft(row: TableRow, column: DataTableColumn<TData>, value: unknown) {
     draft.value = { ...draft.value, [column.id]: value };
-    if (cellEditing.value && INSTANT.has(editorType(column)) && !slots[`editor-${column.id}`])
+    if (
+        cellEditing.value &&
+        INSTANT.has(editorType(column)) &&
+        !confirmsChoice(column) &&
+        !slots[`editor-${column.id}`]
+    )
         void commitCell(row, column.id);
+}
+/** A select with `commit: 'confirm'`: Enter on the closed field takes the choice instead of opening the list */
+function onEditorKeyCapture(row: TableRow, columnId: string, event: KeyboardEvent) {
+    if (event.key !== 'Enter' || !cellEditing.value || !confirmsChoice(columnById.value.get(columnId))) return;
+    if (!(event.target as HTMLElement).matches('[role=combobox][aria-expanded=false]')) return;
+    event.preventDefault();
+    event.stopPropagation();
+    void commitCell(row, columnId);
 }
 /** What an own editor (slot) gets */
 function editorProps(row: TableRow, column: DataTableColumn<TData>): DataTableEditorProps<TData> {
@@ -2097,14 +2128,14 @@ function startRowEdit(row: TableRow) {
     editingRow.value = row.id;
     errors.value = {};
     draft.value = Object.fromEntries(
-        leafDefs.value.filter((column) => column.editable).map((column) => [column.id, row.getValue(column.id)])
+        leafDefs.value.filter((column) => canEdit(column, row)).map((column) => [column.id, row.getValue(column.id)])
     );
     void focusEditor();
 }
 async function finishRowEdit(row: TableRow, save: boolean) {
     if (validating.value) return;
     if (save) {
-        const columnIds = leafDefs.value.filter((column) => column.editable).map((column) => column.id);
+        const columnIds = leafDefs.value.filter((column) => canEdit(column, row)).map((column) => column.id);
         if (!(await validate(row, columnIds))) return focusEditor();
         if (editingRow.value !== row.id) return;
         emit('rowEdit', { row: row.original, rowId: row.id, values: { ...draft.value } });
@@ -2315,7 +2346,7 @@ async function pasteText(text: string) {
         const def = columnById.value.get(target.columnId);
         const row = findRow(target.rowId);
         if (!def || !row) continue;
-        if (!def.editable) {
+        if (!canEdit(def, row)) {
             errors.push({ ...target, message: t.pasteErrors.readonly! });
             continue;
         }
@@ -2489,6 +2520,8 @@ const spanning = computed(
     () => !virtualOn.value && leafDefs.value.some((column) => column.rowSpan === 'auto' || column.colSpan)
 );
 const headerId = (columnId: string) => `${id}-head-${columnId}`;
+/** The hidden text of `headerHint` that describes the column header */
+const hintId = (columnId: string) => `${id}-hint-${columnId}`;
 const spans = computed(() => {
     if (!spanning.value) return undefined;
     const list = items.value;
@@ -3185,12 +3218,13 @@ const toolbarSize = sizeOverrides('sm') as RecipeConfig;
                 </RecipesProvider>
                 <Input
                     v-if="search"
+                    v-bind="searchInputAttrs"
                     type="search"
                     size="sm"
                     :leading-icon="Search"
                     :class="styles.search()"
-                    :placeholder="t.searchPlaceholder"
-                    :aria-label="t.search(caption)"
+                    :placeholder="searchPlaceholder ?? t.searchPlaceholder"
+                    :aria-label="searchPlaceholder ?? t.search(caption)"
                     :model-value="globalFilter"
                     @update:model-value="table.setGlobalFilter($event ?? '')"
                 />
@@ -3544,6 +3578,11 @@ const toolbarSize = sizeOverrides('sm') as RecipeConfig;
                                     "
                                     :style="cellStyle(cell.header.column.id, true)"
                                     :aria-sort="ariaSort(cell.header.column.id)"
+                                    :aria-describedby="
+                                        columnById.get(cell.header.column.id)?.headerHint
+                                            ? hintId(cell.header.column.id)
+                                            : undefined
+                                    "
                                     :draggable="
                                         canMove(cell.header.column.id) && !cell.header.column.getIsPinned()
                                             ? 'true'
@@ -3593,6 +3632,16 @@ const toolbarSize = sizeOverrides('sm') as RecipeConfig;
                                         <span v-else :class="headLabelClass(cell.header.column)">{{
                                             label(cell.header.column)
                                         }}</span>
+                                        <template v-if="columnById.get(cell.header.column.id)?.headerHint">
+                                            <Toggletip
+                                                :label="label(cell.header.column)"
+                                                :classes="{ trigger: styles.headHint(), icon: styles.headHintIcon() }"
+                                                >{{ columnById.get(cell.header.column.id)!.headerHint }}</Toggletip
+                                            >
+                                            <span :id="hintId(cell.header.column.id)" hidden>{{
+                                                columnById.get(cell.header.column.id)!.headerHint
+                                            }}</span>
+                                        </template>
                                         <FilterMenu
                                             v-if="menuFilters && filterable(columnById.get(cell.header.column.id))"
                                             :header="label(cell.header.column)"
@@ -3734,6 +3783,37 @@ const toolbarSize = sizeOverrides('sm') as RecipeConfig;
                                 :style="utilityStyle('actions')"
                             />
                         </tr>
+                        <!-- footerPosition="top": the totals row right below the headers, sticky with them -->
+                        <tr v-if="hasFooter && footerPosition === 'top'" data-totals="">
+                            <td
+                                v-for="utility in leading"
+                                :key="utility"
+                                :class="styles.footCell({ class: utilityClass(utility, false) })"
+                                :style="utilityStyle(utility)"
+                            />
+                            <td
+                                v-for="column in leafColumns"
+                                :key="column.id"
+                                :class="
+                                    styleFor(column.id).footCell({
+                                        class: [pinClass(column.id, false), cellClassOf(column.id)],
+                                    })
+                                "
+                                :style="cellStyle(column.id, false)"
+                            >
+                                <slot
+                                    v-if="$slots[`footer-${column.id}`]"
+                                    :name="`footer-${column.id}`"
+                                    v-bind="footerProps(columnById.get(column.id)!)"
+                                />
+                                <template v-else>{{ footerText(columnById.get(column.id)!) }}</template>
+                            </td>
+                            <td
+                                v-if="trailing.length"
+                                :class="styles.footCell({ class: utilityClass('actions', false) })"
+                                :style="utilityStyle('actions')"
+                            />
+                        </tr>
                     </thead>
                     <tbody
                         v-if="frozen.length"
@@ -3768,7 +3848,7 @@ const toolbarSize = sizeOverrides('sm') as RecipeConfig;
                                 <!-- Editable like the other rows: editor, edit button -->
                                 <div
                                     v-if="
-                                        columnById.get(cell.column.id)?.editable &&
+                                        canEdit(columnById.get(cell.column.id), row) &&
                                         ((cellEditing &&
                                             editing?.rowId === row.id &&
                                             editing.columnId === cell.column.id) ||
@@ -3777,6 +3857,7 @@ const toolbarSize = sizeOverrides('sm') as RecipeConfig;
                                     data-editor=""
                                     :class="styles.editor()"
                                     :aria-busy="validating || undefined"
+                                    @keydown.capture="onEditorKeyCapture(row, cell.column.id, $event)"
                                     @keydown="
                                         cellEditing
                                             ? onCellEditorKey(row, cell.column.id, $event)
@@ -3796,6 +3877,8 @@ const toolbarSize = sizeOverrides('sm') as RecipeConfig;
                                         :type="editorType(columnById.get(cell.column.id)!)"
                                         :label="label(cell.column)"
                                         :options="columnById.get(cell.column.id)!.editOptions"
+                                        :input-props="columnById.get(cell.column.id)!.editInputProps"
+                                        edit
                                         :invalid="!!errors[cell.column.id]"
                                         :model-value="draft[cell.column.id]"
                                         @update:model-value="onDraft(row, columnById.get(cell.column.id)!, $event)"
@@ -3813,7 +3896,7 @@ const toolbarSize = sizeOverrides('sm') as RecipeConfig;
                                     >
                                 </div>
                                 <button
-                                    v-else-if="cellEditing && columnById.get(cell.column.id)?.editable"
+                                    v-else-if="cellEditing && canEdit(columnById.get(cell.column.id), row)"
                                     type="button"
                                     :class="styleFor(cell.column.id).editButton()"
                                     :data-edit="editKey(row.id, cell.column.id)"
@@ -4197,7 +4280,7 @@ const toolbarSize = sizeOverrides('sm') as RecipeConfig;
                                                 <!-- Editor: the cell being edited, or every editable cell of the row being edited -->
                                                 <div
                                                     v-if="
-                                                        columnById.get(cell.column.id)?.editable &&
+                                                        canEdit(columnById.get(cell.column.id), item.row) &&
                                                         ((cellEditing &&
                                                             editing?.rowId === item.row.id &&
                                                             editing.columnId === cell.column.id) ||
@@ -4206,6 +4289,9 @@ const toolbarSize = sizeOverrides('sm') as RecipeConfig;
                                                     data-editor=""
                                                     :class="styles.editor()"
                                                     :aria-busy="validating || undefined"
+                                                    @keydown.capture="
+                                                        onEditorKeyCapture(item.row, cell.column.id, $event)
+                                                    "
                                                     @keydown="
                                                         cellEditing
                                                             ? onCellEditorKey(item.row, cell.column.id, $event)
@@ -4227,6 +4313,8 @@ const toolbarSize = sizeOverrides('sm') as RecipeConfig;
                                                         :type="editorType(columnById.get(cell.column.id)!)"
                                                         :label="label(cell.column)"
                                                         :options="columnById.get(cell.column.id)!.editOptions"
+                                                        :input-props="columnById.get(cell.column.id)!.editInputProps"
+                                                        edit
                                                         :invalid="!!errors[cell.column.id]"
                                                         :model-value="draft[cell.column.id]"
                                                         @update:model-value="
@@ -4249,7 +4337,9 @@ const toolbarSize = sizeOverrides('sm') as RecipeConfig;
                                                     >
                                                 </div>
                                                 <button
-                                                    v-else-if="cellEditing && columnById.get(cell.column.id)?.editable"
+                                                    v-else-if="
+                                                        cellEditing && canEdit(columnById.get(cell.column.id), item.row)
+                                                    "
                                                     type="button"
                                                     :class="styleFor(cell.column.id).editButton()"
                                                     :data-edit="editKey(item.row.id, cell.column.id)"
@@ -4416,7 +4506,7 @@ const toolbarSize = sizeOverrides('sm') as RecipeConfig;
                             </tr>
                         </tbody>
                     </BodyWrap>
-                    <tfoot v-if="hasFooter" :class="styles.foot()">
+                    <tfoot v-if="hasFooter && footerPosition !== 'top'" :class="styles.foot()">
                         <tr>
                             <td
                                 v-for="utility in leading"

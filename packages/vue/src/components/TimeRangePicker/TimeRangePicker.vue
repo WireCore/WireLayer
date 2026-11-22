@@ -4,10 +4,11 @@ import { useFieldContext } from '@ark-ui/vue/field';
 import { DateFormatter, type DateValue } from '@internationalized/date';
 import { X } from '@lucide/vue';
 import { datePicker as datePickerRecipe, parseTimeText, type RecipeClasses } from '@wirecore/wirelayer-recipes';
-import { computed, ref, useAttrs, useId } from 'vue';
+import { computed, ref, useAttrs, useId, useTemplateRef } from 'vue';
 import { splitAttrs } from '../../utils/attrs.js';
 import { useLabelForWarning } from '../../utils/label-for.js';
 import DateSegments from '../DatePicker/DateSegments.vue';
+import { useDateAnnouncements } from '../DatePicker/announcements.js';
 import { fromTime, toTime } from '../DatePicker/dates.js';
 import { useLocale, useTranslations } from '../../locale.js';
 import { useRecipe } from '../../recipes.js';
@@ -59,6 +60,8 @@ const props = withDefaults(defineProps<TimeRangePickerProps>(), {
     required: undefined,
     clearable: true,
 });
+const root = useTemplateRef<HTMLElement>('root');
+useDateAnnouncements(() => root.value);
 const datePicker = useRecipe('datePicker', datePickerRecipe, () => props.classes);
 const currentLocale = computed(() => props.locale ?? localeContext.value.locale);
 const emit = defineEmits<{ 'update:modelValue': [value: TimeRange | null] }>();
@@ -134,7 +137,7 @@ function pasteText(text: string, index: number) {
 
 <template>
     <!-- Start and end time in one field ("09:00 – 17:30"): typing runs on from start to end -->
-    <div :class="styles.base({ class: split.className })" :style="split.style">
+    <div ref="root" :class="styles.base({ class: split.className })" :style="split.style">
         <div
             :class="styles.control()"
             :data-invalid="state.invalid || undefined"

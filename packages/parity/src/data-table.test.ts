@@ -773,6 +773,40 @@ describe.each(frameworks)('%s DataTable', (framework) => {
         );
     });
 
+    it('headerHint: an (i) button next to the header shows it; it describes the column header', async () => {
+        await render(
+            framework,
+            table({
+                columns: [
+                    { id: 'name', header: 'Name', sortable: true, headerHint: 'The host name' },
+                    { id: 'load', header: 'Load', headerHint: 'Average of the last hour' },
+                ],
+            })
+        );
+        expect(screen.getByRole('columnheader', { name: /Load/ })).toHaveAccessibleDescription(
+            'Average of the last hour'
+        );
+        expect(screen.getByRole('columnheader', { name: /Name/ })).toHaveAccessibleDescription('The host name');
+        // Not inside the sort button
+        expect(within(screen.getByRole('button', { name: /^Name/ })).queryByRole('button')).toBeNull();
+        await userEvent.click(screen.getByRole('button', { name: 'More information about Load' }));
+        expect(screen.getAllByRole('status').some((status) => status.textContent === 'Average of the last hour')).toBe(
+            true
+        );
+    });
+
+    it('searchPlaceholder names the search field; searchInputAttrs go to its input', async () => {
+        await render(
+            framework,
+            table({ search: true, searchPlaceholder: 'Find a server', searchInputAttrs: { 'data-tour': 'search' } })
+        );
+        const field = screen.getByRole('searchbox', { name: 'Find a server' });
+        expect(field).toHaveAttribute('placeholder', 'Find a server');
+        expect(field).toHaveAttribute('data-tour', 'search');
+        await userEvent.type(field, 'k8s');
+        await waitFor(() => expect(names()).toEqual(['k8s-node-3']));
+    });
+
     it('searchAlign center: start and end group share the room, also without start controls; app-wide default', async () => {
         await render(
             framework,
@@ -877,6 +911,36 @@ describe.each(frameworks)('%s DataTable', (framework) => {
         expect(names()).toEqual(['web-01', 'db-primary', 'k8s-node-3']);
     });
 
+    it('app-wide multiSort sorts every table by several columns; sortMode wins', async () => {
+        const onSorting = vi.fn();
+        const onOwn = vi.fn();
+        await render(
+            framework,
+            el(
+                'RecipesProvider',
+                { recipes: { dataTable: { defaultVariants: { multiSort: true } } } },
+                table({ [on('onUpdate:sorting', 'onSortingChange')]: onSorting }),
+                table({ caption: 'Own', sortMode: 'single', [on('onUpdate:sorting', 'onSortingChange')]: onOwn })
+            )
+        );
+        const user = userEvent.setup();
+        const shiftSort = async (caption: string) => {
+            const head = (name: RegExp) =>
+                within(screen.getByRole('table', { name: caption })).getByRole('columnheader', { name });
+            await user.click(within(head(/Location/)).getByRole('button'));
+            await user.keyboard('{Shift>}');
+            await user.click(within(head(/Load/)).getByRole('button'));
+            await user.keyboard('{/Shift}');
+        };
+        await shiftSort('Server');
+        expect(onSorting).toHaveBeenLastCalledWith([
+            { id: 'location', desc: false },
+            { id: 'load', desc: false },
+        ]);
+        await shiftSort('Own');
+        expect(onOwn).toHaveBeenLastCalledWith({ id: 'load', desc: false });
+    });
+
     it('filters with conditions in the filter menu', async () => {
         const onFilters = vi.fn();
         await render(
@@ -935,6 +999,48 @@ describe.each(frameworks)('%s DataTable', (framework) => {
         expect(load).not.toHaveAttribute('type', 'number');
         expect(load.closest('[data-scope="number-input"]')).not.toBeNull();
         expect(container.querySelector('[data-scope="date-picker"]')).not.toBeNull();
+    });
+
+    it('filterInputProps: "Select all" in a multiSelect filter, a currency in a number filter', async () => {
+        await render(
+            framework,
+            table({
+                columns: [
+                    { id: 'name', header: 'Name' },
+                    {
+                        id: 'location',
+                        header: 'Location',
+                        filter: 'multiSelect',
+                        filterInputProps: { selectAll: true },
+                    },
+                    {
+                        id: 'load',
+                        header: 'Load',
+                        filter: 'number',
+                        filterInputProps: { formatOptions: { style: 'currency', currency: 'EUR' } },
+                    },
+                ],
+                features: [feature('numberInput')],
+            })
+        );
+        await userEvent.click(screen.getByRole('combobox', { name: 'Filter Location' }));
+        // No "All" choice in the list – the empty field is "All"
+        expect((await screen.findAllByRole('option')).map((option) => option.textContent?.trim())).toEqual([
+            'Frankfurt',
+            'Nuremberg',
+        ]);
+        await userEvent.click(await screen.findByRole('checkbox', { name: 'Select all' }));
+        expect(screen.getByRole('combobox', { name: 'Filter Location' })).toHaveTextContent('Frankfurt, Nuremberg');
+        expect(names()).toEqual(['web-01', 'db-primary', 'k8s-node-3']);
+        await userEvent.keyboard('{Escape}');
+        // The closed list gives the focus back to its field first
+        await waitFor(() => expect(screen.getByRole('combobox', { name: 'Filter Location' })).toHaveFocus());
+        const load = screen.getByRole('spinbutton', { name: 'Filter Load' });
+        await userEvent.click(load);
+        await userEvent.type(load, '42');
+        await userEvent.tab();
+        await waitFor(() => expect(load).toHaveValue('€42.00'));
+        await waitFor(() => expect(names()).toEqual(['web-01']));
     });
 
     it('filter row: select, multiSelect and date fields are small like the text fields', async () => {
@@ -1188,6 +1294,66 @@ describe.each(frameworks)('%s DataTable', (framework) => {
         await waitFor(() => expect(screen.getByRole('button', { name: '42, edit Load' })).toHaveFocus());
     });
 
+    it('editable per row; editInputProps: number limits, a select cleared to null and taken only on Enter', async () => {
+        const onEdit = vi.fn();
+        await render(
+            framework,
+            table({
+                columns: [
+                    { id: 'name', header: 'Name' },
+                    {
+                        id: 'load',
+                        header: 'Load',
+                        editor: 'number',
+                        editable: (row: { id: string }) => row.id !== 'db-primary',
+                        editInputProps: { min: 0, max: 100, allowDecimal: false },
+                    },
+                    {
+                        id: 'location',
+                        header: 'Location',
+                        editable: true,
+                        editor: 'select',
+                        editOptions: ['Frankfurt', 'Nuremberg'],
+                        editInputProps: { clearable: true, commit: 'confirm' },
+                    },
+                ],
+                onCellEdit: onEdit,
+            })
+        );
+        // Not editable in this row: the value without an edit button
+        expect(screen.queryByRole('button', { name: '71, edit Load' })).toBeNull();
+        expect(screen.getByRole('cell', { name: '71' })).toBeInTheDocument();
+        await userEvent.click(screen.getByRole('button', { name: '42, edit Load' }));
+        const load = await screen.findByRole('spinbutton', { name: 'Load' });
+        expect(load).toHaveAttribute('min', '0');
+        expect(load).toHaveAttribute('max', '100');
+        expect(load).toHaveAttribute('step', '1');
+        await userEvent.clear(load);
+        await userEvent.type(load, '12.6{Enter}');
+        expect(onEdit).toHaveBeenLastCalledWith(expect.objectContaining({ columnId: 'load', value: 13 }));
+
+        // commit 'confirm': choosing does not save yet, Enter on the closed field does
+        await userEvent.click(screen.getAllByRole('button', { name: 'Frankfurt, edit Location' })[0]!);
+        const location = await screen.findByRole('combobox', { name: 'Location' });
+        await userEvent.click(location);
+        await userEvent.click(await screen.findByRole('option', { name: 'Nuremberg' }));
+        expect(onEdit).toHaveBeenCalledTimes(1);
+        await waitFor(() => expect(location).toHaveAttribute('aria-expanded', 'false'));
+        location.focus();
+        await userEvent.keyboard('{Enter}');
+        expect(onEdit).toHaveBeenLastCalledWith(
+            expect.objectContaining({ rowId: 'web-01', columnId: 'location', value: 'Nuremberg' })
+        );
+        // clearable: a cleared choice is null (the table shows its data until the parent changes it)
+        await userEvent.click(screen.getAllByRole('button', { name: 'Frankfurt, edit Location' })[1]!);
+        await userEvent.click(await screen.findByRole('button', { name: 'Clear selection' }));
+        screen.getByRole('combobox', { name: 'Location' }).focus();
+        await userEvent.keyboard('{Enter}');
+        expect(onEdit).toHaveBeenLastCalledWith(
+            expect.objectContaining({ rowId: 'db-primary', columnId: 'location', value: null })
+        );
+    });
+
     it('editTrigger="dblclick": a single click only focuses the cell, a double click or the keyboard edits', async () => {
         const columns = [{ id: 'name', header: 'Name', editable: true }];
         await render(framework, table({ editTrigger: 'dblclick', columns }));
@@ -1290,6 +1456,29 @@ describe.each(frameworks)('%s DataTable', (framework) => {
         expect(footer).toHaveTextContent('Total');
         expect(footer).toHaveTextContent('Total 131');
         expect(footer).toHaveTextContent('Count 3');
+    });
+
+    it('footerPosition top: the totals row right below the headers, sticky with them', async () => {
+        await render(
+            framework,
+            table({
+                footerPosition: 'top',
+                scrollHeight: '300px',
+                columns: [
+                    { id: 'name', header: 'Name', footer: 'Total' },
+                    { id: 'load', header: 'Load', aggregate: 'sum' },
+                ],
+            })
+        );
+        const table_ = screen.getByRole('table');
+        expect(table_.querySelector('tfoot')).toBeNull();
+        const head = table_.querySelector('thead')!;
+        const totals = head.querySelector('tr:last-child')!;
+        expect(totals).toHaveTextContent('Total');
+        expect(totals).toHaveTextContent('Total 131');
+        // In the sticky head; the line below the totals instead of above
+        expect(head).toHaveClass('sticky');
+        expect(totals.querySelector('td')).toHaveClass('shadow-[0_1px_0_var(--wc-line-2)]');
     });
 
     it('restores and saves the state under stateKey', async () => {

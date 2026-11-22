@@ -97,6 +97,8 @@ export const countdown = tv({
         unit: 'items-center gap-1',
         value: 'font-mono text-2xl text-fg',
         label: 'font-sans text-[11px] text-muted',
+        /** The colon between the units of `format="clock"` */
+        separator: 'font-mono text-2xl text-muted',
     },
     variants: {
         variant: {
@@ -104,14 +106,36 @@ export const countdown = tv({
             plain: { base: 'gap-4' },
         },
         size: {
-            sm: { value: 'text-lg', unit: 'min-w-12' },
+            sm: { value: 'text-lg', unit: 'min-w-12', separator: 'text-lg' },
             md: {},
-            lg: { value: 'text-4xl' },
+            lg: { value: 'text-4xl', separator: 'text-4xl' },
+        },
+        /** `units`: each value above its unit; `clock`: "05:12:33", the units for screen readers only */
+        format: {
+            units: {},
+            clock: {
+                base: 'items-baseline gap-0.5',
+                unit: 'min-w-0 flex-row',
+                label: 'absolute h-px w-px overflow-hidden web:sr-only',
+            },
         },
     },
+    compoundVariants: [
+        // One box around the whole clock instead of one per unit
+        {
+            variant: 'boxed',
+            format: 'clock',
+            class: {
+                base: 'self-start rounded-xl border border-line bg-card px-3 py-2.5',
+                unit: 'min-w-0 rounded-none border-0 bg-transparent p-0',
+            },
+        },
+        { variant: 'plain', format: 'clock', class: { base: 'gap-0.5' } },
+    ],
     defaultVariants: {
         variant: 'boxed',
         size: 'md',
+        format: 'units',
     },
 });
 

@@ -115,6 +115,8 @@ export interface SortableContainer<T = unknown> {
     texts: () => SortableTexts;
     /** Focuses the handle at `index` once the new order is rendered (default: in the next task) */
     focus?: (index: number) => void;
+    /** Classes of the copy of the item that follows the pointer while it is dragged (recipe slot `preview`) */
+    previewClass?: () => string;
 }
 
 /** Grab state of one container, for rendering */
@@ -139,6 +141,9 @@ interface Active {
 
 const idleState: SortableState = { grabbed: null, dragging: false, active: false };
 const DRAG_THRESHOLD = 5;
+/** Distance from the edge of a scrolling area (px) at which a drag scrolls it, and the fastest step per frame */
+const SCROLL_EDGE = 48;
+const SCROLL_SPEED = 18;
 /** Attribute of the drag handles: the id of their container (several Sortables can be nested) */
 export const SORTABLE_HANDLE = 'data-sortable-handle';
 const CONTAINER = '[data-sortable-container]';
@@ -151,13 +156,22 @@ export class SortableController {
     #listeners = new Set<() => void>();
     #active: Active | null = null;
     #pointer: { container: SortableContainer; index: number; x: number; y: number; id: number } | null = null;
+    /** Removes the listeners on the document while a pointer is pressed on a handle */
+    #unlisten: (() => void) | null = null;
+    /** While dragging: the last pointer position, the copy that follows it and the auto-scroll frame */
+    #drag: { x: number; y: number; preview: HTMLElement | null; dx: number; dy: number; frame: number } | null = null;
 
     register(container: SortableContainer): () => void {
         this.#containers.set(container.id, container);
         return () => {
             this.#containers.delete(container.id);
             this.#snapshots.delete(container.id);
-            if (this.#active?.current.container.id === container.id) this.#active = null;
+            if (this.#active?.current.container.id === container.id) {
+                this.#active = null;
+                this.#pointer = null;
+                this.#stopListening();
+                this.#endDrag();
+            }
         };
     }
 
@@ -235,6 +249,9 @@ export class SortableController {
         if (!container || container.disabled() || event.button !== 0) return;
         this.#pointer = { container, index, x: event.clientX, y: event.clientY, id: event.pointerId };
         (event.currentTarget as Element | null)?.setPointerCapture?.(event.pointerId);
+        // The rest of the press on the document: the handle's item moves in the DOM (and into other lists) while it
+        // is dragged, which ends the pointer capture – the release would land elsewhere and the item stay picked up
+        this.#listen();
     }
 
     pointermove(event: PointerEvent) {
@@ -244,19 +261,22 @@ export class SortableController {
             if (Math.hypot(event.clientX - pointer.x, event.clientY - pointer.y) < DRAG_THRESHOLD) return;
             if (this.#active) this.#active = null;
             this.pickUp(pointer.container, pointer.index, 'pointer');
+            this.#startDrag(pointer.container, pointer.index, pointer.x, pointer.y);
         }
         event.preventDefault();
-        const target = this.#targetAt(event.clientX, event.clientY);
-        if (!target) return;
-        const current = this.#active!.current;
-        if (target.container !== current.container || target.index !== current.index)
-            this.#moveTo(target.container, target.index);
+        if (this.#drag) {
+            this.#drag.x = event.clientX;
+            this.#drag.y = event.clientY;
+            this.#placePreview();
+        }
+        this.#dragTo(event.clientX, event.clientY);
     }
 
     pointerup(event: PointerEvent) {
         const pointer = this.#pointer;
         if (!pointer || pointer.id !== event.pointerId) return;
         this.#pointer = null;
+        this.#stopListening();
         const active = this.#active;
         if (active?.mode === 'pointer') {
             this.drop();
@@ -274,6 +294,8 @@ export class SortableController {
 
     pointercancel() {
         this.#pointer = null;
+        this.#stopListening();
+        this.#endDrag();
         if (this.#active?.mode === 'pointer') this.cancel();
     }
 
@@ -313,6 +335,7 @@ export class SortableController {
         const active = this.#active;
         if (!active) return;
         this.#active = null;
+        this.#endDrag();
         const { container, index, count } = active.current;
         const { origin } = active;
         // A copy still at its source was not put anywhere
@@ -335,6 +358,7 @@ export class SortableController {
     cancel() {
         const active = this.#active;
         if (!active) return;
+        this.#endDrag();
         const { origin } = active;
         if (active.current.container !== origin.container || active.current.index !== origin.index)
             this.#moveTo(origin.container, origin.index, false);
@@ -351,7 +375,100 @@ export class SortableController {
     reset() {
         this.#active = null;
         this.#pointer = null;
+        this.#stopListening();
+        this.#endDrag();
         this.#notify();
+    }
+
+    #listen() {
+        this.#stopListening();
+        const move = (event: PointerEvent) => this.pointermove(event);
+        const up = (event: PointerEvent) => this.pointerup(event);
+        const cancel = (event: PointerEvent) => {
+            if (event.pointerId === this.#pointer?.id) this.pointercancel();
+        };
+        // Capture phase: a listener of the app that stops the event cannot hide the release
+        document.addEventListener('pointermove', move, true);
+        document.addEventListener('pointerup', up, true);
+        document.addEventListener('pointercancel', cancel, true);
+        this.#unlisten = () => {
+            document.removeEventListener('pointermove', move, true);
+            document.removeEventListener('pointerup', up, true);
+            document.removeEventListener('pointercancel', cancel, true);
+        };
+    }
+
+    #stopListening() {
+        this.#unlisten?.();
+        this.#unlisten = null;
+    }
+
+    /** The item under the pointer takes the carried one */
+    #dragTo(x: number, y: number) {
+        const target = this.#targetAt(x, y);
+        const current = this.#active?.current;
+        if (!target || !current) return;
+        if (target.container !== current.container || target.index !== current.index)
+            this.#moveTo(target.container, target.index);
+    }
+
+    /**
+     * A copy of the item follows the pointer (also on the way from a source to its target, where the item itself only
+     * shows up once it is over a list); near the edge of a scrolling area that area scrolls
+     */
+    #startDrag(container: SortableContainer, index: number, x: number, y: number) {
+        this.#endDrag();
+        const item = container.element()?.querySelector<HTMLElement>(`:scope > [${INDEX}="${index}"]`);
+        let preview: HTMLElement | null = null;
+        let dx = 0;
+        let dy = 0;
+        if (item) {
+            const rect = item.getBoundingClientRect();
+            dx = x - rect.left;
+            dy = y - rect.top;
+            preview = item.cloneNode(true) as HTMLElement;
+            for (const element of [preview, ...preview.querySelectorAll('[id]')]) element.removeAttribute('id');
+            for (const name of [INDEX, 'data-grabbed', 'data-dragging']) preview.removeAttribute(name);
+            preview.setAttribute('data-sortable-preview', '');
+            preview.setAttribute('aria-hidden', 'true');
+            preview.inert = true;
+            const extra = container.previewClass?.();
+            if (extra) preview.className = `${preview.className} ${extra}`;
+            Object.assign(preview.style, {
+                position: 'fixed',
+                left: '0',
+                top: '0',
+                margin: '0',
+                width: `${rect.width}px`,
+                pointerEvents: 'none',
+                zIndex: '2147483646',
+            });
+            document.body.append(preview);
+        }
+        this.#drag = { x, y, preview, dx, dy, frame: 0 };
+        this.#placePreview();
+        if (typeof requestAnimationFrame === 'function') this.#drag.frame = requestAnimationFrame(this.#scrollStep);
+    }
+
+    #placePreview() {
+        const drag = this.#drag;
+        if (drag?.preview) drag.preview.style.transform = `translate(${drag.x - drag.dx}px, ${drag.y - drag.dy}px)`;
+    }
+
+    #scrollStep = () => {
+        const drag = this.#drag;
+        if (!drag || this.#active?.mode !== 'pointer') return;
+        // What is under the pointer changes while the area scrolls
+        if (autoScrollAt(drag.x, drag.y)) this.#dragTo(drag.x, drag.y);
+        drag.frame = requestAnimationFrame(this.#scrollStep);
+    };
+
+    #endDrag() {
+        const drag = this.#drag;
+        if (!drag) return;
+        this.#drag = null;
+        if (drag.frame) cancelAnimationFrame(drag.frame);
+        drag.preview?.remove();
     }
 
     #moveTo(target: SortableContainer, index: number, speak = true) {
@@ -475,6 +592,49 @@ export class SortableController {
 export function focusHandle(container: Pick<SortableContainer, 'id' | 'element'>, index: number) {
     const id = container.id.replace(/["\\]/g, '\\$&');
     container.element()?.querySelectorAll<HTMLElement>(`[${SORTABLE_HANDLE}="${id}"]`)[index]?.focus();
+}
+
+/** Step towards an edge: negative near the start, positive near the end, faster the closer (and beyond) it is */
+function edgeStep(position: number, start: number, end: number): number {
+    const zone = Math.min(SCROLL_EDGE, (end - start) / 3);
+    if (zone <= 0) return 0;
+    if (position < start + zone) return -Math.ceil(((start + zone - Math.max(position, start)) / zone) * SCROLL_SPEED);
+    if (position > end - zone) return Math.ceil(((Math.min(position, end) - (end - zone)) / zone) * SCROLL_SPEED);
+    return 0;
+}
+
+/**
+ * Scrolls the innermost scrolling area under the point that can still move towards the edge the point is near – an
+ * area at its end passes on to the one around it, last the page (also with the pointer outside the window). True when
+ * something scrolled.
+ */
+function autoScrollAt(x: number, y: number): boolean {
+    let element = document.elementFromPoint?.(x, y) ?? null;
+    for (; element && element !== document.body && element !== document.documentElement;) {
+        const rect = element.getBoundingClientRect();
+        const stepX = edgeStep(x, rect.left, rect.right);
+        const stepY = edgeStep(y, rect.top, rect.bottom);
+        if (stepX || stepY) {
+            const style = getComputedStyle(element);
+            const scrolls = (overflow: string) => /auto|scroll|overlay/.test(overflow);
+            const left = element.scrollLeft;
+            const top = element.scrollTop;
+            element.scrollBy({
+                left: scrolls(style.overflowX) ? stepX : 0,
+                top: scrolls(style.overflowY) ? stepY : 0,
+                behavior: 'instant',
+            });
+            if (element.scrollLeft !== left || element.scrollTop !== top) return true;
+        }
+        element = element.parentElement;
+    }
+    const page = document.scrollingElement ?? document.documentElement;
+    const left = page.scrollLeft;
+    const top = page.scrollTop;
+    const stepX = edgeStep(x, 0, window.innerWidth);
+    const stepY = edgeStep(y, 0, window.innerHeight);
+    if (stepX || stepY) window.scrollBy({ left: stepX, top: stepY, behavior: 'instant' });
+    return page.scrollLeft !== left || page.scrollTop !== top;
 }
 
 function isRtl(element: HTMLElement | null): boolean {

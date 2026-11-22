@@ -153,6 +153,7 @@ const en: Translations = {
             dayPeriod: '--',
             era: '--',
         }),
+        empty: 'Empty',
     },
     splitButton: { more: 'More actions' },
     confirmPopup: { confirm: 'Yes', cancel: 'Cancel' },

@@ -185,3 +185,20 @@ function Builder() {
  * Keyboard: Space on a block of the palette, arrow right into the page (and on into the groups), Space drops.
  */
 export const Palette: Story = { render: () => <Builder /> };
+
+const steps = Array.from({ length: 30 }, (_, index) => ({ id: `s${index + 1}`, label: `Step ${index + 1}` }));
+
+function LongList() {
+    const [items, setItems] = useState(steps);
+    return (
+        <div className="flex w-80 flex-col gap-3">
+            <div className="h-64 overflow-y-auto rounded-lg border border-line p-3" data-testid="scroll-area">
+                <Sortable value={items} onValueChange={setItems} label="Steps" />
+            </div>
+            <span className="text-xs text-muted">First: {items[0]!.label}</span>
+        </div>
+    );
+}
+
+/** In a scrolling area: dragging an item near its edge scrolls it; a copy of the item follows the pointer */
+export const Scrolling: Story = { render: () => <LongList /> };

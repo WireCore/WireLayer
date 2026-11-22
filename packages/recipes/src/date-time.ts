@@ -932,3 +932,90 @@ export function inTimeRange(slot: string, range: { start: string | null; end: st
     const end = range.end ? (timeToSeconds(range.end) ?? start) : start;
     return value >= Math.min(start, end) && value <= Math.max(start, end);
 }
+
+// ── Segmented date fields (Ark DateInput) ───────────────────────────────────────────────────────────────────────
+
+/**
+ * Index of the first date of a segmented date field (Ark DateInput) that is only partly filled – some parts typed,
+ * others empty – or -1. Ark keeps the last complete value until every part is filled or every part is empty; such a
+ * date is no value yet, the field reports the dates before it (none for a single date).
+ */
+export function partialDateIndex(root: Element | null): number {
+    const groups = root?.querySelectorAll('[data-scope="date-input"][data-part="segment-group"]') ?? [];
+    for (const [index, group] of [...groups].entries()) {
+        const parts = group.querySelectorAll('[data-part="segment"]:not([data-type="literal"])');
+        const empty = [...parts].filter((part) => part.hasAttribute('data-placeholder-shown')).length;
+        if (empty && empty < parts.length) return index;
+    }
+    return -1;
+}
+
+/** Texts of the announcements of a segmented date field: the names of the parts and "empty" */
+export interface DateAnnouncementTexts {
+    segments: Record<string, string>;
+    empty: string;
+}
+
+// The English names Ark announces ("Day, Empty", "Year, 1990") → the type of the part
+const announcedParts: Record<string, string> = {
+    Era: 'era',
+    Year: 'year',
+    Month: 'month',
+    Day: 'day',
+    Hour: 'hour',
+    Minute: 'minute',
+    Second: 'second',
+    'AM/PM': 'dayPeriod',
+    'Time zone': 'timeZoneName',
+};
+const announcingFields = new Map<() => Element | null, () => DateAnnouncementTexts>();
+let regionWatch: { body: MutationObserver; region: MutationObserver } | null = null;
+
+function translateAnnouncement(region: Element) {
+    const text = region.textContent ?? '';
+    const match = /^(.+?), (.*)$/.exec(text);
+    const type = match && announcedParts[match[1]!];
+    if (!type) return;
+    const focused = document.activeElement;
+    const texts = [...announcingFields].find(([element]) => focused && element()?.contains(focused))?.[1]();
+    if (!texts) return;
+    const next = `${texts.segments[type] ?? match[1]}, ${match[2] === 'Empty' ? texts.empty : match[2]}`;
+    if (next !== text) region.textContent = next;
+}
+
+/**
+ * Ark's date fields announce every change of a part in English ("Day, Empty", "Year, 1990") through a live region of
+ * their own, whatever the locale. While the focus is in `element`, the text is replaced right after Ark sets it (before
+ * the screen reader gets it) by the names in `texts`. Returns the function that stops it.
+ */
+export function translateDateAnnouncements(
+    element: () => Element | null,
+    texts: () => DateAnnouncementTexts
+): () => void {
+    if (typeof MutationObserver === 'undefined' || typeof document === 'undefined') return () => {};
+    announcingFields.set(element, texts);
+    if (!regionWatch) {
+        // Ark puts a new region (id __live-region__) into the body for every announcement and sets its text later
+        const region = new MutationObserver((records) => {
+            const target = records[0]?.target;
+            const element = target instanceof Element ? target : target?.parentElement;
+            const live = element?.closest('#__live-region__');
+            if (live) translateAnnouncement(live);
+        });
+        const body = new MutationObserver((records) => {
+            for (const record of records)
+                for (const node of record.addedNodes)
+                    if (node instanceof Element && node.id === '__live-region__')
+                        region.observe(node, { childList: true, characterData: true, subtree: true });
+        });
+        body.observe(document.body, { childList: true });
+        regionWatch = { body, region };
+    }
+    return () => {
+        announcingFields.delete(element);
+        if (announcingFields.size || !regionWatch) return;
+        regionWatch.body.disconnect();
+        regionWatch.region.disconnect();
+        regionWatch = null;
+    };
+}

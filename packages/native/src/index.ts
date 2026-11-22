@@ -188,9 +188,11 @@ export { Carousel, type CarouselProps } from './components/Carousel/Carousel.js'
 export { Center, type CenterProps } from './components/Center/Center.js';
 export { Collapse, type CollapseProps } from './components/Collapse/Collapse.js';
 export {
+    choose,
     confirm,
     prompt,
     type ConfirmButtonOptions,
+    type ConfirmChoice,
     type ConfirmOptions,
     type PromptOptions,
 } from './components/Confirm/confirm.js';

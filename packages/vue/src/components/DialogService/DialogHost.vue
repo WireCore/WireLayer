@@ -44,7 +44,7 @@ onBeforeUnmount(removeClosedDialogs);
         :key="request.id"
         :open="request.open"
         :close-on-escape="request.closeOnEscape"
-        :close-on-interact-outside="request.closeOnInteractOutside"
+        :close-on-interact-outside="request.closeOnInteractOutside ?? defaults().closeOnInteractOutside"
         :final-focus-el="() => request.returnFocus"
         @update:open="!$event && request.settle(undefined)"
         @exit-complete="removeDialog(request.id)"

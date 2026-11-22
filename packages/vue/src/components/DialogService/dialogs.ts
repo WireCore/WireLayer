@@ -26,7 +26,10 @@ export interface DialogOptions {
     closable?: boolean;
     /** Escape closes the dialog (default true) */
     closeOnEscape?: boolean;
-    /** A click outside closes the dialog (default true) */
+    /**
+     * A click outside closes the dialog (default true). App-wide default: `closeOnInteractOutside` in the
+     * `defaultVariants` of the `dialog` recipe
+     */
     closeOnInteractOutside?: boolean;
 }
 

@@ -8,6 +8,7 @@ import {
     localeWeekInfo,
     parsePastedDate,
     parsePastedRange,
+    partialDateIndex,
     pluralText,
     timeZoneLabel,
     timeZoneLongLabel,
@@ -16,11 +17,12 @@ import {
     type RecipeClasses,
 } from '@wirecore/wirelayer-recipes';
 import { DateFormatter } from '@internationalized/date';
-import { computed, onBeforeUnmount, onMounted, ref, useId, watch } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref, shallowRef, useId, useTemplateRef, watch } from 'vue';
 import DatePickerCalendar from './DatePickerCalendar.vue';
 import DatePickerTimes from './DatePickerTimes.vue';
 import type { CalendarPreset, CalendarViewOptions } from './DatePickerViews.vue';
 import DateSegments from './DateSegments.vue';
+import { useDateAnnouncements } from './announcements.js';
 import { atTime, fromIso, toTime, withTimeOf } from './dates.js';
 import { useTranslations } from '../../locale.js';
 import { useRecipe } from '../../recipes.js';
@@ -72,6 +74,43 @@ const datePicker = useRecipe('datePicker', datePickerRecipe, () => props.classes
 const emit = defineEmits<{ change: [dates: DateValue[]] }>();
 const styles = computed(() => datePicker({ size: props.size }));
 const id = useId();
+const root = useTemplateRef<{ $el: Element }>('root');
+useDateAnnouncements(() => root.value?.$el);
+
+// A date with some parts typed and others empty is no value: the field reports the dates before it (none for a single
+// date), so a required field fails, and keeps showing what was typed – the segmented input keeps the last value
+// (`held`), Ark would empty the parts otherwise. Completing the date reports it again.
+const held = shallowRef<DateValue[] | null>(null);
+let reported: DateValue[] = [];
+const sameDates = (a: readonly DateValue[], b: readonly DateValue[]) =>
+    a.length === b.length && a.every((date, index) => date.toString() === b[index]?.toString());
+watch(
+    () => props.dates,
+    (dates) => {
+        if (held.value && !sameDates(dates, reported)) held.value = null;
+    }
+);
+function change(next: DateValue[]) {
+    held.value = null;
+    emit('change', next);
+}
+function checkPartial(element: Element | null) {
+    const index = partialDateIndex(element);
+    if (index >= 0) {
+        if (props.dates.length <= index) return;
+        held.value = held.value ?? props.dates;
+        reported = props.dates.slice(0, index);
+        emit('change', reported);
+    } else if (held.value) {
+        // Complete again with the date it had – Ark reports no change then
+        change(held.value);
+    }
+}
+// After Ark has handled the key (or the field was left)
+const onPartsChange = (event: Event) => {
+    const element = event.currentTarget as Element | null;
+    setTimeout(() => checkPartial(element));
+};
 
 // Ark connects the other inputs to a surrounding Field itself, these not: label, state, description
 const field = useFieldContext();
@@ -183,16 +222,9 @@ watch(
 );
 const timeOf = (index: number) => times.value[index] ?? (range && index === 1 ? '23:59' : '00:00');
 function fromCalendar(next: DateValue[]) {
-    if (!props.withTime) return emit('change', next);
-    if (multiple)
-        return emit(
-            'change',
-            next.map((day, index) => withTimeOf(day, props.dates[index]))
-        );
-    emit(
-        'change',
-        next.map((day, index) => atTime(day, timeOf(index)))
-    );
+    if (!props.withTime) return change(next);
+    if (multiple) return change(next.map((day, index) => withTimeOf(day, props.dates[index])));
+    change(next.map((day, index) => atTime(day, timeOf(index))));
 }
 function setTime(index: number, time: string) {
     times.value[index] = time;
@@ -200,7 +232,7 @@ function setTime(index: number, time: string) {
     if (!date) return;
     const next = [...props.dates];
     next[index] = atTime(date, time);
-    emit('change', next);
+    change(next);
 }
 const popupZone = computed(() => (zone.value ? { short: zone.value.short, describedby: `${id}tz` } : undefined));
 // Escape discards what changed in the popup since it opened (Ark closes it right after)
@@ -211,7 +243,7 @@ function onOpenChange(open: boolean) {
 function onKey(event: KeyboardEvent) {
     if (event.key !== 'Escape' || !popupTime.value || !opened) return;
     times.value = [...opened.times];
-    emit('change', opened.dates);
+    change(opened.dates);
 }
 onMounted(() => document.addEventListener('keydown', onKey, true));
 onBeforeUnmount(() => document.removeEventListener('keydown', onKey, true));
@@ -222,7 +254,7 @@ function pasteText(text: string, index: number): boolean {
     if (range) {
         const both = parsePastedRange(text, props.locale, props.withTime);
         if (both) {
-            emit('change', [fromIso(both.start, props.withTime), fromIso(both.end, props.withTime)]);
+            change([fromIso(both.start, props.withTime), fromIso(both.end, props.withTime)]);
             return true;
         }
     }
@@ -230,7 +262,7 @@ function pasteText(text: string, index: number): boolean {
     if (!iso) return false;
     const next = [...props.dates];
     next[index] = fromIso(iso, props.withTime);
-    emit('change', next.filter(Boolean));
+    change(next.filter(Boolean));
     return true;
 }
 // Fixed objects: a new literal in the template on every render makes Ark update the machine, which can re-render
@@ -245,6 +277,7 @@ const bottomStartPositioning = { placement: 'bottom-start', gutter: 4 } as const
         A range has two dates (start – end), with time each date gets hour and minute.
     -->
     <DatePicker.Root
+        ref="root"
         :class="styles.base({ class: className })"
         :model-value="dates"
         :selection-mode="mode"
@@ -285,7 +318,7 @@ const bottomStartPositioning = { placement: 'bottom-start', gutter: 4 } as const
                 v-else
                 :class="styles.dateInput()"
                 :ids="ids"
-                :model-value="dates"
+                :model-value="held ?? dates"
                 :selection-mode="inputMode"
                 :granularity="withTime ? 'minute' : 'day'"
                 :formatter="periodFormatter"
@@ -297,7 +330,9 @@ const bottomStartPositioning = { placement: 'bottom-start', gutter: 4 } as const
                 :name="name"
                 v-bind="state"
                 :translations="translations.dateInput"
-                @value-change="emit('change', $event.value)"
+                @value-change="change($event.value)"
+                @keyup="onPartsChange"
+                @focusout="onPartsChange"
             >
                 <DateInput.Context v-slot="api">
                     <DateInput.Control

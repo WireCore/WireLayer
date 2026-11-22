@@ -17,10 +17,11 @@ import {
     type RecipeClasses,
     select as selectRecipe,
 } from '@wirecore/wirelayer-recipes';
-import { computed, ref, useAttrs, useId } from 'vue';
+import { computed, ref, useAttrs, useId, useTemplateRef } from 'vue';
 import { splitAttrs } from '../../utils/attrs.js';
 import { useLabelForWarning } from '../../utils/label-for.js';
 import DateSegments from '../DatePicker/DateSegments.vue';
+import { useDateAnnouncements } from '../DatePicker/announcements.js';
 import { fromTime, timeSlots, toTime } from '../DatePicker/dates.js';
 import { useLocale, useTranslations } from '../../locale.js';
 import { useRecipe } from '../../recipes.js';
@@ -82,6 +83,8 @@ const props = withDefaults(defineProps<TimePickerProps>(), {
     required: undefined,
     clearable: true,
 });
+const root = useTemplateRef<HTMLElement>('root');
+useDateAnnouncements(() => root.value);
 const datePicker = useRecipe('datePicker', datePickerRecipe, () => props.classes);
 const select = useRecipe('select', selectRecipe);
 const currentLocale = computed(() => props.locale ?? localeContext.value.locale);
@@ -183,7 +186,7 @@ const bottomEndPositioning = { placement: 'bottom-end', gutter: 4 } as const;
         Time field: type the digits one after another ("1430"), arrow keys change hour or minute – or pick from the
         list of times (every `step` minutes). Gives "HH:mm".
     -->
-    <div :class="styles.base({ class: split.className })" :style="split.style">
+    <div ref="root" :class="styles.base({ class: split.className })" :style="split.style">
         <div
             :class="styles.control()"
             :data-invalid="state.invalid || undefined"

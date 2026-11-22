@@ -13,6 +13,7 @@ export type {
     DataTableColumn,
     DataTableCsvOptions,
     DataTableDataSource,
+    DataTableEditInputOptions,
     DataTableEditor,
     DataTableEditorProps,
     DataTableFeature,

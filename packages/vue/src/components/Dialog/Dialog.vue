@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { Dialog } from '@ark-ui/vue/dialog';
-import { autoselectElement } from '@wirecore/wirelayer-recipes';
+import { autoselectElement, dialog as dialogRecipe } from '@wirecore/wirelayer-recipes';
 import { computed, provide, shallowRef } from 'vue';
 import { dialogContentKey, dialogRootKey } from './context.js';
+import { useRecipeDefaults } from '../../recipes.js';
 
 export interface DialogProps {
     /** Controlled state – use with v-model:open */
@@ -17,7 +18,10 @@ export interface DialogProps {
     modal?: boolean;
     /** Escape closes the dialog */
     closeOnEscape?: boolean;
-    /** A click outside closes the dialog – by default for modal dialogs, not for alertdialogs and non-modal ones */
+    /**
+     * A click outside closes the dialog – by default for modal dialogs, not for alertdialogs and non-modal ones.
+     * App-wide default: `closeOnInteractOutside` in the `defaultVariants` of the `dialog` recipe; the prop wins
+     */
     closeOnInteractOutside?: boolean;
 }
 
@@ -30,6 +34,9 @@ const props = withDefaults(defineProps<DialogProps>(), {
     closeOnInteractOutside: undefined,
 });
 const emit = defineEmits<{ 'update:open': [open: boolean] }>();
+const defaults = useRecipeDefaults('dialog', dialogRecipe);
+// The prop wins, otherwise the app-wide default of the recipe; without both Ark decides (modal, not alertdialog)
+const interactOutside = computed(() => props.closeOnInteractOutside ?? defaults().closeOnInteractOutside);
 provide(
     dialogRootKey,
     computed(() => ({ modal: props.modal }))
@@ -52,7 +59,7 @@ const initialFocus = () =>
         :role="role"
         :modal="modal"
         :close-on-escape="closeOnEscape"
-        :close-on-interact-outside="closeOnInteractOutside"
+        :close-on-interact-outside="interactOutside"
         :initial-focus-el="initialFocus"
         lazy-mount
         unmount-on-exit

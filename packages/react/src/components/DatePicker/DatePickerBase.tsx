@@ -14,6 +14,7 @@ import {
     localeWeekInfo,
     parsePastedDate,
     parsePastedRange,
+    partialDateIndex,
     pluralText,
     rowWeekNumber,
     timeZoneLabel,
@@ -38,12 +39,16 @@ import {
     type MouseEvent,
     type ReactNode,
 } from 'react';
+import { useDateAnnouncements } from './announcements.js';
 import { atTime, fromIso, fromTime, toTime, withTimeOf } from './dates.js';
 import { useTranslations } from '../LocaleProvider/LocaleProvider.js';
 import { useRecipe } from '../RecipesProvider/RecipesProvider.js';
 import { useLatest } from '../../hooks/state.js';
 
 // Shared by DatePicker, DateRangePicker and TimePicker – not exported from the package
+
+const sameDates = (a: readonly DateValue[], b: readonly DateValue[]) =>
+    a.length === b.length && a.every((date, index) => date.toString() === b[index]?.toString());
 
 /** Own content of a day in the calendar (React counterpart of the Vue `day` slot) */
 export type RenderDay = (date: string, state: CalendarDayState) => ReactNode;
@@ -140,6 +145,34 @@ export function DatePickerBase({
     const styles = datePicker({ size });
     const translations = useTranslations();
     const id = useId();
+    const root = useRef<HTMLDivElement>(null);
+    useDateAnnouncements(root);
+    // A date with some parts typed and others empty is no value: the field reports the dates before it (none for a
+    // single date), so a required field fails, and keeps showing what was typed – the segmented input keeps the last
+    // value (`held`), Ark would empty the parts otherwise. Completing the date reports it again.
+    const [held, setHeld] = useState<{ shown: DateValue[]; reported: DateValue[] } | null>(null);
+    if (held && !sameDates(dates, held.reported)) setHeld(null);
+    const change = (next: DateValue[]) => {
+        setHeld(null);
+        onChange(next);
+    };
+    const checkPartial = useLatest((element: Element | null) => {
+        const index = partialDateIndex(element);
+        if (index >= 0) {
+            if (dates.length <= index) return;
+            const reported = dates.slice(0, index);
+            setHeld({ shown: held?.shown ?? dates, reported });
+            onChange(reported);
+        } else if (held) {
+            // Complete again with the date it had – Ark reports no change then
+            change(held.shown);
+        }
+    });
+    // After Ark has handled the key (or the field was left)
+    const onPartsChange = (event: { currentTarget: Element }) => {
+        const element = event.currentTarget;
+        setTimeout(() => checkPartial.current(element));
+    };
     // Ark connects the other inputs to a surrounding Field itself, these not: label, state, description
     const field = useFieldContext();
     const state = {
@@ -208,11 +241,11 @@ export function DatePickerBase({
         return next;
     };
     const fromCalendar = (next: DateValue[]) => {
-        if (!withTime) return onChange(next);
-        if (multiple) return onChange(next.map((day, index) => withTimeOf(day, dates[index])));
+        if (!withTime) return change(next);
+        if (multiple) return change(next.map((day, index) => withTimeOf(day, dates[index])));
         const known = remembered();
         setTimes(known);
-        onChange(next.map((day, index) => atTime(day, known[index] ?? fallback(index))));
+        change(next.map((day, index) => atTime(day, known[index] ?? fallback(index))));
     };
     const setTime = (index: number, time: string) => {
         const known = remembered();
@@ -222,14 +255,14 @@ export function DatePickerBase({
         if (!date) return;
         const next = [...dates];
         next[index] = atTime(date, time);
-        onChange(next);
+        change(next);
     };
     // Escape discards what changed in the popup since it opened (Ark closes it right after)
     const opened = useRef<{ dates: DateValue[]; times: (string | undefined)[] } | null>(null);
     const discard = useLatest(() => {
         if (!opened.current) return;
         setTimes(opened.current.times);
-        onChange(opened.current.dates);
+        change(opened.current.dates);
     });
     useEffect(() => {
         if (!popupTime) return;
@@ -245,7 +278,7 @@ export function DatePickerBase({
         if (range) {
             const both = parsePastedRange(text, locale, withTime);
             if (both) {
-                onChange([fromIso(both.start, withTime), fromIso(both.end, withTime)]);
+                change([fromIso(both.start, withTime), fromIso(both.end, withTime)]);
                 return true;
             }
         }
@@ -253,7 +286,7 @@ export function DatePickerBase({
         if (!iso) return false;
         const next = [...dates];
         next[index] = fromIso(iso, withTime);
-        onChange(next.filter(Boolean));
+        change(next.filter(Boolean));
         return true;
     };
     // Several dates (selectionMode multiple): the field shows them as text
@@ -274,6 +307,7 @@ export function DatePickerBase({
 
     return (
         <ArkDatePicker.Root
+            ref={root}
             className={styles.base({ class: className })}
             style={style}
             value={dates}
@@ -322,8 +356,10 @@ export function DatePickerBase({
                     <ArkDateInput.Root
                         className={styles.dateInput()}
                         ids={ids}
-                        value={dates}
-                        onValueChange={(details) => onChange(details.value)}
+                        value={held?.shown ?? dates}
+                        onValueChange={(details) => change(details.value)}
+                        onKeyUp={onPartsChange}
+                        onBlur={onPartsChange}
                         selectionMode={range ? 'range' : 'single'}
                         granularity={withTime ? 'minute' : 'day'}
                         formatter={periodFormatter}
@@ -555,6 +591,8 @@ function PopupTimes({
     const field = datePicker({ size: 'sm' });
     const translations = useTranslations();
     const id = useId();
+    const root = useRef<HTMLDivElement>(null);
+    useDateAnnouncements(root);
     const range = count > 1;
     const names = [translations.dateRange.start, translations.dateRange.end];
     const formatter = useMemo(() => new DateFormatter(locale, { hour: '2-digit', minute: '2-digit' }), [locale]);
@@ -563,7 +601,11 @@ function PopupTimes({
         return time ? fromTime(time) : undefined;
     };
     return (
-        <div className={styles.timeSection()} {...(range ? { role: 'group', 'aria-labelledby': `${id}h` } : {})}>
+        <div
+            ref={root}
+            className={styles.timeSection()}
+            {...(range ? { role: 'group', 'aria-labelledby': `${id}h` } : {})}
+        >
             {/* One date: the field itself is named "Time" */}
             <span id={`${id}h`} className={styles.timeHeading()} aria-hidden={range ? undefined : 'true'}>
                 {translations.calendar.time}

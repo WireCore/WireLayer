@@ -77,7 +77,7 @@ const error = computed(() => {
 
 function submit() {
     attempted.value = true;
-    if (!error.value) confirmRequest.value?.settle(true, value.value);
+    if (!error.value) confirmRequest.value?.settle('confirm', value.value);
 }
 
 const cancelButtonRef = ref<ComponentPublicInstance | null>(null);
@@ -96,7 +96,7 @@ const initialFocus = () =>
         :final-focus-el="() => content?.returnFocus ?? null"
         lazy-mount
         unmount-on-exit
-        @update:open="!$event && confirmRequest?.settle(false)"
+        @update:open="!$event && confirmRequest?.settle('dismiss')"
     >
         <Teleport v-if="content" to="body">
             <Dialog.Backdrop :class="styles.backdrop()" />
@@ -131,7 +131,7 @@ const initialFocus = () =>
                         </div>
                     </div>
                     <div :class="styles.footer()">
-                        <Button ref="cancelButtonRef" v-bind="cancelProps" @click="confirmRequest?.settle(false)">
+                        <Button ref="cancelButtonRef" v-bind="cancelProps" @click="confirmRequest?.settle('cancel')">
                             {{ content.cancelLabel ?? translations.common.cancel }}
                         </Button>
                         <Button v-bind="confirmProps" @click="submit">

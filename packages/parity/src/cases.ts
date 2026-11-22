@@ -2098,6 +2098,19 @@ export const cases: [string, El][] = [
             el('TagsInput', { defaultValue: ['hosting'], suggestions: ['hosting', 'linux', 'docker'], loading: true })
         ),
     ],
+    [
+        'TagsInput all suggestions',
+        el(
+            'Field',
+            { label: 'Keywords' },
+            el('TagsInput', {
+                defaultValue: ['hosting'],
+                suggestions: ['hosting', 'linux'],
+                openOnFocus: true,
+                trigger: true,
+            })
+        ),
+    ],
     ['CopyButton', el('CopyButton', { value: '10.0.1.11', showValue: true, label: 'Copy IP' })],
     [
         'HoverCard closed',
@@ -3609,6 +3622,10 @@ export const cases: [string, El][] = [
     ],
     ['ActionBar hidden', el('div', {}, el('ActionBar', { count: 0 }))],
     ['Countdown ended', el('Countdown', { target: '2020-01-01T00:00:00', label: 'Offer ends in' })],
+    [
+        'Countdown clock',
+        el('Countdown', { target: 0, label: 'Protest time', units: ['hours', 'minutes', 'seconds'], format: 'clock' }),
+    ],
     [
         'Countdown hours plain',
         el('Countdown', {

@@ -148,3 +148,20 @@ export const Palette: Story = {
             </div>`,
     }),
 };
+
+/** In a scrolling area: dragging an item near its edge scrolls it; a copy of the item follows the pointer */
+export const Scrolling: Story = {
+    render: () => ({
+        components: { Sortable },
+        setup: () => ({
+            items: ref(Array.from({ length: 30 }, (_, index) => ({ id: `s${index + 1}`, label: `Step ${index + 1}` }))),
+        }),
+        template: `
+            <div class="flex w-80 flex-col gap-3">
+                <div class="h-64 overflow-y-auto rounded-lg border border-line p-3" data-testid="scroll-area">
+                    <Sortable v-model="items" label="Steps" />
+                </div>
+                <span class="text-xs text-muted">First: {{ items[0].label }}</span>
+            </div>`,
+    }),
+};

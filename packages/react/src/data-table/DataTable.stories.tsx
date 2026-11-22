@@ -158,6 +158,16 @@ export const Playground: Story = {};
 
 export const Empty: Story = { args: { data: [], pageSize: undefined, selectable: false } };
 
+/** `headerHint`: an (i) button next to the header explains the column – screen readers get it as its description */
+export const HeaderHint: Story = {
+    name: 'Header hint',
+    args: {
+        columns: columns.map((column) =>
+            column.id === 'load' ? { ...column, headerHint: 'Average CPU load of the last hour' } : column
+        ),
+    },
+};
+
 interface FileRow {
     id: string;
     name: string;
@@ -558,6 +568,29 @@ export const Totals: Story = {
     ),
 };
 
+/** `footerPosition="top"`: the totals right below the headers – they stay in view with them while the rows scroll */
+export const TotalsOnTop: Story = {
+    name: 'Totals on top',
+    render: () => (
+        <DataTable<MachineRow>
+            features={features}
+            data={machines(30)}
+            columns={[
+                { id: 'name', header: 'Name', footer: 'Total' },
+                { id: 'location', header: 'Location' },
+                { id: 'cores', header: 'Cores', align: 'end', aggregate: 'sum' },
+                { id: 'load', header: 'Load', align: 'end', aggregate: 'avg' },
+            ]}
+            caption="Resources"
+            getRowId={machineId}
+            footerPosition="top"
+            scrollHeight="320px"
+            sortable
+            className={`${card} max-w-[640px]`}
+        />
+    ),
+};
+
 /** Machines per location, e.g. for a footer cell */
 const perLocation = (rows: readonly MachineRow[]) => {
     const counts = new Map<string, number>();
@@ -876,9 +909,26 @@ export const FillTheRest: Story = {
 
 const keyboardColumns: DataTableColumn<MachineRow>[] = [
     { id: 'name', header: 'Name', width: 170, sortable: true, pinned: 'start', editable: true },
-    { id: 'location', header: 'Location', width: 170, editable: true, editor: 'select', editOptions: locations },
+    {
+        id: 'location',
+        header: 'Location',
+        width: 170,
+        editable: true,
+        editor: 'select',
+        editOptions: locations,
+        // A search in the list; the choice counts on Enter, Tab or leaving the cell
+        editInputProps: { filter: true, commit: 'confirm' },
+    },
     { id: 'os', header: 'System', width: 170 },
-    { id: 'cores', header: 'Cores', width: 120, align: 'end', editable: true, editor: 'number' },
+    {
+        id: 'cores',
+        header: 'Cores',
+        width: 120,
+        align: 'end',
+        editable: true,
+        editor: 'number',
+        editInputProps: { min: 1, max: 256, allowDecimal: false },
+    },
     { id: 'load', header: 'Load', width: 150, align: 'end' },
     { id: 'since', header: 'In service since', width: 190, format: shortDate },
     { id: 'online', header: 'Online', width: 130, format: (value) => (value ? 'Yes' : 'No') },

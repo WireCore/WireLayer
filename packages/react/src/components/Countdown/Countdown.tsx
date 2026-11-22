@@ -1,5 +1,5 @@
 import { countdown as countdownRecipe, countdownParts, type RecipeClasses } from '@wirecore/wirelayer-recipes';
-import { useEffect, useSyncExternalStore, type ComponentProps } from 'react';
+import { Fragment, useEffect, useSyncExternalStore, type ComponentProps } from 'react';
 import { useTranslations } from '../LocaleProvider/LocaleProvider.js';
 import { useRecipe } from '../RecipesProvider/RecipesProvider.js';
 
@@ -14,6 +14,8 @@ export interface CountdownProps extends Omit<ComponentProps<'div'>, 'children'> 
     units?: readonly CountdownUnit[];
     variant?: 'boxed' | 'plain';
     size?: 'sm' | 'md' | 'lg';
+    /** `units` (default): each value above its unit; `clock`: "05:12:33", the units for screen readers only */
+    format?: 'units' | 'clock';
     /** The target time was reached */
     onComplete?: () => void;
     /** Extra classes per part of the component, e.g. { base: "…" } (see the recipe) */
@@ -38,13 +40,14 @@ export function Countdown({
     units = allUnits,
     variant,
     size,
+    format,
     onComplete,
     className,
     ...props
 }: CountdownProps) {
     const countdown = useRecipe('countdown', countdownRecipe, classes);
     const translations = useTranslations();
-    const styles = countdown({ variant, size });
+    const styles = countdown({ variant, size, format });
     const now = useSyncExternalStore(subscribe, currentSecond, noTime);
     const remaining = now === null ? null : new Date(target).getTime() - now;
     const parts = remaining === null ? null : countdownParts(remaining, units);
@@ -65,11 +68,24 @@ export function Countdown({
         >
             {allUnits
                 .filter((unit) => units.includes(unit))
-                .map((unit) => (
-                    <span key={unit} className={styles.unit()}>
-                        <span className={styles.value()}>{parts ? String(parts[unit]).padStart(2, '0') : '--'}</span>
-                        <span className={styles.label()}>{translations.countdown[unit](parts ? parts[unit] : 0)}</span>
-                    </span>
+                .map((unit, index) => (
+                    <Fragment key={unit}>
+                        {format === 'clock' && index > 0 && (
+                            <span className={styles.separator()} aria-hidden="true">
+                                :
+                            </span>
+                        )}
+                        <span className={styles.unit()}>
+                            <span className={styles.value()}>
+                                {parts ? String(parts[unit]).padStart(2, '0') : '--'}
+                            </span>
+                            {/* A clock reads "05 hours": the space keeps the hidden unit apart from the value */}
+                            <span className={styles.label()}>
+                                {format === 'clock' ? ' ' : ''}
+                                {translations.countdown[unit](parts ? parts[unit] : 0)}
+                            </span>
+                        </span>
+                    </Fragment>
                 ))}
         </div>
     );

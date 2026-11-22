@@ -2,7 +2,7 @@ import { Trash2 } from '@lucide/vue';
 import type { Meta, StoryObj } from '@storybook/vue3-vite';
 import { ref } from 'vue';
 import Button from '../Button/Button.vue';
-import { confirm, prompt } from './confirm.js';
+import { choose, confirm, prompt } from './confirm.js';
 import ConfirmDialog from './ConfirmDialog.vue';
 
 const meta = {
@@ -106,6 +106,35 @@ export const ButtonLooks: Story = {
                 <Button variant="outline" @click="archive">Archive project</Button>
                 <span class="text-sm text-muted" aria-live="polite">{{ result }}</span>
                 <ConfirmDialog :confirm-button="confirmLook" :cancel-button="cancelLook" />
+            </div>`,
+    }),
+};
+
+/**
+ * `choose()` tells the buttons from closing: `'confirm'`, `'cancel'` or `'dismiss'` (Escape, ×) – for a second button
+ * that is an action of its own, where closing does nothing
+ */
+export const Choose: Story = {
+    render: () => ({
+        components: { Button, ConfirmDialog },
+        setup() {
+            const result = ref('');
+            const assign = async () => {
+                const choice = await choose({
+                    title: 'Assign the riders automatically?',
+                    description: 'Otherwise you assign them by hand.',
+                    confirmLabel: 'Assign',
+                    cancelLabel: 'Assign by hand',
+                });
+                result.value = { confirm: 'Assigned', cancel: 'Assign by hand', dismiss: 'Nothing done' }[choice];
+            };
+            return { assign, result };
+        },
+        template: `
+            <div class="flex items-center gap-3">
+                <Button variant="outline" @click="assign">Assign riders</Button>
+                <span class="text-sm text-muted" aria-live="polite">{{ result }}</span>
+                <ConfirmDialog />
             </div>`,
     }),
 };

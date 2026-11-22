@@ -156,6 +156,16 @@ export const Playground: Story = {};
 
 export const Empty: Story = { args: { data: [], pageSize: undefined, selectable: false } };
 
+/** `headerHint`: an (i) button next to the header explains the column – screen readers get it as its description */
+export const HeaderHint: Story = {
+    name: 'Header hint',
+    args: {
+        columns: columns.map((column) =>
+            column.id === 'load' ? { ...column, headerHint: 'Average CPU load of the last hour' } : column
+        ),
+    },
+};
+
 interface FileRow {
     id: string;
     name: string;
@@ -643,6 +653,39 @@ export const Totals: Story = {
     }),
 };
 
+/** `footerPosition="top"`: the totals right below the headers – they stay in view with them while the rows scroll */
+export const TotalsOnTop: Story = {
+    name: 'Totals on top',
+    render: () => ({
+        components: { DataTable: DataTable as ConcreteComponent },
+        setup: () => ({
+            features,
+            rows: machines(30),
+            card,
+            getRowId: machineId,
+            columns: [
+                { id: 'name', header: 'Name', footer: 'Total' },
+                { id: 'location', header: 'Location' },
+                { id: 'cores', header: 'Cores', align: 'end', aggregate: 'sum' },
+                { id: 'load', header: 'Load', align: 'end', aggregate: 'avg' },
+            ],
+        }),
+        template: `
+            <DataTable
+                :features="features"
+                :data="rows"
+                :columns="columns"
+                caption="Resources"
+                :get-row-id="getRowId"
+                footer-position="top"
+                scroll-height="320px"
+                sortable
+                :class="card"
+                class="max-w-[640px]"
+            />`,
+    }),
+};
+
 /** Machines per location, e.g. for a footer cell */
 const perLocation = (rows: readonly MachineRow[]) => {
     const counts = new Map<string, number>();
@@ -1034,9 +1077,19 @@ const keyboardColumns = [
         editable: true,
         editor: 'select' as const,
         editOptions: locations,
+        // A search in the list; the choice counts on Enter, Tab or leaving the cell
+        editInputProps: { filter: true, commit: 'confirm' as const },
     },
     { id: 'os', header: 'System', width: 170 },
-    { id: 'cores', header: 'Cores', width: 120, align: 'end' as const, editable: true, editor: 'number' as const },
+    {
+        id: 'cores',
+        header: 'Cores',
+        width: 120,
+        align: 'end' as const,
+        editable: true,
+        editor: 'number' as const,
+        editInputProps: { min: 1, max: 256, allowDecimal: false },
+    },
     { id: 'load', header: 'Load', width: 150, align: 'end' as const },
     { id: 'since', header: 'In service since', width: 190, format: shortDate },
     { id: 'online', header: 'Online', width: 130, format: (value: unknown) => (value ? 'Yes' : 'No') },

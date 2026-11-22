@@ -156,6 +156,7 @@ export const it: Translations = {
             dayPeriod: '--',
             era: '--',
         }),
+        empty: 'Vuoto',
     },
     splitButton: { more: 'Altre azioni' },
     confirmPopup: { confirm: 'Sì', cancel: 'Annulla' },

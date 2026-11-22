@@ -166,6 +166,7 @@ import { Pagination } from '../components/Pagination/Pagination.js';
 import { Select } from '../components/Select/Select.js';
 import { Skeleton } from '../components/Skeleton/Skeleton.js';
 import { Spinner } from '../components/Spinner/Spinner.js';
+import { Toggletip } from '../components/Toggletip/Toggletip.js';
 import { useLocale, useTranslations } from '../components/LocaleProvider/LocaleProvider.js';
 import { FeatureContext, features as tableFeatures } from './features.js';
 import { FilterMenu } from './FilterMenu.js';
@@ -261,6 +262,8 @@ export interface DataTableProps<TData> extends Omit<
     onFirstChange?: (first: number) => void;
     /** Pagination below (default) or above the table */
     paginatorPosition?: 'top' | 'bottom';
+    /** The totals row (`aggregate`, `footer`) below the rows (default) or right below the headers, sticky with them */
+    footerPosition?: 'top' | 'bottom';
     /** Buttons to the first and the last page in the pagination */
     paginatorEdges?: boolean;
     /** Pagination row: rows per page at the start, pages at the end (`between`, default) – or both together */
@@ -270,7 +273,10 @@ export interface DataTableProps<TData> extends Omit<
     onSortingChange?: (sorting: DataTableSort | DataTableSort[] | null) => void;
     /** Sorting at the start (uncontrolled) */
     defaultSorting?: DataTableSort | DataTableSort[] | null;
-    /** `multiple`: Shift+click (or the column menu) sorts by further columns */
+    /**
+     * `multiple`: Shift+click (or the column menu) sorts by further columns. Default `single`; app-wide
+     * `dataTable: { defaultVariants: { multiSort: true } }` – the sorting is then an array as well
+     */
     sortMode?: 'single' | 'multiple';
     /** Server mode: `data` is the current page, already sorted and filtered; requires `rowCount` */
     manual?: boolean;
@@ -346,6 +352,12 @@ export interface DataTableProps<TData> extends Omit<
     sortable?: boolean;
     /** Search field above the table: filters over all columns */
     search?: boolean;
+    /** Text of the empty search field and its name for screen readers (default "Search …" and "Search <caption>") */
+    searchPlaceholder?: string;
+    /** More attributes of the search input, e.g. `{ 'data-tour': 'search' }` as the target of a Tour step */
+    searchInputAttrs?: ComponentProps<'input'> & {
+        [attribute: `data-${string}`]: string | number | boolean | undefined;
+    };
     /**
      * Place of the search field: `start` (default) after the controls of the toolbar start, `center` in the middle of
      * the toolbar – also when there are no controls at the start; own `toolbar` controls then join the end group.
@@ -558,7 +570,7 @@ const withSelected = (state: RowSelectionState, ids: string[], checked: boolean)
 /** Choices with values of their own (objects, numbers): select filters compare the cell value, not the text */
 const byValue = (column: { filterOptions?: readonly unknown[] }) =>
     (column.filterOptions ?? []).some((option) => typeof option !== 'string');
-/** Editors whose choice is taken at once in the cell mode */
+/** Editors whose choice is taken at once in the cell mode (a select with `commit: 'confirm'` not) */
 const INSTANT = new Set(['select', 'date', 'checkbox']);
 const MIN_WIDTH = 60;
 const RESIZE_STEP = 16;
@@ -606,12 +618,13 @@ export function DataTable<TData extends object>({
     first,
     onFirstChange,
     paginatorPosition = 'bottom',
+    footerPosition = 'bottom',
     paginatorEdges,
     paginatorAlign,
     sorting: sortingProp,
     onSortingChange,
     defaultSorting,
-    sortMode = 'single',
+    sortMode: sortModeProp,
     manual = false,
     rowCount,
     selectable = false,
@@ -646,6 +659,8 @@ export function DataTable<TData extends object>({
     renderAdvancedFilter,
     sortable: sortableProp,
     search = false,
+    searchPlaceholder,
+    searchInputAttrs,
     searchAlign: searchAlignProp,
     globalFilter: globalFilterProp,
     onGlobalFilterChange,
@@ -733,6 +748,7 @@ export function DataTable<TData extends object>({
     const striped = stripedProp ?? !!recipeDefaults.striped;
     const wrapHeaders = wrapHeadersProp ?? !!recipeDefaults.wrapHeaders;
     const verticalHeaders = verticalHeadersProp ?? !!recipeDefaults.verticalHeaders;
+    const sortMode = sortModeProp ?? (recipeDefaults.multiSort ? 'multiple' : 'single');
     const menu = useRecipe('menu', menuRecipe);
     const menuStyles = menu();
     type TableRow = Row<Features, TData>;
@@ -1165,6 +1181,7 @@ export function DataTable<TData extends object>({
         fill: scrollHeight === 'fill',
         wrapHeaders,
         verticalHeaders,
+        footerTop: footerPosition === 'top',
     };
     const grid = navigation === 'grid';
     // A tree table with grid keys is a treegrid: rows with level and open state, left/right close and open them
@@ -1191,6 +1208,11 @@ export function DataTable<TData extends object>({
 
     // Utility columns before and after the data columns
     const editable = leafDefs.some((column) => column.editable);
+    /** Whether a row's cell of the column can be edited: `editable` is true or answers true for the row */
+    const canEdit = (def: DataTableColumn<TData> | undefined, row: TableRow) =>
+        typeof def?.editable === 'function' ? def.editable(row.original) : !!def?.editable;
+    const confirmsChoice = (column: DataTableColumn<TData> | undefined) =>
+        !!column && editorType(column) === 'select' && column.editInputProps?.commit === 'confirm';
     /** One cell at a time – saved at once (`cell`) or collected (`batch`) */
     const cellEditing = editMode !== 'row';
     const leading: Utility[] = [
@@ -2031,7 +2053,7 @@ export function DataTable<TData extends object>({
             .filter((item) => item.kind === 'row')
             .flatMap((item) =>
                 leafColumns
-                    .filter((column) => columnById.get(column.id)?.editable)
+                    .filter((column) => canEdit(columnById.get(column.id), item.row))
                     .map((column) => ({ rowId: item.row.id, columnId: column.id }))
             );
     const startEdit = (row: TableRow, columnId: string) => {
@@ -2134,8 +2156,16 @@ export function DataTable<TData extends object>({
         const next = { ...draftRef.current, [column.id]: value };
         updateDraft(next);
         // Choices are taken at once in the cell mode
-        if (cellEditing && INSTANT.has(editorType(column)) && !column.renderEditor)
+        if (cellEditing && INSTANT.has(editorType(column)) && !confirmsChoice(column) && !column.renderEditor)
             commitCell(row, column.id, undefined, next);
+    };
+    /** A select with `commit: 'confirm'`: Enter on the closed field takes the choice instead of opening the list */
+    const onEditorKeyCapture = (row: TableRow, columnId: string, event: KeyboardEvent) => {
+        if (event.key !== 'Enter' || !cellEditing || !confirmsChoice(columnById.get(columnId))) return;
+        if (!(event.target as HTMLElement).matches('[role=combobox][aria-expanded=false]')) return;
+        event.preventDefault();
+        event.stopPropagation();
+        commitCell(row, columnId);
     };
     /** What an own editor (renderEditor) gets */
     const editorProps = (row: TableRow, column: DataTableColumn<TData>): DataTableEditorProps<TData> => ({
@@ -2151,7 +2181,7 @@ export function DataTable<TData extends object>({
         setErrors({});
         updateDraft(
             Object.fromEntries(
-                leafDefs.filter((column) => column.editable).map((column) => [column.id, row.getValue(column.id)])
+                leafDefs.filter((column) => canEdit(column, row)).map((column) => [column.id, row.getValue(column.id)])
             )
         );
         focusAfter.current = editorSelector;
@@ -2165,7 +2195,7 @@ export function DataTable<TData extends object>({
             focusEditTarget(`[data-row-edit="${CSS.escape(row.id)}"]`);
         };
         if (!save) return close();
-        const columnIds = leafDefs.filter((column) => column.editable).map((column) => column.id);
+        const columnIds = leafDefs.filter((column) => canEdit(column, row)).map((column) => column.id);
         const finish = (ok: boolean) => {
             if (!ok) {
                 focusAfter.current = editorSelector;
@@ -2362,7 +2392,7 @@ export function DataTable<TData extends object>({
             const def = columnById.get(target.columnId);
             const row = findRow(target.rowId);
             if (!def || !row) continue;
-            if (!def.editable) {
+            if (!canEdit(def, row)) {
                 errors.push({ ...target, message: t.pasteErrors.readonly! });
                 continue;
             }
@@ -2525,6 +2555,8 @@ export function DataTable<TData extends object>({
     // Merged cells: equal values one below the other (rowSpan 'auto'), cells over several columns (colSpan)
     const spanning = !virtualOn && leafDefs.some((column) => column.rowSpan === 'auto' || column.colSpan);
     const headerId = (columnId: string) => `${id}-head-${columnId}`;
+    /** The hidden text of `headerHint` that describes the column header */
+    const hintId = (columnId: string) => `${id}-hint-${columnId}`;
     const spans = (() => {
         if (!spanning) return undefined;
         const columnSpans = items.map((item) =>
@@ -3186,7 +3218,8 @@ export function DataTable<TData extends object>({
         const changed = editMode === 'batch' && !!pendingValue(pending, row.id, column.id);
         const custom = def?.cell ? def.cell(row.original, value) : undefined;
         if (
-            def?.editable &&
+            def &&
+            canEdit(def, row) &&
             ((cellEditing && editing?.rowId === row.id && editing.columnId === column.id) ||
                 (editMode === 'row' && editingRow === row.id))
         )
@@ -3195,6 +3228,7 @@ export function DataTable<TData extends object>({
                     data-editor=""
                     className={styles.editor()}
                     aria-busy={validating || undefined}
+                    onKeyDownCapture={(event) => onEditorKeyCapture(row, column.id, event)}
                     onKeyDown={(event) =>
                         cellEditing ? onCellEditorKey(row, column.id, event) : onRowEditorKey(row, event)
                     }
@@ -3207,6 +3241,8 @@ export function DataTable<TData extends object>({
                             type={editorType(def)}
                             label={label(column)}
                             options={def.editOptions}
+                            inputProps={def.editInputProps}
+                            edit
                             renderOption={def.renderOption}
                             invalid={!!errors[column.id]}
                             value={draft[column.id]}
@@ -3220,7 +3256,7 @@ export function DataTable<TData extends object>({
                     )}
                 </div>
             );
-        if (cellEditing && def?.editable)
+        if (cellEditing && def && canEdit(def, row))
             return (
                 <button
                     type="button"
@@ -3260,6 +3296,35 @@ export function DataTable<TData extends object>({
         );
     };
 
+    // The totals of `aggregate` and `footer`: in the tfoot, or right below the headers (footerPosition="top")
+    const totalsRow = (
+        <tr data-totals={footerPosition === 'top' ? '' : undefined}>
+            {leading.map((utility) => (
+                <td
+                    key={utility}
+                    className={styles.footCell({ class: utilityClass(utility, false) })}
+                    style={utilityStyle(utility)}
+                />
+            ))}
+            {leafColumns.map((column) => (
+                <td
+                    key={column.id}
+                    className={styleFor(column.id).footCell({
+                        class: [pinClass(column.id, false), cellClassOf(column.id)],
+                    })}
+                    style={cellStyle(column.id, false)}
+                >
+                    {footerContent(columnById.get(column.id)!)}
+                </td>
+            ))}
+            {trailing.length > 0 && (
+                <td
+                    className={styles.footCell({ class: utilityClass('actions', false) })}
+                    style={utilityStyle('actions')}
+                />
+            )}
+        </tr>
+    );
     const body = (
         <tbody onContextMenuCapture={onContextTarget}>
             {items.length === 0 && !skeleton && (
@@ -3592,12 +3657,13 @@ export function DataTable<TData extends object>({
                     )}
                     {search && (
                         <Input
+                            {...searchInputAttrs}
                             type="search"
                             size="sm"
                             leadingIcon={Search}
                             className={styles.search()}
-                            placeholder={t.searchPlaceholder}
-                            aria-label={t.search(caption)}
+                            placeholder={searchPlaceholder ?? t.searchPlaceholder}
+                            aria-label={searchPlaceholder ?? t.search(caption)}
                             value={globalFilter}
                             onChange={(event) => table.setGlobalFilter(event.target.value)}
                         />
@@ -4011,6 +4077,7 @@ export function DataTable<TData extends object>({
                                             })}
                                             style={cellStyle(column.id, true)}
                                             aria-sort={ariaSort(column.id)}
+                                            aria-describedby={def?.headerHint ? hintId(column.id) : undefined}
                                             draggable={canMove(column.id) && !column.getIsPinned() ? 'true' : undefined}
                                             data-drop={columnDrop(column.id)}
                                             data-dragging={dragColumn === column.id || undefined}
@@ -4062,6 +4129,22 @@ export function DataTable<TData extends object>({
                                                     </button>
                                                 ) : (
                                                     <span className={headLabelClass(column)}>{label(column)}</span>
+                                                )}
+                                                {def?.headerHint && (
+                                                    <>
+                                                        <Toggletip
+                                                            label={label(column)}
+                                                            classes={{
+                                                                trigger: styles.headHint(),
+                                                                icon: styles.headHintIcon(),
+                                                            }}
+                                                        >
+                                                            {def.headerHint}
+                                                        </Toggletip>
+                                                        <span id={hintId(column.id)} hidden>
+                                                            {def.headerHint}
+                                                        </span>
+                                                    </>
                                                 )}
                                                 {menuFilters && def && filterable(def) && (
                                                     <FilterMenu
@@ -4204,6 +4287,7 @@ export function DataTable<TData extends object>({
                                 )}
                             </tr>
                         )}
+                        {hasFooter && footerPosition === 'top' && totalsRow}
                     </thead>
                     {frozen.length > 0 && (
                         <tbody className={styles.frozenBody()} style={scrollHeight ? { top: headHeight } : undefined}>
@@ -4237,7 +4321,7 @@ export function DataTable<TData extends object>({
                                                 style={cellStyle(cell.column.id, false)}
                                             >
                                                 {/* Editable like the other rows: editor, edit button */}
-                                                {def?.editable && (cellEditing || editingRow === row.id) ? (
+                                                {canEdit(def, row) && (cellEditing || editingRow === row.id) ? (
                                                     cellContent(row, cell.column, shownValue(row, cell.column.id))
                                                 ) : def?.copyable ? (
                                                     <span className={styles.copyCell()}>
@@ -4289,36 +4373,7 @@ export function DataTable<TData extends object>({
                     ) : (
                         body
                     )}
-                    {hasFooter && (
-                        <tfoot className={styles.foot()}>
-                            <tr>
-                                {leading.map((utility) => (
-                                    <td
-                                        key={utility}
-                                        className={styles.footCell({ class: utilityClass(utility, false) })}
-                                        style={utilityStyle(utility)}
-                                    />
-                                ))}
-                                {leafColumns.map((column) => (
-                                    <td
-                                        key={column.id}
-                                        className={styleFor(column.id).footCell({
-                                            class: [pinClass(column.id, false), cellClassOf(column.id)],
-                                        })}
-                                        style={cellStyle(column.id, false)}
-                                    >
-                                        {footerContent(columnById.get(column.id)!)}
-                                    </td>
-                                ))}
-                                {trailing.length > 0 && (
-                                    <td
-                                        className={styles.footCell({ class: utilityClass('actions', false) })}
-                                        style={utilityStyle('actions')}
-                                    />
-                                )}
-                            </tr>
-                        </tfoot>
-                    )}
+                    {hasFooter && footerPosition !== 'top' && <tfoot className={styles.foot()}>{totalsRow}</tfoot>}
                 </table>
             </div>
             {statusBar && (

@@ -32,6 +32,8 @@ export type DataTableOption =
 export interface DataTableColumn<TData> {
     id: string;
     header: string;
+    /** Explains the column: an (i) button next to the header (table layout) shows the text */
+    headerHint?: string;
     /** Property name or getter for the cell value (default: the column id) */
     accessor?: keyof TData | ((row: TData) => unknown);
     /** Text of the value in the cell, the export and the search (default: the value as text) */

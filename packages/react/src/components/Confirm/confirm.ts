@@ -33,6 +33,9 @@ export interface ConfirmOptions {
     cancelButton?: ConfirmButtonOptions;
 }
 
+/** How a confirm dialog was answered: its confirm button, its cancel button, or closed (Escape, ×, a newer request) */
+export type ConfirmChoice = 'confirm' | 'cancel' | 'dismiss';
+
 export interface PromptOptions extends Omit<ConfirmOptions, 'typeToConfirm'> {
     /** Label of the text field */
     label: string;
@@ -45,8 +48,8 @@ export interface PromptOptions extends Omit<ConfirmOptions, 'typeToConfirm'> {
 export type ConfirmRequest = (({ kind: 'confirm' } & ConfirmOptions) | ({ kind: 'prompt' } & PromptOptions)) & {
     /** Focused before the dialog opened – gets the focus back */
     returnFocus: HTMLElement | null;
-    /** Finishes the request: confirm() resolves with `confirmed`, prompt() with the value or null */
-    settle: (confirmed: boolean, value?: string) => void;
+    /** Finishes the request: confirm() resolves with whether it was confirmed, prompt() with the value or null */
+    settle: (choice: ConfirmChoice, value?: string) => void;
 };
 
 let current: ConfirmRequest | null = null;
@@ -63,19 +66,19 @@ export const confirmStore = {
 
 function ask<T>(
     request: Omit<ConfirmRequest, 'returnFocus' | 'settle'>,
-    result: (confirmed: boolean, value?: string) => T
+    result: (choice: ConfirmChoice, value?: string) => T
 ) {
-    current?.settle(false);
+    current?.settle('dismiss');
     return new Promise<T>((resolve) => {
         const next = {
             ...request,
             returnFocus: typeof document === 'undefined' ? null : (document.activeElement as HTMLElement | null),
-            settle: (confirmed: boolean, value?: string) => {
+            settle: (choice: ConfirmChoice, value?: string) => {
                 if (current === next) {
                     current = null;
                     emit();
                 }
-                resolve(result(confirmed, value));
+                resolve(result(choice, value));
             },
         } as ConfirmRequest;
         current = next;
@@ -88,12 +91,21 @@ function ask<T>(
  * (cancelled, Escape, a newer confirm()).
  */
 export function confirm(options: ConfirmOptions): Promise<boolean> {
-    return ask({ ...options, kind: 'confirm' }, (confirmed) => confirmed);
+    return ask({ ...options, kind: 'confirm' }, (choice) => choice === 'confirm');
+}
+
+/**
+ * Like confirm(), but tells the buttons from closing: resolves with `'confirm'`, `'cancel'` (the cancel button) or
+ * `'dismiss'` (Escape, the close button, a newer request). For dialogs whose second button is an action of its own
+ * ("No, assign by hand", "Discard"), where closing should do nothing.
+ */
+export function choose(options: ConfirmOptions): Promise<ConfirmChoice> {
+    return ask({ ...options, kind: 'confirm' }, (choice) => choice);
 }
 
 /**
  * Asks for a text in the app-wide <ConfirmDialog />. Resolves with the (valid) text, or null when cancelled.
  */
 export function prompt(options: PromptOptions): Promise<string | null> {
-    return ask({ ...options, kind: 'prompt' }, (confirmed, value) => (confirmed ? (value ?? '') : null));
+    return ask({ ...options, kind: 'prompt' }, (choice, value) => (choice === 'confirm' ? (value ?? '') : null));
 }

@@ -45,6 +45,7 @@ import { IconButton } from '../components/IconButton/IconButton.js';
 import { Menu, type MenuEntry } from '../components/Menu/Menu.js';
 import { Pagination } from '../components/Pagination/Pagination.js';
 import { SearchField } from '../components/SearchField/SearchField.js';
+import { Toggletip } from '../components/Toggletip/Toggletip.js';
 import { useLocale } from '../locale.js';
 import { useAnnouncer } from '../utils/announce.js';
 import { Icon } from '../utils/Icon.js';
@@ -135,6 +136,10 @@ export interface DataTableProps<TData> {
     loadingText?: string;
     /** Search field above the table: filters over all searchable columns */
     search?: boolean;
+    /** Text of the empty search field and its name (default "Search …" and "Search <caption>") */
+    searchPlaceholder?: string;
+    /** The totals (`aggregate`, `footer`) below the rows (default) or right below the headers (cards: before them) */
+    footerPosition?: 'top' | 'bottom';
     globalFilter?: string;
     onGlobalFilterChange?: (value: string) => void;
     /** Marks the search hits in the cells */
@@ -236,6 +241,8 @@ export function DataTable<TData extends object>({
     noResultsText,
     loadingText,
     search = false,
+    searchPlaceholder,
+    footerPosition = 'bottom',
     globalFilter,
     onGlobalFilterChange,
     highlightSearch = false,
@@ -654,6 +661,33 @@ export function DataTable<TData extends object>({
                 </View>
             </View>
         );
+    // The totals of `aggregate` and `footer`: below the rows, or right below the headers (footerPosition="top")
+    const totalsRow = (
+        <View {...role('row')} className={dataTable({ footerTop: footerPosition === 'top' }).footerRow()}>
+            {selectable && <View {...role('cell')} className={styles.utilityCell()} />}
+            {columns.map((column, index) => {
+                const text = footerText(column) || (index === 0 ? t.total : '');
+                return (
+                    <View
+                        key={column.id}
+                        {...role('cell')}
+                        className={dataTable({ align: column.align }).cell()}
+                        style={cellStyle(column)}
+                    >
+                        <Text
+                            className={dataTable({ align: column.align }).footerText()}
+                            {...(!web && text ? { 'aria-label': `${column.header}: ${text}` } : {})}
+                        >
+                            {text}
+                        </Text>
+                    </View>
+                );
+            })}
+            {!!rowActions && (
+                <View {...role('cell')} className={styles.utilityCell()} style={{ width: ACTIONS_WIDTH }} />
+            )}
+        </View>
+    );
     const scrollable = web ? { tabIndex: 0 as const } : {};
     const table = (
         <View className={styles.frame()}>
@@ -682,6 +716,29 @@ export function DataTable<TData extends object>({
                         {columns.map((column) => {
                             const state = sortState(column);
                             const headStyles = dataTable({ align: column.align, sorted: !!state });
+                            const head = column.sortable ? (
+                                <Pressable
+                                    role="button"
+                                    aria-label={
+                                        state
+                                            ? `${column.header}, ${t.sortPriority(state.position, state.desc)}`
+                                            : column.header
+                                    }
+                                    className={headStyles.headerButton()}
+                                    onPress={() => sortBy(column)}
+                                >
+                                    <Text className={headStyles.headerText()}>{column.header}</Text>
+                                    <Icon
+                                        icon={state ? (state.desc ? ArrowDown : ArrowUp) : ArrowUpDown}
+                                        className={headStyles.sortIcon()}
+                                    />
+                                </Pressable>
+                            ) : (
+                                // iOS and Android read the header with every cell
+                                <View className={headStyles.headerLabel()} {...(web ? {} : { 'aria-hidden': true })}>
+                                    <Text className={headStyles.headerText()}>{column.header}</Text>
+                                </View>
+                            );
                             return (
                                 <View
                                     key={column.id}
@@ -689,31 +746,15 @@ export function DataTable<TData extends object>({
                                     className={headStyles.headerCell()}
                                     style={cellStyle(column)}
                                 >
-                                    {column.sortable ? (
-                                        <Pressable
-                                            role="button"
-                                            aria-label={
-                                                state
-                                                    ? `${column.header}, ${t.sortPriority(state.position, state.desc)}`
-                                                    : column.header
-                                            }
-                                            className={headStyles.headerButton()}
-                                            onPress={() => sortBy(column)}
-                                        >
-                                            <Text className={headStyles.headerText()}>{column.header}</Text>
-                                            <Icon
-                                                icon={state ? (state.desc ? ArrowDown : ArrowUp) : ArrowUpDown}
-                                                className={headStyles.sortIcon()}
-                                            />
-                                        </Pressable>
-                                    ) : (
-                                        // iOS and Android read the header with every cell
-                                        <View
-                                            className={headStyles.headerLabel()}
-                                            {...(web ? {} : { 'aria-hidden': true })}
-                                        >
-                                            <Text className={headStyles.headerText()}>{column.header}</Text>
+                                    {column.headerHint ? (
+                                        <View className={headStyles.headerWithHint()}>
+                                            {head}
+                                            <Toggletip label={column.header} className={headStyles.headerHint()}>
+                                                {column.headerHint}
+                                            </Toggletip>
                                         </View>
+                                    ) : (
+                                        head
                                     )}
                                 </View>
                             );
@@ -728,6 +769,7 @@ export function DataTable<TData extends object>({
                             </View>
                         )}
                     </View>
+                    {hasFooter && footerPosition === 'top' && totalsRow}
                     <FlatList
                         data={items}
                         keyExtractor={(item) => item.key}
@@ -735,36 +777,7 @@ export function DataTable<TData extends object>({
                         onEndReached={onLoadMore ? endReached : undefined}
                         onEndReachedThreshold={0.5}
                     />
-                    {hasFooter && (
-                        <View {...role('row')} className={styles.footerRow()}>
-                            {selectable && <View {...role('cell')} className={styles.utilityCell()} />}
-                            {columns.map((column, index) => {
-                                const text = footerText(column) || (index === 0 ? t.total : '');
-                                return (
-                                    <View
-                                        key={column.id}
-                                        {...role('cell')}
-                                        className={dataTable({ align: column.align }).cell()}
-                                        style={cellStyle(column)}
-                                    >
-                                        <Text
-                                            className={dataTable({ align: column.align }).footerText()}
-                                            {...(!web && text ? { 'aria-label': `${column.header}: ${text}` } : {})}
-                                        >
-                                            {text}
-                                        </Text>
-                                    </View>
-                                );
-                            })}
-                            {!!rowActions && (
-                                <View
-                                    {...role('cell')}
-                                    className={styles.utilityCell()}
-                                    style={{ width: ACTIONS_WIDTH }}
-                                />
-                            )}
-                        </View>
-                    )}
+                    {hasFooter && footerPosition !== 'top' && totalsRow}
                 </View>
             </ScrollView>
         </View>
@@ -824,6 +837,24 @@ export function DataTable<TData extends object>({
         );
     };
     const totalLines = columns.filter((column) => !!footerText(column));
+    // Cards: the totals in a card after the rows – or before them (footerPosition="top")
+    const totalsCard =
+        hasFooter && totalLines.length > 0 ? (
+            <View role="group" aria-label={t.total} className={styles.card()}>
+                {totalLines.map((column) => (
+                    <View
+                        key={column.id}
+                        className={styles.pair()}
+                        {...(web ? {} : { accessible: true, 'aria-label': `${column.header}: ${footerText(column)}` })}
+                    >
+                        <Text className={styles.pairLabel()}>{column.header}</Text>
+                        <View className={styles.pairContent()}>
+                            <Text className={styles.footerText()}>{footerText(column)}</Text>
+                        </View>
+                    </View>
+                ))}
+            </View>
+        ) : undefined;
     const cardList = (
         <FlatList
             data={items}
@@ -843,26 +874,8 @@ export function DataTable<TData extends object>({
             }
             onEndReached={onLoadMore ? endReached : undefined}
             onEndReachedThreshold={0.5}
-            ListFooterComponent={
-                hasFooter && totalLines.length > 0 ? (
-                    <View role="group" aria-label={t.total} className={styles.card()}>
-                        {totalLines.map((column) => (
-                            <View
-                                key={column.id}
-                                className={styles.pair()}
-                                {...(web
-                                    ? {}
-                                    : { accessible: true, 'aria-label': `${column.header}: ${footerText(column)}` })}
-                            >
-                                <Text className={styles.pairLabel()}>{column.header}</Text>
-                                <View className={styles.pairContent()}>
-                                    <Text className={styles.footerText()}>{footerText(column)}</Text>
-                                </View>
-                            </View>
-                        ))}
-                    </View>
-                ) : undefined
-            }
+            ListHeaderComponent={footerPosition === 'top' ? totalsCard : undefined}
+            ListFooterComponent={footerPosition === 'top' ? undefined : totalsCard}
         />
     );
 
@@ -905,8 +918,8 @@ export function DataTable<TData extends object>({
                     {search && (
                         <View className={styles.search()}>
                             <SearchField
-                                label={t.search(caption)}
-                                placeholder={t.searchPlaceholder}
+                                label={searchPlaceholder ?? t.search(caption)}
+                                placeholder={searchPlaceholder ?? t.searchPlaceholder}
                                 value={searchText}
                                 onValueChange={setSearch}
                                 loading={hasSource && busy && !!searchText}

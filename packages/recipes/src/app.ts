@@ -159,6 +159,13 @@ export const tagsInput = tv({
             focusRing,
         ],
         clearIcon: 'size-3.5',
+        /** `trigger`: the button at the end of the field that opens all suggestions */
+        trigger: [
+            'flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-full text-muted hover:text-fg',
+            'disabled:cursor-not-allowed disabled:opacity-50',
+            focusRing,
+        ],
+        triggerIcon: 'size-4',
         /** Suggestions (suggestions prop): a list below the field */
         content: [...listboxContent, 'absolute inset-x-0 top-full mt-1'],
         option: listboxOption,

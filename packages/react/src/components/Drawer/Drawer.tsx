@@ -10,7 +10,7 @@ import { X } from 'lucide-react';
 import { useContext, type ComponentProps, type ReactElement, type ReactNode } from 'react';
 import { DialogRootContext } from '../Dialog/Dialog.js';
 import { useTranslations } from '../LocaleProvider/LocaleProvider.js';
-import { useRecipe } from '../RecipesProvider/RecipesProvider.js';
+import { useRecipe, useRecipeDefaults } from '../RecipesProvider/RecipesProvider.js';
 
 export interface DrawerProps {
     open?: boolean;
@@ -20,7 +20,10 @@ export interface DrawerProps {
     modal?: boolean;
     /** Escape closes the drawer */
     closeOnEscape?: boolean;
-    /** A click outside closes the drawer – by default for modal drawers */
+    /**
+     * A click outside closes the drawer – by default for modal drawers. App-wide default: `closeOnInteractOutside` in
+     * the `defaultVariants` of the `drawer` recipe; the prop wins
+     */
     closeOnInteractOutside?: boolean;
     children: ReactNode;
 }
@@ -35,6 +38,7 @@ export function Drawer({
     closeOnInteractOutside,
     children,
 }: DrawerProps) {
+    const defaults = useRecipeDefaults('drawer', drawerRecipe);
     return (
         <DialogRootContext.Provider value={{ modal }}>
             <ArkDialog.Root
@@ -43,7 +47,8 @@ export function Drawer({
                 onOpenChange={(details) => onOpenChange?.(details.open)}
                 modal={modal}
                 closeOnEscape={closeOnEscape}
-                closeOnInteractOutside={closeOnInteractOutside}
+                // The prop wins, otherwise the app-wide default of the recipe; without both Ark decides
+                closeOnInteractOutside={closeOnInteractOutside ?? defaults.closeOnInteractOutside}
                 lazyMount
                 unmountOnExit
             >

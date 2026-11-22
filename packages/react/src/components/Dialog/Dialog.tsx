@@ -49,7 +49,10 @@ export interface DialogProps {
     modal?: boolean;
     /** Escape closes the dialog */
     closeOnEscape?: boolean;
-    /** A click outside closes the dialog – by default for modal dialogs, not for alertdialogs and non-modal ones */
+    /**
+     * A click outside closes the dialog – by default for modal dialogs, not for alertdialogs and non-modal ones.
+     * App-wide default: `closeOnInteractOutside` in the `defaultVariants` of the `dialog` recipe; the prop wins
+     */
     closeOnInteractOutside?: boolean;
     children: ReactNode;
 }
@@ -66,6 +69,7 @@ export function Dialog({
     children,
 }: DialogProps) {
     const contentRef = useRef<HTMLElement | null>(null);
+    const defaults = useRecipeDefaults('dialog', dialogRecipe);
     // A field marked data-autoselect gets the focus with its text selected; otherwise Ark's own choice (an
     // alertdialog's close button, data-autofocus, the first tabbable element)
     const initialFocus = () =>
@@ -81,7 +85,8 @@ export function Dialog({
                 role={role}
                 modal={modal}
                 closeOnEscape={closeOnEscape}
-                closeOnInteractOutside={closeOnInteractOutside}
+                // The prop wins, otherwise the app-wide default of the recipe; without both Ark decides
+                closeOnInteractOutside={closeOnInteractOutside ?? defaults.closeOnInteractOutside}
                 initialFocusEl={initialFocus}
                 lazyMount
                 unmountOnExit

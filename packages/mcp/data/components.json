@@ -8797,6 +8797,12 @@
                     "description": ""
                 },
                 {
+                    "name": "format",
+                    "type": "'units' | 'clock'",
+                    "optional": true,
+                    "description": "`units` (default): each value above its unit; `clock`: \"05:12:33\", the units for screen readers only"
+                },
+                {
                     "name": "onComplete",
                     "type": "() => void",
                     "optional": true,
@@ -8840,6 +8846,12 @@
                         "type": "'sm' | 'md' | 'lg'",
                         "optional": true,
                         "description": ""
+                    },
+                    {
+                        "name": "format",
+                        "type": "'units' | 'clock'",
+                        "optional": true,
+                        "description": "`units` (default): each value above its unit; `clock`: \"05:12:33\", the units for screen readers only"
                     },
                     {
                         "name": "classes",
@@ -9138,6 +9150,12 @@
                     "description": "Pagination below (default) or above the table"
                 },
                 {
+                    "name": "footerPosition",
+                    "type": "'top' | 'bottom'",
+                    "optional": true,
+                    "description": "The totals row (`aggregate`, `footer`) below the rows (default) or right below the headers, sticky with them"
+                },
+                {
                     "name": "paginatorEdges",
                     "type": "boolean",
                     "optional": true,
@@ -9171,7 +9189,7 @@
                     "name": "sortMode",
                     "type": "'single' | 'multiple'",
                     "optional": true,
-                    "description": "`multiple`: Shift+click (or the column menu) sorts by further columns"
+                    "description": "`multiple`: Shift+click (or the column menu) sorts by further columns. Default `single`; app-wide `dataTable: { defaultVariants: { multiSort: true } }` – the sorting is then an array as well"
                 },
                 {
                     "name": "manual",
@@ -9376,6 +9394,18 @@
                     "type": "boolean",
                     "optional": true,
                     "description": "Search field above the table: filters over all columns"
+                },
+                {
+                    "name": "searchPlaceholder",
+                    "type": "string",
+                    "optional": true,
+                    "description": "Text of the empty search field and its name for screen readers (default \"Search …\" and \"Search <caption>\")"
+                },
+                {
+                    "name": "searchInputAttrs",
+                    "type": "ComponentProps<'input'> & { [attribute: `data-${string}`]: string | number | boolean | undefined; }",
+                    "optional": true,
+                    "description": "More attributes of the search input, e.g. `{ 'data-tour': 'search' }` as the target of a Tour step"
                 },
                 {
                     "name": "searchAlign",
@@ -9921,6 +9951,12 @@
                         "description": "Pagination below (default) or above the table"
                     },
                     {
+                        "name": "footerPosition",
+                        "type": "'top' | 'bottom'",
+                        "optional": true,
+                        "description": "The totals row (`aggregate`, `footer`) below the rows (default) or right below the headers, sticky with them"
+                    },
+                    {
                         "name": "paginatorEdges",
                         "type": "boolean",
                         "optional": true,
@@ -9948,7 +9984,7 @@
                         "name": "sortMode",
                         "type": "'single' | 'multiple'",
                         "optional": true,
-                        "description": "`multiple`: Shift+click (or the column menu) sorts by further columns"
+                        "description": "`multiple`: Shift+click (or the column menu) sorts by further columns. Default `single`; app-wide `dataTable: { defaultVariants: { multiSort: true } }` – the sorting is then an array as well"
                     },
                     {
                         "name": "manual",
@@ -10111,6 +10147,18 @@
                         "type": "boolean",
                         "optional": true,
                         "description": "Search field above the table: filters over all columns (v-model:global-filter)"
+                    },
+                    {
+                        "name": "searchPlaceholder",
+                        "type": "string",
+                        "optional": true,
+                        "description": "Text of the empty search field and its name for screen readers (default \"Search …\" and \"Search <caption>\")"
+                    },
+                    {
+                        "name": "searchInputAttrs",
+                        "type": "Record<string, unknown>",
+                        "optional": true,
+                        "description": "More attributes of the search input, e.g. `{ 'data-tour': 'search' }` as the target of a Tour step"
                     },
                     {
                         "name": "searchAlign",
@@ -12095,7 +12143,7 @@
                     "name": "closeOnInteractOutside",
                     "type": "boolean",
                     "optional": true,
-                    "description": "A click outside closes the dialog – by default for modal dialogs, not for alertdialogs and non-modal ones"
+                    "description": "A click outside closes the dialog – by default for modal dialogs, not for alertdialogs and non-modal ones. App-wide default: `closeOnInteractOutside` in the `defaultVariants` of the `dialog` recipe; the prop wins"
                 },
                 {
                     "name": "children",
@@ -12140,7 +12188,7 @@
                         "name": "closeOnInteractOutside",
                         "type": "boolean",
                         "optional": true,
-                        "description": "A click outside closes the dialog – by default for modal dialogs, not for alertdialogs and non-modal ones"
+                        "description": "A click outside closes the dialog – by default for modal dialogs, not for alertdialogs and non-modal ones. App-wide default: `closeOnInteractOutside` in the `defaultVariants` of the `dialog` recipe; the prop wins"
                     }
                 ],
                 "slots": [],
@@ -12760,7 +12808,7 @@
                     "name": "closeOnInteractOutside",
                     "type": "boolean",
                     "optional": true,
-                    "description": "A click outside closes the drawer – by default for modal drawers"
+                    "description": "A click outside closes the drawer – by default for modal drawers. App-wide default: `closeOnInteractOutside` in the `defaultVariants` of the `drawer` recipe; the prop wins"
                 },
                 {
                     "name": "children",
@@ -12799,7 +12847,7 @@
                         "name": "closeOnInteractOutside",
                         "type": "boolean",
                         "optional": true,
-                        "description": "A click outside closes the drawer – by default for modal drawers"
+                        "description": "A click outside closes the drawer – by default for modal drawers. App-wide default: `closeOnInteractOutside` in the `defaultVariants` of the `drawer` recipe; the prop wins"
                     }
                 ],
                 "slots": [],
@@ -32711,6 +32759,18 @@
                     "description": "Suggestions while typing (entries already added are left out); arrow keys pick one, Enter adds it"
                 },
                 {
+                    "name": "openOnFocus",
+                    "type": "boolean",
+                    "optional": true,
+                    "description": "Opens the suggestions when the field gets the focus or is clicked – the existing tags without typing"
+                },
+                {
+                    "name": "trigger",
+                    "type": "boolean",
+                    "optional": true,
+                    "description": "A button at the end of the field opens all suggestions (not a tab stop: Arrow down does the same)"
+                },
+                {
                     "name": "filter",
                     "type": "boolean",
                     "optional": true,
@@ -32856,6 +32916,18 @@
                         "type": "readonly string[]",
                         "optional": true,
                         "description": "Suggestions while typing (entries already added are left out); arrow keys pick one, Enter adds it"
+                    },
+                    {
+                        "name": "openOnFocus",
+                        "type": "boolean",
+                        "optional": true,
+                        "description": "Opens the suggestions when the field gets the focus or is clicked – the existing tags without typing"
+                    },
+                    {
+                        "name": "trigger",
+                        "type": "boolean",
+                        "optional": true,
+                        "description": "A button at the end of the field opens all suggestions (not a tab stop: Arrow down does the same)"
                     },
                     {
                         "name": "filter",
@@ -37476,6 +37548,11 @@
             "description": "Props for Select, RadioGroup, ChipGroup, SegmentedControl and the other components with `value`/`onValueChange`"
         },
         {
+            "name": "choose",
+            "subpath": "",
+            "description": "Like confirm(), but tells the buttons from closing: resolves with `'confirm'`, `'cancel'` (the cancel button) or `'dismiss'` (Escape, the close button, a newer request). For dialogs whose second button is an action of its own (\"No, assign by hand\", \"Discard\"), where closing should do nothing."
+        },
+        {
             "name": "closeAllDialogs",
             "subpath": "",
             "description": "Closes all dialogs of the <DialogHost />; their promises resolve with undefined"
@@ -38040,7 +38117,7 @@
         {
             "id": "introduction-customizing-defaults-and-classes-per-part",
             "title": "Customizing: defaults and classes per part",
-            "text": "Every component consists of named parts of its recipe (`base`, `icon`, `row`, `trigger` …, see\n`@wirecore/wirelayer-recipes`). `RecipesProvider` sets default variants and additional classes for everything below it\n(inner providers extend outer ones), the `classes` prop adds classes for a single component. Explicitly set props and\n`class`/`className` always win; classes are merged with tailwind-merge.\n\n```vue\n<RecipesProvider\n    :recipes=\"{\n        button: { defaultVariants: { size: 'sm' }, classes: { base: 'tracking-wide' } },\n        dataTable: { defaultVariants: { size: 'sm' }, classes: { th: 'bg-bg-2' } },\n    }\"\n>\n    <App />\n</RecipesProvider>\n\n<Button :classes=\"{ icon: 'text-primary' }\" :leading-icon=\"Plus\">New</Button>\n```\n\n```tsx\n<RecipesProvider recipes={{ card: { classes: { base: 'rounded-none' } } }}>\n    <App />\n</RecipesProvider>;\n\n<DataTable classes={{ row: 'h-14' }} … />;\n```\n\nThe names are the exports of the recipes (`button`, `iconButton`, `dataTable` …) and are checked by TypeScript, as are\nthe variants and parts. Your own components use the same through `useRecipe('button', button)`.\n\n`variants` adds classes for single values of a variant, `compoundVariants` for combinations – instead of selectors on\nthe recipe's own classes, which break when they change:\n\n```ts\nconst recipes: RecipeConfig = {\n    // only the medium size: 42px high, 16px text\n    button: {\n        variants: { size: { md: { base: 'h-[2.625rem] text-base' } } },\n        compoundVariants: [{ size: ['sm', 'md'], shape: 'rounded', classes: { base: 'rounded-md' } }],\n    },\n    input: { variants: { size: { md: { base: 'h-[2.625rem]' } }, invalid: { true: { base: 'border-2' } } } },\n};\n```\n\nSome defaults change more than classes – where the title of a dialog sits, for example. They are variants of the recipe\nas well, so the same `defaultVariants` set them once for the whole app; a prop on the single component still wins:\n\n| Recipe default                                             | Instead of on every component                                                                                     |\n| ---------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |\n| `dialog: { defaultVariants: { titleInHeader: true } }`     | `DialogContent title-position=\"header\"`, also `confirm()`, `prompt()` and `openDialog()` (option `titlePosition`) |\n| `dataTable: { defaultVariants: { showFilters: false } }`   | `DataTable :show-filters=\"false\"` – filters closed at the start (a saved `stateKey` state still wins)             |\n| `dataTable: { defaultVariants: { searchCentered: true } }` | `DataTable search-align=\"center\"` – the search between the actions at the start and the tools at the end          |\n| `dataTable: { defaultVariants: { sortable: true } }`       | `DataTable sortable` – every column with a value sorts (not `sortable: false`, not a slot-only column)            |\n| `dataTable: { defaultVariants: { striped: true } }`        | `DataTable striped` – the same for `gridlines`, `bordered`, `wrapHeaders`, `verticalHeaders`                      |\n\nOwn buttons, fields and menus in the toolbar slots of a DataTable (`#toolbar`, `#toolbarStart`, `#toolbarEnd`) default\nto the size of the built-in toolbar controls (`sm`); a `size` on them still wins. A text filter shows the placeholder\n“Filter …” (translations `dataTable.filterText`) unless the column's `filterInputProps` has one.\n\nReact Native has no `RecipesProvider`; there the props stay on the single component.\n\nPer part the classes come in this order: `classes`, the matching `variants` and `compoundVariants`, the states of the\nrecipe, the overrides of states (`invalid: { true: … }`), and last the class passed to the component. Inner providers\nextend outer ones (classes of the same value are joined, the inner ones win).\n\nClasses from a provider or `classes` change the look, not the states: the classes of an active state variant\n(`invalid`, `success`, `disabled`, `readOnly`, `current`, `selected`, `checked`, `loading`) are added after them, so a\nfield with `classes: { base: 'border-line-2' }` still turns red when it is invalid. States that the components mark as\nattributes (`data-invalid:`, `data-disabled:`, `data-[state=checked]:`) win through their selector anyway. Only the\nclass passed to the component itself (`class`/`className`) comes after the states – the way out when a single field\nshould look different in every state."
+            "text": "Every component consists of named parts of its recipe (`base`, `icon`, `row`, `trigger` …, see\n`@wirecore/wirelayer-recipes`). `RecipesProvider` sets default variants and additional classes for everything below it\n(inner providers extend outer ones), the `classes` prop adds classes for a single component. Explicitly set props and\n`class`/`className` always win; classes are merged with tailwind-merge.\n\n```vue\n<RecipesProvider\n    :recipes=\"{\n        button: { defaultVariants: { size: 'sm' }, classes: { base: 'tracking-wide' } },\n        dataTable: { defaultVariants: { size: 'sm' }, classes: { th: 'bg-bg-2' } },\n    }\"\n>\n    <App />\n</RecipesProvider>\n\n<Button :classes=\"{ icon: 'text-primary' }\" :leading-icon=\"Plus\">New</Button>\n```\n\n```tsx\n<RecipesProvider recipes={{ card: { classes: { base: 'rounded-none' } } }}>\n    <App />\n</RecipesProvider>;\n\n<DataTable classes={{ row: 'h-14' }} … />;\n```\n\nThe names are the exports of the recipes (`button`, `iconButton`, `dataTable` …) and are checked by TypeScript, as are\nthe variants and parts. Your own components use the same through `useRecipe('button', button)`.\n\n`variants` adds classes for single values of a variant, `compoundVariants` for combinations – instead of selectors on\nthe recipe's own classes, which break when they change:\n\n```ts\nconst recipes: RecipeConfig = {\n    // only the medium size: 42px high, 16px text\n    button: {\n        variants: { size: { md: { base: 'h-[2.625rem] text-base' } } },\n        compoundVariants: [{ size: ['sm', 'md'], shape: 'rounded', classes: { base: 'rounded-md' } }],\n    },\n    input: { variants: { size: { md: { base: 'h-[2.625rem]' } }, invalid: { true: { base: 'border-2' } } } },\n};\n```\n\nSome defaults change more than classes – where the title of a dialog sits, for example. They are variants of the recipe\nas well, so the same `defaultVariants` set them once for the whole app; a prop on the single component still wins:\n\n| Recipe default                                                   | Instead of on every component                                                                                                      |\n| ---------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |\n| `dialog: { defaultVariants: { titleInHeader: true } }`           | `DialogContent title-position=\"header\"`, also `confirm()`, `prompt()` and `openDialog()` (option `titlePosition`)                  |\n| `dialog: { defaultVariants: { closeOnInteractOutside: false } }` | `Dialog :close-on-interact-outside=\"false\"`, also `openDialog()` (option `closeOnInteractOutside`); `drawer` the same for `Drawer` |\n| `dataTable: { defaultVariants: { showFilters: false } }`         | `DataTable :show-filters=\"false\"` – filters closed at the start (a saved `stateKey` state still wins)                              |\n| `dataTable: { defaultVariants: { searchCentered: true } }`       | `DataTable search-align=\"center\"` – the search between the actions at the start and the tools at the end                           |\n| `dataTable: { defaultVariants: { sortable: true } }`             | `DataTable sortable` – every column with a value sorts (not `sortable: false`, not a slot-only column)                             |\n| `dataTable: { defaultVariants: { multiSort: true } }`            | `DataTable sort-mode=\"multiple\"` – Shift+click sorts by further columns; `sorting` is then an array on every table                 |\n| `dataTable: { defaultVariants: { striped: true } }`              | `DataTable striped` – the same for `gridlines`, `bordered`, `wrapHeaders`, `verticalHeaders`                                       |\n\nOwn buttons, fields and menus in the toolbar slots of a DataTable (`#toolbar`, `#toolbarStart`, `#toolbarEnd`) default\nto the size of the built-in toolbar controls (`sm`); a `size` on them still wins. A text filter shows the placeholder\n“Filter …” (translations `dataTable.filterText`) unless the column's `filterInputProps` has one.\n\nReact Native has no `RecipesProvider`; there the props stay on the single component.\n\nPer part the classes come in this order: `classes`, the matching `variants` and `compoundVariants`, the states of the\nrecipe, the overrides of states (`invalid: { true: … }`), and last the class passed to the component. Inner providers\nextend outer ones (classes of the same value are joined, the inner ones win).\n\nClasses from a provider or `classes` change the look, not the states: the classes of an active state variant\n(`invalid`, `success`, `disabled`, `readOnly`, `current`, `selected`, `checked`, `loading`) are added after them, so a\nfield with `classes: { base: 'border-line-2' }` still turns red when it is invalid. States that the components mark as\nattributes (`data-invalid:`, `data-disabled:`, `data-[state=checked]:`) win through their selector anyway. Only the\nclass passed to the component itself (`class`/`className`) comes after the states – the way out when a single field\nshould look different in every state."
         },
         {
             "id": "introduction-hooks-and-composables",
@@ -38100,7 +38177,7 @@
         {
             "id": "migration-pitfalls",
             "title": "Pitfalls",
-            "text": "- **An empty choice is `null`, not `''`.** For PrimeVue's Select `''` means \"nothing chosen\"; WireLayer's Select treats\n  `''` as a value (it warns in development that it is not among the items). Use `null`.\n- **TanStack fields start with `''`.** A required text in Zod therefore needs `.min(1)` – `z.string()` alone accepts\n  the empty field.\n- **Fonts:** set your own with `@theme { --font-sans: … }`. Import `theme.css` instead of `styles.css` (with the\n  sources files, or the Vite plugin `@wirecore/wirelayer-recipes/vite`) so the WireLayer fonts are not bundled\n  (_Getting started › Welcome › Smaller CSS_).\n- **Card spacing:** `Card` puts a `gap` between its direct children – wrap content that should sit tight in one\n  element.\n- **Overrides go per part and per variant.** `classes: { base: 'rounded-md' }` reaches every size; only the medium size\n  with `variants: { size: { md: { base: '…' } } }` – no selectors on the recipe's own classes. States such as `invalid`\n  stay visible over such classes; only `class` on the component itself replaces them.\n- **Sizes and corners in one place:** the height, text and corners of buttons and fields per size, the corners of\n  rounded buttons, the padding of cards and the backdrop of dialogs are CSS variables (`--wc-control-h-md` …).\n- **Labels:** wrap a control in `Field` (it links label, description and error). A native `<label for>` works with the\n  control's own `id`; date fields, sliders and groups need `Field` or `aria-label`.\n- **Extra attributes go to the outermost element.** `data-*`, `id`, `title`, `aria-describedby` and listeners without a\n  prop of their own land on the component's outermost element (React: the rest props, Vue: the attrs) – e.g.\n  `data-tour` as the target of a `Tour` step or a test selector, no wrapper `<div>` needed. Exceptions: `aria-label`\n  names what it labels (the list of `Sortable` and `Listbox`, the tree of `Tree`, `VirtualTree` and `JsonViewer`, the\n  dial of `Knob`, the field of `CascadeSelect`, `TreeSelect`, `ColorPicker`, `PinInput` and `Editor`); a control's own\n  `id` prop goes to that control (see _Labels_); `Fieldset` takes `id` as the base of its legend's and texts' ids.\n  Text fields and pickers built around a native input (`Input`, `Select`, `DatePicker`, `Checkbox`, `Switch` …) give\n  `class` and `style` to their wrapper and every other attribute to the input. `Inplace` takes none – its element\n  switches between the text and the editor. In React Native the view props (`testID`, `nativeID`, accessibility props)\n  go to the outermost view; pickers that open a sheet (`Select`, `CascadeSelect`, `TreeSelect`, `ColorPicker`,\n  `NavigationMenu`, `NotificationCenter`) take none – they render a trigger and a sheet, no outer view.\n- **Brand colours:** `checkTheme` lists the pairs below WCAG AA, `suggestThemeFixes` the nearest colours (and `on-*`\n  colours) that meet them – an orange `primary` with white text, common in PrimeVue themes, does not."
+            "text": "- **An empty choice is `null`, not `''`.** For PrimeVue's Select `''` means \"nothing chosen\"; WireLayer's Select treats\n  `''` as a value (it warns in development that it is not among the items). Use `null`.\n- **TanStack fields start with `''`.** A required text in Zod therefore needs `.min(1)` – `z.string()` alone accepts\n  the empty field.\n- **Fonts:** set your own with `@theme { --font-sans: … }`. Import `theme.css` instead of `styles.css` (with the\n  sources files, or the Vite plugin `@wirecore/wirelayer-recipes/vite`) so the WireLayer fonts are not bundled\n  (_Getting started › Welcome › Smaller CSS_).\n- **Card spacing:** `Card` puts a `gap` between its direct children – wrap content that should sit tight in one\n  element.\n- **Overrides go per part and per variant.** `classes: { base: 'rounded-md' }` reaches every size; only the medium size\n  with `variants: { size: { md: { base: '…' } } }` – no selectors on the recipe's own classes. States such as `invalid`\n  stay visible over such classes; only `class` on the component itself replaces them.\n- **Sizes and corners in one place:** the height, text and corners of buttons and fields per size, the corners of\n  rounded buttons, the padding of cards and the backdrop of dialogs are CSS variables (`--wc-control-h-md` …).\n- **Labels:** wrap a control in `Field` (it links label, description and error). A native `<label for>` works with the\n  control's own `id`; date fields, sliders and groups need `Field` or `aria-label`.\n- **Extra attributes go to the outermost element.** `data-*`, `id`, `title`, `aria-describedby` and listeners without a\n  prop of their own land on the component's outermost element (React: the rest props, Vue: the attrs) – e.g.\n  `data-tour` as the target of a `Tour` step or a test selector, no wrapper `<div>` needed. Exceptions: `aria-label`\n  names what it labels (the list of `Sortable` and `Listbox`, the tree of `Tree`, `VirtualTree` and `JsonViewer`, the\n  dial of `Knob`, the field of `CascadeSelect`, `TreeSelect`, `ColorPicker`, `PinInput` and `Editor`); a control's own\n  `id` prop goes to that control (see _Labels_); `Fieldset` takes `id` as the base of its legend's and texts' ids.\n  Text fields and pickers built around a native input (`Input`, `Select`, `DatePicker`, `Checkbox`, `Switch` …) give\n  `class` and `style` to their wrapper and every other attribute to the input. `Inplace` takes none – its element\n  switches between the text and the editor. In React Native the view props (`testID`, `nativeID`, accessibility props)\n  go to the outermost view; pickers that open a sheet (`Select`, `CascadeSelect`, `TreeSelect`, `ColorPicker`,\n  `NavigationMenu`, `NotificationCenter`) take none – they render a trigger and a sheet, no outer view.\n- **A click outside closes modal dialogs and drawers.** PrimeVue's `dismissableMask` is off by default, WireLayer's\n  `closeOnInteractOutside` is on for modal ones – unsaved input in a form dialog is lost on a stray click. Turn it off\n  once for the whole app: `{ dialog: { defaultVariants: { closeOnInteractOutside: false } }, drawer: { … } }` in the\n  `RecipesProvider`/`ConfigProvider` (also for `openDialog()`); `:close-on-interact-outside` on a single dialog still\n  wins. `confirm()` and `prompt()` are alertdialogs and never close on a click outside.\n- **Escape is not \"no\".** `confirm()` resolves with `false` for the cancel button, Escape, the close button and a\n  newer request alike – PrimeVue's `reject` and `onHide` tell them apart. When the second button is an action of its own\n  (\"No, assign by hand\", \"Discard\"), use `choose()`: it resolves with `'confirm'`, `'cancel'` or `'dismiss'`.\n- **Brand colours:** `checkTheme` lists the pairs below WCAG AA, `suggestThemeFixes` the nearest colours (and `on-*`\n  colours) that meet them – an orange `primary` with white text, common in PrimeVue themes, does not."
         },
         {
             "id": "migration-desktop-apps-dense-ui-many-dialogs",
@@ -41381,6 +41458,12 @@
                         "description": ""
                     },
                     {
+                        "name": "format",
+                        "type": "'units' | 'clock'",
+                        "optional": true,
+                        "description": "`units` (default): each value above its unit; `clock`: \"05:12:33\", the units for screen readers only"
+                    },
+                    {
                         "name": "onComplete",
                         "type": "() => void",
                         "optional": true,
@@ -41661,6 +41744,18 @@
                         "type": "boolean",
                         "optional": true,
                         "description": "Search field above the table: filters over all searchable columns"
+                    },
+                    {
+                        "name": "searchPlaceholder",
+                        "type": "string",
+                        "optional": true,
+                        "description": "Text of the empty search field and its name (default \"Search …\" and \"Search <caption>\")"
+                    },
+                    {
+                        "name": "footerPosition",
+                        "type": "'top' | 'bottom'",
+                        "optional": true,
+                        "description": "The totals (`aggregate`, `footer`) below the rows (default) or right below the headers (cards: before them)"
                     },
                     {
                         "name": "globalFilter",
@@ -51812,6 +51907,11 @@
                 "description": "A new photo from the camera – asks for the permission first"
             },
             {
+                "name": "choose",
+                "subpath": "",
+                "description": "Like confirm(), but tells the buttons from closing: resolves with `'confirm'`, `'cancel'` (the cancel button) or `'dismiss'` (the back button, Escape, the close button, a newer request). For dialogs whose second button is an action of its own (\"No, assign by hand\", \"Discard\"), where closing should do nothing."
+            },
+            {
                 "name": "closeAllDialogs",
                 "subpath": "",
                 "description": "Closes every dialog of the DialogHost – their promises resolve with undefined"
@@ -52069,6 +52169,11 @@
                 "name": "bindValue",
                 "subpath": "/form",
                 "description": "v-bind for Select, RadioGroup, ChipGroup and SegmentedControl"
+            },
+            {
+                "name": "choose",
+                "subpath": "",
+                "description": "Like confirm(), but tells the buttons from closing: resolves with `'confirm'`, `'cancel'` (the cancel button) or `'dismiss'` (Escape, the close button, a newer request). For dialogs whose second button is an action of its own (\"No, assign by hand\", \"Discard\"), where closing should do nothing."
             },
             {
                 "name": "closeAllDialogs",

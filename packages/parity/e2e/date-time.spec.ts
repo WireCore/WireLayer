@@ -1,6 +1,30 @@
 import { expect, test } from '@playwright/test';
 import { openStory } from './story.ts';
 
+test.describe('DatePicker', () => {
+    test('a part emptied reports no date, the other parts stay; typed again it reports the date', async ({ page }) => {
+        await openStory(page, 'forms-datepicker--playground');
+        const group = page.getByRole('group', { name: 'Maintenance date' });
+        await group.getByRole('spinbutton', { name: 'Year' }).click();
+        await page.keyboard.press('Backspace');
+        await page.keyboard.press('Backspace');
+        await page.keyboard.press('Backspace');
+        await page.keyboard.press('Backspace');
+        await expect(page.getByText('Value: –')).toBeVisible();
+        await expect(group.getByRole('spinbutton')).toHaveText(['10', '20', 'yyyy']);
+        // The same date as before: Ark reports no change of its own
+        await page.keyboard.type('2026');
+        await expect(page.getByText('Value: 2026-10-20')).toBeVisible();
+        // Leaving the field with a part empty reports no date as well
+        await group.getByRole('spinbutton', { name: 'Day' }).click();
+        await page.keyboard.press('Backspace');
+        await page.keyboard.press('Backspace');
+        await page.keyboard.press('Tab');
+        await expect(page.getByText('Value: –')).toBeVisible();
+        await expect(group.getByRole('spinbutton')).toHaveText(['10', 'dd', '2026']);
+    });
+});
+
 test.describe('DatePicker with time', () => {
     test('date and time in one go; a day from the calendar keeps the time', async ({ page }) => {
         await openStory(page, 'forms-datepicker--with-time');

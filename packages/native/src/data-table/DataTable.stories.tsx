@@ -134,6 +134,22 @@ export const Table: Story = {
     decorators: [(Story) => <View className="w-[360px]">{Story()}</View>],
 };
 
+/**
+ * `footerPosition="top"`: the revenue sum right below the headers; `headerHint` explains a column with an (i) button,
+ * `searchPlaceholder` names the search
+ */
+export const TotalsOnTop: Story = {
+    name: 'Totals on top',
+    args: {
+        layout: 'table',
+        footerPosition: 'top',
+        searchPlaceholder: 'Find a customer',
+        columns: columns.map((column) =>
+            column.id === 'revenue' ? { ...column, headerHint: 'Net revenue of the current year' } : column
+        ),
+    },
+};
+
 function SelectionDemo(props: { selectionMode?: 'multiple' | 'single' }) {
     const [selection, setSelection] = useState<string[]>(['k-002']);
     return (

@@ -466,6 +466,105 @@ describe.each(frameworks)('%s', (framework) => {
         });
     });
 
+    describe('app-wide click outside (recipe default closeOnInteractOutside)', () => {
+        // A modal overlay turns off pointer events on the page; Ark still sees the pointerdown on the backdrop
+        const user = () => userEvent.setup({ pointerEventsCheck: 0 });
+        const clickBackdrop = async (scope: 'dialog' | 'drawer' = 'dialog') => {
+            const backdrops = document.querySelectorAll<HTMLElement>(`[data-scope="${scope}"][data-part="backdrop"]`);
+            await user().click(backdrops[backdrops.length - 1]!);
+            await tick(20);
+        };
+        const stayOpen = { closeOnInteractOutside: false };
+        // A closed dialog stays in the page (hidden) until its exit animation ends – or is gone already
+        const state = (name: string) =>
+            screen.queryByRole('dialog', { name, hidden: true })?.getAttribute('data-state') ?? 'closed';
+
+        it('without a default a click outside closes a modal dialog', async () => {
+            await render(framework, el('Dialog', { defaultOpen: true }, el('DialogContent', { title: 'Plain' })));
+            await screen.findByRole('dialog', { name: 'Plain' });
+            await tick(20);
+            await clickBackdrop();
+            expect(state('Plain')).toBe('closed');
+        });
+
+        it('Dialog follows the default', async () => {
+            await render(
+                framework,
+                el(
+                    'RecipesProvider',
+                    { recipes: { dialog: { defaultVariants: stayOpen } } },
+                    el('Dialog', { defaultOpen: true }, el('DialogContent', { title: 'Form' }))
+                )
+            );
+            await screen.findByRole('dialog', { name: 'Form' });
+            await tick(20);
+            await clickBackdrop();
+            expect(state('Form')).toBe('open');
+        });
+
+        it('closeOnInteractOutside on the Dialog wins over the default', async () => {
+            await render(
+                framework,
+                el(
+                    'RecipesProvider',
+                    { recipes: { dialog: { defaultVariants: stayOpen } } },
+                    el(
+                        'Dialog',
+                        { defaultOpen: true, closeOnInteractOutside: true },
+                        el('DialogContent', { title: 'Own' })
+                    )
+                )
+            );
+            await screen.findByRole('dialog', { name: 'Own' });
+            await tick(20);
+            await clickBackdrop();
+            expect(state('Own')).toBe('closed');
+        });
+
+        it('Drawer follows the default of the drawer recipe', async () => {
+            await render(
+                framework,
+                el(
+                    'RecipesProvider',
+                    { recipes: { drawer: { defaultVariants: stayOpen } } },
+                    el('Drawer', { defaultOpen: true }, el('DrawerContent', { title: 'Filters' }))
+                )
+            );
+            await screen.findByRole('dialog', { name: 'Filters' });
+            await tick(20);
+            await clickBackdrop('dialog');
+            expect(state('Filters')).toBe('open');
+        });
+
+        it('openDialog() follows the default; the option wins', async () => {
+            // Dialogs of earlier tests stay in the app-wide stack (titles of their own: closed ones stay in the page)
+            act(() => lib(framework).closeAllDialogs());
+            await render(
+                framework,
+                el('RecipesProvider', { recipes: { dialog: { defaultVariants: stayOpen } } }, el('DialogHost', {}))
+            );
+            const open = (title: string, closeOnInteractOutside?: boolean) =>
+                framework === 'vue'
+                    ? Vue.openDialog({ title, closeOnInteractOutside, component: () => 'Details' })
+                    : React.openDialog({ title, closeOnInteractOutside, content: () => 'Details' });
+            await act(async () => {
+                void open('Remote server');
+            });
+            await screen.findByRole('dialog', { name: 'Remote server' });
+            await tick(20);
+            await clickBackdrop();
+            expect(state('Remote server')).toBe('open');
+            await act(async () => {
+                void open('Remote log', true);
+            });
+            await screen.findByRole('dialog', { name: 'Remote log' });
+            await tick(20);
+            await clickBackdrop();
+            expect(state('Remote log')).toBe('closed');
+            expect(state('Remote server')).toBe('open');
+        });
+    });
+
     describe('confirm and prompt', () => {
         it('prompt() resolves with the text; validate shows its error first', async () => {
             const { prompt } = lib(framework);
@@ -523,6 +622,43 @@ describe.each(frameworks)('%s', (framework) => {
             const dialog = await screen.findByRole('alertdialog', { name: 'Note' });
             await userEvent.click(within(dialog).getByRole('button', { name: 'Cancel' }));
             await expect(answer).resolves.toBeNull();
+        });
+
+        it("choose() tells the buttons from closing: 'confirm', 'cancel', 'dismiss' (Escape, ×, a newer request)", async () => {
+            const { choose, confirm } = lib(framework);
+            await render(framework, el('ConfirmDialog', {}));
+            const ask = async (title: string, answer: (dialog: HTMLElement) => Promise<unknown>) => {
+                let result!: Promise<string>;
+                await act(async () => {
+                    result = choose({ title, confirmLabel: 'Assign', cancelLabel: 'Assign by hand' });
+                });
+                await answer(await screen.findByRole('alertdialog', { name: title }));
+                return result;
+            };
+            const click = (name: string) => async (dialog: HTMLElement) =>
+                userEvent.click(within(dialog).getByRole('button', { name }));
+            // Own titles: a closed dialog stays in the page until its exit animation ends
+            await expect(ask('Assign 1?', click('Assign'))).resolves.toBe('confirm');
+            await expect(ask('Assign 2?', click('Assign by hand'))).resolves.toBe('cancel');
+            const escape = async (dialog: HTMLElement) => {
+                // Escape reaches the dialog once the focus is inside it
+                await waitFor(() => expect(dialog.contains(document.activeElement)).toBe(true));
+                await userEvent.keyboard('{Escape}');
+            };
+            await expect(ask('Assign 3?', escape)).resolves.toBe('dismiss');
+            await expect(ask('Assign 4?', click('Close'))).resolves.toBe('dismiss');
+            // A newer request closes it; confirm() still resolves with false for every way but confirming
+            let pending!: Promise<string>;
+            await act(async () => {
+                pending = choose({ title: 'First' });
+            });
+            let newer!: Promise<boolean>;
+            await act(async () => {
+                newer = confirm({ title: 'Second' });
+            });
+            await expect(pending).resolves.toBe('dismiss');
+            await escape(await screen.findByRole('alertdialog', { name: 'Second' }));
+            await expect(newer).resolves.toBe(false);
         });
 
         it('confirm({ typeToConfirm }) only confirms with the exact name', async () => {

@@ -188,6 +188,7 @@ export const pl: Translations = {
             dayPeriod: '--',
             era: '--',
         }),
+        empty: 'Puste',
     },
     splitButton: { more: 'Więcej akcji' },
     confirmPopup: { confirm: 'Tak', cancel: 'Anuluj' },

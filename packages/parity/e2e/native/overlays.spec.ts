@@ -60,6 +60,22 @@ test.describe('confirm() and prompt()', () => {
         await expect(page.getByText('Answer: deleted')).toBeVisible();
     });
 
+    test("choose: the buttons give 'confirm' and 'cancel', Escape 'dismiss'", async ({ page }) => {
+        await openStory(page, 'overlays-confirm--choose');
+        const open = () => page.getByRole('button', { name: 'Assign riders' }).click();
+        const dialog = page.getByRole('alertdialog', { name: 'Assign the riders automatically?' });
+        await open();
+        await page.keyboard.press('Escape');
+        await expect(dialog).toBeHidden();
+        await expect(page.getByText('Answer: dismiss')).toBeVisible();
+        await open();
+        await dialog.getByRole('button', { name: 'Assign by hand' }).click();
+        await expect(page.getByText('Answer: cancel')).toBeVisible();
+        await open();
+        await dialog.getByRole('button', { name: 'Assign', exact: true }).click();
+        await expect(page.getByText('Answer: confirm')).toBeVisible();
+    });
+
     test('typeToConfirm: only the typed name confirms', async ({ page }) => {
         await openStory(page, 'overlays-confirm--playground');
         await page.getByRole('button', { name: 'Confirm by typing' }).click();
