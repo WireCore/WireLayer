@@ -1,5 +1,36 @@
 # @wirecore/wirelayer-native
 
+## 0.10.0
+
+### Minor Changes
+
+- 8e91c91: New `choose()` next to `confirm()`: it asks the same way in the app-wide `ConfirmDialog` but tells the buttons from
+  closing – it resolves with `'confirm'`, `'cancel'` (the cancel button) or `'dismiss'` (Escape, the close button, the
+  back button on Android, a newer request). For dialogs whose second button is an action of its own ("No, assign by
+  hand", "Discard"), where closing should do nothing. `confirm()` and `prompt()` stay as they are; new type
+  `ConfirmChoice`. Story _Choose_ in every Storybook; the PrimeVue migration guide names it under _Pitfalls_.
+- 092ac0e: Countdown: `format="clock"` shows the time as a clock – "05:12:33" instead of "05 Hrs 12 Min 33 Sec". The units stay
+  for screen readers (`sr-only`; on iOS and Android the timer reads its value text as before), the colons are hidden from
+  them. With `variant="boxed"` one box surrounds the whole clock. New recipe variant `format` and slot `separator`; story
+  _Clock_ in every Storybook.
+- 3d79a05: React Native DataTable, like the web: `searchPlaceholder` sets the text and name of the search field; the column option
+  `headerHint` puts an (i) button with an explanation next to the header (table layout); `footerPosition="top"` shows the
+  totals right below the headers (cards: the total card before the cards). Recipe slots `headerWithHint` and `headerHint`, variant
+  `footerTop`; story _Totals on top_.
+
+### Patch Changes
+
+- Updated dependencies [092ac0e]
+- Updated dependencies [693adb4]
+- Updated dependencies [c10e906]
+- Updated dependencies [ce8a9ae]
+- Updated dependencies [cc2c66c]
+- Updated dependencies [83aa41e]
+- Updated dependencies [3d79a05]
+- Updated dependencies [a348907]
+- Updated dependencies [1c190d0]
+    - @wirecore/wirelayer-recipes@0.14.0
+
 ## 0.9.1
 
 ### Patch Changes
