@@ -48,3 +48,27 @@ export const Variants: Story = {
         </View>
     ),
 };
+
+/** Full fill in the colour of the variant – for permanent notices like "TEST SYSTEM" */
+export const Solid: Story = {
+    name: 'Solid',
+    render: () => (
+        <View className="gap-3">
+            <Banner variant="info" solid>
+                New: download invoices as PDF.
+            </Banner>
+            <Banner variant="success" solid title="Saved">
+                Your changes are live.
+            </Banner>
+            <Banner variant="warn" solid title="TEST SYSTEM" dismissible>
+                Data is reset every night.
+            </Banner>
+            <Banner variant="danger" solid title="Outage">
+                Payments are currently not being processed.
+            </Banner>
+            <Banner variant="neutral" solid>
+                Trial ends in 5 days.
+            </Banner>
+        </View>
+    ),
+};

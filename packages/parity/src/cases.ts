@@ -2263,6 +2263,15 @@ export const cases: [string, El][] = [
         'Banner without icon, bottom',
         el('Banner', { hideIcon: true, position: 'bottom', dismissLabel: 'Dismiss' }, 'Cookies'),
     ],
+    ...(['info', 'success', 'warn', 'danger', 'neutral'] as const).map((variant): [string, El] => [
+        `Banner ${variant} solid`,
+        el('Banner', { variant, solid: true, dismissible: true, title: 'Test system' }, 'Data is reset every night.'),
+    ]),
+    ['Banner sticky', el('Banner', { variant: 'warn', position: 'sticky' }, 'Maintenance on Saturday.')],
+    [
+        'Banner sticky solid',
+        el('Banner', { variant: 'warn', position: 'sticky', solid: true, title: 'TEST SYSTEM' }, 'Not for real data.'),
+    ],
     ...(['success', 'info', 'warn', 'error', '403', '404', '500'] as const).map((status): [string, El] => [
         `Result ${status}`,
         el('Result', { status }),
