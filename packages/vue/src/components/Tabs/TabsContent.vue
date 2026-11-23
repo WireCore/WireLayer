@@ -20,7 +20,7 @@ const styles = tabs();
 const tabsContext = useTabsContext();
 const strategy = inject(
     tabsRenderStrategyKey,
-    computed(() => ({}))
+    computed(() => ({ lazyMount: false, unmountOnExit: false }))
 );
 const selected = computed(() => tabsContext.value.value === props.value);
 const wasSelected = ref(selected.value);
