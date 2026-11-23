@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useState } from 'react';
 import { Field } from '../Field/Field.js';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../Tabs/Tabs.js';
 import { Textarea, type TextareaProps } from './Textarea.js';
 
 function Demo(args: TextareaProps) {
@@ -89,3 +90,26 @@ export const SizesAndStates: Story = {
         </div>
     ),
 };
+
+function InTabsDemo() {
+    const [text, setText] = useState('Line 1\nLine 2\nLine 3\nLine 4');
+    return (
+        <Tabs defaultValue="general" label="Profile" className="w-80">
+            <TabsList>
+                <TabsTrigger value="general">General</TabsTrigger>
+                <TabsTrigger value="notes">Notes</TabsTrigger>
+            </TabsList>
+            <TabsContent value="general" className="text-sm text-muted">
+                Name and e-mail address.
+            </TabsContent>
+            <TabsContent value="notes">
+                <Field label="Notes">
+                    <Textarea value={text} onChange={(event) => setText(event.target.value)} autoResize rows={1} />
+                </Field>
+            </TabsContent>
+        </Tabs>
+    );
+}
+
+/** In a tab that is hidden when it mounts: measures its height once the tab opens */
+export const InTabs: Story = { name: 'Textarea in Tabs', render: () => <InTabsDemo /> };

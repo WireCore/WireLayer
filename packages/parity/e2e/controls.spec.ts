@@ -118,6 +118,20 @@ test.describe('Textarea', () => {
         expect(scroll).toBeLessThanOrEqual(1);
     });
 
+    test('autoResize in a tab that was hidden when it mounted: as high as its text once the tab opens', async ({
+        page,
+    }) => {
+        await openStory(page, 'forms-textarea--in-tabs');
+        await page.getByRole('tab', { name: 'Notes' }).click();
+        const area = page.getByRole('textbox', { name: 'Notes' });
+        await expect(area).toBeVisible();
+        // Four lines, not one: the height was measured again once the tab became visible
+        const line = await area.evaluate((element) => parseFloat(getComputedStyle(element).lineHeight));
+        await expect.poll(async () => (await area.boundingBox())!.height).toBeGreaterThan(3 * line);
+        const scroll = await area.evaluate((element) => element.scrollHeight - element.clientHeight);
+        expect(scroll).toBeLessThanOrEqual(1);
+    });
+
     test('defaultValue arrives without v-model; the counter counts it', async ({ page }) => {
         await openStory(page, 'forms-textarea--initial-value');
         const area = page.getByRole('textbox', { name: 'Comment' });

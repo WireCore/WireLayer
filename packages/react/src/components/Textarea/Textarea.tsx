@@ -91,6 +91,8 @@ export function Textarea({
         const area = element.current;
         if (!autoResize || !area) return;
         area.style.height = 'auto';
+        // Hidden (inactive tab, closed accordion …) it measures 0: keep the rows until it is visible
+        if (!area.scrollHeight) return;
         const border = area.offsetHeight - area.clientHeight;
         let height = area.scrollHeight + border;
         if (minRows || maxRows) {
@@ -103,7 +105,25 @@ export function Textarea({
         }
         area.style.height = `${height}px`;
     };
-    useLayoutEffect(resize);
+    const latestResize = useRef(resize);
+    useLayoutEffect(() => {
+        latestResize.current = resize;
+        resize();
+    });
+    // Measured again when it gets a width (it becomes visible) and when the width changes (the text wraps differently)
+    useLayoutEffect(() => {
+        const area = element.current;
+        if (!autoResize || !area || typeof ResizeObserver === 'undefined') return;
+        let observedWidth = 0;
+        const observer = new ResizeObserver(([entry]) => {
+            const width = entry?.contentRect.width ?? 0;
+            if (width === observedWidth) return;
+            observedWidth = width;
+            if (width) latestResize.current();
+        });
+        observer.observe(area);
+        return () => observer.disconnect();
+    }, [autoResize, wrapped]);
 
     // Counter: announced politely once typing pauses
     const counterId = useId();
