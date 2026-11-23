@@ -85,7 +85,7 @@ export const Sticky: Story = {
     render: () => ({
         components: { Banner },
         template: `
-            <div class="h-72 overflow-y-auto">
+            <div class="h-72 overflow-y-auto" tabindex="0" role="region" aria-label="Page">
                 <Banner variant="warn" position="sticky" solid title="TEST SYSTEM">Not for real data.</Banner>
                 <div class="flex flex-col gap-3 p-6 text-sm text-muted">
                     <p v-for="row in 12" :key="row">Page content, row {{ row }} – scroll down, the banner stays.</p>

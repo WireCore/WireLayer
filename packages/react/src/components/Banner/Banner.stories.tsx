@@ -102,7 +102,7 @@ export const Solid: Story = {
 /** In the flow above the content, stays at the top edge while the page scrolls – opaque, also without solid */
 export const Sticky: Story = {
     render: () => (
-        <div className="h-72 overflow-y-auto">
+        <div className="h-72 overflow-y-auto" tabIndex={0} role="region" aria-label="Page">
             <Banner variant="warn" position="sticky" solid title="TEST SYSTEM">
                 Not for real data.
             </Banner>
