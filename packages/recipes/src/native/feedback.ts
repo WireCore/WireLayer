@@ -31,10 +31,67 @@ export const banner = tv({
             top: { base: 'absolute top-0 right-0 left-0 z-10 border-b border-line ios:pt-14' },
             bottom: { base: 'absolute right-0 bottom-0 left-0 z-10 border-t border-line ios:pb-8' },
         },
+        /** Full fill in the colour of the variant, opaque – for permanent notices ("TEST SYSTEM", maintenance) */
+        solid: {
+            true: { base: 'border-transparent', dismiss: 'active:bg-transparent' },
+            false: {},
+        },
     },
+    compoundVariants: [
+        {
+            variant: 'info',
+            solid: true,
+            class: {
+                base: 'bg-info',
+                icon: 'text-on-info',
+                title: 'text-on-info',
+                message: 'text-on-info',
+                dismissIcon: 'text-on-info',
+            },
+        },
+        {
+            variant: 'success',
+            solid: true,
+            class: {
+                base: 'bg-success',
+                icon: 'text-on-success',
+                title: 'text-on-success',
+                message: 'text-on-success',
+                dismissIcon: 'text-on-success',
+            },
+        },
+        {
+            variant: 'warn',
+            solid: true,
+            class: {
+                base: 'bg-warn',
+                icon: 'text-on-warn',
+                title: 'text-on-warn',
+                message: 'text-on-warn',
+                dismissIcon: 'text-on-warn',
+            },
+        },
+        {
+            variant: 'danger',
+            solid: true,
+            class: {
+                base: 'bg-danger',
+                icon: 'text-on-danger',
+                title: 'text-on-danger',
+                message: 'text-on-danger',
+                dismissIcon: 'text-on-danger',
+            },
+        },
+        {
+            variant: 'neutral',
+            solid: true,
+            class: { base: 'bg-fg', icon: 'text-bg', title: 'text-bg', message: 'text-bg', dismissIcon: 'text-bg' },
+        },
+    ],
     defaultVariants: {
         variant: 'info',
         position: 'inline',
+        solid: false,
     },
 });
 

@@ -1,6 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite';
 import { ref } from 'vue';
 import Field from '../Field/Field.vue';
+import Tabs from '../Tabs/Tabs.vue';
+import TabsContent from '../Tabs/TabsContent.vue';
+import TabsList from '../Tabs/TabsList.vue';
+import TabsTrigger from '../Tabs/TabsTrigger.vue';
 import Textarea from './Textarea.vue';
 
 const meta = {
@@ -68,5 +72,25 @@ export const SizesAndStates: Story = {
                 <Field label="Validated" success="Looks good."><Textarea rows="2" /></Field>
                 <Field label="Saving"><Textarea loading rows="2" /></Field>
             </div>`,
+    }),
+};
+
+/** In a tab that is hidden when it mounts: measures its height once the tab opens */
+export const InTabs: Story = {
+    name: 'Textarea in Tabs',
+    render: () => ({
+        components: { Field, Tabs, TabsContent, TabsList, TabsTrigger, Textarea },
+        setup: () => ({ text: ref('Line 1\nLine 2\nLine 3\nLine 4') }),
+        template: `
+            <Tabs default-value="general" label="Profile" class="w-80">
+                <TabsList>
+                    <TabsTrigger value="general">General</TabsTrigger>
+                    <TabsTrigger value="notes">Notes</TabsTrigger>
+                </TabsList>
+                <TabsContent value="general" class="text-sm text-muted">Name and e-mail address.</TabsContent>
+                <TabsContent value="notes">
+                    <Field label="Notes"><Textarea v-model="text" auto-resize rows="1" /></Field>
+                </TabsContent>
+            </Tabs>`,
     }),
 };

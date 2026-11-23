@@ -191,7 +191,7 @@ export const bottomNavigation = tv({
 });
 
 export type BannerVariant = 'info' | 'success' | 'warn' | 'danger' | 'neutral';
-export type BannerPosition = 'inline' | 'top' | 'bottom';
+export type BannerPosition = 'inline' | 'top' | 'bottom' | 'sticky';
 
 /** Page-wide notice above or below everything (maintenance, cookies, trial ending) */
 export const banner = tv({
@@ -222,11 +222,59 @@ export const banner = tv({
             bottom: {
                 base: 'fixed inset-x-0 bottom-0 z-50 border-b-0 pb-[calc(0.625rem+env(safe-area-inset-bottom))]',
             },
+            /** In the flow (takes its space), stays at the top edge while the page scrolls; below dialogs and drawers */
+            sticky: { base: 'sticky top-0 z-40 border-t-0' },
+        },
+        /** Full fill in the colour of the variant, opaque – for permanent notices ("TEST SYSTEM", maintenance) */
+        solid: {
+            true: { dismiss: 'opacity-100 hover:bg-current/15 data-focus-visible:outline-current' },
+            false: {},
         },
     },
+    compoundVariants: [
+        { variant: 'info', solid: true, class: { base: 'border-info bg-info text-on-info', icon: 'text-on-info' } },
+        {
+            variant: 'success',
+            solid: true,
+            class: { base: 'border-success bg-success text-on-success', icon: 'text-on-success' },
+        },
+        { variant: 'warn', solid: true, class: { base: 'border-warn bg-warn text-on-warn', icon: 'text-on-warn' } },
+        {
+            variant: 'danger',
+            solid: true,
+            class: { base: 'border-danger bg-danger text-on-danger', icon: 'text-on-danger' },
+        },
+        { variant: 'neutral', solid: true, class: { base: 'border-fg bg-fg text-bg', icon: 'text-bg' } },
+        // Sticky without solid: the tint on the page background, opaque, so the content does not show through
+        {
+            variant: 'info',
+            position: 'sticky',
+            solid: false,
+            class: { base: 'bg-[color-mix(in_srgb,var(--color-info)_10%,var(--color-bg))]' },
+        },
+        {
+            variant: 'success',
+            position: 'sticky',
+            solid: false,
+            class: { base: 'bg-[color-mix(in_srgb,var(--color-success)_10%,var(--color-bg))]' },
+        },
+        {
+            variant: 'warn',
+            position: 'sticky',
+            solid: false,
+            class: { base: 'bg-[color-mix(in_srgb,var(--color-warn)_10%,var(--color-bg))]' },
+        },
+        {
+            variant: 'danger',
+            position: 'sticky',
+            solid: false,
+            class: { base: 'bg-[color-mix(in_srgb,var(--color-danger)_10%,var(--color-bg))]' },
+        },
+    ],
     defaultVariants: {
         variant: 'info',
         position: 'inline',
+        solid: false,
     },
 });
 

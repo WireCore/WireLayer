@@ -262,6 +262,48 @@ describe.each(frameworks)('%s', (framework) => {
             expect(screen.getByRole('tab', { name: 'Process' })).toHaveAttribute('aria-selected', 'true');
             expect(screen.getByRole('tabpanel', { name: 'Process' })).toHaveTextContent('Content B');
         });
+
+        it.each([
+            // lazyMount: a panel from its first selection on, kept (hidden) when its tab is left
+            [{ lazyMount: true }, { a: true, c: false }],
+            // unmountOnExit as well: removed again when its tab is left
+            [
+                { lazyMount: true, unmountOnExit: true },
+                { a: false, c: false },
+            ],
+            // Neither: every panel is there from the start
+            [{}, { a: true, c: true }],
+        ])('%o: which panels stay in the DOM after a switch from A to B', async (props, expected) => {
+            await render(
+                framework,
+                el(
+                    'Tabs',
+                    { defaultValue: 'a', label: 'Project', ...props },
+                    el(
+                        'TabsList',
+                        {},
+                        el('TabsTrigger', { value: 'a' }, 'Overview'),
+                        el('TabsTrigger', { value: 'b' }, 'Process'),
+                        el('TabsTrigger', { value: 'c' }, 'Team')
+                    ),
+                    el('TabsContent', { value: 'a' }, 'Content A'),
+                    el('TabsContent', { value: 'b' }, 'Content B'),
+                    el('TabsContent', { value: 'c' }, 'Content C')
+                )
+            );
+            await userEvent.click(screen.getByRole('tab', { name: 'Process' }));
+            expect(screen.getByRole('tabpanel', { name: 'Process' })).toHaveTextContent('Content B');
+            // Ark hides or removes the panel that was left once its exit finished
+            await waitFor(() => {
+                const a = screen.queryByText('Content A');
+                expect(!!a).toBe(expected.a);
+                if (a) expect(a).not.toBeVisible();
+            });
+            expect(!!screen.queryByText('Content C')).toBe(expected.c);
+            // Back on A: shown again either way
+            await userEvent.click(screen.getByRole('tab', { name: 'Overview' }));
+            expect(screen.getByRole('tabpanel', { name: 'Overview' })).toHaveTextContent('Content A');
+        });
     });
 
     describe('Steps', () => {

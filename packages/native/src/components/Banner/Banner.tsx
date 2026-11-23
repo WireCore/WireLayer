@@ -11,8 +11,10 @@ export interface BannerProps extends ViewProps {
     variant?: BannerVariant;
     /** Bold text before the message */
     title?: string;
-    /** `inline` (default) in the layout, `top`/`bottom` over that edge of the screen */
-    position?: BannerPosition;
+    /** `inline` (default) in the layout, `top`/`bottom` over that edge of the screen (`sticky` is web only) */
+    position?: Exclude<BannerPosition, 'sticky'>;
+    /** Full fill in the colour of the variant (opaque) – for permanent notices like "TEST SYSTEM" or maintenance */
+    solid?: boolean;
     /** Shows a close button */
     dismissible?: boolean;
     /** Controlled visibility */
@@ -40,6 +42,7 @@ export function Banner({
     variant = 'info',
     title,
     position,
+    solid = false,
     dismissible = false,
     open,
     onOpenChange,
@@ -54,7 +57,7 @@ export function Banner({
 }: BannerProps) {
     const translations = useTranslations();
     const [internal, setInternal] = useState(true);
-    const styles = banner({ variant, position });
+    const styles = banner({ variant, position, solid });
     if (!(open ?? internal)) return null;
     const dismiss = () => {
         setInternal(false);

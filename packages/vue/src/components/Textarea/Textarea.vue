@@ -99,6 +99,8 @@ function resize() {
     const area = element.value?.$el;
     if (!props.autoResize || !area) return;
     area.style.height = 'auto';
+    // Hidden (inactive tab, closed accordion …) it measures 0: keep the rows until it is visible
+    if (!area.scrollHeight) return;
     const border = area.offsetHeight - area.clientHeight;
     let height = area.scrollHeight + border;
     if (props.minRows || props.maxRows) {
@@ -113,6 +115,27 @@ function resize() {
 }
 onMounted(resize);
 watch(model, () => nextTick(resize));
+// Measured again when it gets a width (it becomes visible) and when the width changes (the text wraps differently)
+let observedWidth = 0;
+const observer =
+    typeof ResizeObserver === 'undefined'
+        ? undefined
+        : new ResizeObserver(([entry]) => {
+              const width = entry?.contentRect.width ?? 0;
+              if (width === observedWidth) return;
+              observedWidth = width;
+              if (width) resize();
+          });
+watch(
+    () => props.autoResize && element.value?.$el,
+    (area) => {
+        observer?.disconnect();
+        observedWidth = 0;
+        if (area) observer?.observe(area);
+    },
+    { flush: 'post' }
+);
+onBeforeUnmount(() => observer?.disconnect());
 
 // Counter: announced politely once typing pauses
 const counterId = useId();

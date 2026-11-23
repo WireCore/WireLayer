@@ -17,8 +17,13 @@ export interface BannerProps extends Omit<ComponentProps<'div'>, 'title'> {
     variant?: BannerVariant;
     /** Bold text before the message */
     title?: string;
-    /** `inline` (default): in the flow; `top`/`bottom`: fixed to that edge of the window */
+    /**
+     * `inline` (default): in the flow; `top`/`bottom`: fixed to that edge of the window; `sticky`: in the flow, stays at
+     * the top edge while the page scrolls (opaque, below dialogs and drawers)
+     */
     position?: BannerPosition;
+    /** Full fill in the colour of the variant (opaque) – for permanent notices like "TEST SYSTEM" or maintenance */
+    solid?: boolean;
     /** Shows a close button */
     dismissible?: boolean;
     /** Controlled visibility */
@@ -56,6 +61,7 @@ export function Banner({
     variant,
     title,
     position,
+    solid,
     dismissible,
     open,
     onOpenChange,
@@ -70,7 +76,7 @@ export function Banner({
     ...props
 }: BannerProps) {
     const banner = useRecipe('banner', bannerRecipe, classes);
-    const styles = banner({ variant, position });
+    const styles = banner({ variant, position, solid });
     const translations = useTranslations();
     const [internal, setInternal] = useState(true);
     // A remembered dismissal is only known in the browser (after the server-rendered first paint)

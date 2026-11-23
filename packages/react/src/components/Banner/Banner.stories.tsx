@@ -13,7 +13,7 @@ const meta = {
     },
     argTypes: {
         variant: { control: 'inline-radio', options: ['info', 'success', 'warn', 'danger', 'neutral'] },
-        position: { control: 'inline-radio', options: ['inline', 'top', 'bottom'] },
+        position: { control: 'inline-radio', options: ['inline', 'top', 'bottom', 'sticky'] },
     },
     parameters: { layout: 'fullscreen' },
 } satisfies Meta<typeof Banner>;
@@ -72,6 +72,45 @@ export const Top: Story = {
                 You are viewing a preview.
             </Banner>
             <p className="text-sm text-muted">Page content</p>
+        </div>
+    ),
+};
+
+/** Full fill in the colour of the variant – for permanent notices; the close button and icon take the text colour */
+export const Solid: Story = {
+    render: () => (
+        <div className="flex flex-col gap-3">
+            <Banner variant="info" solid>
+                New features in the customer portal – available to everyone today.
+            </Banner>
+            <Banner variant="success" solid title="Done">
+                Your data has been transferred.
+            </Banner>
+            <Banner variant="warn" solid title="TEST SYSTEM" dismissible>
+                Data is reset every night.
+            </Banner>
+            <Banner variant="danger" solid title="Outage">
+                Payment processing is down. We are working on it.
+            </Banner>
+            <Banner variant="neutral" solid>
+                Trial ends in 5 days.
+            </Banner>
+        </div>
+    ),
+};
+
+/** In the flow above the content, stays at the top edge while the page scrolls – opaque, also without solid */
+export const Sticky: Story = {
+    render: () => (
+        <div className="h-72 overflow-y-auto" tabIndex={0} role="region" aria-label="Page">
+            <Banner variant="warn" position="sticky" solid title="TEST SYSTEM">
+                Not for real data.
+            </Banner>
+            <div className="flex flex-col gap-3 p-6 text-sm text-muted">
+                {Array.from({ length: 12 }, (_, index) => (
+                    <p key={index}>Page content, row {index + 1} – scroll down, the banner stays.</p>
+                ))}
+            </div>
         </div>
     ),
 };

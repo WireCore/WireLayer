@@ -17,8 +17,13 @@ export interface BannerProps {
     variant?: BannerVariant;
     /** Bold text before the message */
     title?: string;
-    /** `inline` (default): in the flow; `top`/`bottom`: fixed to that edge of the window */
+    /**
+     * `inline` (default): in the flow; `top`/`bottom`: fixed to that edge of the window; `sticky`: in the flow, stays at
+     * the top edge while the page scrolls (opaque, below dialogs and drawers)
+     */
     position?: BannerPosition;
+    /** Full fill in the colour of the variant (opaque) – for permanent notices like "TEST SYSTEM" or maintenance */
+    solid?: boolean;
     /** Shows a close button */
     dismissible?: boolean;
     /** Controlled visibility – use with v-model:open */
@@ -41,7 +46,7 @@ const emit = defineEmits<{ 'update:open': [open: boolean]; dismiss: [] }>();
 const slots = defineSlots<{ default?(): unknown; actions?(): unknown }>();
 const attrs = useAttrs();
 const translations = useTranslations();
-const styles = computed(() => banner({ variant: props.variant, position: props.position }));
+const styles = computed(() => banner({ variant: props.variant, position: props.position, solid: props.solid }));
 const icons: Record<BannerVariant, Component> = {
     info: Info,
     success: CircleCheck,

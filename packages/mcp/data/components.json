@@ -2233,7 +2233,13 @@
                     "name": "position",
                     "type": "BannerPosition",
                     "optional": true,
-                    "description": "`inline` (default): in the flow; `top`/`bottom`: fixed to that edge of the window"
+                    "description": "`inline` (default): in the flow; `top`/`bottom`: fixed to that edge of the window; `sticky`: in the flow, stays at the top edge while the page scrolls (opaque, below dialogs and drawers)"
+                },
+                {
+                    "name": "solid",
+                    "type": "boolean",
+                    "optional": true,
+                    "description": "Full fill in the colour of the variant (opaque) – for permanent notices like \"TEST SYSTEM\" or maintenance"
                 },
                 {
                     "name": "dismissible",
@@ -2314,7 +2320,13 @@
                         "name": "position",
                         "type": "BannerPosition",
                         "optional": true,
-                        "description": "`inline` (default): in the flow; `top`/`bottom`: fixed to that edge of the window"
+                        "description": "`inline` (default): in the flow; `top`/`bottom`: fixed to that edge of the window; `sticky`: in the flow, stays at the top edge while the page scrolls (opaque, below dialogs and drawers)"
+                    },
+                    {
+                        "name": "solid",
+                        "type": "boolean",
+                        "optional": true,
+                        "description": "Full fill in the colour of the variant (opaque) – for permanent notices like \"TEST SYSTEM\" or maintenance"
                     },
                     {
                         "name": "dismissible",
@@ -38863,9 +38875,15 @@
                     },
                     {
                         "name": "position",
-                        "type": "BannerPosition",
+                        "type": "Exclude<BannerPosition, 'sticky'>",
                         "optional": true,
-                        "description": "`inline` (default) in the layout, `top`/`bottom` over that edge of the screen"
+                        "description": "`inline` (default) in the layout, `top`/`bottom` over that edge of the screen (`sticky` is web only)"
+                    },
+                    {
+                        "name": "solid",
+                        "type": "boolean",
+                        "optional": true,
+                        "description": "Full fill in the colour of the variant (opaque) – for permanent notices like \"TEST SYSTEM\" or maintenance"
                     },
                     {
                         "name": "dismissible",
