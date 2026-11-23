@@ -1,5 +1,25 @@
 # @wirecore/wirelayer-vue
 
+## 0.16.0
+
+### Minor Changes
+
+- 1ee83b2: Banner for permanent, page-wide notices ("TEST SYSTEM", maintenance): `solid` fills it opaquely in the colour of the
+  variant with the matching text colour (info → `bg-info text-on-info`, …, neutral → `bg-fg text-bg`); `position="sticky"`
+  keeps it in the flow and at the top edge while the page scrolls (opaque also without `solid`, below dialogs and
+  drawers). React Native gets `solid` (no `sticky`). Stories _Solid_ and _Sticky_.
+
+### Patch Changes
+
+- be1e29a: Tabs with `lazyMount`: the panel that was open when the tabs mounted stays mounted (hidden) when its tab is left, as
+  documented – only `unmountOnExit` removes a panel again. Ark's Vue presence forgot that panel and removed it, so e.g.
+  form fields in it were gone on submit. TabsContent now mounts the panels itself with the same rules.
+- d256625: Textarea with `autoResize`: measures its height again once it becomes visible and whenever its width changes. Mounted
+  hidden (an inactive tab, a closed accordion, a popover before it opens) it measured 0 and stayed one line high. A
+  hidden textarea now keeps its rows until it can be measured. Story _Textarea in Tabs_.
+- Updated dependencies [1ee83b2]
+    - @wirecore/wirelayer-recipes@0.15.0
+
 ## 0.15.1
 
 ### Patch Changes
