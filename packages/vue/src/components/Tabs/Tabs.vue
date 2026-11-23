@@ -2,7 +2,7 @@
 import { Tabs } from '@ark-ui/vue/tabs';
 import { type RecipeClasses, tabs as tabsRecipe } from '@wirecore/wirelayer-recipes';
 import { computed, normalizeClass, provide, useAttrs } from 'vue';
-import { tabsNoneSelectedKey } from './context.js';
+import { tabsNoneSelectedKey, tabsRenderStrategyKey } from './context.js';
 import { useRecipe } from '../../recipes.js';
 
 export interface TabsProps {
@@ -45,6 +45,12 @@ provide(
     tabsNoneSelectedKey,
     computed(() => props.modelValue === null)
 );
+// Applied by TabsContent instead of Ark: Ark's Vue presence forgets the panel that was open when the tabs mounted, so
+// lazyMount removed it when it was left
+provide(
+    tabsRenderStrategyKey,
+    computed(() => ({ lazyMount: props.lazyMount, unmountOnExit: props.unmountOnExit }))
+);
 </script>
 
 <template>
@@ -54,8 +60,6 @@ provide(
         :default-value="defaultValue"
         :orientation="orientation"
         :activation-mode="activationMode"
-        :lazy-mount="lazyMount"
-        :unmount-on-exit="unmountOnExit"
         :translations="label ? { listLabel: label } : undefined"
         @update:model-value="emit('update:modelValue', $event)"
     >
