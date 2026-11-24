@@ -89,7 +89,10 @@ import {
     isActiveFilter,
     isRangeMatchMode,
     listValueKey,
+    hiddenColumnDefaults,
     loadTableState,
+    restoreHiddenColumns,
+    tableColumnIds,
     locateTreeNode,
     matchesColumnFilter,
     matchesRowKeywords,
@@ -859,7 +862,10 @@ watchProp(
     () => props.filters,
     (value) => value && (columnFilters.value = fromFilters(value))
 );
-const columnVisibility = ref<ColumnVisibilityState>(toIds(props.hiddenColumns ?? [], false));
+// Without hiddenColumns the columns with `hidden: true` start hidden
+const columnVisibility = ref<ColumnVisibilityState>(
+    toIds(props.hiddenColumns ?? hiddenColumnDefaults(props.columns), false)
+);
 watchProp(
     () => props.hiddenColumns,
     (ids) => ids && (columnVisibility.value = toIds(ids, false))
@@ -3016,6 +3022,7 @@ const tableState = computed<DataTableState>(() => ({
     columnSizing: columnSizing.value,
     columnOrder: columnOrder.value,
     hiddenColumns: Object.keys(columnVisibility.value).filter((key) => columnVisibility.value[key] === false),
+    knownColumns: tableColumnIds(props.columns),
     pinnedColumns: columnPinning.value,
     expanded:
         expanded.value === true
@@ -3035,7 +3042,9 @@ onMounted(() => {
         if (saved.globalFilter !== undefined) table.setGlobalFilter(saved.globalFilter);
         if (saved.columnSizing) columnSizing.value = saved.columnSizing;
         if (saved.columnOrder) table.setColumnOrder(saved.columnOrder);
-        if (saved.hiddenColumns) table.setColumnVisibility(toIds(saved.hiddenColumns, false));
+        // The user's choice for the columns the state knows, `hidden` for the new ones
+        const hidden = restoreHiddenColumns(saved, hiddenColumnDefaults(props.columns));
+        if (hidden) table.setColumnVisibility(toIds(hidden, false));
         if (saved.pinnedColumns) table.setColumnPinning(saved.pinnedColumns);
         if (saved.expanded && saved.expanded.length) setExpanded(toIds(saved.expanded));
         if (saved.selection) setSelection(toSelection(saved.selection));

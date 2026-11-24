@@ -192,6 +192,12 @@ export interface DataTableColumn<TData> {
     width?: number;
     /** Stays visible at the start or end while the table scrolls sideways */
     pinned?: 'start' | 'end';
+    /**
+     * The column starts hidden; it is shown with the column menu (`columnToggle`) or `hiddenColumns`. With
+     * `hiddenColumns` (v-model) set, that value decides alone. A saved state (`stateKey`) keeps the user's choice for the
+     * columns it knows; columns it does not know yet start with this value. Ignored with `hideable: false`
+     */
+    hidden?: boolean;
     /** Can be hidden in the column menu (`columnToggle`), default true */
     hideable?: boolean;
     /** Hidden on screens below this breakpoint */
