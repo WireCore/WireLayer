@@ -53,7 +53,7 @@ export const tree = tv({
         toolbar: 'flex flex-wrap items-center gap-1.5',
         search: [
             'h-8 min-w-0 flex-1 rounded-md border border-line-strong bg-bg px-2.5 text-sm text-fg outline-none',
-            'placeholder:text-muted focus:border-primary',
+            'placeholder:text-muted focus:border-primary [&::-webkit-search-cancel-button]:cursor-pointer',
         ],
         /** Row below a branch while its children load (indented like its children) */
         loadingRow: 'flex h-8 items-center gap-2 pe-2 ps-[calc(var(--depth)*20px+32px)] text-sm text-muted',

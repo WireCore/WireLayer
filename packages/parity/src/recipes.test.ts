@@ -1,7 +1,17 @@
 import { screen, waitFor, within } from '@testing-library/dom';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
-import { button, buttonColorKey, tv, withRecipeOverrides } from '@wirecore/wirelayer-recipes';
+import {
+    button,
+    buttonColorKey,
+    input,
+    numberInput,
+    passwordInput,
+    textareaParts,
+    tree,
+    tv,
+    withRecipeOverrides,
+} from '@wirecore/wirelayer-recipes';
 import { el, frameworks, icon, render } from './harness.js';
 
 // Own defaults and classes: RecipesProvider for every component below, `classes` for one component
@@ -357,5 +367,18 @@ describe.each(frameworks)('%s Scheduler', (framework) => {
         expect(screen.getByRole('table', { name: 'March 2027' })).toBeInTheDocument();
         await userEvent.click(screen.getByRole('radio', { name: 'List' }));
         expect(screen.getByRole('heading', { level: 3, name: 'Tuesday, March 16, 2027' })).toBeInTheDocument();
+    });
+});
+
+describe('clear buttons of the text controls', () => {
+    it.each(['sm', 'md', 'lg'] as const)('show the pointer, size %s (Input, NumberInput, PasswordInput)', (size) => {
+        for (const recipe of [input, numberInput, passwordInput])
+            expect(recipe({ size }).clear().split(' ')).toContain('cursor-pointer');
+    });
+
+    it('Textarea and the browser clear button of type="search" (Input, Tree search) show it too', () => {
+        expect(textareaParts().clear().split(' ')).toContain('cursor-pointer');
+        expect(input().control().split(' ')).toContain('[&::-webkit-search-cancel-button]:cursor-pointer');
+        expect(tree().search().split(' ')).toContain('[&::-webkit-search-cancel-button]:cursor-pointer');
     });
 });
