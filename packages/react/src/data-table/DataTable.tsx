@@ -3747,9 +3747,14 @@ export function DataTable<TData extends object>({
                                                         value={option}
                                                         className={menuStyles.item()}
                                                     >
-                                                        <ArkMenu.ItemIndicator>
-                                                            <Check className={styles.menuCheck()} aria-hidden="true" />
-                                                        </ArkMenu.ItemIndicator>
+                                                        <span className={menuStyles.indicator()}>
+                                                            <ArkMenu.ItemIndicator>
+                                                                <Check
+                                                                    className={styles.menuCheck()}
+                                                                    aria-hidden="true"
+                                                                />
+                                                            </ArkMenu.ItemIndicator>
+                                                        </span>
                                                         <ArkMenu.ItemText className={menuStyles.label()}>
                                                             {t.densities[option]}
                                                         </ArkMenu.ItemText>
@@ -3787,9 +3792,14 @@ export function DataTable<TData extends object>({
                                                             class: indent ? styles.columnGroupItem() : undefined,
                                                         })}
                                                     >
-                                                        <ArkMenu.ItemIndicator>
-                                                            <Check className={styles.menuCheck()} aria-hidden="true" />
-                                                        </ArkMenu.ItemIndicator>
+                                                        <span className={menuStyles.indicator()}>
+                                                            <ArkMenu.ItemIndicator>
+                                                                <Check
+                                                                    className={styles.menuCheck()}
+                                                                    aria-hidden="true"
+                                                                />
+                                                            </ArkMenu.ItemIndicator>
+                                                        </span>
                                                         <ArkMenu.ItemText className={menuStyles.label()}>
                                                             {label(column)}
                                                         </ArkMenu.ItemText>
@@ -3819,12 +3829,14 @@ export function DataTable<TData extends object>({
                                                             closeOnSelect={false}
                                                             className={menuStyles.item()}
                                                         >
-                                                            <ArkMenu.ItemIndicator>
-                                                                <Check
-                                                                    className={styles.menuCheck()}
-                                                                    aria-hidden="true"
-                                                                />
-                                                            </ArkMenu.ItemIndicator>
+                                                            <span className={menuStyles.indicator()}>
+                                                                <ArkMenu.ItemIndicator>
+                                                                    <Check
+                                                                        className={styles.menuCheck()}
+                                                                        aria-hidden="true"
+                                                                    />
+                                                                </ArkMenu.ItemIndicator>
+                                                            </span>
                                                             <ArkMenu.ItemText className={menuStyles.label()}>
                                                                 {def.header}
                                                             </ArkMenu.ItemText>

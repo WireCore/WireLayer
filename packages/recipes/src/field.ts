@@ -34,7 +34,11 @@ export const inputStatusParts = {
 export const input = tv({
     slots: {
         base: 'flex w-full items-stretch overflow-hidden border border-line-strong bg-bg text-fg transition-colors focus-within:border-primary motion-reduce:transition-none',
-        control: 'min-w-0 flex-1 bg-transparent outline-none placeholder:text-muted disabled:cursor-not-allowed',
+        control: [
+            'min-w-0 flex-1 bg-transparent outline-none placeholder:text-muted disabled:cursor-not-allowed',
+            // The browser's own clear button of type="search" (DataTable search …) is a button, too
+            '[&::-webkit-search-cancel-button]:cursor-pointer',
+        ],
         icon: 'pointer-events-none shrink-0 self-center text-muted',
         statusIcon: 'pointer-events-none shrink-0 self-center text-danger',
         prefix: 'flex shrink-0 items-center border-e border-line-strong bg-bg-2 px-3 font-mono text-xs text-muted',

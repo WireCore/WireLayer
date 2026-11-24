@@ -2704,6 +2704,10 @@ describe.each(frameworks)('%s DataTable: reset, saved state, column settings', (
             await user.click(screen.getByRole('button', { name: 'Columns' }));
             const since = await screen.findByRole('menuitemcheckbox', { name: 'Since' });
             expect(since).toHaveAttribute('aria-checked', 'false');
+            // The box of the check mark keeps its space without a check, so the labels line up
+            const box = (name: string) => screen.getByRole('menuitemcheckbox', { name }).firstElementChild;
+            expect(box('Since')).toHaveClass('size-4', 'shrink-0');
+            expect(box('Name')).toHaveClass('size-4', 'shrink-0');
             await user.click(since);
             await waitFor(() => expect(headers()).toEqual(['Name', 'Location', 'Load', 'Since']));
             expect(handle!.generateCsv({ bom: false }).split('\r\n')[0]).toBe('Name,Location,Load,Since');
