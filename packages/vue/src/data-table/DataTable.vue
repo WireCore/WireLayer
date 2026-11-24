@@ -3305,9 +3305,11 @@ const toolbarSize = sizeOverrides('sm') as RecipeConfig;
                                             :value="option"
                                             :class="menuStyles.item()"
                                         >
-                                            <Menu.ItemIndicator>
-                                                <Check :class="styles.menuCheck()" aria-hidden="true" />
-                                            </Menu.ItemIndicator>
+                                            <span :class="menuStyles.indicator()">
+                                                <Menu.ItemIndicator>
+                                                    <Check :class="styles.menuCheck()" aria-hidden="true" />
+                                                </Menu.ItemIndicator>
+                                            </span>
                                             <Menu.ItemText :class="menuStyles.label()">{{
                                                 t.densities[option]
                                             }}</Menu.ItemText>
@@ -3342,9 +3344,11 @@ const toolbarSize = sizeOverrides('sm') as RecipeConfig;
                                             :class="menuStyles.item()"
                                             @update:checked="setBlockVisible(block.leaves, $event)"
                                         >
-                                            <Menu.ItemIndicator>
-                                                <Check :class="styles.menuCheck()" aria-hidden="true" />
-                                            </Menu.ItemIndicator>
+                                            <span :class="menuStyles.indicator()">
+                                                <Menu.ItemIndicator>
+                                                    <Check :class="styles.menuCheck()" aria-hidden="true" />
+                                                </Menu.ItemIndicator>
+                                            </span>
                                             <Menu.ItemText :class="menuStyles.label()">{{
                                                 block.def.header
                                             }}</Menu.ItemText>
@@ -3362,9 +3366,11 @@ const toolbarSize = sizeOverrides('sm') as RecipeConfig;
                                             "
                                             @update:checked="column.toggleVisibility($event)"
                                         >
-                                            <Menu.ItemIndicator>
-                                                <Check :class="styles.menuCheck()" aria-hidden="true" />
-                                            </Menu.ItemIndicator>
+                                            <span :class="menuStyles.indicator()">
+                                                <Menu.ItemIndicator>
+                                                    <Check :class="styles.menuCheck()" aria-hidden="true" />
+                                                </Menu.ItemIndicator>
+                                            </span>
                                             <Menu.ItemText :class="menuStyles.label()">{{
                                                 label(column)
                                             }}</Menu.ItemText>
