@@ -1,5 +1,20 @@
 # @wirecore/wirelayer-react
 
+## 0.17.0
+
+### Minor Changes
+
+- 11e19c5: DataTable: `exportColumns` splits a column into several columns of the CSV and Excel export, at its position – e.g.
+  "Name" shown as "Doe, Jane" exported as "First name" and "Last name". It takes precedence over `exportHeader` and
+  `exportValue`; `exportable: false` and a hidden column export nothing. In Excel the aggregate and footer of the column go
+  to its first part. Printing keeps the shown column. The React Native DataTable exports the same way (`tableCsv`,
+  `tableXlsxSheet`); new recipe helper `tableExportColumns`. Story _Export columns_.
+
+### Patch Changes
+
+- Updated dependencies [11e19c5]
+    - @wirecore/wirelayer-recipes@0.16.0
+
 ## 0.16.0
 
 ### Minor Changes
