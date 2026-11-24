@@ -1,5 +1,12 @@
 # @wirecore/wirelayer-css
 
+## 0.15.1
+
+### Patch Changes
+
+- ee20cf2: Text fields with `type="search"` (DataTable search and find, LogViewer, JsonViewer, EmojiPicker, PdfViewer, Tree
+  search): the browser's own clear button (×) shows the pointer cursor, like the clear buttons of the text controls.
+
 ## 0.15.0
 
 ### Minor Changes
