@@ -68,6 +68,11 @@ export interface DataTableColumn<TData> {
     aggregate?: DataTableAggregate | ((values: unknown[]) => unknown);
     /** Footer text of the column (instead of the aggregate) */
     footer?: string;
+    /**
+     * The column is not shown and not exported – the React Native DataTable has no column menu to show it (on the web
+     * the column starts hidden)
+     */
+    hidden?: boolean;
     /** Part of the export, default true */
     exportable?: boolean;
     /** Column name in the export (default: `header`) */

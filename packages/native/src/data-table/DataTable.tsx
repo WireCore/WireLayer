@@ -212,7 +212,7 @@ export function DataTable<TData extends object>({
     dataSource,
     cacheTime = 0,
     searchDebounce = 300,
-    columns,
+    columns: allColumns,
     caption,
     getRowId,
     rowLabel,
@@ -268,6 +268,8 @@ export function DataTable<TData extends object>({
     const { translations, locale } = useLocale();
     const t = translations.dataTable;
     const styles = dataTable();
+    // `hidden`: no column menu here – such a column is neither shown nor exported
+    const columns = useMemo(() => allColumns.filter((column) => !column.hidden), [allColumns]);
     const web = Platform.OS === 'web';
     const screen = useWindowDimensions();
     const [width, setWidth] = useState(0);

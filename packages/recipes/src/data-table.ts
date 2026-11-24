@@ -2,6 +2,7 @@
 // with match modes, sorting clicks, aggregation, row ranges and the saved table state. Both packages call these,
 // so Vue and React filter, sort and store alike.
 
+import { warnInDevelopment } from './dev.js';
 import { moveTreeNode } from './hierarchy.js';
 import { listValueKey } from './list-items.js';
 
@@ -391,6 +392,8 @@ export interface DataTableState {
     columnSizing?: Record<string, number>;
     columnOrder?: string[];
     hiddenColumns?: string[];
+    /** Ids of the columns the state knows – a column with `hidden` it does not know starts hidden */
+    knownColumns?: string[];
     pinnedColumns?: { start: string[]; end: string[] };
     expanded?: string[];
     selection?: string[];
@@ -407,7 +410,47 @@ export function omitTableState(state: DataTableState, exclude: readonly DataTabl
     if (!exclude.length) return state;
     const kept = { ...state };
     for (const key of exclude) delete kept[key];
+    // The known columns only matter next to the hidden ones
+    if (exclude.includes('hiddenColumns')) delete kept.knownColumns;
     return kept;
+}
+
+/** A column (or column group) for `hiddenColumnDefaults` */
+interface HideableColumn {
+    id: string;
+    hidden?: boolean;
+    hideable?: boolean;
+    columns?: readonly HideableColumn[];
+}
+
+/** Ids of the columns (of column groups too) with `hidden: true` – they start hidden; `hideable: false` wins */
+export function hiddenColumnDefaults(columns: readonly HideableColumn[]): string[] {
+    return columns.flatMap((column) => {
+        if (column.columns) return hiddenColumnDefaults(column.columns);
+        if (!column.hidden) return [];
+        if (column.hideable === false) {
+            warnInDevelopment(
+                `DataTable: column "${column.id}" has hidden: true and hideable: false – it stays shown, hidden is ignored.`
+            );
+            return [];
+        }
+        return [column.id];
+    });
+}
+
+/** Ids of all columns (leaves of column groups) – the `knownColumns` of a saved state */
+export function tableColumnIds(columns: readonly HideableColumn[]): string[] {
+    return columns.flatMap((column) => (column.columns ? tableColumnIds(column.columns) : [column.id]));
+}
+
+/**
+ * The hidden columns of a saved state: the user's choice for the columns it knows, `defaults` (`hiddenColumnDefaults`)
+ * for the others. A state without `knownColumns` (saved before) knows none of the `defaults`.
+ */
+export function restoreHiddenColumns(saved: DataTableState, defaults: readonly string[]): string[] | undefined {
+    if (!saved.hiddenColumns) return undefined;
+    const known = new Set(saved.knownColumns ?? []);
+    return [...new Set([...saved.hiddenColumns, ...defaults.filter((id) => !known.has(id))])];
 }
 
 const storageOf = (kind: 'local' | 'session') => {

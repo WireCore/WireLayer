@@ -56,7 +56,10 @@ import {
     isActiveFilter,
     isRangeMatchMode,
     listValueKey,
+    hiddenColumnDefaults,
     loadTableState,
+    restoreHiddenColumns,
+    tableColumnIds,
     locateTreeNode,
     matchesColumnFilter,
     matchesRowKeywords,
@@ -954,7 +957,10 @@ export function DataTable<TData extends object>({
         () => (filtersValue === undefined ? internalFilters : fromFilters(filtersValue)),
         [filtersValue, internalFilters]
     );
-    const [internalHidden, setInternalHidden] = useState<ColumnVisibilityState>({});
+    // Without hiddenColumns the columns with `hidden: true` start hidden
+    const [internalHidden, setInternalHidden] = useState<ColumnVisibilityState>(() =>
+        toIds(hiddenColumnDefaults(columnsProp), false)
+    );
     const hiddenValue = useSameValue(hiddenColumns);
     const columnVisibility = useMemo(
         () => (hiddenValue === undefined ? internalHidden : toIds(hiddenValue, false)),
@@ -2947,7 +2953,9 @@ export function DataTable<TData extends object>({
         if (saved.globalFilter !== undefined) table.setGlobalFilter(saved.globalFilter);
         if (saved.columnSizing) setColumnSizing(saved.columnSizing);
         if (saved.columnOrder) table.setColumnOrder(saved.columnOrder);
-        if (saved.hiddenColumns) table.setColumnVisibility(toIds(saved.hiddenColumns, false));
+        // The user's choice for the columns the state knows, `hidden` for the new ones
+        const hidden = restoreHiddenColumns(saved, hiddenColumnDefaults(columnsProp));
+        if (hidden) table.setColumnVisibility(toIds(hidden, false));
         if (saved.pinnedColumns) table.setColumnPinning(saved.pinnedColumns);
         if (saved.expanded && saved.expanded.length) setExpanded(toIds(saved.expanded));
         if (saved.selection) setSelection(toSelection(saved.selection));
@@ -2967,6 +2975,7 @@ export function DataTable<TData extends object>({
         columnSizing,
         columnOrder,
         hiddenColumns: Object.keys(columnVisibility).filter((key) => columnVisibility[key] === false),
+        knownColumns: tableColumnIds(columnsProp),
         pinnedColumns: columnPinning,
         expanded: expanded === true ? [] : Object.keys(expanded).filter((key) => expanded[key]),
         selection: Object.keys(rowSelection).filter((key) => rowSelection[key]),

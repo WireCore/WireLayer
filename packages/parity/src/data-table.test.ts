@@ -51,7 +51,7 @@ import {
     xlsxSheetName,
     zipStore,
 } from '@wirecore/wirelayer-recipes';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { defineComponent, h, nextTick, ref, type Component } from 'vue';
 import { el, feature, frameworks, render, toReact, type El } from './harness.js';
 import { de as german } from '@wirecore/wirelayer-recipes/locales/de';
@@ -2680,6 +2680,77 @@ describe.each(frameworks)('%s DataTable: reset, saved state, column settings', (
             await nextTick();
         }
     };
+
+    describe('hidden columns', () => {
+        // "Since" is offered in the column menu, hidden at the start
+        const optional = [...columns, { id: 'since', header: 'Since', hidden: true }];
+        const headers = () => screen.getAllByRole('columnheader').map((header) => header.textContent?.trim());
+        const saved = (state: object) => sessionStorage.setItem('wirecore-table:hidden-test', JSON.stringify(state));
+        afterEach(() => sessionStorage.clear());
+
+        it('a column with hidden starts hidden, the column menu shows it; the export follows', async () => {
+            let handle: { generateCsv: (options?: object) => string } | undefined;
+            await render(
+                framework,
+                table({
+                    columns: optional,
+                    columnToggle: true,
+                    ref: (value: typeof handle | null) => (handle = value ?? handle),
+                })
+            );
+            expect(headers()).toEqual(['Name', 'Location', 'Load']);
+            expect(handle!.generateCsv({ bom: false }).split('\r\n')[0]).toBe('Name,Location,Load');
+            const user = userEvent.setup();
+            await user.click(screen.getByRole('button', { name: 'Columns' }));
+            const since = await screen.findByRole('menuitemcheckbox', { name: 'Since' });
+            expect(since).toHaveAttribute('aria-checked', 'false');
+            await user.click(since);
+            await waitFor(() => expect(headers()).toEqual(['Name', 'Location', 'Load', 'Since']));
+            expect(handle!.generateCsv({ bom: false }).split('\r\n')[0]).toBe('Name,Location,Load,Since');
+        });
+
+        it('hiddenColumns set: its value decides alone', async () => {
+            await render(framework, table({ columns: optional, hiddenColumns: ['location'] }));
+            expect(headers()).toEqual(['Name', 'Load', 'Since']);
+        });
+
+        it('hideable: false wins over hidden', async () => {
+            await render(
+                framework,
+                table({ columns: [...columns, { id: 'since', header: 'Since', hidden: true, hideable: false }] })
+            );
+            expect(headers()).toEqual(['Name', 'Location', 'Load', 'Since']);
+        });
+
+        it('saved state that does not know the column: it starts hidden, the rest as saved', async () => {
+            // Saved before "Since" existed
+            saved({ hiddenColumns: ['location'], knownColumns: ['name', 'location', 'load'] });
+            await render(framework, table({ columns: optional, stateKey: 'hidden-test' }));
+            await waitFor(() => expect(headers()).toEqual(['Name', 'Load']));
+        });
+
+        it('saved state that knows the column: the choice of the user stays', async () => {
+            // The user showed "Since" before
+            saved({ hiddenColumns: [], knownColumns: ['name', 'location', 'load', 'since'] });
+            await render(framework, table({ columns: optional, stateKey: 'hidden-test' }));
+            await waitFor(() => expect(headers()).toEqual(['Name', 'Location', 'Load', 'Since']));
+        });
+
+        it('saved state without knownColumns (older): hidden columns start hidden; saving adds the known columns', async () => {
+            saved({ hiddenColumns: ['location'] });
+            await render(framework, table({ columns: optional, stateKey: 'hidden-test', columnToggle: true }));
+            await waitFor(() => expect(headers()).toEqual(['Name', 'Load']));
+            const user = userEvent.setup();
+            await user.click(screen.getByRole('button', { name: 'Columns' }));
+            await user.click(await screen.findByRole('menuitemcheckbox', { name: 'Since' }));
+            await waitFor(() =>
+                expect(JSON.parse(sessionStorage.getItem('wirecore-table:hidden-test')!)).toMatchObject({
+                    hiddenColumns: ['location'],
+                    knownColumns: ['name', 'location', 'load', 'since'],
+                })
+            );
+        });
+    });
 
     it('filterReset: a toolbar button clears the filters and the search; disabled while nothing is set', async () => {
         const onFilters = vi.fn();

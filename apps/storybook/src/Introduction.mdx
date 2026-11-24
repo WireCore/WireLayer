@@ -359,6 +359,28 @@ const columns: DataTableColumn<Person>[] = [
 `exportColumns` takes precedence over `exportHeader` and `exportValue`. In Excel the aggregate and the footer of a split
 column go to its first part. The React Native DataTable exports the same way.
 
+## DataTable: hidden columns and saved state
+
+A column with `hidden: true` starts hidden; the column menu (`columnToggle`) shows it. Hidden columns are neither
+exported nor printed. `hiddenColumns` (v-model) sets the hidden columns of the whole table – while it is set, its value
+decides alone and `hidden` is not used. `hideable: false` wins over `hidden` (with a warning in development).
+
+`stateKey` saves sorting, filters, widths, order and the hidden columns in the browser (`stateStorage`: session or
+local) and restores them on the next visit; `stateExclude` leaves parts out. The saved state also lists the columns it
+knows (`knownColumns`): for those the user's choice stays, a column added later starts with its `hidden` value – an
+optional column does not suddenly appear for users with a saved state. A state saved before (without `knownColumns`)
+treats every column with `hidden` as new.
+
+```ts
+const columns: DataTableColumn<Person>[] = [
+    { id: 'name', header: 'Name', accessor: (row) => `${row.lastName}, ${row.firstName}` },
+    { id: 'firstName', header: 'First name', sortable: true, hidden: true, exportable: false },
+    { id: 'lastName', header: 'Last name', sortable: true, hidden: true, exportable: false },
+];
+```
+
+The React Native DataTable has no column menu: a column with `hidden` is not shown there.
+
 ## AI assistants (MCP, llms.txt)
 
 So that Claude, Cursor and others use the components correctly, the API is available as text and as an MCP server:

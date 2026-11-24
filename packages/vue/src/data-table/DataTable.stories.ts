@@ -2257,3 +2257,38 @@ export const ExportColumns: Story = {
             </div>`,
     }),
 };
+
+/**
+ * `hidden`: "First name" and "Last name" start hidden next to the combined "Name" – shown with the column menu, sortable
+ * on their own; a saved state (`stateKey`) keeps the choice and hides columns it does not know yet
+ */
+export const OptionalColumns: Story = {
+    name: 'Optional columns',
+    render: () => ({
+        components: { DataTable: DataTable as ConcreteComponent },
+        setup: () => ({
+            features,
+            rows: people,
+            card,
+            getRowId: (row: Person) => row.id,
+            columns: [
+                { id: 'name', header: 'Name', accessor: (row: Person) => `${row.lastName}, ${row.firstName}` },
+                { id: 'firstName', header: 'First name', sortable: true, hidden: true, exportable: false },
+                { id: 'lastName', header: 'Last name', sortable: true, hidden: true, exportable: false },
+                { id: 'club', header: 'Club' },
+                { id: 'born', header: 'Born', align: 'end' },
+            ],
+        }),
+        template: `
+            <DataTable
+                :features="features"
+                :data="rows"
+                :columns="columns"
+                caption="Participants"
+                :get-row-id="getRowId"
+                column-toggle
+                :class="card"
+                class="max-w-[640px]"
+            />`,
+    }),
+};

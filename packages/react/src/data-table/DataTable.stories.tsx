@@ -1901,3 +1901,28 @@ function ExportColumnsDemo() {
  * "First name" and "Last name" (printing keeps the shown column)
  */
 export const ExportColumns: Story = { name: 'Export columns', render: () => <ExportColumnsDemo /> };
+
+/**
+ * `hidden`: "First name" and "Last name" start hidden next to the combined "Name" – shown with the column menu, sortable
+ * on their own; a saved state (`stateKey`) keeps the choice and hides columns it does not know yet
+ */
+export const OptionalColumns: Story = {
+    name: 'Optional columns',
+    render: () => (
+        <DataTable<Person>
+            features={features}
+            data={people}
+            columns={[
+                { id: 'name', header: 'Name', accessor: (row) => `${row.lastName}, ${row.firstName}` },
+                { id: 'firstName', header: 'First name', sortable: true, hidden: true, exportable: false },
+                { id: 'lastName', header: 'Last name', sortable: true, hidden: true, exportable: false },
+                { id: 'club', header: 'Club' },
+                { id: 'born', header: 'Born', align: 'end' },
+            ]}
+            caption="Participants"
+            getRowId={(row) => row.id}
+            columnToggle
+            className={`${card} max-w-[640px]`}
+        />
+    ),
+};
