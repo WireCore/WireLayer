@@ -40,6 +40,12 @@ export interface TableViewColumn<T> {
     exportHeader?: string;
     /** Value in the export (default: the shown text) */
     exportValue?: (row: T) => unknown;
+    /**
+     * The column is replaced by these columns in the CSV/Excel export (in this order, at its position) – e.g. "Name"
+     * shown as "Doe, Jane" exported as "First name" and "Last name". Takes precedence over `exportHeader` and
+     * `exportValue`; with `exportable: false` nothing is exported
+     */
+    exportColumns?: readonly TableExportColumnPart<T>[];
     /** Total of the column (footer, group rows of the Excel export) */
     aggregate?: DataTableAggregate | ((values: unknown[]) => unknown);
     /** Footer text of the column (instead of the aggregate) */
@@ -224,6 +230,50 @@ export function tableAggregateText<T>(rows: readonly T[], column: TableViewColum
 export const exportColumns = <T>(columns: readonly TableViewColumn<T>[]) =>
     columns.filter((column) => column.exportable !== false);
 
+/** One of the export columns a column is split into (`exportColumns`) */
+export interface TableExportColumnPart<T> {
+    header: string;
+    value: (row: T) => unknown;
+}
+
+/** One column of a CSV/Excel export: a column of the table, or one of the `exportColumns` it is split into */
+export interface TableExportColumn<C, T> {
+    column: C;
+    header: string;
+    /** Value of the cell (`exportValue` or the part's); none: the shown text of the column */
+    value?: (row: T) => unknown;
+    /** The first (or only) export column of its column – it gets the column's aggregate and footer */
+    first: boolean;
+}
+
+/**
+ * The columns of an export, in the order of `columns`: `exportable: false` left out, a column with `exportColumns`
+ * replaced by its parts, the others with `exportHeader` and `exportValue`
+ */
+export function tableExportColumns<
+    T,
+    C extends {
+        header: string;
+        exportable?: boolean;
+        exportHeader?: string;
+        exportValue?: (row: T) => unknown;
+        exportColumns?: readonly TableExportColumnPart<T>[];
+    },
+>(columns: readonly C[]): TableExportColumn<C, T>[] {
+    return columns
+        .filter((column) => column.exportable !== false)
+        .flatMap((column): TableExportColumn<C, T>[] =>
+            column.exportColumns
+                ? column.exportColumns.map((part, index) => ({
+                      column,
+                      header: part.header,
+                      value: part.value,
+                      first: index === 0,
+                  }))
+                : [{ column, header: column.exportHeader ?? column.header, value: column.exportValue, first: true }]
+        );
+}
+
 /** Options of the CSV of a table */
 export interface TableCsvOptions {
     /** Separator (default ";"; the DataTable passes its `csvSeparator`, by default from the locale) */
@@ -232,19 +282,20 @@ export interface TableCsvOptions {
     bom?: boolean;
 }
 
-/** The CSV of rows: a header line (`exportHeader`), the values (`exportValue`, else the shown text) */
+/**
+ * The CSV of rows: a header line (`exportHeader`), the values (`exportValue`, else the shown text); a column with
+ * `exportColumns` becomes several columns
+ */
 export function tableCsv<T>(
     rows: readonly T[],
     columns: readonly TableViewColumn<T>[],
     { separator, bom = true }: TableCsvOptions = {}
 ): string {
-    const visible = exportColumns(columns);
+    const parts = tableExportColumns<T, TableViewColumn<T>>(columns);
     const csv = toCsv(
         [
-            visible.map((column) => column.exportHeader ?? column.header),
-            ...rows.map((row) =>
-                visible.map((column) => (column.exportValue ? column.exportValue(row) : cellText(column, row)))
-            ),
+            parts.map((part) => part.header),
+            ...rows.map((row) => parts.map((part) => (part.value ? part.value(row) : cellText(part.column, row)))),
         ],
         separator
     );
@@ -252,9 +303,13 @@ export function tableCsv<T>(
 }
 
 /** A cell of the Excel export: numbers as numbers, dates (filter type `date`) as dates, else the shown text */
-export function xlsxCellValue<T>(column: TableViewColumn<T>, row: T): XlsxValue {
-    if (column.exportValue) {
-        const value = column.exportValue(row);
+export function xlsxCellValue<T>(
+    column: TableViewColumn<T>,
+    row: T,
+    exportValue: ((row: T) => unknown) | undefined = column.exportValue
+): XlsxValue {
+    if (exportValue) {
+        const value = exportValue(row);
         if (typeof value === 'number') return Number.isFinite(value) ? value : null;
         if (typeof value === 'boolean') return value;
         if (value instanceof Date) return { date: value };
@@ -289,10 +344,10 @@ export function tableXlsxSheet<T>(
     columns: readonly TableViewColumn<T>[],
     { name, groupBy, groupLabel, totals = true, totalLabel = '' }: TableXlsxOptions<T> = {}
 ): XlsxSheet {
-    const visible = exportColumns(columns);
+    const parts = tableExportColumns<T, TableViewColumn<T>>(columns);
     const dataRow = (row: T, level: number): XlsxRow => ({
         level,
-        cells: visible.map((column) => xlsxCellValue(column, row)),
+        cells: parts.map((part) => xlsxCellValue(part.column, row, part.value)),
     });
     const aggregateCell = (column: TableViewColumn<T>, list: readonly T[]): XlsxValue => {
         if (!column.aggregate) return null;
@@ -306,25 +361,28 @@ export function tableXlsxSheet<T>(
         ? groupTableRows(rows, groupBy).flatMap((group) => [
               {
                   kind: 'group' as const,
-                  cells: visible.map((column, index) =>
+                  // Aggregates of a split column in its first part
+                  cells: parts.map((part, index) =>
                       index === 0
                           ? (groupLabel?.(group) ?? `${groupBy.header}: ${group.text} (${group.rows.length})`)
-                          : aggregateCell(column, group.rows)
+                          : part.first
+                            ? aggregateCell(part.column, group.rows)
+                            : null
                   ),
               },
               ...group.rows.map((row) => dataRow(row, 1)),
           ])
         : rows.map((row) => dataRow(row, 0));
-    if (totals && visible.some((column) => column.aggregate || column.footer !== undefined)) {
-        const cells = visible.map((column) =>
-            column.footer !== undefined ? column.footer : aggregateCell(column, rows)
+    if (totals && parts.some(({ column }) => column.aggregate || column.footer !== undefined)) {
+        const cells = parts.map(({ column, first }) =>
+            !first ? null : column.footer !== undefined ? column.footer : aggregateCell(column, rows)
         );
         if (cells[0] === null) cells[0] = totalLabel;
         sheetRows.push({ kind: 'total', cells });
     }
     return {
         name,
-        columns: visible.map((column) => ({ header: column.exportHeader ?? column.header })),
+        columns: parts.map((part) => ({ header: part.header })),
         rows: sheetRows,
     };
 }

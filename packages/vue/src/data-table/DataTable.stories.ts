@@ -2198,3 +2198,62 @@ export const ColumnSettings: Story = {
             </DataTable>`,
     }),
 };
+
+const people = [
+    { id: 'p1', firstName: 'Anna', lastName: 'Muster', club: 'TSV Nord', born: 2009 },
+    { id: 'p2', firstName: 'Jonas', lastName: 'Becker', club: 'SC Süd', born: 2011 },
+    { id: 'p3', firstName: 'Lea', lastName: 'Albrecht', club: 'TSV Nord', born: 2010 },
+];
+type Person = (typeof people)[number];
+
+/**
+ * `exportColumns`: the table shows "Last name, first name" in one column, the CSV and Excel export split it into
+ * "First name" and "Last name" (printing keeps the shown column)
+ */
+export const ExportColumns: Story = {
+    name: 'Export columns',
+    render: () => ({
+        components: { DataTable: DataTable as ConcreteComponent },
+        setup: () => {
+            const table = ref<{ generateCsv: (options?: object) => string }>();
+            const csv = computed(() => table.value?.generateCsv({ bom: false, separator: ';' }) ?? '');
+            return {
+                features,
+                rows: people,
+                card,
+                table,
+                csv,
+                getRowId: (row: Person) => row.id,
+                columns: [
+                    {
+                        id: 'name',
+                        header: 'Name',
+                        accessor: (row: Person) => `${row.lastName}, ${row.firstName}`,
+                        exportColumns: [
+                            { header: 'First name', value: (row: Person) => row.firstName },
+                            { header: 'Last name', value: (row: Person) => row.lastName },
+                        ],
+                    },
+                    { id: 'club', header: 'Club' },
+                    { id: 'born', header: 'Born', align: 'end' },
+                ],
+            };
+        },
+        template: `
+            <div class="flex max-w-[560px] flex-col gap-3">
+                <DataTable
+                    ref="table"
+                    :features="features"
+                    :data="rows"
+                    :columns="columns"
+                    caption="Participants"
+                    :get-row-id="getRowId"
+                    export-filename="participants"
+                    :export-formats="['csv', 'xlsx']"
+                    :class="card"
+                />
+                <p class="text-xs text-muted">CSV export</p>
+                <pre class="rounded-lg bg-bg-2 p-3 font-mono text-xs">{{ csv }}</pre>
+            </div>`,
+    }),
+};

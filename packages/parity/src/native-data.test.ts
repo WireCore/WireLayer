@@ -177,6 +177,43 @@ describe('export', () => {
         );
     });
 
+    it('exportColumns: a column becomes several columns at its position, also in the Excel sheet', () => {
+        const split: TableViewColumn<Server>[] = [
+            {
+                id: 'name',
+                header: 'Name',
+                exportHeader: 'unused',
+                exportColumns: [
+                    { header: 'Prefix', value: (row) => row.name.split('-')[0] },
+                    { header: 'Number', value: (row) => Number(row.name.split('-')[1]) },
+                ],
+            },
+            { id: 'city', header: 'City' },
+            {
+                id: 'load',
+                header: 'Load',
+                aggregate: 'sum',
+                exportColumns: [
+                    { header: 'Load', value: (row) => row.load },
+                    { header: 'Note', value: () => '' },
+                ],
+            },
+            { id: 'id', header: 'No.', exportable: false, exportColumns: [{ header: 'Never', value: () => 1 }] },
+        ];
+        expect(tableCsv(rows.slice(0, 1), split, { bom: false })).toBe(
+            'Prefix;Number;City;Load;Note\r\nsrv;10;Cologne;40;'
+        );
+        const sheet = tableXlsxSheet(rows.slice(0, 2), split, { groupBy: column('city'), totalLabel: 'Total' });
+        expect(sheet.columns.map((part) => part.header)).toEqual(['Prefix', 'Number', 'City', 'Load', 'Note']);
+        expect(sheet.rows.map((row) => [row.kind ?? 'data', ...row.cells])).toEqual([
+            ['group', 'City: Cologne (1)', null, null, 40, null],
+            ['data', 'srv', 10, 'Cologne', 40, ''],
+            ['group', 'City: Berlin (1)', null, null, 85, null],
+            ['data', 'srv', 2, 'Berlin', 85, ''],
+            ['total', 'Total', null, null, 125, null],
+        ]);
+    });
+
     it('Excel cells: numbers stay numbers, date columns become dates, yes/no stays', () => {
         expect(xlsxCellValue(columns[2]!, rows[0]!)).toBe(40);
         expect(xlsxCellValue(columns[3]!, rows[0]!)).toEqual({ date: '2024-03-01' });

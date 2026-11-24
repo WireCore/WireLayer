@@ -332,6 +332,33 @@ narrow screens). `minScrollHeight` keeps it from collapsing; below that the page
 </main>
 ```
 
+## DataTable export (CSV, Excel)
+
+`exportFilename` shows the export button, `exportFormats` picks CSV, Excel (.xlsx) or both; `generateCsv()` and
+`generateXlsx()` return the file instead of downloading it. The export has the filtered and sorted rows of all pages (or
+the selection) and the visible columns in their current order. Per column: `exportable: false` leaves it out,
+`exportHeader` and `exportValue` replace the name and the value, and `exportColumns` splits it into several columns at
+its position – the table keeps showing one column, and printing too:
+
+```ts
+const columns: DataTableColumn<Person>[] = [
+    {
+        id: 'name',
+        header: 'Name',
+        accessor: (row) => `${row.lastName}, ${row.firstName}`, // shown: "Doe, Jane"
+        exportColumns: [
+            { header: 'First name', value: (row) => row.firstName },
+            { header: 'Last name', value: (row) => row.lastName },
+        ],
+    },
+    { id: 'club', header: 'Club' },
+];
+// CSV: First name;Last name;Club
+```
+
+`exportColumns` takes precedence over `exportHeader` and `exportValue`. In Excel the aggregate and the footer of a split
+column go to its first part. The React Native DataTable exports the same way.
+
 ## AI assistants (MCP, llms.txt)
 
 So that Claude, Cursor and others use the components correctly, the API is available as text and as an MCP server:

@@ -74,6 +74,12 @@ export interface DataTableColumn<TData> {
     exportHeader?: string;
     /** Value in the export (default: the shown text) */
     exportValue?: (row: TData) => unknown;
+    /**
+     * The column is replaced by these columns in the CSV/Excel export (in this order, at its position) – e.g. "Name"
+     * shown as "Doe, Jane" exported as "First name" and "Last name". Takes precedence over `exportHeader` and
+     * `exportValue`; with `exportable: false` nothing is exported
+     */
+    exportColumns?: { header: string; value: (row: TData) => unknown }[];
     /** Own cell content (default: the formatted value) – screen readers still read "header: text" on iOS/Android */
     cell?: (row: TData, value: unknown) => ReactNode;
 }
