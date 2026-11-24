@@ -1852,3 +1852,52 @@ export const ColumnSettings: Story = {
         />
     ),
 };
+
+const people = [
+    { id: 'p1', firstName: 'Anna', lastName: 'Muster', club: 'TSV Nord', born: 2009 },
+    { id: 'p2', firstName: 'Jonas', lastName: 'Becker', club: 'SC Süd', born: 2011 },
+    { id: 'p3', firstName: 'Lea', lastName: 'Albrecht', club: 'TSV Nord', born: 2010 },
+];
+type Person = (typeof people)[number];
+const personColumns: DataTableColumn<Person>[] = [
+    {
+        id: 'name',
+        header: 'Name',
+        accessor: (row) => `${row.lastName}, ${row.firstName}`,
+        exportColumns: [
+            { header: 'First name', value: (row) => row.firstName },
+            { header: 'Last name', value: (row) => row.lastName },
+        ],
+    },
+    { id: 'club', header: 'Club' },
+    { id: 'born', header: 'Born', align: 'end' },
+];
+
+function ExportColumnsDemo() {
+    const [csv, setCsv] = useState('');
+    return (
+        <div className="flex max-w-[560px] flex-col gap-3">
+            <DataTable<Person>
+                ref={(handle: DataTableHandle | null) => {
+                    if (handle && !csv) setCsv(handle.generateCsv({ bom: false, separator: ';' }));
+                }}
+                features={features}
+                data={people}
+                columns={personColumns}
+                caption="Participants"
+                getRowId={(row) => row.id}
+                exportFilename="participants"
+                exportFormats={['csv', 'xlsx']}
+                className={card}
+            />
+            <p className="text-xs text-muted">CSV export</p>
+            <pre className="rounded-lg bg-bg-2 p-3 font-mono text-xs">{csv}</pre>
+        </div>
+    );
+}
+
+/**
+ * `exportColumns`: the table shows "Last name, first name" in one column, the CSV and Excel export split it into
+ * "First name" and "Last name" (printing keeps the shown column)
+ */
+export const ExportColumns: Story = { name: 'Export columns', render: () => <ExportColumnsDemo /> };

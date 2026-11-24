@@ -85,6 +85,7 @@ import {
     saveTableState,
     syncGrid,
     treeGridKeyAction,
+    tableExportColumns,
     toCsv,
     toTsv,
     treeDropMove,
@@ -2607,18 +2608,17 @@ export function DataTable<TData extends object>({
             .getVisibleLeafColumns()
             .map((column) => columnById.get(column.id)!)
             .filter((column) => column.exportable !== false);
+        const parts = tableExportColumns<TData, DataTableColumn<TData>>(visible);
         const rows = (
             options.selectionOnly ? table.getSelectedRowModel().flatRows : table.getSortedRowModel().flatRows
         ).filter((row) => !row.getIsGrouped());
         const records = rows.map((row) =>
-            visible.map((column) =>
-                column.exportValue
-                    ? column.exportValue(row.original)
-                    : display(column, row.getValue(column.id), row.original)
+            parts.map(({ column, value }) =>
+                value ? value(row.original) : display(column, row.getValue(column.id), row.original)
             )
         );
         const separator = options.separator ?? csvSeparatorProp ?? csvSeparator(locale);
-        const csv = toCsv([visible.map((column) => column.exportHeader ?? column.header), ...records], separator);
+        const csv = toCsv([parts.map((part) => part.header), ...records], separator);
         return options.bom === false ? csv.slice(1) : csv;
     };
     const exportCsv = (options: boolean | DataTableCsvOptions = false) => {
@@ -2665,6 +2665,7 @@ export function DataTable<TData extends object>({
             .getVisibleLeafColumns()
             .map((column) => columnById.get(column.id)!)
             .filter((column) => column.exportable !== false);
+        const parts = tableExportColumns<TData, DataTableColumn<TData>>(visible);
         const rows: XlsxRow[] = exportRows(options.selectionOnly)
             .filter((entry) => !entry.group || options.groups !== false)
             .map(({ row, group, depth }) => {
@@ -2673,9 +2674,10 @@ export function DataTable<TData extends object>({
                     return {
                         kind: 'group',
                         level: depth,
-                        cells: visible.map((column, index) => {
+                        cells: parts.map(({ column, first }, index) => {
                             if (index === 0) return groupLabel(row);
-                            if (!column.aggregate) return null;
+                            // Aggregates of a split column (exportColumns) in its first part
+                            if (!first || !column.aggregate) return null;
                             const value = aggregateValues(
                                 leaves.map((leaf) => rawValue(column, leaf.original)),
                                 column.aggregate
@@ -2686,9 +2688,9 @@ export function DataTable<TData extends object>({
                 }
                 return {
                     level: options.groups === false ? 0 : depth,
-                    cells: visible.map((column) => {
-                        if (column.exportValue) {
-                            const value = column.exportValue(row.original);
+                    cells: parts.map(({ column, value: exportValue }) => {
+                        if (exportValue) {
+                            const value = exportValue(row.original);
                             return typeof value === 'number' || typeof value === 'boolean'
                                 ? value
                                 : value instanceof Date
@@ -2699,9 +2701,10 @@ export function DataTable<TData extends object>({
                     }),
                 };
             });
-        if (options.totals !== false && visible.some((column) => column.aggregate || column.footer)) {
+        if (options.totals !== false && parts.some(({ column }) => column.aggregate || column.footer)) {
             const leaves = table.getFilteredRowModel().flatRows.filter((row) => !row.getIsGrouped());
-            const cells = visible.map((column): XlsxValue => {
+            const cells = parts.map(({ column, first }): XlsxValue => {
+                if (!first) return null;
                 if (column.footer !== undefined) return column.footer;
                 if (!column.aggregate) return null;
                 const value = aggregateValues(
@@ -2715,7 +2718,7 @@ export function DataTable<TData extends object>({
         }
         return createXlsx({
             name: options.sheetName ?? caption,
-            columns: visible.map((column) => ({ header: column.exportHeader ?? column.header })),
+            columns: parts.map((part) => ({ header: part.header })),
             rows,
         });
     };

@@ -1717,6 +1717,70 @@ describe.each(frameworks)('%s DataTable', (framework) => {
         );
     });
 
+    it('exportColumns: a column becomes several export columns at its position; hidden or not exportable: none', async () => {
+        let handle: { generateCsv: (options?: object) => string } | undefined;
+        const kind = (row: { name: string }) => row.name.split('-')[0];
+        const number = (row: { name: string }) => row.name.split('-').slice(1).join('-');
+        const split = (hiddenColumns: string[]) =>
+            table({
+                ref: (value: typeof handle | null) => (handle = value ?? handle),
+                hiddenColumns,
+                columns: [
+                    {
+                        id: 'name',
+                        header: 'Name',
+                        // exportColumns takes precedence
+                        exportHeader: 'Hostname',
+                        exportValue: () => 'unused',
+                        exportColumns: [
+                            { header: 'Kind', value: kind },
+                            { header: 'Number', value: number },
+                        ],
+                    },
+                    { id: 'location', header: 'Location' },
+                    {
+                        id: 'load',
+                        header: 'Load',
+                        exportable: false,
+                        exportColumns: [{ header: 'Never', value: () => 1 }],
+                    },
+                ],
+            });
+        await render(framework, split([]));
+        expect(handle!.generateCsv({ bom: false }).split('\r\n')).toEqual([
+            'Kind,Number,Location',
+            'web,01,Frankfurt',
+            'db,primary,Frankfurt',
+            'k8s,node-3,Nuremberg',
+        ]);
+        // The table still shows the one column
+        expect(screen.getByRole('columnheader', { name: 'Name' })).toBeInTheDocument();
+        expect(screen.queryByRole('columnheader', { name: 'Kind' })).not.toBeInTheDocument();
+    });
+
+    it('exportColumns of a hidden column are left out too', async () => {
+        let handle: { generateCsv: (options?: object) => string } | undefined;
+        await render(
+            framework,
+            table({
+                ref: (value: typeof handle | null) => (handle = value ?? handle),
+                hiddenColumns: ['name'],
+                columns: [
+                    {
+                        id: 'name',
+                        header: 'Name',
+                        exportColumns: [
+                            { header: 'Kind', value: () => 'k' },
+                            { header: 'Number', value: () => 'n' },
+                        ],
+                    },
+                    { id: 'location', header: 'Location' },
+                ],
+            })
+        );
+        expect(handle!.generateCsv({ bom: false }).split('\r\n')[0]).toBe('Location');
+    });
+
     it('csvSeparator sets the separator of the export, the option of a single export still wins', async () => {
         let handle: { generateCsv: (options?: object) => string } | undefined;
         await render(
@@ -2032,6 +2096,40 @@ describe.each(frameworks)('%s DataTable spreadsheet, server and layout', (framew
         await userEvent.click(screen.getByRole('button', { name: 'Export' }));
         expect(await screen.findByRole('menuitem', { name: 'All rows as Excel' })).toBeInTheDocument();
         expect(screen.getByRole('menuitem', { name: 'All rows as CSV' })).toBeInTheDocument();
+    });
+
+    it('Excel export with exportColumns: the parts as columns, aggregates and footer in the first part', async () => {
+        let handle: Handle | undefined;
+        await render(
+            framework,
+            table({
+                ref: (value: Handle | null) => (handle = value ?? handle),
+                columns: [
+                    { id: 'name', header: 'Name' },
+                    { id: 'location', header: 'Location', groupable: true },
+                    {
+                        id: 'load',
+                        header: 'Load',
+                        aggregate: 'sum',
+                        exportColumns: [
+                            { header: 'Load %', value: (row: { load: number }) => row.load },
+                            { header: 'Busy', value: (row: { load: number }) => (row.load > 50 ? 'yes' : 'no') },
+                        ],
+                    },
+                ],
+                groupBy: 'location',
+            })
+        );
+        const sheet = sheetXml(handle!.generateXlsx());
+        const cells = (row: number) => [...sheet.querySelectorAll(`row[r="${row}"] c`)].map((cell) => cell.textContent);
+        expect(cells(1)).toEqual(['Name', 'Location', 'Load %', 'Busy']);
+        // Group row: the label in the first column, the sum in the first part, the second part empty
+        expect(cells(2)).toEqual(['Location: Frankfurt (2)', '', '113', '']);
+        expect(cells(3)).toEqual(['web-01', 'Frankfurt', '42', 'no']);
+        expect(sheet.querySelector('c[r="C3"]')!.getAttribute('t')).toBeNull();
+        expect(cells(4)).toEqual(['db-primary', 'Frankfurt', '71', 'yes']);
+        // Total row: the sum in the first part
+        expect(cells(7)).toEqual(['Total', '', '131', '']);
     });
 
     it('cell range: dragging and Shift+arrow keys select cells, Ctrl+C copies them as tab-separated text', async () => {
