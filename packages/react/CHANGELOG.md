@@ -1,5 +1,14 @@
 # @wirecore/wirelayer-react
 
+## 0.18.1
+
+### Patch Changes
+
+- c7f5fdf: DataTable: the column menu (`columnToggle`) and the density menu keep the space of the check mark for items without
+  one, like the Menu component – the labels of hidden columns no longer move to the left.
+- Updated dependencies [ee20cf2]
+    - @wirecore/wirelayer-recipes@0.17.1
+
 ## 0.18.0
 
 ### Minor Changes
