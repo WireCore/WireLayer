@@ -47,7 +47,7 @@ export const listboxPanel = {
     header: 'sticky top-0 z-[1] -mx-1 -mt-1 mb-1 flex flex-col gap-1 border-b border-line bg-card p-1',
     search: [
         'h-8 w-full min-w-0 shrink-0 rounded-md border border-line-strong bg-bg px-2.5 text-sm text-fg outline-none',
-        'placeholder:text-muted focus:border-primary focus:outline-2 focus:-outline-offset-3 focus:outline-primary',
+        'placeholder:text-muted focus:border-primary focus:outline-2 focus:outline-solid focus:-outline-offset-3 focus:outline-primary',
     ],
     list: 'flex flex-col outline-none',
 };

@@ -33,7 +33,7 @@ export const inputStatusParts = {
 
 export const input = tv({
     slots: {
-        base: 'flex w-full items-stretch overflow-hidden border border-line-strong bg-bg text-fg transition-colors focus-within:border-primary focus-within:outline-2 focus-within:-outline-offset-3 focus-within:outline-primary motion-reduce:transition-none',
+        base: 'flex w-full items-stretch overflow-hidden border border-line-strong bg-bg text-fg transition-colors focus-within:border-primary focus-within:outline-2 focus-within:outline-solid focus-within:-outline-offset-3 focus-within:outline-primary motion-reduce:transition-none',
         control: [
             'min-w-0 flex-1 bg-transparent outline-none placeholder:text-muted disabled:cursor-not-allowed',
             // The browser's own clear button of type="search" (DataTable search …) is a button, too

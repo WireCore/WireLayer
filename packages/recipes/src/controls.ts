@@ -12,7 +12,7 @@ export const listbox = tv({
         label: 'text-[13px] font-medium text-fg',
         content: [
             'flex max-h-72 flex-col overflow-y-auto rounded-lg border border-line-strong bg-bg p-1 text-fg outline-none',
-            'focus-visible:border-primary focus-visible:outline-2 focus-visible:-outline-offset-3 focus-visible:outline-primary data-disabled:opacity-60',
+            'focus-visible:border-primary focus-visible:outline-2 focus-visible:outline-solid focus-visible:-outline-offset-3 focus-visible:outline-primary data-disabled:opacity-60',
         ],
         item: listboxOption,
         icon: 'size-4 shrink-0 text-muted',
@@ -21,7 +21,7 @@ export const listbox = tv({
         /** Search field above the list (filter) */
         search: [
             'h-8 w-full min-w-0 rounded-md border border-line-strong bg-bg px-2.5 text-sm text-fg outline-none',
-            'placeholder:text-muted focus:border-primary focus:outline-2 focus:-outline-offset-3 focus:outline-primary disabled:cursor-not-allowed disabled:opacity-60',
+            'placeholder:text-muted focus:border-primary focus:outline-2 focus:outline-solid focus:-outline-offset-3 focus:outline-primary disabled:cursor-not-allowed disabled:opacity-60',
         ],
         /** Check box before the label (`checkboxes`) */
         check: [
