@@ -41,8 +41,8 @@ provide(
     dialogRootKey,
     computed(() => ({ modal: props.modal }))
 );
-// A field marked data-autoselect gets the focus with its text selected; otherwise Ark's own choice (an alertdialog's
-// close button, data-autofocus, the first tabbable element)
+// The element marked data-autoselect (text selected), data-autofocus or autofocus – also on a wrapper; else an
+// alertdialog's close button, else Ark's first tabbable element
 const content = shallowRef<HTMLElement | null>(null);
 provide(dialogContentKey, content);
 const initialFocus = () =>

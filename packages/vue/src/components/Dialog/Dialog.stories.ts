@@ -5,6 +5,7 @@ import Button from '../Button/Button.vue';
 import Checkbox from '../Checkbox/Checkbox.vue';
 import Field from '../Field/Field.vue';
 import Input from '../Input/Input.vue';
+import Listbox from '../Listbox/Listbox.vue';
 import Dialog from './Dialog.vue';
 import DialogClose from './DialogClose.vue';
 import DialogContent from './DialogContent.vue';
@@ -237,6 +238,22 @@ export const InitialFocus: Story = {
                         <DialogClose><Button variant="outline" size="sm">Cancel</Button></DialogClose>
                         <DialogClose><Button size="sm">Save</Button></DialogClose>
                     </template>
+                </DialogContent>
+            </Dialog>`,
+    }),
+};
+
+/** The mark may sit on a component root (here a Listbox with a search field): its first field gets the focus */
+export const InitialFocusOnComponent: Story = {
+    name: 'Initial focus on a component',
+    render: () => ({
+        components: { Button, Dialog, DialogContent, DialogTrigger, Listbox },
+        setup: () => ({ people: ['Anna Muster', 'Jonas Becker', 'Lea Albrecht'] }),
+        template: `
+            <Dialog>
+                <DialogTrigger><Button variant="outline">Add member</Button></DialogTrigger>
+                <DialogContent title="Add member" size="sm">
+                    <Listbox :items="people" label="People" filter data-autofocus />
                 </DialogContent>
             </Dialog>`,
     }),
