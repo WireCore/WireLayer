@@ -1,5 +1,16 @@
 # @wirecore/wirelayer-native
 
+## 0.13.1
+
+### Patch Changes
+
+- Updated dependencies [4c3f253]
+- Updated dependencies [eab2b96]
+- Updated dependencies [39e669f]
+- Updated dependencies [2e79b81]
+- Updated dependencies [cde024d]
+    - @wirecore/wirelayer-recipes@0.18.0
+
 ## 0.13.0
 
 ### Minor Changes

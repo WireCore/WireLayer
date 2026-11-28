@@ -1,5 +1,37 @@
 # @wirecore/wirelayer-vue
 
+## 0.19.0
+
+### Minor Changes
+
+- aed9808: DataTable: `exportRows="leaves"` – the CSV, Excel and print of a TreeTable (`getSubRows`) only have the rows without
+  children, e.g. when a parent only sums up its children ("Person – 2 licences" above the licences); still filtered and
+  sorted like the table (with `treeFilterMode="lenient"` only the leaves that match themselves). The methods take it as
+  option `rows` (`generateCsv({ rows: 'leaves' })`, also `generateXlsx`, `exportCsv`, `exportXlsx`, `print`), which wins
+  over the prop; `selectionOnly` is not affected. Default `all`, as before. Story _Tree export_.
+- cde024d: Forms: `useUnsavedChanges(isDirty, { message? })` in `@wirecore/wirelayer-vue/form` and `@wirecore/wirelayer-react/form`
+  asks before the page is left with unsaved input. All registered forms share one list – leaving asks once with
+  `confirm()` however many forms changed; `beforeunload` only while one is changed; unmounting unregisters. Router
+  independent: `unsavedChangesGuard(to, from)` goes into the router (Vue Router: `router.beforeEach(unsavedChangesGuard)`),
+  only the query or hash changing does not ask; `confirmLeave()` for own links. New text `unsavedChanges.leave` in every
+  language.
+
+### Patch Changes
+
+- 4c3f253: Dialog: when it opens, `data-autofocus` and `autofocus` are resolved like `data-autoselect` and `focusFirst()` – also on
+  a wrapper such as a component's root, which then gives the focus to its first field (e.g. `<Listbox filter
+data-autofocus>` focuses its search field). Ark skipped such a wrapper and focused the close button. Story _Initial
+  focus on a component_.
+- 2e79b81: SegmentedControlItem: `label` – the text of a segment without a default slot (children). With `icon` and `label` but no
+  slot the segment shows only the icon, centred (no gap), and the label names it for screen readers – e.g. a List/Tiles
+  switch. Segments with text are unchanged. Recipe variant `iconOnly`, slot `itemText`; story _Icon only_.
+- Updated dependencies [4c3f253]
+- Updated dependencies [eab2b96]
+- Updated dependencies [39e669f]
+- Updated dependencies [2e79b81]
+- Updated dependencies [cde024d]
+    - @wirecore/wirelayer-recipes@0.18.0
+
 ## 0.18.1
 
 ### Patch Changes

@@ -1,5 +1,36 @@
 # @wirecore/wirelayer-recipes
 
+## 0.18.0
+
+### Minor Changes
+
+- cde024d: Forms: `useUnsavedChanges(isDirty, { message? })` in `@wirecore/wirelayer-vue/form` and `@wirecore/wirelayer-react/form`
+  asks before the page is left with unsaved input. All registered forms share one list – leaving asks once with
+  `confirm()` however many forms changed; `beforeunload` only while one is changed; unmounting unregisters. Router
+  independent: `unsavedChangesGuard(to, from)` goes into the router (Vue Router: `router.beforeEach(unsavedChangesGuard)`),
+  only the query or hash changing does not ask; `confirmLeave()` for own links. New text `unsavedChanges.leave` in every
+  language.
+
+### Patch Changes
+
+- 4c3f253: Dialog: when it opens, `data-autofocus` and `autofocus` are resolved like `data-autoselect` and `focusFirst()` – also on
+  a wrapper such as a component's root, which then gives the focus to its first field (e.g. `<Listbox filter
+data-autofocus>` focuses its search field). Ark skipped such a wrapper and focused the close button. Story _Initial
+  focus on a component_.
+- eab2b96: Text fields and other form controls (Input, Textarea, Select, DatePicker, NumberInput, PasswordInput, Combobox,
+  TreeSelect, MultiSelect, editors, search fields …) show the keyboard focus more clearly: besides the primary border a
+  2 px primary ring right inside it, so the focused field differs from the resting one by a 3 px band (WCAG 2.4.13). It
+  sits inside the field, so neighbours and `overflow-hidden` do not cut it off; it covers the field's own surface, whose
+  contrast to primary the theme test already checks.
+- 39e669f: Focus ring visible again in 22 parts: with Tailwind v4, `outline-none` sets `--tw-outline-style: none`, and the
+  `focus-visible:outline-2` ring took that style – active but invisible (WCAG 2.4.7). The redundant `outline-none` is gone
+  where a part draws its own focus ring: SidebarNav links, Stepper, Menubar, menu search, Gantt rows, CodeTabs,
+  CodeHighlight, Editor source, ScrollPanel, LogViewer, JsonViewer, ChatMessages, PdfViewer, FloatingPanel, ImageCropper,
+  AngleSlider, Knob, ColorPicker, SpeedDial and the form error summary. A test keeps it so.
+- 2e79b81: SegmentedControlItem: `label` – the text of a segment without a default slot (children). With `icon` and `label` but no
+  slot the segment shows only the icon, centred (no gap), and the label names it for screen readers – e.g. a List/Tiles
+  switch. Segments with text are unchanged. Recipe variant `iconOnly`, slot `itemText`; story _Icon only_.
+
 ## 0.17.1
 
 ### Patch Changes
