@@ -443,6 +443,26 @@ describe.each(frameworks)('%s', (framework) => {
             expect(screen.getByRole('radio', { name: 'Grid' })).toBeChecked();
             expect(onChange).toHaveBeenLastCalledWith('grid');
         });
+
+        it('icon only: the label names the segment, its text is for screen readers, no gap', async () => {
+            await render(
+                framework,
+                el(
+                    'SegmentedControl',
+                    { label: 'View', defaultValue: 'list' },
+                    el('SegmentedControlItem', { value: 'list', icon: icon('Check'), label: 'List' }),
+                    el('SegmentedControlItem', { value: 'grid', icon: icon('Check') }, 'Grid')
+                )
+            );
+            const list = screen.getByRole('radio', { name: 'List' });
+            const item = list.closest('[data-part="item"]')!;
+            expect(item.querySelector('[data-part="item-text"]')).toHaveClass('sr-only');
+            expect(item).toHaveClass('gap-0');
+            // With text: unchanged
+            const grid = screen.getByRole('radio', { name: 'Grid' }).closest('[data-part="item"]')!;
+            expect(grid.querySelector('[data-part="item-text"]')).not.toHaveClass('sr-only');
+            expect(grid).toHaveClass('gap-1.5');
+        });
     });
 
     describe('Button', () => {

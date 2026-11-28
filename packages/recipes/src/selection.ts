@@ -123,11 +123,16 @@ export const segmentedControl = tv({
             focusRing,
         ],
         icon: 'shrink-0',
+        itemText: '',
     },
     variants: {
         size: {
             sm: { item: 'h-[26px] px-2.5 font-mono text-[11px]', icon: 'size-3' },
             md: { item: 'h-8 px-3 text-[13px] font-semibold', icon: 'size-[15px]' },
+        },
+        /** Only the icon, centred; the `label` names the segment for screen readers */
+        iconOnly: {
+            true: { item: 'gap-0', itemText: 'sr-only' },
         },
     },
     defaultVariants: {

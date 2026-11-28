@@ -9,6 +9,8 @@ export interface SegmentedControlItemProps extends ComponentProps<'label'> {
     value: string;
     /** Icon component before the label */
     icon?: IconComponent;
+    /** Text of the segment without children; with `icon` (and no children) only the icon shows, this names it */
+    label?: string;
     disabled?: boolean;
     /** Extra classes per part of the component, e.g. { base: "…" } (see the recipe) */
     classes?: RecipeClasses<typeof segmentedControlRecipe>;
@@ -19,6 +21,7 @@ export function SegmentedControlItem({
     classes,
     value,
     icon: Icon,
+    label,
     disabled,
     className,
     children,
@@ -26,12 +29,14 @@ export function SegmentedControlItem({
 }: SegmentedControlItemProps) {
     const segmentedControl = useRecipe('segmentedControl', segmentedControlRecipe, classes);
     const size = useContext(SegmentedControlContext);
-    const styles = segmentedControl({ size: size ?? undefined });
+    const styles = segmentedControl({ size: size ?? undefined, iconOnly: !!Icon && !!label && children == null });
 
     return (
         <SegmentGroup.Item {...props} className={styles.item({ class: className })} value={value} disabled={disabled}>
             {Icon && <Icon className={styles.icon()} aria-hidden="true" />}
-            <SegmentGroup.ItemText>{children}</SegmentGroup.ItemText>
+            <SegmentGroup.ItemText className={styles.itemText() || undefined}>
+                {children ?? label}
+            </SegmentGroup.ItemText>
             <SegmentGroup.ItemHiddenInput />
         </SegmentGroup.Item>
     );

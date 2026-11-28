@@ -521,6 +521,15 @@ export const cases: [string, El][] = [
         ),
     ],
     [
+        'SegmentedControl icon only',
+        el(
+            'SegmentedControl',
+            { label: 'View', defaultValue: 'list' },
+            el('SegmentedControlItem', { value: 'list', icon: icon('Check'), label: 'List' }),
+            el('SegmentedControlItem', { value: 'grid', icon: icon('Mail'), label: 'Tiles' })
+        ),
+    ],
+    [
         'SegmentedControl sm',
         el(
             'SegmentedControl',

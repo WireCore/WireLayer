@@ -36,3 +36,14 @@ export const Language: Story = {
         </SegmentedControl>
     ),
 };
+
+/** Only icons: `label` names each segment for screen readers, the icon sits in the middle */
+export const IconOnly: Story = {
+    name: 'Icon only',
+    render: () => (
+        <SegmentedControl label="View" defaultValue="list">
+            <SegmentedControlItem value="list" icon={List} label="List" />
+            <SegmentedControlItem value="tiles" icon={LayoutGrid} label="Tiles" />
+        </SegmentedControl>
+    ),
+};
