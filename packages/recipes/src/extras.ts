@@ -111,7 +111,7 @@ export const nativeSelect = tv({
         base: 'relative flex w-full',
         select: [
             'h-[var(--wc-control-h-md,2.5rem)] w-full cursor-pointer appearance-none rounded-[var(--wc-control-radius-md,0.5rem)] border border-line-strong bg-bg pe-9 ps-3 text-[length:var(--wc-control-text-md,15px)] text-fg outline-none',
-            'transition-colors focus:border-primary motion-reduce:transition-none',
+            'transition-colors focus:border-primary focus:outline-2 focus:-outline-offset-3 focus:outline-primary motion-reduce:transition-none',
             'aria-[invalid=true]:border-danger disabled:cursor-not-allowed disabled:border-line disabled:bg-bg-2 disabled:text-muted',
         ],
         icon: 'pointer-events-none absolute top-1/2 inset-e-3 size-4 -translate-y-1/2 text-muted',

@@ -47,7 +47,7 @@ export const listboxPanel = {
     header: 'sticky top-0 z-[1] -mx-1 -mt-1 mb-1 flex flex-col gap-1 border-b border-line bg-card p-1',
     search: [
         'h-8 w-full min-w-0 shrink-0 rounded-md border border-line-strong bg-bg px-2.5 text-sm text-fg outline-none',
-        'placeholder:text-muted focus:border-primary',
+        'placeholder:text-muted focus:border-primary focus:outline-2 focus:-outline-offset-3 focus:outline-primary',
     ],
     list: 'flex flex-col outline-none',
 };
@@ -68,7 +68,7 @@ export const select = tv({
         base: 'relative flex w-full flex-col',
         trigger: [
             'flex h-[var(--wc-control-h-md,2.5rem)] w-full cursor-pointer items-center justify-between gap-2.5 rounded-[var(--wc-control-radius-md,0.5rem)] border border-line-strong bg-bg pe-2.5 ps-3 text-start text-[length:var(--wc-control-text-md,15px)] text-fg',
-            'outline-none transition-colors motion-reduce:transition-none focus-visible:border-primary data-[state=open]:border-primary',
+            'outline-none transition-colors motion-reduce:transition-none focus-visible:border-primary focus-visible:outline-2 focus-visible:outline-solid focus-visible:-outline-offset-3 focus-visible:outline-primary data-[state=open]:border-primary',
             'data-invalid:border-danger data-disabled:cursor-not-allowed data-disabled:border-line data-disabled:bg-bg-2 data-disabled:text-muted',
         ],
         value: 'flex min-w-0 items-center gap-2 truncate',

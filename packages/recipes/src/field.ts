@@ -33,7 +33,7 @@ export const inputStatusParts = {
 
 export const input = tv({
     slots: {
-        base: 'flex w-full items-stretch overflow-hidden border border-line-strong bg-bg text-fg transition-colors focus-within:border-primary motion-reduce:transition-none',
+        base: 'flex w-full items-stretch overflow-hidden border border-line-strong bg-bg text-fg transition-colors focus-within:border-primary focus-within:outline-2 focus-within:-outline-offset-3 focus-within:outline-primary motion-reduce:transition-none',
         control: [
             'min-w-0 flex-1 bg-transparent outline-none placeholder:text-muted disabled:cursor-not-allowed',
             // The browser's own clear button of type="search" (DataTable search …) is a button, too
@@ -101,7 +101,7 @@ export const input = tv({
 export const textarea = tv({
     base: [
         'block w-full resize-y rounded-[var(--wc-control-radius-md,0.5rem)] border border-line-strong bg-bg px-3 py-[9px] text-[length:var(--wc-control-text-md,15px)] leading-normal text-fg',
-        'outline-none transition-colors placeholder:text-muted focus:border-primary motion-reduce:transition-none',
+        'outline-none transition-colors placeholder:text-muted focus:border-primary focus:outline-2 focus:outline-solid focus:-outline-offset-3 focus:outline-primary motion-reduce:transition-none',
     ],
     variants: {
         size: {

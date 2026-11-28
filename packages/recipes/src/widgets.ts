@@ -221,7 +221,7 @@ export const mentions = tv({
         base: 'relative flex w-full flex-col',
         control: [
             'relative w-full rounded-lg border border-line-strong bg-bg transition-colors motion-reduce:transition-none',
-            'focus-within:border-primary data-invalid:border-danger',
+            'focus-within:border-primary focus-within:outline-2 focus-within:-outline-offset-3 focus-within:outline-primary data-invalid:border-danger',
             'data-disabled:cursor-not-allowed data-disabled:border-line data-disabled:bg-bg-2',
         ],
         highlighter: [

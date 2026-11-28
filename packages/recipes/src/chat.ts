@@ -88,7 +88,7 @@ export const chatPrompt = tv({
     slots: {
         base: [
             'flex w-full flex-col gap-2 rounded-xl border border-line-strong bg-bg p-2 transition-colors motion-reduce:transition-none',
-            'focus-within:border-primary data-disabled:bg-bg-2',
+            'focus-within:border-primary focus-within:outline-2 focus-within:-outline-offset-3 focus-within:outline-primary data-disabled:bg-bg-2',
         ],
         textarea: [
             'block max-h-[var(--wc-prompt-max)] min-h-10 w-full resize-none overflow-y-auto bg-transparent px-2 py-2 text-[15px] leading-6 text-fg outline-none',

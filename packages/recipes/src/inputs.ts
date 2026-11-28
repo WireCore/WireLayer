@@ -8,7 +8,7 @@ import { tv } from './tv.js';
 /** The bordered box around a text control – like Input */
 const box = [
     'flex w-full items-stretch overflow-hidden rounded-[var(--wc-control-radius-md,0.5rem)] border border-line-strong bg-bg text-fg',
-    'transition-colors motion-reduce:transition-none focus-within:border-primary',
+    'transition-colors motion-reduce:transition-none focus-within:border-primary focus-within:outline-2 focus-within:-outline-offset-3 focus-within:outline-primary',
     'data-invalid:border-danger data-disabled:cursor-not-allowed data-disabled:border-line data-disabled:bg-bg-2 data-disabled:text-muted',
 ];
 const boxInput =
@@ -179,7 +179,7 @@ export const multiSelect = tv({
         base: 'relative flex w-full flex-col',
         trigger: [
             'flex h-[var(--wc-control-h-md,2.5rem)] w-full cursor-pointer items-center justify-between gap-2.5 rounded-[var(--wc-control-radius-md,0.5rem)] border border-line-strong bg-bg pe-2.5 ps-3 text-start text-[length:var(--wc-control-text-md,15px)] text-fg',
-            'outline-none transition-colors motion-reduce:transition-none focus-visible:border-primary data-[state=open]:border-primary',
+            'outline-none transition-colors motion-reduce:transition-none focus-visible:border-primary focus-visible:outline-2 focus-visible:outline-solid focus-visible:-outline-offset-3 focus-visible:outline-primary data-[state=open]:border-primary',
             'data-invalid:border-danger data-disabled:cursor-not-allowed data-disabled:border-line data-disabled:bg-bg-2 data-disabled:text-muted',
         ],
         value: 'min-w-0 truncate data-[placeholder-shown]:text-muted',
@@ -204,7 +204,7 @@ export const multiSelect = tv({
         control: 'relative flex',
         chipsControl: [
             'relative flex min-h-[var(--wc-control-h-md,2.5rem)] w-full flex-wrap items-center gap-1 rounded-[var(--wc-control-radius-md,0.5rem)] border border-line-strong bg-bg py-[5px] pe-2.5 ps-1.5 text-fg',
-            'transition-colors motion-reduce:transition-none focus-within:border-primary data-[state=open]:border-primary',
+            'transition-colors motion-reduce:transition-none focus-within:border-primary focus-within:outline-2 focus-within:-outline-offset-3 focus-within:outline-primary data-[state=open]:border-primary',
             'data-invalid:border-danger data-disabled:cursor-not-allowed data-disabled:border-line data-disabled:bg-bg-2 data-disabled:text-muted',
         ],
         /** The trigger next to the chips: fills the rest of the row, no border of its own */
@@ -608,7 +608,7 @@ export const pinInput = tv({
         control: 'flex gap-2',
         input: [
             'size-11 rounded-lg border border-line-strong bg-bg text-center font-mono text-lg text-fg outline-none',
-            'transition-colors motion-reduce:transition-none focus:border-primary placeholder:text-muted',
+            'transition-colors motion-reduce:transition-none focus:border-primary focus:outline-2 focus:-outline-offset-3 focus:outline-primary placeholder:text-muted',
             'data-invalid:border-danger data-disabled:cursor-not-allowed data-disabled:border-line data-disabled:bg-bg-2 data-disabled:text-muted',
         ],
     },
@@ -711,7 +711,7 @@ export const colorPicker = tv({
         row: 'flex items-center gap-2',
         input: [
             'h-8 min-w-0 flex-1 rounded-md border border-line-strong bg-bg px-2 font-mono text-[13px] text-fg uppercase outline-none',
-            'focus:border-primary',
+            'focus:border-primary focus:outline-2 focus:-outline-offset-3 focus:outline-primary',
         ],
         swatches: 'flex flex-wrap gap-1.5',
         swatchFill: 'size-full rounded-md',
@@ -739,7 +739,7 @@ export const colorPicker = tv({
         channelLabel: 'font-mono text-[10px] text-muted uppercase',
         channelInput: [
             'h-8 w-full min-w-0 rounded-md border border-line-strong bg-bg px-1.5 text-center font-mono text-[13px] text-fg tabular-nums outline-none',
-            'focus:border-primary',
+            'focus:border-primary focus:outline-2 focus:-outline-offset-3 focus:outline-primary',
         ],
         /** ColorInput: the swatch button before the text field */
         inputTrigger: [

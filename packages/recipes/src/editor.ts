@@ -51,7 +51,7 @@ export const editor = tv({
     slots: {
         base: [
             'flex w-full flex-col overflow-hidden rounded-lg border border-line-strong bg-bg transition-colors motion-reduce:transition-none',
-            'focus-within:border-primary data-invalid:border-danger data-disabled:bg-bg-2',
+            'focus-within:border-primary focus-within:outline-2 focus-within:-outline-offset-3 focus-within:outline-primary data-invalid:border-danger data-disabled:bg-bg-2',
         ],
         toolbar: 'flex flex-wrap items-center gap-0.5 border-b border-line p-1',
         // 32 × 32 px targets; aria-pressed shows the formatting at the cursor
