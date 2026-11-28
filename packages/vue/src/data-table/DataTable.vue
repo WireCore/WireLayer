@@ -353,6 +353,12 @@ export interface DataTableProps<T> {
     pinnedColumns?: { start: string[]; end: string[] };
     /** Shows an export button; the CSV has the filtered and sorted rows of all pages (or the selection) */
     exportFilename?: string;
+    /**
+     * Rows of the CSV, Excel and print: `all` (default) or `leaves` – a TreeTable without the rows that have children
+     * (`getSubRows`), e.g. when a parent only sums up its children; still filtered and sorted like the table. The
+     * methods take it as option `rows`; `selectionOnly` is not affected
+     */
+    exportRows?: 'all' | 'leaves';
     /** Separator of the CSV export, also of the export button – default: from the locale (";" where numbers have a
      * decimal comma, e.g. de-DE, as a spreadsheet there expects it; "," otherwise) */
     csvSeparator?: string;
@@ -2614,9 +2620,10 @@ function generateCsv(options: DataTableCsvOptions = {}) {
         .map((column) => columnById.value.get(column.id)!)
         .filter((column) => column.exportable !== false);
     const parts = tableExportColumns<TData, DataTableColumn<TData>>(visible);
+    const leaves = !options.selectionOnly && leavesOnly(options.rows);
     const rows = (
         options.selectionOnly ? table.getSelectedRowModel().flatRows : table.getSortedRowModel().flatRows
-    ).filter((row) => !row.getIsGrouped());
+    ).filter((row) => !row.getIsGrouped() && (!leaves || isLeaf(row)));
     const records = rows.map((row) =>
         parts.map(({ column, value }) =>
             value ? value(row.original) : display(column, row.getValue(column.id), row.original)
@@ -2632,7 +2639,11 @@ function exportCsv(options: boolean | DataTableCsvOptions = false) {
     downloadText(`${settings.filename ?? props.exportFilename ?? 'export'}.csv`, generateCsv(settings));
 }
 /** Rows of an export or print: the selection, or the sorted rows with their group rows (tree of groups) */
-function exportRows(selectionOnly = false): { row: TableRow; group: boolean; depth: number }[] {
+/** `exportRows="leaves"` (or the option `rows`) for an export */
+const leavesOnly = (rows?: 'all' | 'leaves') => (rows ?? props.exportRows) === 'leaves';
+/** A row without children of its own in the data (TreeTable) – not just without matching ones */
+const isLeaf = (row: TableRow) => !props.getSubRows?.(row.original)?.length;
+function exportedRows(selectionOnly = false, leaves = false): { row: TableRow; group: boolean; depth: number }[] {
     if (selectionOnly)
         return table
             .getSelectedRowModel()
@@ -2642,7 +2653,9 @@ function exportRows(selectionOnly = false): { row: TableRow; group: boolean; dep
         { row, group: row.getIsGrouped(), depth: row.depth },
         ...(row.subRows as TableRow[]).flatMap(walk),
     ];
-    return (table.getSortedRowModel().rows as TableRow[]).flatMap(walk);
+    return (table.getSortedRowModel().rows as TableRow[])
+        .flatMap(walk)
+        .filter((entry) => !leaves || entry.group || isLeaf(entry.row));
 }
 /** Label of a group row: "Location: Frankfurt (3)" */
 function groupLabel(row: TableRow) {
@@ -2673,7 +2686,7 @@ function generateXlsx(options: DataTableXlsxOptions = {}) {
         .map((column) => columnById.value.get(column.id)!)
         .filter((column) => column.exportable !== false);
     const parts = tableExportColumns<TData, DataTableColumn<TData>>(visible);
-    const rows: XlsxRow[] = exportRows(options.selectionOnly)
+    const rows: XlsxRow[] = exportedRows(options.selectionOnly, leavesOnly(options.rows))
         .filter((entry) => !entry.group || options.groups !== false)
         .map(({ row, group, depth }): XlsxRow => {
             if (group) {
@@ -2748,7 +2761,7 @@ function print(options: DataTablePrintOptions = {}) {
             align: cell.group ? undefined : columnById.value.get(cell.header.column.id)?.align,
         }))
     );
-    const body = exportRows(options.selectionOnly).map(({ row, group }) =>
+    const body = exportedRows(options.selectionOnly, leavesOnly(options.rows)).map(({ row, group }) =>
         group
             ? { kind: 'group' as const, cells: [{ text: groupLabel(row), colSpan: visible.length }] }
             : { cells: visible.map((column) => ({ text: cellText(row, column.id), align: column.align })) }

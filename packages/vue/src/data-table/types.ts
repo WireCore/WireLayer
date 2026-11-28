@@ -259,6 +259,8 @@ export interface DataTableAllSelection {
 export interface DataTableCsvOptions {
     /** Only the selected rows (default: the filtered and sorted rows of all pages) */
     selectionOnly?: boolean;
+    /** `leaves`: a TreeTable only with the rows without children (default: the table's `exportRows`) */
+    rows?: 'all' | 'leaves';
     /** Separator – default: `csvSeparator` of the table, else from the locale (";" with a decimal comma, "," otherwise) */
     separator?: string;
     /** Byte order mark at the start, so Excel reads UTF-8 – default true */
@@ -271,6 +273,8 @@ export interface DataTableCsvOptions {
 export interface DataTableXlsxOptions {
     /** Only the selected rows (default: the filtered and sorted rows of all pages) */
     selectionOnly?: boolean;
+    /** `leaves`: a TreeTable only with the rows without children (default: the table's `exportRows`) */
+    rows?: 'all' | 'leaves';
     /** File name without ".xlsx" (exportXlsx, default: `exportFilename`) */
     filename?: string;
     /** Name of the worksheet (default: the caption) */
@@ -287,6 +291,8 @@ export interface DataTablePrintOptions {
     title?: string;
     /** Only the selected rows */
     selectionOnly?: boolean;
+    /** `leaves`: a TreeTable only with the rows without children (default: the table's `exportRows`) */
+    rows?: 'all' | 'leaves';
 }
 
 /** The selected range of cells (`cellSelection`) */

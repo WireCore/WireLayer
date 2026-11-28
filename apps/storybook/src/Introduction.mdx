@@ -359,6 +359,11 @@ const columns: DataTableColumn<Person>[] = [
 `exportColumns` takes precedence over `exportHeader` and `exportValue`. In Excel the aggregate and the footer of a split
 column go to its first part. The React Native DataTable exports the same way.
 
+A TreeTable (`getSubRows`) exports all its rows by default. With `exportRows="leaves"` the CSV, Excel and print only
+have the rows without children – for parents that just sum up their children ("Doe, Jane – 2 licences"); still
+filtered and sorted like the table (with `treeFilterMode="lenient"` only the leaves that match themselves). The methods
+take it as option: `generateCsv({ rows: 'leaves' })`. The selection (`selectionOnly`) is exported as it is.
+
 ## DataTable: hidden columns and saved state
 
 A column with `hidden: true` starts hidden; the column menu (`columnToggle`) shows it. Hidden columns are neither

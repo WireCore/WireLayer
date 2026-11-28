@@ -2580,6 +2580,76 @@ describe.each(frameworks)('%s DataTable spreadsheet, server and layout', (framew
         await waitFor(() => expect(toggle).toHaveFocus());
     });
 
+    describe('exportRows="leaves"', () => {
+        // A parent only sums up its children ("Anna – 2 licences" above the licences)
+        const licences = [
+            {
+                id: 'anna',
+                name: 'Anna – 2 licences',
+                children: [
+                    { id: 'a1', name: 'Anna: Junior' },
+                    { id: 'a2', name: 'Anna: Senior' },
+                ],
+            },
+            { id: 'jonas', name: 'Jonas – 1 licence', children: [{ id: 'j1', name: 'Jonas: Junior' }] },
+        ];
+        type TreeHandle = Handle & { generateCsv: (options?: object) => string };
+        const treeTable = (props: Record<string, unknown>) =>
+            el('DataTable', {
+                data: licences,
+                caption: 'Licences',
+                getRowId,
+                columns: [{ id: 'name', header: 'Name' }],
+                getSubRows: (row: { children?: object[] }) => row.children,
+                exportRows: 'leaves',
+                ...props,
+            });
+        const printed = (handle: TreeHandle) => {
+            handle.print();
+            const frame = document.querySelector<HTMLIFrameElement>('iframe[aria-hidden="true"]')!;
+            const page = new DOMParser().parseFromString(frame.srcdoc, 'text/html');
+            frame.remove();
+            return [...page.querySelectorAll('tbody tr')].map((row) => row.querySelector('td')?.textContent?.trim());
+        };
+
+        it('CSV, Excel and print only with the rows without children; the option rows wins', async () => {
+            let handle: TreeHandle | undefined;
+            await render(framework, treeTable({ ref: (value: TreeHandle | null) => (handle = value ?? handle) }));
+            const csv = (options = {}) => handle!.generateCsv({ bom: false, ...options }).split('\r\n');
+            expect(csv()).toEqual(['Name', 'Anna: Junior', 'Anna: Senior', 'Jonas: Junior']);
+            expect(csv({ rows: 'all' })).toEqual([
+                'Name',
+                'Anna – 2 licences',
+                'Anna: Junior',
+                'Anna: Senior',
+                'Jonas – 1 licence',
+                'Jonas: Junior',
+            ]);
+            const sheet = sheetXml(handle!.generateXlsx());
+            expect([...sheet.querySelectorAll('row')].map((row) => row.querySelector('c')?.textContent)).toEqual([
+                'Name',
+                'Anna: Junior',
+                'Anna: Senior',
+                'Jonas: Junior',
+            ]);
+            expect(printed(handle!)).toEqual(['Anna: Junior', 'Anna: Senior', 'Jonas: Junior']);
+        });
+
+        it('filtered like the table: with treeFilterMode="lenient" only the leaves that match themselves', async () => {
+            let handle: TreeHandle | undefined;
+            await render(
+                framework,
+                treeTable({
+                    ref: (value: TreeHandle | null) => (handle = value ?? handle),
+                    globalFilter: 'senior',
+                    treeFilterMode: 'lenient',
+                })
+            );
+            expect(handle!.generateCsv({ bom: false }).split('\r\n')).toEqual(['Name', 'Anna: Senior']);
+            expect(printed(handle!)).toEqual(['Anna: Senior']);
+        });
+    });
+
     it('prints all filtered rows as plain text with the header on every page', async () => {
         let handle: Handle | undefined;
         await render(

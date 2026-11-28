@@ -2292,3 +2292,65 @@ export const OptionalColumns: Story = {
             />`,
     }),
 };
+
+interface LicenceRow {
+    id: string;
+    name: string;
+    valid?: string;
+    children?: LicenceRow[];
+}
+const licenceRows: LicenceRow[] = [
+    {
+        id: 'anna',
+        name: 'Anna Muster – 2 licences',
+        children: [
+            { id: 'a1', name: 'Junior', valid: '2027-03-31' },
+            { id: 'a2', name: 'Referee', valid: '2026-12-31' },
+        ],
+    },
+    { id: 'jonas', name: 'Jonas Becker – 1 licence', children: [{ id: 'j1', name: 'Junior', valid: '2027-06-30' }] },
+];
+
+/** `exportRows="leaves"`: the export of a TreeTable without the parent rows that only sum up their children */
+export const TreeExport: Story = {
+    name: 'Tree export',
+    render: () => ({
+        components: { DataTable: DataTable as ConcreteComponent },
+        setup: () => {
+            const table = ref<{ generateCsv: (options?: object) => string }>();
+            const csv = computed(() => table.value?.generateCsv({ bom: false, separator: ';' }) ?? '');
+            return {
+                features,
+                rows: licenceRows,
+                card,
+                table,
+                csv,
+                expanded: ref(['anna', 'jonas']),
+                getRowId: (row: LicenceRow) => row.id,
+                getSubRows: (row: LicenceRow) => row.children,
+                columns: [
+                    { id: 'name', header: 'Licence' },
+                    { id: 'valid', header: 'Valid until' },
+                ],
+            };
+        },
+        template: `
+            <div class="flex max-w-[560px] flex-col gap-3">
+                <DataTable
+                    ref="table"
+                    v-model:expanded="expanded"
+                    :features="features"
+                    :data="rows"
+                    :columns="columns"
+                    caption="Licences"
+                    :get-row-id="getRowId"
+                    :get-sub-rows="getSubRows"
+                    export-filename="licences"
+                    export-rows="leaves"
+                    :class="card"
+                />
+                <p class="text-xs text-muted">CSV export</p>
+                <pre class="rounded-lg bg-bg-2 p-3 font-mono text-xs">{{ csv }}</pre>
+            </div>`,
+    }),
+};
