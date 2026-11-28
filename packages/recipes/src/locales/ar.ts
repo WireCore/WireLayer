@@ -255,6 +255,7 @@ export const ar: Translations = {
     },
     splitButton: { more: 'مزيد من الإجراءات' },
     confirmPopup: { confirm: 'نعم', cancel: 'إلغاء' },
+    unsavedChanges: { leave: 'لديك تغييرات غير محفوظة. هل تريد مغادرة الصفحة على أي حال؟' },
     passwordStrength: {
         levels: ['قصيرة جدًا', 'ضعيفة', 'متوسطة', 'جيدة', 'قوية'],
         label: (level) => `قوة كلمة المرور: ${level}`,

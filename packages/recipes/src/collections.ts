@@ -253,7 +253,7 @@ export type MeterColor = 'primary' | 'info' | 'success' | 'warn' | 'danger' | 'm
 /** Long list that renders only the visible rows (TanStack Virtual) */
 export const virtualListBox = tv({
     slots: {
-        base: 'overflow-y-auto rounded-lg border border-line outline-none focus-visible:border-primary',
+        base: 'overflow-y-auto rounded-lg border border-line outline-none focus-visible:border-primary focus-visible:outline-2 focus-visible:outline-solid focus-visible:-outline-offset-3 focus-visible:outline-primary',
         spacer: 'relative w-full',
         item: 'absolute top-0 inset-s-0 w-full',
         /** Group heading; the heading of the group in view sticks to the top */

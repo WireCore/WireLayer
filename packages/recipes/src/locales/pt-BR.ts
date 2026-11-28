@@ -373,6 +373,7 @@ export const ptBR: Translations = {
         passwordRequired: 'O PDF não pode ser aberto sem senha.',
         wrappedTop: 'continua a partir do final',
     },
+    unsavedChanges: { leave: 'Há alterações não salvas. Sair da página mesmo assim?' },
 };
 
 export default ptBR;

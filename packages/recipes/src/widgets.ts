@@ -59,7 +59,7 @@ export const imageCropper = tv({
         viewport: 'flex h-72 w-full items-center justify-center overflow-hidden rounded-lg bg-bg-2',
         image: 'max-h-full max-w-full',
         selection: [
-            'border-2 border-white shadow-[0_0_0_9999px_rgba(0,0,0,.55)] outline-none data-[shape=circle]:rounded-full',
+            'border-2 border-white shadow-[0_0_0_9999px_rgba(0,0,0,.55)] data-[shape=circle]:rounded-full',
             'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary',
             'forced-colors:border-[Highlight]',
         ],
@@ -80,7 +80,7 @@ export const floatingPanel = tv({
     slots: {
         positioner: 'z-50',
         content: [
-            'flex flex-col overflow-hidden rounded-popup border border-line-2 bg-card text-fg outline-none',
+            'flex flex-col overflow-hidden rounded-popup border border-line-2 bg-card text-fg',
             popupShadow,
             'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fg',
             'data-maximized:rounded-none data-minimized:h-auto!',
@@ -109,7 +109,7 @@ export const jsonViewer = tv({
         branch: 'm-0 list-none p-0',
         group: 'ms-[11px] border-s border-line ps-2',
         row: [
-            'group/row flex min-h-7 cursor-default items-center gap-1 rounded-sm px-1 outline-none hover:bg-line',
+            'group/row flex min-h-7 cursor-default items-center gap-1 rounded-sm px-1 hover:bg-line',
             'focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-fg data-selected:bg-line',
             'forced-colors:data-selected:outline forced-colors:data-selected:outline-[Highlight]',
         ],
@@ -200,7 +200,7 @@ export const angleSlider = tv({
             'data-disabled:cursor-not-allowed data-disabled:opacity-40 data-invalid:border-danger',
         ],
         thumb: [
-            'absolute inset-0 rounded-full outline-none',
+            'absolute inset-0 rounded-full',
             'focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-fg',
             'before:absolute before:start-[calc(50%-1.5px)] before:top-3 before:h-[calc(50%-12px)] before:w-[3px] before:rounded-full before:bg-primary',
             'after:absolute after:start-[calc(50%-8px)] after:top-0.5 after:size-4 after:rounded-full after:border-2 after:border-bg after:bg-primary',
@@ -221,7 +221,7 @@ export const mentions = tv({
         base: 'relative flex w-full flex-col',
         control: [
             'relative w-full rounded-lg border border-line-strong bg-bg transition-colors motion-reduce:transition-none',
-            'focus-within:border-primary data-invalid:border-danger',
+            'focus-within:border-primary focus-within:outline-2 focus-within:outline-solid focus-within:-outline-offset-3 focus-within:outline-primary data-invalid:border-danger',
             'data-disabled:cursor-not-allowed data-disabled:border-line data-disabled:bg-bg-2',
         ],
         highlighter: [
@@ -414,7 +414,7 @@ export const logViewer = tv({
         search: 'min-w-40 flex-1',
         body: 'relative',
         viewport: [
-            'h-80 overflow-auto font-mono text-xs leading-5 outline-none',
+            'h-80 overflow-auto font-mono text-xs leading-5',
             'focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-fg',
         ],
         list: 'm-0 min-w-max list-none p-0',

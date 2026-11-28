@@ -47,7 +47,7 @@ export const listboxPanel = {
     header: 'sticky top-0 z-[1] -mx-1 -mt-1 mb-1 flex flex-col gap-1 border-b border-line bg-card p-1',
     search: [
         'h-8 w-full min-w-0 shrink-0 rounded-md border border-line-strong bg-bg px-2.5 text-sm text-fg outline-none',
-        'placeholder:text-muted focus:border-primary',
+        'placeholder:text-muted focus:border-primary focus:outline-2 focus:outline-solid focus:-outline-offset-3 focus:outline-primary',
     ],
     list: 'flex flex-col outline-none',
 };
@@ -68,7 +68,7 @@ export const select = tv({
         base: 'relative flex w-full flex-col',
         trigger: [
             'flex h-[var(--wc-control-h-md,2.5rem)] w-full cursor-pointer items-center justify-between gap-2.5 rounded-[var(--wc-control-radius-md,0.5rem)] border border-line-strong bg-bg pe-2.5 ps-3 text-start text-[length:var(--wc-control-text-md,15px)] text-fg',
-            'outline-none transition-colors motion-reduce:transition-none focus-visible:border-primary data-[state=open]:border-primary',
+            'outline-none transition-colors motion-reduce:transition-none focus-visible:border-primary focus-visible:outline-2 focus-visible:outline-solid focus-visible:-outline-offset-3 focus-visible:outline-primary data-[state=open]:border-primary',
             'data-invalid:border-danger data-disabled:cursor-not-allowed data-disabled:border-line data-disabled:bg-bg-2 data-disabled:text-muted',
         ],
         value: 'flex min-w-0 items-center gap-2 truncate',
@@ -355,7 +355,7 @@ export const sidebarNav = tv({
         link: [
             'flex h-9 w-full cursor-pointer items-center gap-2.5 rounded-md pe-2.5 ps-[calc(var(--depth)*16px+10px)] text-start text-sm text-fg no-underline hover:bg-line',
             'aria-[current=page]:bg-line aria-[current=page]:font-semibold',
-            'outline-none focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-fg',
+            'focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-fg',
             'forced-colors:aria-[current=page]:border forced-colors:aria-[current=page]:border-[Highlight]',
         ],
         icon: 'size-4 shrink-0 text-muted',
@@ -411,7 +411,7 @@ export const stepper = tv({
         item: 'flex flex-1 items-center gap-2 last:flex-none',
         trigger: [
             'flex cursor-pointer items-center gap-2.5 rounded-md p-1 text-start',
-            'outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fg disabled:cursor-not-allowed',
+            'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fg disabled:cursor-not-allowed',
         ],
         indicator: [
             'flex size-7 shrink-0 items-center justify-center rounded-full border border-line-strong font-mono text-xs text-muted',
@@ -424,7 +424,7 @@ export const stepper = tv({
         label: 'text-[13px] font-medium whitespace-nowrap text-fg',
         description: 'text-xs whitespace-nowrap text-muted',
         separator: 'h-px min-w-6 flex-1 bg-line-strong data-complete:bg-primary',
-        content: 'outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fg',
+        content: 'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fg',
         actions: 'flex items-center justify-between gap-2',
         /** A step that is still loading (StepperItem `loading`) */
         spinner: 'size-3.5 motion-safe:animate-spin',

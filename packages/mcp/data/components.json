@@ -9564,6 +9564,12 @@
                     "description": "Shows an export button; the CSV has the filtered and sorted rows of all pages (or the selection)"
                 },
                 {
+                    "name": "exportRows",
+                    "type": "'all' | 'leaves'",
+                    "optional": true,
+                    "description": "Rows of the CSV, Excel and print: `all` (default) or `leaves` – a TreeTable without the rows that have children (`getSubRows`), e.g. when a parent only sums up its children; still filtered and sorted like the table. The methods take it as option `rows`; `selectionOnly` is not affected"
+                },
+                {
                     "name": "csvSeparator",
                     "type": "string",
                     "optional": true,
@@ -10279,6 +10285,12 @@
                         "type": "string",
                         "optional": true,
                         "description": "Shows an export button; the CSV has the filtered and sorted rows of all pages (or the selection)"
+                    },
+                    {
+                        "name": "exportRows",
+                        "type": "'all' | 'leaves'",
+                        "optional": true,
+                        "description": "Rows of the CSV, Excel and print: `all` (default) or `leaves` – a TreeTable without the rows that have children (`getSubRows`), e.g. when a parent only sums up its children; still filtered and sorted like the table. The methods take it as option `rows`; `selectionOnly` is not affected"
                     },
                     {
                         "name": "csvSeparator",
@@ -28750,6 +28762,12 @@
                     "description": "Icon component before the label"
                 },
                 {
+                    "name": "label",
+                    "type": "string",
+                    "optional": true,
+                    "description": "Text of the segment without children; with `icon` (and no children) only the icon shows, this names it"
+                },
+                {
                     "name": "disabled",
                     "type": "boolean",
                     "optional": true,
@@ -28775,6 +28793,12 @@
                         "type": "Component",
                         "optional": true,
                         "description": "Icon component before the label"
+                    },
+                    {
+                        "name": "label",
+                        "type": "string",
+                        "optional": true,
+                        "description": "Text of the segment without the default slot; with `icon` (and no slot) only the icon shows, this names it"
                     },
                     {
                         "name": "disabled",
@@ -37585,6 +37609,11 @@
             "description": "Asks for confirmation in the app-wide <ConfirmDialog />. Resolves with true (confirmed) or false (cancelled, Escape, a newer confirm())."
         },
         {
+            "name": "confirmLeave",
+            "subpath": "/form",
+            "description": ""
+        },
+        {
             "name": "createDataController",
             "subpath": "/data-table",
             "description": ""
@@ -37850,6 +37879,11 @@
             "description": ""
         },
         {
+            "name": "unsavedChangesGuard",
+            "subpath": "/form",
+            "description": ""
+        },
+        {
             "name": "useClipboard",
             "subpath": "",
             "description": "Copies text; `copied` is true for `timeout` ms afterwards (for a \"Copied\" state), `error` holds a failure"
@@ -38055,6 +38089,11 @@
             "description": "Texts of the nearest LocaleProvider"
         },
         {
+            "name": "useUnsavedChanges",
+            "subpath": "/form",
+            "description": "Asks before the page is left while `isDirty()` – reload, closing the tab (the browser's question) and, with `unsavedChangesGuard` in the router, route changes. All forms of the page share one question. With TanStack Form: `useUnsavedChanges(() => !form.state.isDefaultValue)`, and `form.reset(values)` after a successful save."
+        },
+        {
             "name": "useValidators",
             "subpath": "/form",
             "description": "The validators with the texts and number format of the nearest LocaleProvider: `const v = useValidators()`, then `validators: { onChange: v.combine(v.isRequired(), v.isEmail()) }`. Each validator is a Standard Schema, so TanStack Form takes it directly."
@@ -38149,12 +38188,17 @@
         {
             "id": "introduction-datatable-export-csv-excel",
             "title": "DataTable export (CSV, Excel)",
-            "text": "`exportFilename` shows the export button, `exportFormats` picks CSV, Excel (.xlsx) or both; `generateCsv()` and\n`generateXlsx()` return the file instead of downloading it. The export has the filtered and sorted rows of all pages (or\nthe selection) and the visible columns in their current order. Per column: `exportable: false` leaves it out,\n`exportHeader` and `exportValue` replace the name and the value, and `exportColumns` splits it into several columns at\nits position – the table keeps showing one column, and printing too:\n\n```ts\nconst columns: DataTableColumn<Person>[] = [\n    {\n        id: 'name',\n        header: 'Name',\n        accessor: (row) => `${row.lastName}, ${row.firstName}`, // shown: \"Doe, Jane\"\n        exportColumns: [\n            { header: 'First name', value: (row) => row.firstName },\n            { header: 'Last name', value: (row) => row.lastName },\n        ],\n    },\n    { id: 'club', header: 'Club' },\n];\n// CSV: First name;Last name;Club\n```\n\n`exportColumns` takes precedence over `exportHeader` and `exportValue`. In Excel the aggregate and the footer of a split\ncolumn go to its first part. The React Native DataTable exports the same way."
+            "text": "`exportFilename` shows the export button, `exportFormats` picks CSV, Excel (.xlsx) or both; `generateCsv()` and\n`generateXlsx()` return the file instead of downloading it. The export has the filtered and sorted rows of all pages (or\nthe selection) and the visible columns in their current order. Per column: `exportable: false` leaves it out,\n`exportHeader` and `exportValue` replace the name and the value, and `exportColumns` splits it into several columns at\nits position – the table keeps showing one column, and printing too:\n\n```ts\nconst columns: DataTableColumn<Person>[] = [\n    {\n        id: 'name',\n        header: 'Name',\n        accessor: (row) => `${row.lastName}, ${row.firstName}`, // shown: \"Doe, Jane\"\n        exportColumns: [\n            { header: 'First name', value: (row) => row.firstName },\n            { header: 'Last name', value: (row) => row.lastName },\n        ],\n    },\n    { id: 'club', header: 'Club' },\n];\n// CSV: First name;Last name;Club\n```\n\n`exportColumns` takes precedence over `exportHeader` and `exportValue`. In Excel the aggregate and the footer of a split\ncolumn go to its first part. The React Native DataTable exports the same way.\n\nA TreeTable (`getSubRows`) exports all its rows by default. With `exportRows=\"leaves\"` the CSV, Excel and print only\nhave the rows without children – for parents that just sum up their children (\"Doe, Jane – 2 licences\"); still\nfiltered and sorted like the table (with `treeFilterMode=\"lenient\"` only the leaves that match themselves). The methods\ntake it as option: `generateCsv({ rows: 'leaves' })`. The selection (`selectionOnly`) is exported as it is."
         },
         {
             "id": "introduction-datatable-hidden-columns-and-saved-state",
             "title": "DataTable: hidden columns and saved state",
             "text": "A column with `hidden: true` starts hidden; the column menu (`columnToggle`) shows it. Hidden columns are neither\nexported nor printed. `hiddenColumns` (v-model) sets the hidden columns of the whole table – while it is set, its value\ndecides alone and `hidden` is not used. `hideable: false` wins over `hidden` (with a warning in development).\n\n`stateKey` saves sorting, filters, widths, order and the hidden columns in the browser (`stateStorage`: session or\nlocal) and restores them on the next visit; `stateExclude` leaves parts out. The saved state also lists the columns it\nknows (`knownColumns`): for those the user's choice stays, a column added later starts with its `hidden` value – an\noptional column does not suddenly appear for users with a saved state. A state saved before (without `knownColumns`)\ntreats every column with `hidden` as new.\n\n```ts\nconst columns: DataTableColumn<Person>[] = [\n    { id: 'name', header: 'Name', accessor: (row) => `${row.lastName}, ${row.firstName}` },\n    { id: 'firstName', header: 'First name', sortable: true, hidden: true, exportable: false },\n    { id: 'lastName', header: 'Last name', sortable: true, hidden: true, exportable: false },\n];\n```\n\nThe React Native DataTable has no column menu: a column with `hidden` is not shown there."
+        },
+        {
+            "id": "introduction-forms-unsaved-changes",
+            "title": "Forms: unsaved changes",
+            "text": "`useUnsavedChanges(isDirty)` from `@wirecore/wirelayer-vue/form` (React: the hook of the same name from\n`@wirecore/wirelayer-react/form`) asks before the page is left with unsaved input. Reload, closing the tab or another\naddress get the browser's own question; route changes ask once with `confirm()` – put `unsavedChangesGuard` into the\nrouter. All forms of the page share one list, so two changed forms still ask once; a form unregisters when it unmounts.\nOnly the query or the hash changing does not ask. The text comes from the WireLayer translations (`unsavedChanges.leave`),\n`{ message }` overrides it; `confirmLeave()` asks the same for own links and buttons.\n\n```ts\n// Each settings form (TanStack Form): changed while the values differ from the defaults\nuseUnsavedChanges(() => !form.state.isDefaultValue);\n// After a successful save: the saved values become the defaults again\nform.reset(values);\n\n// Once, where the router is created (Vue Router; React Router: useBlocker with the same guard)\nrouter.beforeEach(unsavedChangesGuard);\n```"
         },
         {
             "id": "introduction-ai-assistants-mcp-llms-txt",
@@ -52224,6 +52268,11 @@
                 "description": "Asks for confirmation in the app-wide <ConfirmDialog />. Resolves with true (confirmed) or false (cancelled, Escape, a newer confirm())."
             },
             {
+                "name": "confirmLeave",
+                "subpath": "/form",
+                "description": ""
+            },
+            {
                 "name": "createDataController",
                 "subpath": "/data-table",
                 "description": ""
@@ -52494,6 +52543,11 @@
                 "description": ""
             },
             {
+                "name": "unsavedChangesGuard",
+                "subpath": "/form",
+                "description": ""
+            },
+            {
                 "name": "useClipboard",
                 "subpath": "",
                 "description": "Copies text; `copied` is true for `timeout` ms afterwards (for a \"Copied\" state), `error` holds a failure"
@@ -52697,6 +52751,11 @@
                 "name": "useTranslations",
                 "subpath": "",
                 "description": "Texts of the nearest LocaleProvider; `const t = translations.dataTable` stays current, too"
+            },
+            {
+                "name": "useUnsavedChanges",
+                "subpath": "/form",
+                "description": "Asks before the page is left while `isDirty()` – reload, closing the tab (the browser's question) and, with `unsavedChangesGuard` in the router, route changes. All forms of the page share one question. With TanStack Form: `useUnsavedChanges(() => !form.state.isDefaultValue)`, and `form.reset(values)` after a successful save."
             },
             {
                 "name": "useValidators",

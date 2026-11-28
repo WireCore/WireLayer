@@ -253,13 +253,15 @@ export function focusFirst(container: ParentNode | null | undefined): HTMLElemen
 }
 
 /**
- * For a dialog's initial focus: the element marked `data-autoselect` in `content` – its text gets selected when it
- * gets the focus. Undefined without one (Ark then takes `data-autofocus` or the first tabbable element). Browser only.
+ * For a dialog's initial focus: the first element marked `data-autoselect` (its text gets selected when it gets the
+ * focus), `data-autofocus` or `autofocus` in `content`, also on a wrapper (then its first tabbable element) – like
+ * `focusFirst`. Undefined without one (Ark then takes the first tabbable element). Browser only.
  */
 export function autoselectElement(content: ParentNode | null | undefined): HTMLElement | undefined {
-    const marked = content?.querySelector<HTMLElement>('[data-autoselect]');
+    const marked = content?.querySelector<HTMLElement>('[data-autoselect], [data-autofocus], [autofocus]');
     const target = marked ? markedTarget(marked, tabbableElements(content!)) : undefined;
-    target?.addEventListener('focus', () => selectText(target), { once: true });
+    if (marked?.hasAttribute('data-autoselect'))
+        target?.addEventListener('focus', () => selectText(target), { once: true });
     return target;
 }
 

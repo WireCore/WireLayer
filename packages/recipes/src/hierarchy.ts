@@ -8,7 +8,7 @@ const focusRing = 'focus-visible:outline-2 focus-visible:-outline-offset-2 focus
 /** Select-like trigger shared by TreeSelect and CascadeSelect */
 const trigger = [
     'flex h-10 w-full cursor-pointer items-center justify-between gap-2.5 rounded-[var(--wc-control-radius-md,0.5rem)] border border-line-strong bg-bg pe-2.5 ps-3 text-start text-[15px] text-fg',
-    'outline-none transition-colors motion-reduce:transition-none focus-visible:border-primary data-[state=open]:border-primary',
+    'outline-none transition-colors motion-reduce:transition-none focus-visible:border-primary focus-visible:outline-2 focus-visible:outline-solid focus-visible:-outline-offset-3 focus-visible:outline-primary data-[state=open]:border-primary',
     'data-invalid:border-danger data-disabled:cursor-not-allowed data-disabled:border-line data-disabled:bg-bg-2 data-disabled:text-muted',
 ];
 
@@ -53,7 +53,7 @@ export const tree = tv({
         toolbar: 'flex flex-wrap items-center gap-1.5',
         search: [
             'h-8 min-w-0 flex-1 rounded-md border border-line-strong bg-bg px-2.5 text-sm text-fg outline-none',
-            'placeholder:text-muted focus:border-primary [&::-webkit-search-cancel-button]:cursor-pointer',
+            'placeholder:text-muted focus:border-primary focus:outline-2 focus:outline-solid focus:-outline-offset-3 focus:outline-primary [&::-webkit-search-cancel-button]:cursor-pointer',
         ],
         /** Row below a branch while its children load (indented like its children) */
         loadingRow: 'flex h-8 items-center gap-2 pe-2 ps-[calc(var(--depth)*20px+32px)] text-sm text-muted',
@@ -185,7 +185,7 @@ export function treeDropMove<T extends TreeLike>(
 const chipParts = {
     chipsControl: [
         'relative flex min-h-10 w-full flex-wrap items-center gap-1 rounded-[var(--wc-control-radius-md,0.5rem)] border border-line-strong bg-bg py-[5px] pe-2.5 ps-1.5 text-fg',
-        'transition-colors motion-reduce:transition-none focus-within:border-primary data-[state=open]:border-primary',
+        'transition-colors motion-reduce:transition-none focus-within:border-primary focus-within:outline-2 focus-within:outline-solid focus-within:-outline-offset-3 focus-within:outline-primary data-[state=open]:border-primary',
         'data-invalid:border-danger data-disabled:cursor-not-allowed data-disabled:border-line data-disabled:bg-bg-2 data-disabled:text-muted',
     ],
     chipsTrigger: [
@@ -341,7 +341,7 @@ export const cascadeSelect = tv({
         /** Search field (filter): the field itself, the levels button at its end */
         searchControl: [
             'flex h-10 w-full items-center gap-1 rounded-[var(--wc-control-radius-md,0.5rem)] border border-line-strong bg-bg pe-1 ps-3 text-[15px] text-fg',
-            'transition-colors motion-reduce:transition-none focus-within:border-primary',
+            'transition-colors motion-reduce:transition-none focus-within:border-primary focus-within:outline-2 focus-within:outline-solid focus-within:-outline-offset-3 focus-within:outline-primary',
             'data-invalid:border-danger data-disabled:cursor-not-allowed data-disabled:border-line data-disabled:bg-bg-2 data-disabled:text-muted',
         ],
         searchInput:

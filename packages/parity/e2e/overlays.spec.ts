@@ -60,6 +60,15 @@ test.describe('Dialog', () => {
         await expect(page.getByRole('textbox', { name: 'Name' })).toBeFocused();
     });
 
+    test('data-autofocus on a component root: its first field gets the focus when the dialog opens', async ({
+        page,
+    }) => {
+        await openStory(page, 'overlays-dialog--initial-focus-on-component');
+        await page.getByRole('button', { name: 'Add member' }).click();
+        await expect(page.getByRole('dialog', { name: 'Add member' })).toBeVisible();
+        await expect(page.getByLabel('Filter options')).toBeFocused();
+    });
+
     test('traps focus while open and returns it to the trigger on Escape', async ({ page }) => {
         await openStory(page, 'overlays-dialog--playground');
         const trigger = page.getByRole('button', { name: 'Delete server' });

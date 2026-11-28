@@ -6,6 +6,7 @@ import { Button } from '../Button/Button.js';
 import { Checkbox } from '../Checkbox/Checkbox.js';
 import { Field } from '../Field/Field.js';
 import { Input } from '../Input/Input.js';
+import { Listbox } from '../Listbox/Listbox.js';
 import { Dialog, DialogClose, DialogContent, DialogTrigger } from './Dialog.js';
 
 const meta = {
@@ -307,6 +308,21 @@ export const InitialFocus: Story = {
                 <Field label="Name">
                     <Input defaultValue="web-01 (production)" data-autofocus />
                 </Field>
+            </DialogContent>
+        </Dialog>
+    ),
+};
+
+/** The mark may sit on a component root (here a Listbox with a search field): its first field gets the focus */
+export const InitialFocusOnComponent: Story = {
+    name: 'Initial focus on a component',
+    render: () => (
+        <Dialog>
+            <DialogTrigger>
+                <Button variant="outline">Add member</Button>
+            </DialogTrigger>
+            <DialogContent title="Add member" size="sm">
+                <Listbox items={['Anna Muster', 'Jonas Becker', 'Lea Albrecht']} label="People" filter data-autofocus />
             </DialogContent>
         </Dialog>
     ),

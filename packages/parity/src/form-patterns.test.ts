@@ -368,3 +368,68 @@ describe.each(frameworks)('%s', (framework) => {
         await waitFor(() => expect(onComplete).toHaveBeenCalled());
     });
 });
+
+describe.each(frameworks)('%s useUnsavedChanges', (framework) => {
+    const forms = framework === 'vue' ? VueForm : ReactForm;
+    /** Forms side by side, each changed or not */
+    const mountForms = (dirty: boolean[]) => {
+        if (framework === 'vue') {
+            const Form = defineComponent({
+                props: { dirty: Boolean },
+                setup(props) {
+                    VueForm.useUnsavedChanges(() => props.dirty);
+                    return () => h('form');
+                },
+            });
+            return renderVue(
+                defineComponent({
+                    setup: () => () =>
+                        h(
+                            'div',
+                            dirty.map((value) => h(Form, { dirty: value }))
+                        ),
+                })
+            );
+        }
+        function Form({ dirty: value }: { dirty: boolean }) {
+            ReactForm.useUnsavedChanges(() => value);
+            return createElement('form');
+        }
+        return renderReact(
+            createElement('div', {}, ...dirty.map((value, index) => createElement(Form, { key: index, dirty: value })))
+        );
+    };
+    const unloadPrevented = () => {
+        const event = new Event('beforeunload', { cancelable: true });
+        window.dispatchEvent(event);
+        return event.defaultPrevented;
+    };
+
+    it('two changed forms ask once; cancel keeps the page; only the query changing does not ask', () => {
+        const confirm = vi.spyOn(window, 'confirm').mockReturnValue(false);
+        mountForms([true, true]);
+        expect(forms.unsavedChangesGuard({ path: '/settings' }, { path: '/profile' })).toBe(false);
+        expect(confirm).toHaveBeenCalledTimes(1);
+        expect(confirm).toHaveBeenCalledWith('You have unsaved changes. Leave this page anyway?');
+        // Same path, other query (Vue Router's path has no query)
+        expect(forms.unsavedChangesGuard({ path: '/profile' }, { path: '/profile' })).toBe(true);
+        expect(confirm).toHaveBeenCalledTimes(1);
+        confirm.mockReturnValue(true);
+        expect(forms.unsavedChangesGuard({ pathname: '/settings' }, { pathname: '/profile' })).toBe(true);
+        confirm.mockRestore();
+    });
+
+    it('without changes nothing asks; beforeunload only while a form is changed; unmounting unregisters', () => {
+        const confirm = vi.spyOn(window, 'confirm');
+        const clean = mountForms([false]);
+        expect(forms.unsavedChangesGuard({ path: '/a' }, { path: '/b' })).toBe(true);
+        expect(confirm).not.toHaveBeenCalled();
+        expect(unloadPrevented()).toBe(false);
+        clean.unmount();
+        const changed = mountForms([true]);
+        expect(unloadPrevented()).toBe(true);
+        changed.unmount();
+        expect(unloadPrevented()).toBe(false);
+        confirm.mockRestore();
+    });
+});

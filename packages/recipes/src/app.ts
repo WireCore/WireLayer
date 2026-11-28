@@ -139,7 +139,7 @@ export const tagsInput = tv({
         base: 'relative flex w-full flex-col',
         control: [
             'flex min-h-[var(--wc-control-h-md,2.5rem)] w-full flex-wrap items-center gap-1.5 rounded-[var(--wc-control-radius-md,0.5rem)] border border-line-strong bg-bg px-2 py-1.5 text-fg',
-            'transition-colors focus-within:border-primary motion-reduce:transition-none',
+            'transition-colors focus-within:border-primary focus-within:outline-2 focus-within:outline-solid focus-within:-outline-offset-3 focus-within:outline-primary motion-reduce:transition-none',
             'data-invalid:border-danger data-disabled:cursor-not-allowed data-disabled:border-line data-disabled:bg-bg-2',
         ],
         item: 'inline-flex',

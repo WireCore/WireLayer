@@ -160,6 +160,7 @@ export const it: Translations = {
     },
     splitButton: { more: 'Altre azioni' },
     confirmPopup: { confirm: 'Sì', cancel: 'Annulla' },
+    unsavedChanges: { leave: 'Ci sono modifiche non salvate. Uscire comunque dalla pagina?' },
     passwordStrength: {
         levels: ['Troppo corta', 'Debole', 'Media', 'Buona', 'Forte'],
         label: (level) => `Sicurezza della password: ${level}`,

@@ -152,6 +152,7 @@ export const fr: Translations = {
     },
     splitButton: { more: "Plus d'actions" },
     confirmPopup: { confirm: 'Oui', cancel: 'Annuler' },
+    unsavedChanges: { leave: 'Des modifications ne sont pas enregistrées. Quitter la page quand même\u202f?' },
     passwordStrength: {
         levels: ['Trop court', 'Faible', 'Moyen', 'Bon', 'Fort'],
         label: (level) => `Force du mot de passe\u00a0: ${level}`,

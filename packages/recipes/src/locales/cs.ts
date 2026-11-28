@@ -185,6 +185,7 @@ export const cs: Translations = {
     },
     splitButton: { more: 'Další akce' },
     confirmPopup: { confirm: 'Ano', cancel: 'Zrušit' },
+    unsavedChanges: { leave: 'Máte neuložené změny. Opravdu chcete stránku opustit?' },
     passwordStrength: {
         levels: ['Příliš krátké', 'Slabé', 'Průměrné', 'Dobré', 'Silné'],
         label: (level) => `Síla hesla: ${level}`,

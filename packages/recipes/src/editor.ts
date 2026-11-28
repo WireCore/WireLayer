@@ -51,7 +51,7 @@ export const editor = tv({
     slots: {
         base: [
             'flex w-full flex-col overflow-hidden rounded-lg border border-line-strong bg-bg transition-colors motion-reduce:transition-none',
-            'focus-within:border-primary data-invalid:border-danger data-disabled:bg-bg-2',
+            'focus-within:border-primary focus-within:outline-2 focus-within:outline-solid focus-within:-outline-offset-3 focus-within:outline-primary data-invalid:border-danger data-disabled:bg-bg-2',
         ],
         toolbar: 'flex flex-wrap items-center gap-0.5 border-b border-line p-1',
         // 32 × 32 px targets; aria-pressed shows the formatting at the cursor
@@ -84,7 +84,7 @@ export const editor = tv({
         uploading: 'pointer-events-none opacity-50 motion-safe:animate-pulse',
         /** HTML source mode */
         source: [
-            'block min-h-40 w-full resize-y border-0 bg-bg px-3.5 py-3 font-mono text-[13px] leading-relaxed text-fg outline-none',
+            'block min-h-40 w-full resize-y border-0 bg-bg px-3.5 py-3 font-mono text-[13px] leading-relaxed text-fg',
             'focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-fg',
         ],
         /** Bubble menu (text selected) and floating menu (empty line) */
@@ -145,7 +145,7 @@ export const codeHighlight = tv({
         language: 'ms-auto font-mono text-[10px] tracking-label text-muted uppercase',
         // Scrollable code: one tab stop so keyboard users can scroll it
         pre: [
-            'm-0 overflow-auto py-3 font-mono text-[13px] leading-relaxed outline-none',
+            'm-0 overflow-auto py-3 font-mono text-[13px] leading-relaxed',
             'focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-fg',
         ],
         code: 'grid min-w-max',
@@ -203,7 +203,7 @@ export const codeTabs = tv({
         ],
         tabIcon: 'size-3.5 shrink-0',
         actions: 'flex shrink-0 items-center self-center',
-        panel: 'outline-none focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-fg',
+        panel: 'focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-fg',
         /** The code block inside a tab has no frame of its own */
         panelCode: 'rounded-none border-0',
     },

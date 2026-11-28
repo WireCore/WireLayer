@@ -32,7 +32,7 @@ export const splitter = tv({
 export const scrollPanel = tv({
     slots: {
         base: 'relative overflow-hidden rounded-lg',
-        viewport: ['size-full rounded-[inherit] outline-none', focusRing],
+        viewport: ['size-full rounded-[inherit]', focusRing],
         content: 'min-w-full',
         scrollbar: [
             'flex touch-none p-0.5 select-none motion-safe:transition-opacity',
@@ -134,7 +134,7 @@ export const speedDial = tv({
         trigger: [
             'flex size-14 cursor-pointer items-center justify-center rounded-full bg-primary text-on-primary',
             'shadow-[0_10px_24px_-10px_rgba(0,0,0,.55)] hover:opacity-90',
-            'outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fg',
+            'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fg',
         ],
         triggerIcon: 'size-6 motion-safe:transition-transform data-[state=open]:rotate-45',
         content: 'z-50 flex flex-col items-end gap-2 outline-none motion-safe:data-[state=open]:animate-pop-in',

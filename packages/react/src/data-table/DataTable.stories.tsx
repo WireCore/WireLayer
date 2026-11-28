@@ -1926,3 +1926,54 @@ export const OptionalColumns: Story = {
         />
     ),
 };
+
+interface LicenceRow {
+    id: string;
+    name: string;
+    valid?: string;
+    children?: LicenceRow[];
+}
+const licenceRows: LicenceRow[] = [
+    {
+        id: 'anna',
+        name: 'Anna Muster – 2 licences',
+        children: [
+            { id: 'a1', name: 'Junior', valid: '2027-03-31' },
+            { id: 'a2', name: 'Referee', valid: '2026-12-31' },
+        ],
+    },
+    { id: 'jonas', name: 'Jonas Becker – 1 licence', children: [{ id: 'j1', name: 'Junior', valid: '2027-06-30' }] },
+];
+
+function TreeExportDemo() {
+    const [csv, setCsv] = useState('');
+    const [expanded, setExpanded] = useState(['anna', 'jonas']);
+    return (
+        <div className="flex max-w-[560px] flex-col gap-3">
+            <DataTable<LicenceRow>
+                ref={(handle: DataTableHandle | null) => {
+                    if (handle && !csv) setCsv(handle.generateCsv({ bom: false, separator: ';' }));
+                }}
+                features={features}
+                data={licenceRows}
+                columns={[
+                    { id: 'name', header: 'Licence' },
+                    { id: 'valid', header: 'Valid until' },
+                ]}
+                caption="Licences"
+                getRowId={(row) => row.id}
+                getSubRows={(row) => row.children}
+                expanded={expanded}
+                onExpandedChange={setExpanded}
+                exportFilename="licences"
+                exportRows="leaves"
+                className={card}
+            />
+            <p className="text-xs text-muted">CSV export</p>
+            <pre className="rounded-lg bg-bg-2 p-3 font-mono text-xs">{csv}</pre>
+        </div>
+    );
+}
+
+/** `exportRows="leaves"`: the export of a TreeTable without the parent rows that only sum up their children */
+export const TreeExport: Story = { name: 'Tree export', render: () => <TreeExportDemo /> };

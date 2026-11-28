@@ -142,6 +142,7 @@ export const nl: Translations = {
     },
     splitButton: { more: 'Meer acties' },
     confirmPopup: { confirm: 'Ja', cancel: 'Annuleren' },
+    unsavedChanges: { leave: 'Er zijn niet-opgeslagen wijzigingen. Pagina toch verlaten?' },
     passwordStrength: {
         levels: ['Te kort', 'Zwak', 'Redelijk', 'Goed', 'Sterk'],
         label: (level) => `Wachtwoordsterkte: ${level}`,

@@ -360,6 +360,16 @@ describe('focusFirst and autoselectElement', () => {
         expect([(b as HTMLInputElement).selectionStart, (b as HTMLInputElement).selectionEnd]).toEqual([0, 3]);
         expect(autoselectElement(mount('<div><input></div>'))).toBeUndefined();
     });
+
+    it('autoselectElement: data-autofocus also on a wrapper, without selecting', () => {
+        const box = mount(
+            '<div><button>Close</button><div data-autofocus><input aria-label="Search" value="abc"></div></div>'
+        );
+        const search = autoselectElement(box)! as HTMLInputElement;
+        expect(search).toBe(box.querySelector('[aria-label=Search]'));
+        search.focus();
+        expect(search.selectionStart).toBe(search.selectionEnd);
+    });
 });
 
 describe('resolveTokens and watchTokens', () => {
