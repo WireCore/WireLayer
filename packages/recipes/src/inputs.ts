@@ -648,7 +648,7 @@ export const knob = tv({
         label: 'text-[13px] font-medium text-fg',
         // The dial itself is the slider (role="slider") – focus ring around it
         control: [
-            'relative size-28 cursor-grab touch-none rounded-full outline-none select-none',
+            'relative size-28 cursor-grab touch-none rounded-full select-none',
             'data-dragging:cursor-grabbing data-disabled:cursor-not-allowed data-disabled:opacity-40',
             'focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-fg',
         ],
@@ -684,7 +684,7 @@ export const colorPicker = tv({
         base: 'relative flex w-full flex-col',
         control: [...box, 'h-[var(--wc-control-h-md,2.5rem)]'],
         trigger: [
-            'flex min-w-0 flex-1 cursor-pointer items-center gap-2.5 px-3 text-start text-[length:var(--wc-control-text-md,15px)] text-fg outline-none',
+            'flex min-w-0 flex-1 cursor-pointer items-center gap-2.5 px-3 text-start text-[length:var(--wc-control-text-md,15px)] text-fg',
             'focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-fg',
         ],
         swatch: 'size-5 shrink-0 rounded-md shadow-[inset_0_0_0_1px_rgba(0,0,0,.15)]',
@@ -743,7 +743,7 @@ export const colorPicker = tv({
         ],
         /** ColorInput: the swatch button before the text field */
         inputTrigger: [
-            'flex w-10 shrink-0 cursor-pointer items-center justify-center border-e border-line-strong outline-none',
+            'flex w-10 shrink-0 cursor-pointer items-center justify-center border-e border-line-strong',
             'focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-fg',
             'data-disabled:cursor-not-allowed',
         ],

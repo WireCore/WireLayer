@@ -58,7 +58,7 @@ export const pdfViewer = tv({
         /** Positioned frame for the scrolling page area (pdf.js needs an absolutely positioned container) */
         viewport: 'relative min-w-0 flex-1 bg-bg-2',
         container: [
-            'absolute inset-0 overflow-auto outline-none',
+            'absolute inset-0 overflow-auto',
             'focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-fg',
         ],
         /** Loading, password and error state over the page area */

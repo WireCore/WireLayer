@@ -12,7 +12,7 @@ export const chatMessages = tv({
     slots: {
         base: 'relative flex min-h-0 flex-col',
         viewport: [
-            'flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto p-4 outline-none',
+            'flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto p-4',
             'focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-fg',
         ],
         separator: [

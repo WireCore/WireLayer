@@ -35,7 +35,7 @@ export const menu = tv({
         /** Filter field at the top of long menus (searchable) */
         search: 'mb-1 flex shrink-0 border-b border-line p-1 pb-2',
         searchInput: [
-            'h-8 w-full min-w-0 rounded-md border border-line-strong bg-bg px-2.5 text-sm text-fg outline-none placeholder:text-muted',
+            'h-8 w-full min-w-0 rounded-md border border-line-strong bg-bg px-2.5 text-sm text-fg placeholder:text-muted',
             'focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-fg',
         ],
         empty: 'px-2.5 py-2 text-sm text-muted',
@@ -348,7 +348,7 @@ export const menubar = tv({
         base: 'flex flex-wrap items-center gap-0.5 rounded-lg border border-line bg-card p-1',
         item: [
             'flex h-8 cursor-pointer items-center rounded-md px-3 text-sm font-medium text-fg hover:bg-line',
-            'data-[state=open]:bg-line outline-none focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-fg',
+            'data-[state=open]:bg-line focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-fg',
         ],
         /** Around the bar when there is content before/after it or a menu button for small screens */
         root: 'flex items-center gap-2',

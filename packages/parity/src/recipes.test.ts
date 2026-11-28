@@ -382,3 +382,26 @@ describe('clear buttons of the text controls', () => {
         expect(tree().search().split(' ')).toContain('[&::-webkit-search-cancel-button]:cursor-pointer');
     });
 });
+
+describe('focus rings', () => {
+    // Tailwind v4: outline-none sets --tw-outline-style: none, a focus outline-<n> takes that style – invisible
+    it('no focus outline width next to outline-none without an outline style', async () => {
+        const recipes = await import('@wirecore/wirelayer-recipes');
+        const hidden: string[] = [];
+        for (const [name, recipe] of Object.entries(recipes)) {
+            if (typeof recipe !== 'function' || !('variants' in recipe)) continue;
+            const result = (recipe as () => unknown)();
+            const slots = typeof result === 'string' ? { base: () => result } : (result as Record<string, unknown>);
+            for (const [slot, part] of Object.entries(slots)) {
+                if (typeof part !== 'function') continue;
+                const classes = String((part as () => string)()).split(/\s+/);
+                if (!classes.includes('outline-none')) continue;
+                for (const ring of classes.filter((item) => /:outline-\d+$/.test(item))) {
+                    const variant = ring.slice(0, ring.lastIndexOf(':') + 1);
+                    if (!classes.includes(`${variant}outline-solid`)) hidden.push(`${name}.${slot}: ${ring}`);
+                }
+            }
+        }
+        expect(hidden.join('\n')).toBe('');
+    });
+});

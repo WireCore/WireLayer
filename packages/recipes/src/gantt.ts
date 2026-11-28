@@ -392,9 +392,7 @@ export const gantt = tv({
             'sticky top-0 z-[1] h-16 border-b border-line bg-card px-3 pb-2 text-start align-bottom whitespace-nowrap',
             'font-mono text-[10px] font-normal tracking-label text-muted uppercase',
         ],
-        row: [
-            'h-10 outline-none hover:bg-bg-2 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-fg',
-        ],
+        row: ['h-10 hover:bg-bg-2 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-fg'],
         cell: 'border-b border-line px-3 whitespace-nowrap text-muted tabular-nums',
         nameCell: 'max-w-72 border-b border-line pe-3 font-medium text-fg',
         name: 'flex min-w-0 items-center gap-1',

@@ -154,7 +154,7 @@ export const textareaParts = tv({
 export const formErrorSummary = tv({
     slots: {
         base: [
-            'flex flex-col gap-2 rounded-xl border-2 border-danger bg-card p-4 text-fg outline-none',
+            'flex flex-col gap-2 rounded-xl border-2 border-danger bg-card p-4 text-fg',
             'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fg',
         ],
         title: 'flex items-center gap-2 text-sm font-semibold',

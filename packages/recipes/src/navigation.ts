@@ -355,7 +355,7 @@ export const sidebarNav = tv({
         link: [
             'flex h-9 w-full cursor-pointer items-center gap-2.5 rounded-md pe-2.5 ps-[calc(var(--depth)*16px+10px)] text-start text-sm text-fg no-underline hover:bg-line',
             'aria-[current=page]:bg-line aria-[current=page]:font-semibold',
-            'outline-none focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-fg',
+            'focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-fg',
             'forced-colors:aria-[current=page]:border forced-colors:aria-[current=page]:border-[Highlight]',
         ],
         icon: 'size-4 shrink-0 text-muted',
@@ -411,7 +411,7 @@ export const stepper = tv({
         item: 'flex flex-1 items-center gap-2 last:flex-none',
         trigger: [
             'flex cursor-pointer items-center gap-2.5 rounded-md p-1 text-start',
-            'outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fg disabled:cursor-not-allowed',
+            'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fg disabled:cursor-not-allowed',
         ],
         indicator: [
             'flex size-7 shrink-0 items-center justify-center rounded-full border border-line-strong font-mono text-xs text-muted',
@@ -424,7 +424,7 @@ export const stepper = tv({
         label: 'text-[13px] font-medium whitespace-nowrap text-fg',
         description: 'text-xs whitespace-nowrap text-muted',
         separator: 'h-px min-w-6 flex-1 bg-line-strong data-complete:bg-primary',
-        content: 'outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fg',
+        content: 'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fg',
         actions: 'flex items-center justify-between gap-2',
         /** A step that is still loading (StepperItem `loading`) */
         spinner: 'size-3.5 motion-safe:animate-spin',
