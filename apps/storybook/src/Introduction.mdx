@@ -386,6 +386,25 @@ const columns: DataTableColumn<Person>[] = [
 
 The React Native DataTable has no column menu: a column with `hidden` is not shown there.
 
+## Forms: unsaved changes
+
+`useUnsavedChanges(isDirty)` from `@wirecore/wirelayer-vue/form` (React: the hook of the same name from
+`@wirecore/wirelayer-react/form`) asks before the page is left with unsaved input. Reload, closing the tab or another
+address get the browser's own question; route changes ask once with `confirm()` – put `unsavedChangesGuard` into the
+router. All forms of the page share one list, so two changed forms still ask once; a form unregisters when it unmounts.
+Only the query or the hash changing does not ask. The text comes from the WireLayer translations (`unsavedChanges.leave`),
+`{ message }` overrides it; `confirmLeave()` asks the same for own links and buttons.
+
+```ts
+// Each settings form (TanStack Form): changed while the values differ from the defaults
+useUnsavedChanges(() => !form.state.isDefaultValue);
+// After a successful save: the saved values become the defaults again
+form.reset(values);
+
+// Once, where the router is created (Vue Router; React Router: useBlocker with the same guard)
+router.beforeEach(unsavedChangesGuard);
+```
+
 ## AI assistants (MCP, llms.txt)
 
 So that Claude, Cursor and others use the components correctly, the API is available as text and as an MCP server:

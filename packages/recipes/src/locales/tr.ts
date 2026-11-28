@@ -134,6 +134,7 @@ export const tr: Translations = {
     },
     splitButton: { more: 'Diğer işlemler' },
     confirmPopup: { confirm: 'Evet', cancel: 'İptal' },
+    unsavedChanges: { leave: 'Kaydedilmemiş değişiklikler var. Yine de sayfadan çıkılsın mı?' },
     passwordStrength: {
         levels: ['Çok kısa', 'Zayıf', 'Orta', 'İyi', 'Güçlü'],
         label: (level) => `Şifre gücü: ${level}`,

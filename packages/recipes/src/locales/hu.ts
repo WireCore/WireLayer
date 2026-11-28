@@ -177,6 +177,7 @@ export const hu: Translations = {
     },
     splitButton: { more: 'További műveletek' },
     confirmPopup: { confirm: 'Igen', cancel: 'Mégse' },
+    unsavedChanges: { leave: 'Nem mentett módosítások vannak. Mégis elhagyja az oldalt?' },
     passwordStrength: {
         levels: ['Túl rövid', 'Gyenge', 'Közepes', 'Jó', 'Erős'],
         label: (level) => `Jelszó erőssége: ${level}`,

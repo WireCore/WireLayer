@@ -157,6 +157,8 @@ const en: Translations = {
     },
     splitButton: { more: 'More actions' },
     confirmPopup: { confirm: 'Yes', cancel: 'Cancel' },
+    /** Asked before leaving a page with unsaved form input (useUnsavedChanges) */
+    unsavedChanges: { leave: 'You have unsaved changes. Leave this page anyway?' },
     passwordStrength: {
         levels: ['Too short', 'Weak', 'Fair', 'Good', 'Strong'],
         label: (level) => `Password strength: ${level}`,

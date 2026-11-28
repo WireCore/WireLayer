@@ -148,6 +148,8 @@ export const de = {
     },
     splitButton: { more: 'Weitere Aktionen' },
     confirmPopup: { confirm: 'Ja', cancel: 'Abbrechen' },
+    /** Asked before leaving a page with unsaved form input (useUnsavedChanges) */
+    unsavedChanges: { leave: 'Es gibt ungespeicherte Änderungen. Seite trotzdem verlassen?' },
     passwordStrength: {
         levels: ['Zu kurz', 'Schwach', 'Mittel', 'Gut', 'Stark'],
         label: (level: string) => `Passwortstärke: ${level}`,

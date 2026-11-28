@@ -173,6 +173,7 @@ export const lv: Translations = {
     },
     splitButton: { more: 'Citas darbības' },
     confirmPopup: { confirm: 'Jā', cancel: 'Atcelt' },
+    unsavedChanges: { leave: 'Ir nesaglabātas izmaiņas. Tomēr pamest lapu?' },
     passwordStrength: {
         levels: ['Pārāk īsa', 'Vāja', 'Vidēja', 'Laba', 'Stipra'],
         label: (level) => `Paroles stiprums: ${level}`,

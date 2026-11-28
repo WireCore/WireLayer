@@ -1172,3 +1172,4 @@ export { ganttBarPercent, ganttExtent, stepProgress } from './gantt.js';
 export { commandGroups, filterCommands, type CommandSearchItem } from './utils.js';
 export { FLIP_KEY_ATTRIBUTE, flipRelease, flipSync } from './flip.js';
 export { SUBMENU_GUTTER } from './navigation.js';
+export { confirmLeave, registerUnsavedChanges, unsavedChangesGuard, type UnsavedChangesRoute } from './unsaved.js';

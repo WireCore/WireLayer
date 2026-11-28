@@ -6,6 +6,9 @@ export { default as FormField, type FormFieldProps } from './FormField.vue';
 export { default as FormList, default as FieldArray, type FormListProps } from './FormList.vue';
 export { default as KeyValueEditor, type KeyValueEditorProps, type KeyValuePair } from './KeyValueEditor.vue';
 export { useValidators, validateFields } from './validators.js';
+export { useUnsavedChanges, type UnsavedChangesOptions } from './unsaved.js';
+/** One question before leaving a page with unsaved input – the guard goes into the router */
+export { confirmLeave, unsavedChangesGuard, type UnsavedChangesRoute } from '@wirecore/wirelayer-recipes';
 /** Validators with translated messages – also Standard Schemas, so TanStack Form takes them directly */
 export {
     combineValidators,

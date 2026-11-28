@@ -151,6 +151,7 @@ export const es: Translations = {
     },
     splitButton: { more: 'Más acciones' },
     confirmPopup: { confirm: 'Sí', cancel: 'Cancelar' },
+    unsavedChanges: { leave: 'Hay cambios sin guardar. ¿Salir de la página de todos modos?' },
     passwordStrength: {
         levels: ['Demasiado corta', 'Débil', 'Aceptable', 'Buena', 'Segura'],
         label: (level) => `Seguridad de la contraseña: ${level}`,

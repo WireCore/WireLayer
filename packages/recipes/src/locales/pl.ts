@@ -192,6 +192,7 @@ export const pl: Translations = {
     },
     splitButton: { more: 'Więcej akcji' },
     confirmPopup: { confirm: 'Tak', cancel: 'Anuluj' },
+    unsavedChanges: { leave: 'Masz niezapisane zmiany. Czy mimo to opuścić stronę?' },
     passwordStrength: {
         levels: ['Za krótkie', 'Słabe', 'Średnie', 'Dobre', 'Silne'],
         label: (level) => `Siła hasła: ${level}`,
